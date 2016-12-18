@@ -4,6 +4,7 @@ var winston = require('winston'),
   async = require('async'),
   fs = require('fs'),
   gm = require('gm'),
+  YAML = require('yamljs'),
   imageMagick = gm.subClass({ imageMagick: true });
 
 
@@ -40,6 +41,20 @@ function tryParseJSON(jsonString) {
   return false;
 }
 
+function tryParseYAML(yamlString) {
+  winston.info(' ---> validating YAML');
+  try {
+    var o = YAML.parse(yamlString)
+    if (o && typeof o === 'object' && o !== null) {
+        console.log('YAML', o)
+      return o;
+    }
+  }
+  catch (e) { }
+
+  return false;
+}
+
 
 exports.postCloudFormationTemplate = function (req, res) {
   winston.info('Uploading posted cloudFormationTemplate');
@@ -54,17 +69,25 @@ exports.postCloudFormationTemplate = function (req, res) {
     // validate template
     // http://docs.aws.amazon.com/cli/latest/reference/cloudformation/validate-template.html
 
-  var templateJson = readFileSync(f.path);
+  var template = readFileSync(f.path);
 
-  if(tryParseJSON(templateJson)) {
+  if (tryParseJSON(template)) {
     winston.info('JSON is valid: ' + f.path);
     deleteFile(f.path, function (err) {
       if (err) {
         winston.log('error', 'deleteFile Error: ' + err);
       }
-      res.send(templateJson);
+      res.send(template);
     });
-  } else {
+} else if (tryParseYAML(template)) {
+  winston.info('YAML is valid: ' + f.path);
+  deleteFile(f.path, function (err) {
+    if (err) {
+      winston.log('error', 'deleteFile Error: ' + err);
+    }
+    res.send(YAML.parse(template));
+  });
+} else {
     winston.log('error', 'invalid JSON: ' + f.path);
     deleteFile(f.path, function (err) {
       if (err) {

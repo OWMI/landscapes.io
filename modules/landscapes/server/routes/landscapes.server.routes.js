@@ -100,6 +100,9 @@ module.exports = function (app) {
     .delete(cloudaccounts.delete);
 
   // App Settings
+  app.route('/api/appSettings/convertToYAML').all(landscapesPolicy.isReadAllowed)
+    .post(appSettings.convertToYAML);
+
   app.route('/api/appSettings').all(landscapesPolicy.isAdminAllowed)
     .get(appSettings.retrieve);
 

@@ -5,9 +5,9 @@
     .module('landscapes')
     .controller('LandscapesController', LandscapesController);
 
-  LandscapesController.$inject = ['$scope', '$state', 'Upload', 'landscapesResolve', 'ValidationService', 'Authentication'];
+  LandscapesController.$inject = ['$scope', '$state', 'Upload', 'landscapesResolve', 'ValidationService', 'Authentication', 'AppSettingsService'];
 
-  function LandscapesController($scope, $state, Upload, landscape, ValidationService, Authentication) {
+  function LandscapesController($scope, $state, Upload, landscape, ValidationService, Authentication, AppSettingsService) {
 
     console.log('LandscapesController')
 
@@ -24,6 +24,16 @@
     vm.templateSelected = false;
 
     vm.imgSrc = vm.landscape.imageUri;
+
+    vm.selectedFormat = 'JSON'
+    vm.formatOptions = [ 'JSON', 'YAML' ]
+    vm.onFormatChange = function() {
+        if (vm.selectedFormat === 'YAML') {
+            return AppSettingsService.convertToYAML(vm.landscape.cloudFormationTemplate).then(res => {
+                vm.formattedYAML = res.data
+            })
+        }
+    }
 
     vm.toggleUploadNewImage = function () {
       vm.showUploadNewImage = !vm.showUploadNewImage;
@@ -94,8 +104,6 @@
             vm.form['template'].$setValidity('json', true);
             vm.form.template.$valid = true;
             vm.form.template.$invalid = false;
-
-
 
             console.log(templateDescription);
             console.log(vm.landscape.description);

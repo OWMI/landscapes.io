@@ -16,7 +16,8 @@
 var winston = require('winston'),
   mongoose = require('mongoose'),
   AppSettings = mongoose.model('AppSettings'),
-  Group = mongoose.model('Group');
+  Group = mongoose.model('Group'),
+  YAML = require('yamljs')
 
 
 // GET /api/appSettings
@@ -67,6 +68,12 @@ exports.create = function (req, res, next) {
   });
 };
 
+// POST /api/appSettings/convertToYAML
+// Convert JSON to YAML
+exports.convertToYAML = function(req, res) {
+    winston.info('---> Converting JSON to YAML')
+    res.send(YAML.stringify(JSON.parse(req.body.json), 4))
+}
 
 // PUT /api/groups/<id>
 exports.update = function(req, res, next) {

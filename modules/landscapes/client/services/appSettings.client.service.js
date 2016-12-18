@@ -15,7 +15,7 @@
 'use strict';
 
 angular.module('landscapes')
-    .factory('AppSettingsService', function AppSettingsService($location, $rootScope, AppSettings) {
+    .factory('AppSettingsService', function AppSettingsService($location, $rootScope, $http, AppSettings) {
       return {
         create: function(group, callback) {
           var cb = callback || angular.noop;
@@ -66,6 +66,16 @@ angular.module('landscapes')
                       return cb(err);
                     }
                 ).$promise;
+        },
+        convertToYAML: function (json) {
+            console.log('calling')
+            return $http.post('/api/appSettings/convertToYAML', { json: json }).then(function (response) {
+                if (response.status === 200) {
+                    return response
+                }
+            }).catch(function (err) {
+                console.log(err)
+            })
         }
       };
     });

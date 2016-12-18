@@ -79,8 +79,8 @@
             </button>
           </div>
           <div class="panel-body">
-            
-            <div ng-show="vm.showUploadNewImage">              
+
+            <div ng-show="vm.showUploadNewImage">
               <div image-upload></div>
             </div>
 
@@ -137,12 +137,17 @@
                    <input type="file" ngf-select="vm.onFileSelect($files, vm.form)" >
                  </div>
                </div>
+               <select ng-show="vm.templateSelected" name="singleSelect" style="margin-bottom: 10px;" class="pull-right" ng-model="vm.selectedFormat" ng-change="vm.onFormatChange()">
+                   <option ng-repeat="format in vm.formatOptions" value="{{format}}">{{format}}</option>
+               </select>
+               <textarea ng-if="vm.selectedFormat === 'YAML'" class="form-control awsTemplate" ng-model="vm.formattedYAML" msd-elastic readonly></textarea>
                <textarea class="form-control awsTemplate" name="template" ng-class="{'redTextarea': vm.form.template.$invalid }"
                       ng-file-drop="vm.onFileSelect($files, vm.form)"
                       ng-file-drag-over-class="dragover"
                       ng-model="vm.landscape.cloudFormationTemplate"
                       ng-show="vm.templateSelected"
-                         msd-elastic
+                      ng-if="vm.selectedFormat === 'JSON'"
+                      msd-elastic
                       required >
                </textarea>
             </div>

@@ -24,7 +24,11 @@
                 <uib-tab heading="Template">
                   <div class="panel panel-default" style="border-top: 0; border-radius: 0 0 7px 7px;">
                     <div class="panel-body">
-                      <textarea class="form-control awsTemplate" ng-model="vm.landscape.cloudFormationTemplate" msd-elastic readonly></textarea>
+                        <select name="singleSelect" style="margin-bottom: 10px;" class="pull-right" ng-model="selectedFormat" ng-change="onFormatChange()">
+                            <option ng-repeat="format in formatOptions" value="{{format}}">{{format}}</option>
+                        </select>
+                        <textarea ng-if="selectedFormat === 'JSON'" class="form-control awsTemplate" ng-model="vm.landscape.cloudFormationTemplate" msd-elastic readonly></textarea>
+                        <textarea ng-if="selectedFormat === 'YAML'" class="form-control awsTemplate" ng-model="formattedYAML" msd-elastic readonly></textarea>
                     </div>
                   </div>
                 </uib-tab>
