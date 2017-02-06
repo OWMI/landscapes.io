@@ -62,6 +62,13 @@ import * as viewsActions from '../../redux/modules/views'
        }
      }
   `
+  const deleteGroupMutation = gql `
+      mutation deleteGroup($group: GroupInput!) {
+          deleteGroup(group: $group) {
+              name
+          }
+      }
+  `
  // 1- add queries:
  const GroupsWithQuery = graphql(GroupQuery, {
      props: ({ data: { loading, groups, refetch } }) => ({
@@ -84,9 +91,9 @@ import * as viewsActions from '../../redux/modules/views'
      })
    }
  )
- (
-   graphql(editGroupMutation, {name: 'EditGroupWithMutation'})
- (EditGroup))))
+ (graphql(deleteGroupMutation, {name: 'DeleteGroupMutation'})
+ (graphql(editGroupMutation, {name: 'EditGroupWithMutation'})
+ (EditGroup)))))
 
 /* -----------------------------------------
   Redux

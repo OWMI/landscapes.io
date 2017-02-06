@@ -148,7 +148,6 @@ class CreateGroup extends Component {
     }
 
     render() {
-
         let self = this
         const { animated, viewEntersAnim } = this.state
         const { loading, groups, landscapes, users } = this.props
@@ -167,7 +166,7 @@ class CreateGroup extends Component {
               <Row className={cx({'screen-width': true, 'animatedViews': animated, 'view-enter': viewEntersAnim})} style={{
                   justifyContent: 'space-between'
               }}>
-                  <h4>Edit Group</h4><br/>
+                  <h4>Create Group</h4><br/>
                     <Snackbar
                       open={this.state.successOpen}
                       message="Group successfully saved."
