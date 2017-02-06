@@ -335,6 +335,9 @@ module.exports.init = function (db) {
     // Initialize express app
     let app = express().use('*', cors())
 
+    // Initialize pre-flight requests with cors
+    app.options('*', cors())
+
     // Initialize local variables
     this.initLocalVariables(app)
 
