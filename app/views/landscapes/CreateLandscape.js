@@ -190,7 +190,7 @@ class CreateLandscape extends Component {
                 console.log('there was an error sending the SECOND query', error)
             })
         }).catch((error) => {
-            console.log('there was an error sending the query', error)
+            console.error('graphql error', error)
         })
     }
 

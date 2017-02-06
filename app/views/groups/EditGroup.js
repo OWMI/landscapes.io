@@ -648,7 +648,7 @@ class EditGroup extends Component {
         }).catch((error) => {
             this.setState({failOpen: true})
             this.setState({loading: false})
-            console.log('there was an error sending the query', error)
+            console.error('graphql error', error)
         })
 
     }

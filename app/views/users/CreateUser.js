@@ -324,7 +324,7 @@ class CreateUser extends Component {
               this.setState({
                 failOpen: true
               })
-                console.log('there was an error sending the query', error)
+                console.error('graphql error', error)
             })
 
         }

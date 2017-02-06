@@ -5,7 +5,7 @@ import { Row, Col } from 'react-flexbox-grid'
 import React, { Component, PropTypes } from 'react'
 import shallowCompare from 'react-addons-shallow-compare'
 import { IoEdit, IoIosCloudUploadOutline, IoIosPlusEmpty } from 'react-icons/lib/io'
-import { Paper , CardHeader, CardActions, CardText, FlatButton } from 'material-ui'
+import { CardHeader, CardActions, CardText, FlatButton, Paper } from 'material-ui'
 
 import './landscapes.style.scss'
 import { Loader } from '../../components'

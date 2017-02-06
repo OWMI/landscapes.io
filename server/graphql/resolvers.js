@@ -147,7 +147,7 @@ const resolveFunctions = {
                     console.log('error', err)
                     return err
                 } else {
-                    console.log(' ---> Account deleted: ', doc)
+                    console.log(' ---> Landscape deleted: ', doc)
                     return doc
                 }
             })

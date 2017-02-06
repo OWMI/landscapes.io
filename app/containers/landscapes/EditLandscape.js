@@ -25,25 +25,35 @@ import * as viewsActions from '../../redux/modules/views'
      }
   `
 
- // 1- add queries:
+ // queries:
  const EditLandscapeWithQuery = graphql(LandscapeQuery, {
      props: ({ data: { loading, landscapes, refetch } }) => ({
          landscapes,
          loading,
-         refetchLandscapes: refetch
+         refetch
      })
  })
 
- const updateLandscapeMutation = gql `
+ const UpdateLandscapeMutation = gql `
      mutation updateLandscape($landscape: LandscapeInput!) {
          updateLandscape(landscape: $landscape) {
              name
          }
      }
  `
+
+ const DeleteLandscapeMutation = gql `
+     mutation deleteLandscapeMutation($landscape: LandscapeInput!) {
+         deleteLandscape(landscape: $landscape) {
+             _id
+         }
+     }
+ `
+
  const composedRequest = compose(
      EditLandscapeWithQuery,
-     graphql(updateLandscapeMutation)
+     graphql(UpdateLandscapeMutation, { name: 'updateLandscape' }),
+     graphql(DeleteLandscapeMutation, { name: 'deleteLandscape' })
  )(EditLandscape)
 
 /* -----------------------------------------

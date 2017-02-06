@@ -77,6 +77,7 @@ const Query = `
         version: String
         imageUri: String
         img: String
+        createdAt: String
         infoLink: String
         infoLinkText: String
         description: String

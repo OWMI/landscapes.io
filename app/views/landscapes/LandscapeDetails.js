@@ -302,7 +302,7 @@ class LandscapeDetails extends Component {
             })
             router.push({ pathname: `/landscape/${params.id}` })
         }).catch(error => {
-            console.log('there was an error sending the query', error)
+            console.error('graphql error', error)
         })
     }
 

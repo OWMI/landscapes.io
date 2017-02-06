@@ -130,7 +130,7 @@ class Accounts extends Component {
             console.log('deleted', data)
             router.push({ pathname: '/accounts' })
         }).catch((error) => {
-            console.log('there was an error sending the query', error)
+            console.error('graphql error', error)
         })
     }
 }

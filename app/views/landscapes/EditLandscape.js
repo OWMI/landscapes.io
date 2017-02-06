@@ -7,7 +7,7 @@ import { IoCube } from 'react-icons/lib/io'
 import IconButton from 'material-ui/IconButton'
 import shallowCompare from 'react-addons-shallow-compare'
 import UploadIcon from 'material-ui/svg-icons/file/file-upload'
-import { Paper, FlatButton, RaisedButton, Checkbox, TextField } from 'material-ui'
+import { Checkbox, Dialog, FlatButton, Paper, RaisedButton, TextField } from 'material-ui'
 
 import { Loader } from '../../components'
 
@@ -15,7 +15,8 @@ class EditLandscape extends Component {
 
     state = {
         animated: true,
-        viewEntersAnim: true
+        viewEntersAnim: true,
+        showDeleteDialog: false
     }
 
     componentDidMount() {
@@ -35,7 +36,7 @@ class EditLandscape extends Component {
     render() {
 
         let self = this
-        const { animated, viewEntersAnim } = this.state
+        const { animated, showDeleteDialog, viewEntersAnim } = this.state
         const { loading, landscapes, params } = this.props
         const currentLandscape = landscapes.find(ls => { return ls._id === params.id })
 
@@ -55,9 +56,22 @@ class EditLandscape extends Component {
                             <h4>Edit Landscape</h4>
                         </Col>
                         <Col xs={8}>
-                            <RaisedButton label='Save' onClick={this.handlesUpdateClick}
+                            <RaisedButton label='Save' onTouchTap={this.handlesUpdateClick}
                                 style={{ float: 'right', margin: '30px 0px' }}
                                 labelStyle={{ fontSize: '11px' }}/>
+                            <RaisedButton label='Delete' onTouchTap={() => { this.setState({ showDeleteDialog: !showDeleteDialog }) }}
+                                style={{ float: 'right', margin: '30px 0px' }}
+                                labelStyle={{ fontSize: '11px' }}/>
+
+                            <Dialog title='Delete Landscape' modal={false} open={showDeleteDialog}
+                                onRequestClose={() => { this.setState({ showDeleteDialog: !showDeleteDialog }) }}
+                                actions={[
+                                    <FlatButton label='Cancel' primary={true} onTouchTap={() => { this.setState({ showDeleteDialog: !showDeleteDialog }) }}/>,
+                                    <FlatButton label='Delete' primary={true} onTouchTap={this.handlesDeleteLandscapeClick.bind(this, currentLandscape)}/>
+                                ]}>
+                                Are you sure you want to delete {currentLandscape.name}?
+                            </Dialog>
+
                         </Col>
                     </Row>
                     <Paper zDepth={1} rounded={false}>
@@ -151,7 +165,7 @@ class EditLandscape extends Component {
         event.preventDefault()
         this.setState({loading: true})
 
-        const { mutate, params, landscapes } = this.props
+        const { landscapes, mutate, params, refetch } = this.props
         const { router } = this.context
         const currentLandscape = landscapes.find(ls => { return ls._id === params.id })
 
@@ -167,22 +181,37 @@ class EditLandscape extends Component {
 
         mutate({
             variables: { landscape: landscapeToUpdate }
-         }).then(({ data }) => {
-            console.log('landscape updated', data)
-            this.props.refetchLandscapes({}).then(({ data }) =>{
-              console.log('got data', data);
-              this.setState({
+        }).then(({ data }) => {
+            console.log('updated', data)
+            return refetch()
+        }).then(({ data }) => {
+            this.setState({
                 successOpen: true,
                 loading: false
-              })
-              router.push({ pathname: '/landscapes' })
-            }).catch((error) => {
-              this.setState({loading: false})
-                console.log('there was an error sending the SECOND query', error)
             })
+            router.push({ pathname: '/landscapes' })
         }).catch((error) => {
-            this.setState({loading: false})
-            console.log('there was an error sending the query', error)
+            this.setState({ loading: false })
+            console.error('graphql error', error)
+        })
+    }
+
+    handlesDeleteLandscapeClick = (landscape, event) => {
+        event.preventDefault()
+        const { router } = this.context
+        const { deleteLandscape, refetch } = this.props
+        const { showDeleteDialog } = this.state
+
+        this.setState({ showDeleteDialog: !showDeleteDialog })
+
+        deleteLandscape({
+            variables: { landscape }
+        }).then(({ data }) => {
+            console.log('deleted', data)
+            router.push({ pathname: `/landscapes` })
+            return refetch()
+        }).catch((error) => {
+            console.error('graphql error', error)
         })
     }
 
