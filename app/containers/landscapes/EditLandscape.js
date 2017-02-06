@@ -61,7 +61,10 @@ import * as viewsActions from '../../redux/modules/views'
  ------------------------------------------*/
 
 const mapStateToProps = state => {
-    return { currentView: state.views.currentView }
+    return {
+        currentView: state.views.currentView,
+        activeLandscape: state.landscapes.activeLandscape
+    }
 }
 
 const mapDispatchToProps = (dispatch) => {

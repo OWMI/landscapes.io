@@ -1,3 +1,4 @@
+import { forIn } from 'lodash'
 import React, { Component, PropTypes } from 'react'
 import axios from 'axios'
 import cx from 'classnames'
@@ -35,10 +36,21 @@ class EditLandscape extends Component {
 
     render() {
 
-        let self = this
         const { animated, showDeleteDialog, viewEntersAnim } = this.state
-        const { loading, landscapes, params } = this.props
-        const currentLandscape = landscapes.find(ls => { return ls._id === params.id })
+        const { activeLandscape, loading, landscapes, params } = this.props
+        let disableDelete = false,
+            self = this,
+            currentLandscape = activeLandscape
+
+        // for direct request
+        if (activeLandscape && activeLandscape._id !== params.id)
+            currentLandscape = landscapes.find(ls => { return ls._id === params.id })
+
+        // set disableDelete value
+        forIn(currentLandscape.status, (value, key) => {
+            if (value > 0)
+                disableDelete = true
+        })
 
         if (loading || this.state.loading) {
             return (
@@ -60,6 +72,7 @@ class EditLandscape extends Component {
                                 style={{ float: 'right', margin: '30px 0px' }}
                                 labelStyle={{ fontSize: '11px' }}/>
                             <RaisedButton label='Delete' onTouchTap={() => { this.setState({ showDeleteDialog: !showDeleteDialog }) }}
+                                disabled={disableDelete}
                                 style={{ float: 'right', margin: '30px 0px' }}
                                 labelStyle={{ fontSize: '11px' }}/>
 

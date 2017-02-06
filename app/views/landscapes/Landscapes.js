@@ -261,6 +261,8 @@ class Landscapes extends Component {
 
     handlesEditLandscapeClick = (landscape, event) => {
         const { router } = this.context
+        const { setActiveLandscape } = this.props
+        setActiveLandscape(landscape)
         router.push({ pathname: '/landscapes/edit/' + landscape._id })
     }
 
