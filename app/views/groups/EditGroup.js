@@ -3,7 +3,7 @@ import React, {Component, PropTypes} from 'react'
 import shallowCompare from 'react-addons-shallow-compare'
 import {Row, Col} from 'react-flexbox-grid'
 
-import {Checkbox, RaisedButton} from 'material-ui'
+import {Checkbox, RaisedButton, Dialog} from 'material-ui'
 import {GridList, GridTile} from 'material-ui/GridList';
 import Subheader from 'material-ui/Subheader';
 import IconButton from 'material-ui/IconButton';
@@ -22,11 +22,13 @@ import Dropzone from 'react-dropzone'
 import Chip from 'material-ui/Chip';
 import Avatar from 'material-ui/Avatar';
 import UploadIcon from 'material-ui/svg-icons/file/file-upload'
+import { IoEdit, IoAndroidClose } from 'react-icons/lib/io'
 import defaultUserImage from '../../style/empty.png'
 import defaultImage from '../../style/empty-group.png'
 import AvatarCropper from "react-avatar-cropper";
 import ReactDom from "react-dom";
 import {sortBy} from "lodash";
+import { auth } from '../../services/auth'
 
 import {Loader} from '../../components'
 
@@ -73,6 +75,7 @@ class EditGroup extends Component {
         permissionX: false,
         name: '',
         description: '',
+        showDialog: false,
 
         fixedHeader: true,
         fixedFooter: true,
@@ -90,13 +93,20 @@ class EditGroup extends Component {
 
     componentWillMount() {
         const {loading, groups, landscapes, users, params} = this.props
+        let currentUser = {
+          id: auth.getUserInfo()._id,
+          role: auth.getUserInfo().role
+        }
+        let isAdmin = false;
+        if(currentUser.role === 'admin'){
+            isAdmin = true
+        }
 
         let currentGroup = {};
         if (groups) {
             currentGroup = groups.find(ls => {
                 return ls._id === params.id
             })
-            console.log('%c currentGroup ', 'background: #1c1c1c; color: rgb(209, 29, 238)', currentGroup)
             if (currentGroup) {
                 this.setState({description: currentGroup.description})
                 this.setState({name: currentGroup.name})
@@ -141,7 +151,11 @@ class EditGroup extends Component {
                     if (currentGroup.users[i].userId === user._id) {
                         user.selected = true;
                         if(currentGroup.users[i].isAdmin){
+                          console.log('user', user)
                           user.isAdmin = true;
+                          if(user._id === currentUser.id){
+                            isAdmin = true
+                          }
                         }
                         selectedUserRows.push(index)
                     }
@@ -160,7 +174,7 @@ class EditGroup extends Component {
             this.setState({users: stateUsers})
 
         }
-
+        this.setState({isAdmin: isAdmin})
         this.setState({selectedLandscapeRows: selectedLandscapeRows})
         this.setState({selectedUserRows: selectedUserRows})
 
@@ -188,21 +202,28 @@ class EditGroup extends Component {
 
     componentWillReceiveProps(nextProps) {
         const {loading, groups, landscapes, users, params} = nextProps
-
+        let currentUser = {
+          id: auth.getUserInfo()._id,
+          role: auth.getUserInfo().role
+        }
+        let isAdmin = false
+        if(currentUser.role === 'admin'){
+          isAdmin = true
+        }
         let currentGroup = {};
         if (groups) {
             currentGroup = groups.find(ls => {
                 return ls._id === params.id
             })
-            console.log('%c currentGroup ', 'background: #1c1c1c; color: rgb(209, 29, 238)', currentGroup)
-            this.setState({description: currentGroup.description})
-            this.setState({name: currentGroup.name})
-            if (currentGroup.imageUri) {
-                this.setState({imageUri: currentGroup.imageUri})
-            } else {
-                this.setState({imageUri: defaultImage})
+            if (currentGroup) {
+                this.setState({description: currentGroup.description})
+                this.setState({name: currentGroup.name})
+                if (currentGroup.imageUri) {
+                    this.setState({imageUri: currentGroup.imageUri})
+                } else {
+                    this.setState({imageUri: defaultImage})
+                }
             }
-
         }
         var usersSorted = [];
         var landscapesSorted = [];
@@ -238,6 +259,9 @@ class EditGroup extends Component {
                         user.selected = true;
                         if(currentGroup.users[i].isAdmin){
                           user.isAdmin = true;
+                          if(currentGroup.users[i].userId === currentUser.id){
+                            isAdmin = true
+                          }
                         }
                         selectedUserRows.push(index)
                     }
@@ -258,7 +282,7 @@ class EditGroup extends Component {
             this.setState({users: stateUsers})
 
         }
-
+        this.setState({isAdmin: isAdmin})
         this.setState({selectedLandscapeRows: selectedLandscapeRows})
         this.setState({selectedUserRows: selectedUserRows})
 
@@ -325,7 +349,10 @@ class EditGroup extends Component {
                 <Row className={cx({'screen-width': true, 'animatedViews': animated, 'view-enter': viewEntersAnim})} style={{
                     justifyContent: 'space-between'
                 }}>
-                    <h4>Edit Group</h4><br/>
+                  <Row style={{width:200, justifyContent: 'space-between', }} >
+                    <h4>Edit Group </h4>
+                  </Row>
+
                       <Snackbar
                         open={this.state.successOpen}
                         message="Group successfully saved."
@@ -338,7 +365,29 @@ class EditGroup extends Component {
                         autoHideDuration={3000}
                         onRequestClose={this.handleRequestClose}
                       />
-                    <RaisedButton primary={true} label="Save" onClick={this.handlesCreateClick}/>
+                    <Row style={{justifyContent: 'space-between', }}>
+                      <RaisedButton primary={true} label="Save" onClick={this.handlesCreateClick}/>
+                      {console.log('isAdmin', this.state.isAdmin)}
+                      {
+                        this.state.isAdmin
+                          ?
+                          <div>
+                            <FlatButton onTouchTap={this.handlesDialogToggle}>
+                                Delete
+                            </FlatButton>
+                            <Dialog title='Delete Group' modal={false} open={this.state.showDialog}
+                                onRequestClose={this.handlesDialogToggle}
+                                actions={[
+                                    <FlatButton label='Cancel' primary={true} onTouchTap={this.handlesDialogToggle}/>,
+                                    <FlatButton label='Delete' primary={true} onTouchTap={this.handlesDeleteAccountClick.bind(this, this.state.currentGroup)}/>
+                                ]}>
+                                Are you sure you want to delete {this.state.currentGroup.name}?
+                            </Dialog>
+                          </div>
+                          :
+                          <div style={{width:1}}></div>
+                      }
+                    </Row>
                 </Row>
                 <Row center='xs' middle='xs' className={cx({'animatedViews': animated, 'view-enter': viewEntersAnim})}>
                     {console.log('this.state.stateLandscapes', this.state.stateLandscapes)}
@@ -479,6 +528,36 @@ class EditGroup extends Component {
             </div>
 
         )
+    }
+    handlesDialogToggle = event => {
+        this.setState({
+            showDialog: !this.state.showDialog
+        })
+    }
+
+    handlesDeleteAccountClick = (groupToDelete, event) => {
+        event.preventDefault()
+
+        const { mutate } = this.props
+        const { router } = this.context
+
+        this.handlesDialogToggle()
+
+        delete groupToDelete.users;
+        delete groupToDelete.__typename;
+
+        this.props.DeleteGroupMutation({
+            variables: { group: groupToDelete }
+         }).then(({ data }) => {
+            console.log('deleted', data)
+            this.props.refetchGroups({}).then(({data}) => {
+                router.push({pathname: '/groups'})
+            }).catch((error) => {
+                console.log('there was an error sending the SECOND query', error)
+            })
+        }).catch((error) => {
+            console.log('there was an error sending the query', error)
+        })
     }
 
     getInitialState = () => {
