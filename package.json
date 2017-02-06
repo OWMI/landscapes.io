@@ -11,7 +11,7 @@
     "dev": "NODE_ENV=development webpack",
     "test": "NODE_ENV=test nyc mocha test/.setup.js test/**/*.spec.js --recursive",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "prod": "NODE_ENV=development concurrently --kill-others \"nodemon ./server/init.js --exec babel-node\" \"http-server dist/ -s -p 3000\"",
+    "prod": "NODE_ENV=production concurrently --kill-others \"nodemon ./server/init.js --exec babel-node\" \"http-server dist/ -s -p 3000\"",
     "build": "NODE_ENV=production webpack -p --config webpack.production.config.js",
     "start": "NODE_ENV=development concurrently --kill-others \"nodemon ./server/init.js --exec babel-node\" \"node server.hot.reload\""
   },
