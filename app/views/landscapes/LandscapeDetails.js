@@ -150,16 +150,26 @@ class LandscapeDetails extends Component {
                         {
                             currentDeployments.map((deployment, index) => {
 
-                                let _color
+                                let _stackStatus = {}
                                 if (deployment && deployment.isDeleted) {
-                                    _color = 'rgb(204, 204, 204)'
+                                    _stackStatus = {
+                                        status: 'DELETED',
+                                        color: 'rgb(204, 204, 204)'
+                                    }
                                 } else if (deployment && deployment.awsErrors) {
-                                    _color = 'rgb(236, 11, 67)'
-                                } else {
-                                    if (deployment && runningStatus.indexOf(deployment.stackStatus) > -1) {
-                                        _color = 'rgb(50, 205, 50)'
-                                    } else {
-                                        _color = 'rgb(255, 231, 77)'
+                                    _stackStatus = {
+                                        status: 'FAILED',
+                                        color: 'rgb(236, 11, 67)'
+                                    }
+                                } else if (deployment && deployment.stackStatus === 'CREATE_COMPLETE') {
+                                    _stackStatus = {
+                                        status: deployment.stackStatus,
+                                        color: 'rgb(50, 205, 50)'
+                                    }
+                                } else if (deployment && deployment.stackStatus.indexOf('IN_PROGRESS') > -1) {
+                                    _stackStatus = {
+                                        status: deployment.stackStatus,
+                                        color: 'rgb(255, 231, 77)'
                                     }
                                 }
 
@@ -170,8 +180,8 @@ class LandscapeDetails extends Component {
                                                 <Col xs={2}>{deployment.stackName}</Col>
                                                 <Col xs={2}>{deployment.location}</Col>
                                                 <Col xs={2}>{moment(deployment.createdAt).format('MMM DD YYYY')}</Col>
-                                                <Col xs={4} style={{ color: _color }}>
-                                                    {deployment.isDeleted ? 'DELETED' : deployment.stackStatus}
+                                                <Col xs={4} style={{ color: _stackStatus.color }}>
+                                                    {_stackStatus.status}
                                                 </Col>
                                                 <Col xs={2}>
                                                     <FlatButton label={deployment.isDeleted ? 'Purge' : 'Delete'} icon={<IoAndroidClose/>} labelStyle={{ fontSize: '11px' }}

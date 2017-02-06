@@ -11,7 +11,8 @@
     "dev": "NODE_ENV=development webpack",
     "test": "NODE_ENV=test nyc mocha test/.setup.js test/**/*.spec.js --recursive",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "prod": "NODE_ENV=production webpack -p --config webpack.production.config.js ",
+    "prod": "NODE_ENV=development concurrently --kill-others \"nodemon ./server/init.js --exec babel-node\" \"http-server dist/ -s -p 3000\"",
+    "build": "NODE_ENV=production webpack -p --config webpack.production.config.js",
     "start": "NODE_ENV=development concurrently --kill-others \"nodemon ./server/init.js --exec babel-node\" \"node server.hot.reload\""
   },
   "repository": {
@@ -54,6 +55,7 @@
     "file-loader": "^0.8.5",
     "generate-password": "^1.2.0",
     "helmet": "^3.1.0",
+    "http-server": "^0.9.0",
     "jsdom": "^9.4.1",
     "json-loader": "^0.5.4",
     "lodash": "^4.17.2",
