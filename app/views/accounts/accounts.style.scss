@@ -1,0 +1,27 @@
+.create-account label,
+.create-account #name,
+.create-account #region,
+.create-account #accessKeyId,
+.create-account #secretAccessKey,
+.create-account #endpoint,
+.create-account #caBundlePath,
+.create-account #rejectUnauthorizedSsl,
+.create-account #signatureBlock {
+    margin-left: 20px;
+}
+
+.create-account #region {
+    width: initial !important;
+    label {
+        left: 0px;
+    }
+    div {
+        float: left;
+    }
+}
+
+.create-account .two-field-row {
+    width: 48% !important;
+    float: left;
+    margin: 0 1%;
+}

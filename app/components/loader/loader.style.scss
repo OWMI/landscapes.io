@@ -1,0 +1,13 @@
+.loader-overlay {
+    position: absolute;
+    left: 0;
+    top: 50px;
+    z-index: 99;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.overlay-height {
+    height: calc(100vh - 50px);
+}

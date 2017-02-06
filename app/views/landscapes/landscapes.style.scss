@@ -1,0 +1,114 @@
+.create-landscape label,
+.create-landscape #name,
+.create-landscape #version,
+.create-landscape #description,
+.create-landscape #infoLink,
+.create-landscape #infoLinkText,
+.edit-landscape label,
+.edit-landscape #name,
+.edit-landscape #version,
+.edit-landscape #description,
+.edit-landscape #infoLink,
+.edit-landscape #infoLinkText {
+    margin-left: 20px;
+}
+
+.create-landscape .two-field-row,
+.edit-landscape .two-field-row {
+    width: 48% !important;
+    float: left;
+    margin: 0 1%;
+}
+
+#landscape-edit > div,
+#landscape-deploy > div {
+    float: left;
+}
+
+.success-status {
+    border-radius: 15px;
+    border: 1px solid rgba(158, 158, 158, 0.5);
+    padding: 10px;
+    width: 40px;
+    height: 0px;
+}
+
+.landscape-card {
+    z-index: 1;
+    width: 300px;
+    height: 250px;
+    float: left;
+    margin: 20px;
+    cursor: pointer;
+
+    // background: #2b5876; /* fallback for old browsers */
+    // background: -webkit-linear-gradient(to left, #2b5876 , #4e4376); /* Chrome 10-25, Safari 5.1-6 */
+    // background: linear-gradient(to left, #2b5876 , #4e4376); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+    // background: #16222A; /* fallback for old browsers */
+    // background: -webkit-linear-gradient(to left, #16222A , #3A6073); /* Chrome 10-25, Safari 5.1-6 */
+    // background: linear-gradient(to left, #16222A , #3A6073); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+    // background: #360033; /* fallback for old browsers */
+    // background: -webkit-linear-gradient(to left, #360033 , #0b8793); /* Chrome 10-25, Safari 5.1-6 */
+    // background: linear-gradient(to left, #360033 , #0b8793); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+    background: #141E30; /* fallback for old browsers */
+    background: -webkit-linear-gradient(to left, #141E30 , #243B55); /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to left, #141E30 , #243B55); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+    color: rgba(255, 255, 255, 0.9) !important;
+
+    .icon-pending {
+        background: rgb(255, 231, 77);
+        width: 100%;
+        height: 3px;
+    }
+    .icon-running {
+        background: rgb(107, 241, 120);
+        width: 100%;
+        height: 3px;
+    }
+    .icon-failed {
+        background: rgb(236, 11, 67);
+        width: 100%;
+        height: 3px;
+    }
+    .icon-deleted {
+        background: rgb(224, 224, 224);
+        width: 100%;
+        height: 3px;
+    }
+
+    #landscapeIcon {
+        width: 75px;
+        margin: 0px 20px;
+    }
+    div, svg, span {
+        color: rgba(255, 255, 255, 0.9) !important;
+    }
+    #landscape-title {
+        font-family: 'Nunito Light', sans-serif;
+        width: 100%;
+    }
+    #landscape-description {
+        font-family: 'Nunito Extralight', sans-serif;
+        font-size: 12px;
+        padding: 10px 0px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        max-height: 75px;
+        height: 75px;
+        width: 100%;
+    }
+    #icon-container {
+        font-family: 'Nunito Light', sans-serif;
+        color: green !important;
+        margin: 0px;
+        font-size: 10px;
+        min-height: 31px;
+        height: 31px;
+    }
+}

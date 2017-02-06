@@ -1,4 +1,0 @@
-dn: cn=sysadmin,ou=groups,dc=landscapes,dc=io
-changetype: modify
-add: roleOccupant
-roleOccupant: uid=test_admin_user,ou=people,dc=landscapes,dc=io

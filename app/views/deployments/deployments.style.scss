@@ -1,0 +1,30 @@
+.create-deployment label,
+.create-deployment #accountName,
+.create-deployment #stackName,
+.create-deployment #region,
+.create-deployment #description,
+.create-deployment #billingCode,
+.create-deployment #accessKeyId,
+.create-deployment #secretAccessKey,
+.create-deployment #endpoint,
+.create-deployment #caBundlePath,
+.create-deployment #rejectUnauthorizedSsl,
+.create-deployment #signatureBlock {
+    margin-left: 20px;
+}
+.create-deployment #region,
+.create-deployment #accountName {
+    width: initial !important;
+    label {
+        left: 0px;
+    }
+    div {
+        float: left;
+    }
+}
+
+.create-deployment .two-field-row {
+    width: 48% !important;
+    float: left;
+    margin: 0 1%;
+}

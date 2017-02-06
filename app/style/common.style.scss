@@ -1,0 +1,48 @@
+@import "./app.var.style";
+
+@font-face {
+    font-family: 'Nunito';
+    src: url('./fonts/Nunito-Regular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Nunito Semibold';
+    src: url('./fonts/Nunito-SemiBold.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Nunito Light';
+    src: url('./fonts/Nunito-Light.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Nunito Extralight';
+    src: url('./fonts/Nunito-ExtraLight.ttf') format('truetype');
+}
+
+a:focus, a:hover {
+    text-decoration: none;
+}
+
+#root {
+    font-family: 'Nunito', sans-serif;
+}
+
+.containersCustom {
+    padding-left: $CONTAINER_CUSTOM_PADDING_LEFT;
+    padding-right: $CONTAINER_CUSTOM_PADDING_RIGHT;
+}
+
+.invisible {
+    opacity: 0;
+}
+
+.view-enter {
+    animation: fadeIn 0.5s both ease-in;
+    z-index: 9999;
+}
+
+.animatedViews {
+    animation-duration: 0.5s;
+    animation-fill-mode: both;
+}

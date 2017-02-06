@@ -1,0 +1,77 @@
+{
+    "brand": "Landscapes",
+    "leftLinks": [],
+    "rightLinks": [{
+        "label": "Login",
+        "link": "/login",
+        "view": "login",
+        "isRouteBtn": true,
+        "alwaysShows": false,
+        "showWhenUserAuth": false,
+        "showOnUserDropdown": false,
+        "hideWhenUserAuth": true
+    },{
+        "label": "Landscapes",
+        "link": "/landscapes",
+        "view": "landscapes",
+        "isRouteBtn": true,
+        "alwaysShows": false,
+        "showWhenUserAuth": true,
+        "showOnUserDropdown": false,
+        "hideWhenUserAuth": false
+    },{
+        "label": "Groups",
+        "link": "/groups",
+        "view": "groups",
+        "isRouteBtn": true,
+        "alwaysShows": false,
+        "showWhenUserAuth": true,
+        "showOnUserDropdown": false,
+        "hideWhenUserAuth": false
+    }, {
+        "label": "Users",
+        "link": "/users",
+        "view": "users",
+        "isRouteBtn": true,
+        "alwaysShows": false,
+        "showWhenUserAuth": true,
+        "showOnUserDropdown": false,
+        "hideWhenUserAuth": false
+    }, {
+        "label": "Settings",
+        "link": "/accounts",
+        "view": "accounts",
+        "isRouteBtn": true,
+        "alwaysShows": false,
+        "showWhenUserAuth": true,
+        "showOnUserDropdown": false,
+        "hideWhenUserAuth": false
+    }, {
+        "label": "View Profile",
+        "link": "/profile",
+        "view": "profile",
+        "isRouteBtn": true,
+        "alwaysShows": false,
+        "showWhenUserAuth": true,
+        "showOnUserDropdown": true,
+        "hideWhenUserAuth": false
+    }, {
+        "label": "Change Password",
+        "link": "/changePassword",
+        "view": "password",
+        "isRouteBtn": true,
+        "alwaysShows": false,
+        "showWhenUserAuth": true,
+        "showOnUserDropdown": true,
+        "hideWhenUserAuth": false
+    }, {
+        "label": "Logout",
+        "link": "/logout",
+        "view": "logout",
+        "isRouteBtn": true,
+        "alwaysShows": false,
+        "showWhenUserAuth": true,
+        "showOnUserDropdown": true,
+        "hideWhenUserAuth": false
+    }]
+}
