@@ -3,12 +3,9 @@
 #
 # Run:
 # docker run -it landscapes
-#
-# Compose:
-# docker-compose up -d
 
 FROM node:6
-MAINTAINER BlackSky
+MAINTAINER BlackSky 
 
 # 80=HTTP, 443=HTTPS, 3000=landscapes, 35729=livereload
 EXPOSE 80 443 3000 35729
@@ -43,14 +40,11 @@ RUN apt-get update -q  \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
- # Install ImageMagick
-RUN apt-get install -y imagemagick
-
 # Install gem sass for grunt-contrib-sass
 RUN gem install sass
 
 # Install Prerequisites
-RUN npm install --quiet -g grunt-cli gulp bower yo mocha karma-cli pm2 && npm cache clean
+RUN npm install --quiet -g gulp && npm cache clean
 
 RUN mkdir -p /opt/landscapes/public/lib
 WORKDIR /opt/landscapes
@@ -63,11 +57,6 @@ COPY package.json /opt/landscapes/package.json
 
 # Install npm packages
 RUN npm install --quiet && npm cache clean
-
-# Install bower packages
-COPY bower.json /opt/landscapes/bower.json
-COPY .bowerrc /opt/landscapes/.bowerrc
-RUN bower install --quiet --allow-root --config.interactive=false
 
 COPY . /opt/landscapes
 
