@@ -7,11 +7,8 @@
 FROM node:6
 MAINTAINER BlackSky 
 
-# 80=HTTP, 443=HTTPS, 3000=landscapes, 35729=livereload
-EXPOSE 80 443 3000 35729
-
-# Set development environment as default
-ENV NODE_ENV development
+# 3000=landscapes, 8080=Nodejs/GraphQL
+EXPOSE 3000 8080
 
 # Install Utilities
 RUN apt-get update -q  \
@@ -40,12 +37,6 @@ RUN apt-get update -q  \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# Install gem sass for grunt-contrib-sass
-RUN gem install sass
-
-# Install Prerequisites
-RUN npm install --quiet -g gulp && npm cache clean
-
 RUN mkdir -p /opt/landscapes/public/lib
 WORKDIR /opt/landscapes
 
@@ -60,6 +51,8 @@ RUN npm install --quiet && npm cache clean
 
 COPY . /opt/landscapes
 
+RUN npm run build --quiet
+
 ENV MONGO_SEED true
 
-CMD ["npm", "start"]
+CMD ["npm", "run", "prod"]
