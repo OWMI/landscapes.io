@@ -75,5 +75,5 @@ services:
     links:
       - openldap
     ports:
-      - "8080:80"
+      - "8888:80"
       - "8443:443"
