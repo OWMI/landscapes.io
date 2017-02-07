@@ -191,7 +191,9 @@ class EditLandscape extends Component {
         landscapeToUpdate._id = params.id
         landscapeToUpdate.imageUri = this.state.imageUri || currentLandscape.imageUri
         landscapeToUpdate.cloudFormationTemplate = this.state.cloudFormationTemplate || currentLandscape.cloudFormationTemplate
-
+        if(!landscapeToUpdate.version){
+          landscapeToUpdate.version = currentLandscape.version || '1.0'
+        }
         this.props.updateLandscape({
             variables: { landscape: landscapeToUpdate }
         }).then(({ data }) => {

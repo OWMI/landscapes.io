@@ -174,6 +174,9 @@ class CreateLandscape extends Component {
         // attach imageUri and cloudFormationTemplate
         landscapeToCreate.imageUri = this.state.imageUri || ''
         landscapeToCreate.cloudFormationTemplate = this.state.cloudFormationTemplate || ''
+        if(!landscapeToCreate.version){
+          landscapeToCreate.version = '1.0'
+        }
 
         mutate({
             variables: { landscape: landscapeToCreate }
