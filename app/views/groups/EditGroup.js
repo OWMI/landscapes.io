@@ -476,10 +476,10 @@ class EditGroup extends Component {
                                               <TableRowColumn>{row.lastName}, {row.firstName} </TableRowColumn>
                                               <TableRowColumn>{row.email}</TableRowColumn>
                                               <TableRowColumn>
-                                                <Toggle toggled={row.isAdmin} onToggle={() => (
+                                                <Toggle toggled={row.isAdmin || (row.role === 'admin')} onToggle={() => (
                                                     this.state.stateUsers[index].isAdmin = !this.state.stateUsers[index].isAdmin,
                                                     this.setState({stateUsers: [...this.state.stateUsers]})
-                                                  )} />
+                                                  )} disabled={row.role === 'admin'} />
                                               </TableRowColumn>
                                           </TableRow>
                                       ))
@@ -699,6 +699,9 @@ class EditGroup extends Component {
         if (this.state.selectedUserRows) {
             console.log('theres landscapes');
             for (var i = 0; i < this.state.selectedUserRows.length; i++) {
+                if(this.state.users[this.state.selectedUserRows[i]].role === 'admin'){
+                  this.state.users[this.state.selectedUserRows[i]].isAdmin = true;
+                }
                 groupToCreate.users.push({
                     userId: this.state.users[this.state.selectedUserRows[i]]._id,
                     isAdmin: this.state.users[this.state.selectedUserRows[i]].isAdmin || false
