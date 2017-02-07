@@ -116,16 +116,29 @@ class LandscapeDetails extends Component {
         return (
             <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
                 <Row middle='xs'>
+                    <Col xs={1} style={{ textAlign: 'left' }}>
+                        <img src={currentLandscape.imageUri} style={{width: 75}} />
+                    </Col>
                     <Col xs={4} style={{ textAlign: 'left' }}>
                         <h4>Landscape: {currentLandscape.name}</h4>
                     </Col>
-                    <Col xs={8}>
+                    <Col xs={7}>
                         <RaisedButton label='Deploy' onClick={this.handlesDeployClick}
                             style={{ float: 'right', marginBottom: '30px' }}
                             labelStyle={{ fontSize: '11px' }} icon={<IoIosCloudUploadOutline/>}/>
                         <RaisedButton label='Edit' onClick={this.handlesEditLandscapeClick}
                             style={{ float: 'right', marginBottom: '30px' }}
                             labelStyle={{ fontSize: '11px' }} icon={<IoEdit/>}/>
+                    </Col>
+                </Row>
+                <Row middle='xs' style={{flex: 1, marginLeft: 10}}>
+                    <Col style={{ textAlign: 'left', flex: 1 }}>
+                        <h5>Version: {currentLandscape.version}</h5>
+                    </Col>
+                </Row>
+                <Row middle='xs' style={{flex: 1, marginLeft: 10}}>
+                    <Col style={{ textAlign: 'left', flex: 1 }}>
+                        <h5>{currentLandscape.description}</h5>
                     </Col>
                 </Row>
                 <Tabs>

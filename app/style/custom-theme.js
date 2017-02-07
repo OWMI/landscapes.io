@@ -25,7 +25,7 @@ exports.default = {
         primary1Color: '#253B55',
         primary2Color: '#172336',
         primary3Color: _colors.grey400,
-        accent1Color: _colors.blueGrey400,
+        accent1Color: _colors.orange500,
         accent2Color: _colors.grey100,
         accent3Color: _colors.grey500,
         textColor: '#172336',

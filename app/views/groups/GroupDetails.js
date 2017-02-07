@@ -13,8 +13,10 @@ import {Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow,
 import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/Card';
 import {Tabs, Tab} from 'material-ui/Tabs';
 import TextField from 'material-ui/TextField';
+import Chip from 'material-ui/Chip';
 
 import Slider from 'material-ui/Slider';
+import {Row, Col} from 'react-flexbox-grid'
 import {RadioButtonGroup, RadioButton} from 'material-ui/RadioButton';
 import getMuiTheme from 'material-ui/styles/getMuiTheme'
 import FlatButton from 'material-ui/FlatButton';
@@ -34,9 +36,16 @@ const styles = {
     justifyContent: 'space-around',
   },
   gridList: {
-    width: 500,
-    overflowY: 'auto'
+    // width: 500,
+    // overflowY: 'auto'
   },
+  chip: {
+      margin: 4
+  },
+  wrapper: {
+      display: 'flex',
+      flexWrap: 'wrap'
+  }
 };
 
 const TabPane = Tabs.TabPane;
@@ -252,7 +261,18 @@ class GroupDetails extends Component {
                   <Card style={{padding:20}}>
                   <CardHeader
                     title={this.state.currentGroup.name}
-                    subtitle={"Permissions: " + this.state.currentGroup.readablePermissions}
+                    subtitle={<Row>
+
+                      {
+                        this.state.currentGroup.readablePermissions.map((row, index) => (
+                          <Chip style = {styles.chip} key={index} >
+                             {row}
+                          </Chip>
+                      ))
+                    }
+                    </Row>
+                    }
+
                     avatar={this.state.currentGroup.imageUri}
                   />
                   <GridList
@@ -263,50 +283,42 @@ class GroupDetails extends Component {
                     <GridTile key='description' >
                         <p>Description: {this.state.currentGroup.description} </p>
                     </GridTile>
-                    <GridTile>
-                        <Table height={this.state.height} fixedHeader={this.state.fixedHeader} fixedFooter={this.state.fixedFooter}
-                            selectable={false} multiSelectable={false}
-                            onRowSelection={this.handleOnRowSelection}>
-                              <TableHeader displaySelectAll={false} adjustForCheckbox={false}
-                                enableSelectAll={false} >
-                                <TableRow>
-                                  <TableHeaderColumn colSpan="3" tooltip="Landscapes" style={{textAlign: 'center', fontSize:18}}>
-                                    Landscapes
-                                  </TableHeaderColumn>
-                                </TableRow>
-                                <TableRow>
-                                  <TableHeaderColumn tooltip="Image"></TableHeaderColumn>
-                                  <TableHeaderColumn tooltip="Name">Name</TableHeaderColumn>
-                                  <TableHeaderColumn tooltip="Description">Description</TableHeaderColumn>
-                                </TableRow>
-                              </TableHeader>
-                              <TableBody displayRowCheckbox={false}
-                                showRowHover={this.state.showRowHover} stripedRows={false}>
-                                {this.state.groupLandscapes.map( (row, index) => (
-                                  <TableRow key={row._id} >
-                                    <TableRowColumn><img src={row.imageUri} style={{width: 50}} /></TableRowColumn>
-                                    <TableRowColumn>{row.name}</TableRowColumn>
-                                    <TableRowColumn>{row.description}</TableRowColumn>
-                                  </TableRow>
-                                  ))}
-                              </TableBody>
-                              <TableFooter
-                                adjustForCheckbox={false}
-                              >
-                              </TableFooter>
-                            </Table>
-                    </GridTile>
-                    <GridTile>
+                </GridList>
+                <Tabs>
+                  <Tab key="1" label="Landscapes">
                     <Table height={this.state.height} fixedHeader={this.state.fixedHeader} fixedFooter={this.state.fixedFooter}
                         selectable={false} multiSelectable={false}
                         onRowSelection={this.handleOnRowSelection}>
                           <TableHeader displaySelectAll={false} adjustForCheckbox={false}
                             enableSelectAll={false} >
-                                <TableRow>
-                                  <TableHeaderColumn colSpan="4" tooltip="Users" style={{textAlign: 'center', fontSize:18}}>
-                                    Users
-                                  </TableHeaderColumn>
-                                </TableRow>
+                            <TableRow>
+                              <TableHeaderColumn tooltip="Image"></TableHeaderColumn>
+                              <TableHeaderColumn tooltip="Name">Name</TableHeaderColumn>
+                              <TableHeaderColumn tooltip="Description">Description</TableHeaderColumn>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody displayRowCheckbox={false}
+                            showRowHover={this.state.showRowHover} stripedRows={false}>
+                            {this.state.groupLandscapes.map( (row, index) => (
+                              <TableRow key={row._id} >
+                                <TableRowColumn><img src={row.imageUri} style={{width: 50}} /></TableRowColumn>
+                                <TableRowColumn>{row.name}</TableRowColumn>
+                                <TableRowColumn>{row.description}</TableRowColumn>
+                              </TableRow>
+                              ))}
+                          </TableBody>
+                          <TableFooter
+                            adjustForCheckbox={false}
+                          >
+                          </TableFooter>
+                        </Table>
+                  </Tab>
+                  <Tab key="2" label="Users">
+                    <Table height={this.state.height} fixedHeader={this.state.fixedHeader} fixedFooter={this.state.fixedFooter}
+                        selectable={false} multiSelectable={false}
+                        onRowSelection={this.handleOnRowSelection}>
+                          <TableHeader displaySelectAll={false} adjustForCheckbox={false}
+                            enableSelectAll={false} >
                                 <TableRow>
                                   <TableHeaderColumn tooltip="image"></TableHeaderColumn>
                                   <TableHeaderColumn tooltip="Email">Email</TableHeaderColumn>
@@ -330,8 +342,11 @@ class GroupDetails extends Component {
                               >
                               </TableFooter>
                             </Table>
-                    </GridTile>
-                  </GridList>
+                  </Tab>
+                  <Tab key="3" label="Accounts">
+
+                  </Tab>
+                </Tabs>
                   </Card>
                   </div>
             </div>
