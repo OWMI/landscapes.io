@@ -52,9 +52,12 @@ export default function(state = initialState, action) {
         case RECEIVED_USER_REGISTER:
             return {
                 ...state,
-                lastActionTime: action.time,
-                isAuthenticated: action.isAuthenticated,
                 _id: action.user._id,
+                isAuthenticated: action.isAuthenticated,
+                isGlobalAdmin: action.user.role === 'admin',
+                permissions: action.user.permissions,
+                groups: action.user.groups,
+                lastActionTime: action.time,
                 username: action.user.username,
                 lastLogin: action.user.lastLogin,
                 createdAt: action.user.createdAt,
@@ -134,7 +137,7 @@ export default function(state = initialState, action) {
 // //////////////////
 // login sucess:
 // //////////////////
-export function receivedUserLoggedIn(userToken = null, user = emptyUser, time = moment().format(dateFormat)) {
+export function receivedUserLoggedIn(userToken = null, user = emptyUser, groups, time = moment().format(dateFormat)) {
     const isAuthenticated = userToken
         ? true
         : false
@@ -142,7 +145,8 @@ export function receivedUserLoggedIn(userToken = null, user = emptyUser, time = 
     auth.clearAllAppStorage() // clear previous token
     auth.setToken(userToken) // set token to default store = localStorage and to default token key = 'token'
     auth.setUserInfo(user)
-    console.log('USER HERE --->', user);
+    user = auth.setUserAcess(user, groups)
+
     return {
         type: RECEIVED_USER_LOGGED_IN,
         time,

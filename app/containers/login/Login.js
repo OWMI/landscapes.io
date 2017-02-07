@@ -1,7 +1,7 @@
 import gql from 'graphql-tag'
 import { connect } from 'react-redux'
-import { graphql } from 'react-apollo'
 import { bindActionCreators } from 'redux'
+import { graphql, compose } from 'react-apollo'
 
 import { Login } from '../../views'
 import * as viewsActions from '../../redux/modules/views'
@@ -11,6 +11,33 @@ import * as userAuthActions from '../../redux/modules/userAuth'
   GraphQL - Apollo client
  ------------------------------------------*/
 
+// queries:
+const GroupQuery = gql `
+    query getGroups {
+        groups {
+            _id,
+            name,
+            users {
+              isAdmin,
+              userId
+            },
+            imageUri,
+            description,
+            landscapes,
+            permissions
+        }
+    }
+ `
+
+const GroupsWithQuery = graphql(GroupQuery, {
+    props: ({ data: { loading, groups, refetch } }) => ({
+        groups,
+        loading,
+        refetch
+    })
+})
+
+// mutations:
 const logUser = gql `
     mutation LoginUser($user: LoginInput!) {
         loginUser(user: $user) {
@@ -20,19 +47,21 @@ const logUser = gql `
     }
 `
 
-// 1- add queries:
-
-// 2- add mutation "logUser":
 const LoginWithMutation = graphql(logUser, {
     name: 'logUserMutation',
     props: ({ ownProps, logUserMutation }) => ({
-        loginUser(user) {
+        loginUser(user, groups) {
 
             // TODO: Add JWT capability
-            ownProps.onUserLoggedIn('testToken', user)
+            ownProps.onUserLoggedIn('testToken', user, groups)
         }
     })
-})(Login)
+})
+
+const composedRequest = compose(
+    GroupsWithQuery,
+    LoginWithMutation
+)(Login)
 
 /* -----------------------------------------
   Redux
@@ -65,4 +94,4 @@ const mapDispatchToProps = dispatch => {
     }, dispatch)
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(LoginWithMutation)
+export default connect(mapStateToProps, mapDispatchToProps)(composedRequest)
