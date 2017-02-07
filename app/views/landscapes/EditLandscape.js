@@ -42,15 +42,18 @@ class EditLandscape extends Component {
             self = this,
             currentLandscape = activeLandscape
 
+        var _landscapes = landscapes || []
         // for direct request
-        if (activeLandscape && activeLandscape._id !== params.id)
-            currentLandscape = landscapes.find(ls => { return ls._id === params.id })
+        // if (activeLandscape && activeLandscape._id !== params.id)
+            currentLandscape = _landscapes.find(ls => { return ls._id === params.id })
 
         // set disableDelete value
-        forIn(currentLandscape.status, (value, key) => {
-            if (value > 0)
-                disableDelete = true
-        })
+        if(currentLandscape && currentLandscape.status){
+          forIn(currentLandscape.status, (value, key) => {
+              if (value > 0)
+                  disableDelete = true
+          })
+        }
 
         if (loading || this.state.loading) {
             return (
@@ -61,8 +64,8 @@ class EditLandscape extends Component {
         }
 
         return (
-            <Row center='xs' middle='xs' className={cx({ 'screen-height': true, 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
-                <Col xs={6} lg={9} className={cx( { 'edit-landscape': true } )}>
+            <Row center='xs' middle='xs' className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
+                <Col xs={8} lg={10} className={cx( { 'edit-landscape': true } )}>
                     <Row middle='xs'>
                         <Col xs={4} style={{ textAlign: 'left' }}>
                             <h4>Edit Landscape</h4>

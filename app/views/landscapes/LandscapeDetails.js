@@ -16,7 +16,31 @@ class LandscapeDetails extends Component {
         showDialog: false,
         currentDeployments: []
     }
+    componentWillReceiveProps(nextProps){
+      let self = this
+      const { deploymentsByLandscapeId, deploymentStatus, params } = nextProps
 
+      deploymentsByLandscapeId({
+          variables: { landscapeId: params.id }
+      }).then(({ data }) => {
+          return Promise.all(data.deploymentsByLandscapeId.map(deployment => {
+              if (deployment.isDeleted || deployment.awsErrors) {
+                  return {
+                      data: {
+                          deploymentStatus: deployment
+                      }
+                  }
+              }
+              return deploymentStatus({
+                  variables: { deployment }
+              })
+          }))
+      }).then(deploymentStatusArray => {
+          self.setState({
+              currentDeployments: deploymentStatusArray.map(({ data }) => { return data.deploymentStatus })
+          })
+      })
+    }
     componentWillMount() {
         let self = this
         const { deploymentsByLandscapeId, deploymentStatus, params } = this.props
@@ -62,14 +86,19 @@ class LandscapeDetails extends Component {
         const { activeLandscape, loading, landscapes, deploymentsByLandscapeId, params } = this.props
         const { animated, viewEntersAnim, currentDeployment, currentDeployments, deleteType, refetchedLandscapes } = this.state
 
-        let _landscapes = refetchedLandscapes || landscapes
+        let _landscapes = landscapes || []
         let currentLandscape = activeLandscape
         let runningStatus = ['CREATE_COMPLETE', 'ROLLBACK_COMPLETE', 'ROLLBACK_COMPLETE', 'DELETE_COMPLETE', 'UPDATE_COMPLETE', 'UPDATE_ROLLBACK_COMPLETE']
         let pendingStatus = ['CREATE_IN_PROGRESS', 'ROLLBACK_IN_PROGRESS', 'DELETE_IN_PROGRESS', 'UPDATE_IN_PROGRESS', 'UPDATE_COMPLETE_CLEANUP_IN_PROGRESS', 'UPDATE_ROLLBACK_IN_PROGRESS', 'UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS', 'REVIEW_IN_PROGRESS']
 
         // for direct request
-        if (activeLandscape && activeLandscape._id !== params.id)
+        // if (activeLandscape && activeLandscape._id !== params.id)
+        if(!currentLandscape)
             currentLandscape = _landscapes.find(ls => { return ls._id === params.id })
+
+        if(!currentLandscape){
+          currentLandscape = {cloudFormationTemplate: '{"Resources": [], "Parameters": []}'}
+        }
 
         const parsedCFTemplate = JSON.parse(currentLandscape.cloudFormationTemplate)
 

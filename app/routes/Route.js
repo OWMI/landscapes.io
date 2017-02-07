@@ -75,12 +75,10 @@ export const Routes = () => {
                         <Route path="/users/:id" component={ConnectedUserDetails} onEnter={requireAuth}/>
                         <Route path="/users/edit/:id" component={ConnectedEditUser} onEnter={requireAuth}/>
                         {/* group views */}
-                        <Route name="groups" path="groups">
-                          <IndexRoute component={ConnectedGroups} onEnter={requireAuth}/>
-                          <Route path="create" component={ConnectedCreateGroup} onEnter={requireAuth}/>
-                          <Route path="edit/:id" component={ConnectedEditGroup} onEnter={requireAuth}/>
-                          <Route path=":id" component={ConnectedGroupDetails} onEnter={requireAuth}/>
-                        </Route>
+                          <Route path="/groups" component={ConnectedGroups} onEnter={requireAuth}/>
+                          <Route path="/groups/create" component={ConnectedCreateGroup} onEnter={requireAuth}/>
+                          <Route path="/groups/edit/:id" component={ConnectedEditGroup} onEnter={requireAuth}/>
+                          <Route path="/groups/:id" component={ConnectedGroupDetails} onEnter={requireAuth}/>
                         {/* misc views */}
                         <Route path="/login" component={ConnectedLogin}/>
                         <Route path="/profile" component={ConnectedProfile}/>
