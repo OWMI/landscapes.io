@@ -26,8 +26,6 @@ const styles = {
     justifyContent: 'space-around',
   },
   gridList: {
-    width: 500,
-    overflowY: 'auto'
   },
 };
 
@@ -169,17 +167,13 @@ class UserDetails extends Component {
                         <GridTile key='Role'>
                         <p>Role:  {this.state.currentUser.role}</p>
                       </GridTile>
-                      <GridTile>
+                      <Tabs>
+                        <Tab key="1" label="Groups">
                           <Table height={this.state.height} fixedHeader={this.state.fixedHeader} fixedFooter={this.state.fixedFooter}
                               selectable={false} multiSelectable={false}
                               onRowSelection={this.handleOnRowSelection}>
                                 <TableHeader displaySelectAll={false} adjustForCheckbox={false}
                                   enableSelectAll={false} >
-                                  <TableRow>
-                                    <TableHeaderColumn colSpan="4" tooltip="Groups" style={{textAlign: 'center', fontSize:18}}>
-                                      Groups
-                                    </TableHeaderColumn>
-                                  </TableRow>
                                   <TableRow>
                                     <TableHeaderColumn tooltip="Image"></TableHeaderColumn>
                                     <TableHeaderColumn tooltip="Name">Name</TableHeaderColumn>
@@ -205,7 +199,8 @@ class UserDetails extends Component {
                                 >
                                 </TableFooter>
                               </Table>
-                      </GridTile>
+                        </Tab>
+                      </Tabs>
                     {/*  <GridTile>
                       <Table height={this.state.height} fixedHeader={this.state.fixedHeader} fixedFooter={this.state.fixedFooter}
                           selectable={false} multiSelectable={false}
