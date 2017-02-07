@@ -1,11 +1,10 @@
 
 import cx from 'classnames'
-import { Tabs, Icon } from 'antd'
+import { IoIosPlusEmpty } from 'react-icons/lib/io'
+import {Tabs, Tab} from 'material-ui/Tabs';
 import { Loader } from '../../components'
 import React, { Component, PropTypes } from 'react'
 import shallowCompare from 'react-addons-shallow-compare'
-
-const TabPane = Tabs.TabPane
 
 class Deployments extends Component {
 
@@ -48,15 +47,15 @@ class Deployments extends Component {
             <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
 
                 <a onClick={this.handlesCreateLandscapeClick}>
-                    <Icon style={{ fontSize: '20px' }} type='plus'/>
+                    <IoIosPlusEmpty size={20}/>
                 </a>
                 <h2>Deployments</h2>
                 <Tabs defaultActiveKey="1">
-                    <TabPane tab="Template" key="1">Content of Tab Pane 1</TabPane>
-                    <TabPane tab="Resources" key="2">Content of Tab Pane 2</TabPane>
-                    <TabPane tab="Parameters" key="3">Content of Tab Pane 3</TabPane>
-                    <TabPane tab="Mappings" key="4">Content of Tab Pane 3</TabPane>
-                    <TabPane tab="Deployments" key="5">Content of Tab Pane 3</TabPane>
+                    <Tab label="Template" key="1">Content of Tab Pane 1</Tab>
+                    <Tab label="Resources" key="2">Content of Tab Pane 2</Tab>
+                    <Tab label="Parameters" key="3">Content of Tab Pane 3</Tab>
+                    <Tab label="Mappings" key="4">Content of Tab Pane 3</Tab>
+                    <Tab label="Deployments" key="5">Content of Tab Pane 3</Tab>
                 </Tabs>
             </div>
         )

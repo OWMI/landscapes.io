@@ -1,11 +1,9 @@
 
 import cx from 'classnames'
-// import { Table, Modal, Icon } from 'antd'
-import { Icon } from 'antd'
 import { Dialog, FlatButton } from 'material-ui'
 import React, { Component, PropTypes } from 'react'
 import shallowCompare from 'react-addons-shallow-compare'
-import { IoEdit, IoAndroidClose } from 'react-icons/lib/io'
+import { IoEdit, IoAndroidClose, IoIosPlusEmpty } from 'react-icons/lib/io'
 import { Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table'
 
 import { Loader } from '../../components'
@@ -54,7 +52,7 @@ class Accounts extends Component {
             <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
 
                 <a onClick={this.handlesCreateAccountClick}>
-                    <Icon style={{ fontSize: '20px' }} type='plus'/> Add Account
+                    <p style={{ fontSize: '20px' }}><IoIosPlusEmpty size={30}/> Add Account </p>
                 </a>
 
                 <Table>

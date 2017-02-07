@@ -1,6 +1,6 @@
 import './loader.style.scss'
 import cx from 'classnames'
-import { Row, Col } from 'antd'
+import { Row, Col } from 'react-flexbox-grid'
 import React, { PropTypes } from 'react'
 
 const Loader = ({ color }) => {
@@ -9,7 +9,7 @@ const Loader = ({ color }) => {
 
     return (
         <div className='loader-overlay'>
-            <Row type='flex' justify="space-around" align="middle" className='overlay-height'>
+            <Row style={{ display: 'flex', justifyContent:'space-around', align: 'middle'  }} className='overlay-height'>
                 <svg width='90px' height='90px' viewBox='0 0 100 100' preserveAspectRatio='xMidYMid'>
                     <rect x='0' y='0' width='100' height='100' fill='none'/>
                     <defs>

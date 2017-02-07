@@ -1,19 +1,40 @@
 import cx from 'classnames'
-import axios from 'axios'
-import { Form, Icon, Button, Checkbox, Row, message } from 'antd'
-
-import TextField from 'material-ui/TextField';
-import Slider from 'material-ui/Slider';
-import getMuiTheme from 'material-ui/styles/getMuiTheme'
-import FlatButton from 'material-ui/FlatButton';
-import RaisedButton from 'material-ui/RaisedButton';
-
-import { Link } from 'react-router'
+import { Loader } from '../../components'
 import React, { Component, PropTypes } from 'react'
 import shallowCompare from 'react-addons-shallow-compare'
+import Dropzone from 'react-dropzone'
+
+import { Checkbox, RaisedButton} from 'material-ui'
+import {GridList, GridTile} from 'material-ui/GridList';
+import Subheader from 'material-ui/Subheader';
+import IconButton from 'material-ui/IconButton';
+import StarBorder from 'material-ui/svg-icons/toggle/star-border';
+import Snackbar from 'material-ui/Snackbar';
+import UploadIcon from 'material-ui/svg-icons/file/file-upload'
+
+import {Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table';
+import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/Card';
+import {Tabs, Tab} from 'material-ui/Tabs';
+import TextField from 'material-ui/TextField';
+
+import Slider from 'material-ui/Slider';
+import {RadioButtonGroup, RadioButton} from 'material-ui/RadioButton';
+import getMuiTheme from 'material-ui/styles/getMuiTheme'
+import FlatButton from 'material-ui/FlatButton';
 import { auth } from '../../services/auth'
 
-const FormItem = Form.Item
+const styles = {
+  root: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    justifyContent: 'space-around',
+  },
+  gridList: {
+    width: 500,
+    justifyContent: 'center',
+    overflowY: 'auto'
+  },
+};
 
 class Password extends Component {
     state = {
@@ -25,7 +46,6 @@ class Password extends Component {
     }
 
     componentDidMount() {
-      console.log('THIS PROPS ----->', this.props)
         const { enterPasswordChange } = this.props
         enterPasswordChange()
     }
@@ -45,29 +65,30 @@ class Password extends Component {
         const { loading } = this.props
 
         return (
-            // <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
-            <div>
-                <h5 className='text-danger'>
-                    Change Password
-                </h5>
-                <Row type='flex' justify='center' align='top' className={cx({ 'screen-height': true, 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
-                    <Form onSubmit={this.handleSubmit} className='login-form'>
-                        <FormItem>
-                            <TextField onChange={this.handlesOldPasswordChange} id="oldPassword" type='password' placeholder='Old Password' />
-                        </FormItem>
-                        <FormItem>
-                            <TextField onChange={this.handlesOnNewPasswordChange} id="newPassword" type='password' placeholder='New Password' />
-                        </FormItem>
-                        <FormItem>
-                            <TextField onChange={this.handlesOnVerifyPasswordChange} id="verifyPassword"  type='password' placeholder='Verify Password' />
-                        </FormItem>
-                        <FormItem>
-                            <RaisedButton primary={true} className='login-form-button' disabled={loading} onClick={this.handlesOnPasswordChange} label="Change Password" />
-                        </FormItem>
-                    </Form>
+          <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
+              <h4>Change Password</h4><br/>
+                <div style={styles.root}>
 
-                </Row>
-            </div>
+                <Card style={{padding:20}}>
+                  <CardActions>
+                    <GridList cols={1} cellHeight='auto' style={styles.gridList}>
+                        <GridTile key='oldPassword' style={{width:300, marginLeft: 115}}>
+                          <TextField onChange={this.handlesOldPasswordChange} id="oldPassword" type='password' placeholder='Old Password' />
+                        </GridTile>
+                        <GridTile key='newPassword' style={{width:300, marginLeft: 115}}>
+                          <TextField onChange={this.handlesOnNewPasswordChange} id="newPassword" type='password' placeholder='New Password' />
+                        </GridTile>
+                        <GridTile key='verifyPassword' style={{width:300, marginLeft: 115}}>
+                          <TextField onChange={this.handlesOnVerifyPasswordChange} id="verifyPassword"  type='password' placeholder='Verify Password' />
+                        </GridTile>
+                        <GridTile key='createPassword' style={{width:300, marginLeft: 150}}>
+                          <RaisedButton primary={true} onClick={this.handlesOnPasswordChange} label="Change Password" />
+                        </GridTile>
+                    </GridList>
+                  </CardActions>
+                </Card>
+                </div>
+          </div>
         )
     }
 
@@ -119,18 +140,11 @@ class Password extends Component {
           const { router } = this.context
 
             console.log('res --->', res)
-            message.config({
-              top: 5,
-              duration: 5,
-            });
-
-            message.success('Your password has been successfully changed.');
             this.setState({ oldPassword: '' })
             this.setState({ newPassword: '' })
             this.setState({ verifyPassword: '' })
             router.push({ pathname: '/landscapes' })
         }).catch(err => {
-            message.error('Password Change Fail.  Please Try Again.');
             console.log('ERROR: ', err )
         })
     }

@@ -90,7 +90,6 @@
   "dependencies": {
     "acl": "^0.4.9",
     "animate.css": "^3.5.1",
-    "antd": "^2.5.2",
     "apollo-client": "^0.5.20",
     "async": "^2.1.4",
     "aws-sdk": "^2.9.0",
