@@ -161,45 +161,17 @@ function saveGroup(group) {
 function checkGroupNotExists(group) {
   return new Promise(function (resolve, reject) {
     var Group = mongoose.model('Group');
-    Group.find({ name: group.name }, function (err, groups) {
-      if (err) {
-        reject(new Error('Failed to find local group ' + group.name));
-      }
+    Group.find(function (err, data) {
 
-      if (groups.length === 0) {
+      if (data.length === 0) {
         resolve();
       } else {
         // reject(new Error('Failed due to local account already exists: ' + user.username));
-        reject('Seeding halted because local group already exists: ' + group.name);
+        reject('Groups seeding halted because groups already exist');
       }
     });
   });
 }
-
-// function seedRoles(roles) {
-//   const Role = mongoose.model('Role');
-
-//   let fn = function x(role) {
-//     return new Promise(function (resolve, reject) {
-//       Role.find({ name: role.name }, function (err, roles) {
-//         if (err) { console.log(err); reject(err); }
-
-//         if (roles.length === 0) {
-//           // create role if not exist
-//           role.save(function (err, theRole) {
-//             if (err) { console.log(err); reject(err); }
-//             else {
-//               resolve(theRole);
-//             }
-//           });
-//         }
-//       });
-//     })
-//   }
-
-//   let actions = roles.map(fn)
-//   return Promise.all(actions)
-// }
 
 module.exports.start = function start(options) {
 console.log('Database seeding: CREATING EVERYTHINGx')
