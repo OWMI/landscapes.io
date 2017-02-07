@@ -7,6 +7,7 @@
         "view": "login",
         "isRouteBtn": true,
         "alwaysShows": false,
+        "showAdminOnly": false,
         "showWhenUserAuth": false,
         "showOnUserDropdown": false,
         "hideWhenUserAuth": true
@@ -16,6 +17,7 @@
         "view": "landscapes",
         "isRouteBtn": true,
         "alwaysShows": false,
+        "showAdminOnly": false,
         "showWhenUserAuth": true,
         "showOnUserDropdown": false,
         "hideWhenUserAuth": false
@@ -25,6 +27,7 @@
         "view": "groups",
         "isRouteBtn": true,
         "alwaysShows": false,
+        "showAdminOnly": true,
         "showWhenUserAuth": true,
         "showOnUserDropdown": false,
         "hideWhenUserAuth": false
@@ -34,6 +37,7 @@
         "view": "users",
         "isRouteBtn": true,
         "alwaysShows": false,
+        "showAdminOnly": true,
         "showWhenUserAuth": true,
         "showOnUserDropdown": false,
         "hideWhenUserAuth": false
@@ -43,6 +47,7 @@
         "view": "accounts",
         "isRouteBtn": true,
         "alwaysShows": false,
+        "showAdminOnly": true,
         "showWhenUserAuth": true,
         "showOnUserDropdown": false,
         "hideWhenUserAuth": false
