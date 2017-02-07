@@ -48,7 +48,7 @@ RUN npm install --quiet && npm cache clean
 
 COPY . /opt/landscapes
 
-RUN npm run build --quiet
+RUN npm run build
 
 ENV MONGO_SEED true
 
