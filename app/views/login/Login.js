@@ -61,7 +61,7 @@ class Login extends Component {
 
     handlesOnLogin = event => {
         event.preventDefault()
-        const { loginUser } = this.props
+        const { loginUser, groups } = this.props
         const { router } = this.context
         let { username, password } = this.refs
 
@@ -72,13 +72,11 @@ class Login extends Component {
             method: 'post',
             url: 'http://0.0.0.0:8080/api/auth/signin',
             data: {
-                username: username,
-                password: password
+                username,
+                password
             }
         }).then(res => {
-            loginUser(res.data)
-            console.log('res data', res.data)
-            // this.props.user = res.data
+            loginUser(res.data, groups)
             router.push({ pathname: '/landscapes' })
         })
     }
