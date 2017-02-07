@@ -1,7 +1,7 @@
 'use strict'
 
-let ldapUrl = process.env.LDAP_1_PORT_389_TCP_ADDR
-    ? `ldap://${process.env.LDAP_1_PORT_389_TCP_ADDR}:389`
+let ldapUrl = process.env.LDAP_PORT_389
+    ? `ldap://${process.env.LDAP_PORT_389}:389`
     : `ldap://localhost:389`
 
 module.exports = {

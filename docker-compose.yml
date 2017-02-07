@@ -15,9 +15,9 @@ services:
      - "3000:3000"
      - "8080:8080"
     environment:
-     - NODE_ENV=development
-     - DB_1_PORT_27017_TCP_ADDR=db
-     - LDAP_1_PORT_389_TCP_ADDR=openldap
+     - NODE_ENV=production
+     - DB_PORT_27017=db
+     - LDAP_PORT_389=openldap
     depends_on:
      - db
     volumes_from:
@@ -25,13 +25,13 @@ services:
   web-data:
     build: .
     container_name: landscapes-data
-    entrypoint: /bin/true
     volumes:
      - ./:/opt/landscapes
      - /opt/landscapes/node_modules
      - /opt/landscapes/public
      - /opt/landscapes/uploads
-     
+    entrypoint: /bin/true
+         
   db:
     image: mongo:3.2
     container_name: mongo
@@ -49,7 +49,12 @@ services:
       - /var/log/mongodb
     entrypoint: /bin/true
 
+# https://github.com/osixia/docker-openldap
   openldap:
+    # 389=LDAP, 636=LDAPS
+    ports:
+      - "389:389"
+      - "636:636"
     image: osixia/openldap
     container_name: openldap
     environment:
@@ -57,16 +62,15 @@ services:
       LDAP_DOMAIN: "landscapes.io"
       LDAP_BASE_DN: "dc=landscapes,dc=io"
       LDAP_ADMIN_PASSWORD: "password"
-    ports:
-      - "389:389"
-      - "636:636"
 
-# phpLDAPadmin
+# https://github.com/osixia/docker-phpLDAPadmin
 # https://localhost:8443
 # Login DN: cn=admin,dc=landscapes,dc=io
 # Password: password
-
   phpldapadmin:
+    ports:
+      - "8888:80"
+      - "8443:443"
     image: osixia/phpldapadmin
     container_name: phpldapadmin
     environment:
@@ -74,6 +78,3 @@ services:
       # PHPLDAPADMIN_HTTPS=false:
     links:
       - openldap
-    ports:
-      - "8888:80"
-      - "8443:443"

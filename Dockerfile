@@ -7,7 +7,7 @@
 FROM node:6
 MAINTAINER BlackSky 
 
-# 3000=landscapes, 8080=Nodejs/GraphQL
+# 3000=landscapes, 8080=Node.js/GraphQL
 EXPOSE 3000 8080
 
 # Install Utilities
@@ -28,10 +28,7 @@ RUN apt-get update -q  \
  gcc \
  make \
  build-essential \
- libfreetype6 \
- libfontconfig \
  libkrb5-dev \
- ruby \
  sudo \
  apt-utils \
  && apt-get clean \
