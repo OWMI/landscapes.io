@@ -3,7 +3,7 @@ import { auth } from '../services/auth'
 import { PageNotFound } from '../views'
 import { ApolloProvider } from 'react-apollo'
 import { syncHistoryWithStore } from 'react-router-redux'
-import { Router, Route, IndexRoute, browserHistory } from 'react-router'
+import { Router, Route, IndexRoute, browserHistory, hashHistory } from 'react-router'
 import DevTools from '../redux/devTools/DevTools.jsx'
 import configureStore, { client } from '../redux/store/configureStore'
 
@@ -46,7 +46,7 @@ import {
 } from '../containers'
 
 const store = configureStore()
-const syncedHistory = syncHistoryWithStore(browserHistory, store)
+const syncedHistory = syncHistoryWithStore(hashHistory, store)
 
 export const Routes = () => {
     return (

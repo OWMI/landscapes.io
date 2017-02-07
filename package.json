@@ -11,9 +11,9 @@
     "dev": "NODE_ENV=development webpack",
     "test": "NODE_ENV=test nyc mocha test/.setup.js test/**/*.spec.js --recursive",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "prod": "NODE_ENV=production concurrently --kill-others \"nodemon ./server/init.js --exec babel-node\" \"http-server dist/ -s -p 3000\"",
+    "prod": "NODE_ENV=production concurrently --kill-others \"nodemon ./server/init.js --exec babel-node\" \"http-server dist/ -s -p 3000\" --history-api-fallback",
     "build": "NODE_ENV=production webpack -p --config webpack.production.config.js",
-    "start": "NODE_ENV=development concurrently --kill-others \"nodemon ./server/init.js --exec babel-node\" \"node server.hot.reload\""
+    "start": "NODE_ENV=development concurrently --kill-others \"nodemon ./server/init.js --exec babel-node\" \"node server.hot.reload\" --history-api-fallback"
   },
   "repository": {
     "type": "git",
@@ -113,12 +113,14 @@
     "https": "^1.0.0",
     "jquery": "^2.2.1",
     "js-base64": "^2.1.9",
+    "jsx-loader": "^0.13.2",
     "lodash": "^4.17.4",
     "lost": "^7.1.1",
     "material-ui": "^0.16.7",
     "moment": "^2.14.1",
     "mongoose": "^4.7.2",
     "multer": "^1.2.1",
+    "node-jsx": "^0.13.3",
     "nodemailer": "^2.7.0",
     "passport": "^0.3.2",
     "passport-ldapauth": "^0.6.0",
