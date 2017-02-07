@@ -125,7 +125,6 @@ class EditGroup extends Component {
         }
         if(landscapes){
           landscapesSorted = sortBy(landscapes, ['name']);
-          this.setState({landscapes: landscapesSorted})
         }
         this.setState({currentGroup: currentGroup})
         this.setState({landscapes: landscapes})
@@ -142,8 +141,6 @@ class EditGroup extends Component {
                     stateLandscapes.push(ls)
                 })
             }
-            this.setState({landscapes: stateLandscapes})
-
         }
         if (currentGroup.users) {
             for (var i = 0; i < currentGroup.users.length; i++) {
@@ -197,7 +194,9 @@ class EditGroup extends Component {
                 }
             })
         }
-        this.setState({stateLandscapes, stateUsers})
+        console.log('GLOBAL TEST -----------------')
+        this.setState({stateLandscapes: landscapesSorted, stateUsers})
+
     }
 
     componentWillReceiveProps(nextProps) {
@@ -233,7 +232,6 @@ class EditGroup extends Component {
         }
         if(landscapes){
           landscapesSorted = sortBy(landscapes, ['name']);
-          this.setState({landscapes: landscapesSorted})
         }
         this.setState({currentGroup: currentGroup})
         this.setState({landscapes: landscapes})
@@ -305,7 +303,8 @@ class EditGroup extends Component {
                 }
             })
         }
-        this.setState({stateLandscapes, stateUsers})
+        console.log('GLOBAL TEST -----------------')
+        this.setState({stateLandscapes: landscapesSorted, stateUsers})
     }
 
     componentDidMount() {

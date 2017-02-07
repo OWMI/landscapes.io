@@ -11,7 +11,8 @@ const config = {
     entry: [path.resolve(ROOT_PATH, 'app/index.js')],
     output: {
         path: assetsDir,
-        filename: 'bundle.js'
+        filename: 'bundle.js',
+        publicPath: '/'
     },
     module: {
         loaders: [
