@@ -9,6 +9,8 @@ import shallowCompare from 'react-addons-shallow-compare'
 import UploadIcon from 'material-ui/svg-icons/file/file-upload'
 import { Paper, RaisedButton, TextField } from 'material-ui'
 import Snackbar from 'material-ui/Snackbar';
+import AvatarCropper from "react-avatar-cropper";
+
 
 import './landscapes.style.scss'
 import { Loader } from '../../components'
@@ -85,24 +87,22 @@ class CreateLandscape extends Component {
                         <TextField id='infoLink' ref='infoLink' floatingLabelText='Info Link' fullWidth={true}/>
                         <TextField id='infoLinkText' ref='infoLinkText' floatingLabelText='Link Text' fullWidth={true}/>
 
-                        <Dropzone id='imageUri' onDrop={this.handlesImageUpload} multiple={false} accept='image/*'
-                            style={{ marginLeft: '10px', width: '180px', padding: '15px 0px' }}>
-                            {
-                                this.state.imageUri
-                                ?
-                                    <Row middle='xs'>
-                                        <img src={this.state.imageUri} style={{ margin: '0 10px', height: '50px' }}/>
-                                        <span style={{ fontSize: '11px' }}>{this.state.imageFileName}</span>
-                                    </Row>
-                                :
-                                    <Row middle='xs'>
-                                        <IconButton>
-                                            <UploadIcon/>
-                                        </IconButton>
-                                        <span style={{ fontSize: '11px' }}>LANDSCAPE IMAGE</span>
-                                    </Row>
-                            }
-                        </Dropzone>
+                          <Dropzone id='imageUri' onDrop={this.handlesImageUpload} multiple={false} accept='image/*' style={{
+                              marginLeft: '10px',
+                              maxWidth: '100px',
+                              padding: '15px 0px'
+                          }}>
+                              <div className="avatar-photo" >
+                                  <div className="avatar-edit">
+                                      <span>Click to Choose Image</span>
+                                      <i className="fa fa-camera" style={{fontSize: 30}}></i>
+                                  </div>
+                                  <img src={this.state.croppedImg || this.state.imageUri}/>
+                              </div>
+                              {this.state.cropperOpen &&
+                                <AvatarCropper onRequestHide={this.handleRequestHide} cropperOpen={this.state.cropperOpen} onCrop={this.handleCrop} image={this.state.img} width={400} height={400}/>
+                              }
+                          </Dropzone>
 
                         <Dropzone id='cloudFormationTemplate' onDrop={this.handlesTemplateClick} multiple={false}
                             style={{ width: '100%', height: 150, padding: '15px 0px' }}
@@ -128,6 +128,32 @@ class CreateLandscape extends Component {
             </Row>
         )
     }
+    getInitialState = () => {
+        return {
+          cropperOpen: false,
+          img: null,
+          croppedImg: defaultImage
+        };
+      }
+      handleFileChange = (dataURI) => {
+        this.setState({
+          img: dataURI,
+          croppedImg: this.state.croppedImg,
+          cropperOpen: true
+        });
+      }
+      handleCrop = (dataURI) => {
+        this.setState({
+          cropperOpen: false,
+          img: null,
+          croppedImg: dataURI
+        });
+      }
+      handleRequestHide = () =>{
+        this.setState({
+          cropperOpen: false
+        });
+      }
 
     handlesImageUpload = (acceptedFiles, rejectedFiles) => {
         let reader = new FileReader()
@@ -136,6 +162,9 @@ class CreateLandscape extends Component {
         reader.onload = () => {
             this.setState({
                 imageUri: reader.result,
+                img: reader.result,
+                croppedImg: this.state.croppedImg,
+                cropperOpen: true,
                 imageFileName: acceptedFiles[0].name
             })
         }
@@ -171,7 +200,7 @@ class CreateLandscape extends Component {
             landscapeToCreate[key] = this.refs[key].getValue()
         }
         // attach imageUri and cloudFormationTemplate
-        landscapeToCreate.imageUri = this.state.imageUri || ''
+        landscapeToCreate.imageUri = this.state.croppedImg || ''
         landscapeToCreate.cloudFormationTemplate = this.state.cloudFormationTemplate || ''
         if(!landscapeToCreate.version){
           landscapeToCreate.version = '1.0'

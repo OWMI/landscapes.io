@@ -149,26 +149,21 @@ class CreateUser extends Component {
                               <GridTile
                                 key='role'
                               >
-                              <Dropzone id='imageUri' onDrop={this.handlesImageUpload} multiple={false} accept='image/*'
-                                style={{ marginLeft: '10px', width: '180px', padding: '15px 0px' }}>
-                                <div className="avatar-photo">
-                                  <div className="avatar-edit">
-                                    <span>Click to Choose Image</span>
-                                    <i className="fa fa-camera"></i>
-                                  </div>
-                                  <img src={this.state.croppedImg || this.state.imageUri || defaultUserImage} style={{width: 200}} />
-                                </div>
-                                {
-                                  this.state.cropperOpen &&
-                                  <AvatarCropper
-                                    onRequestHide={this.handleRequestHide}
-                                    cropperOpen={this.state.cropperOpen}
-                                    onCrop={this.handleCrop}
-                                    image={this.state.img}
-                                    width={400}
-                                    height={400}
-                                  />
-                                }
+                                <Dropzone id='imageUri' onDrop={this.handlesImageUpload} multiple={false} accept='image/*' style={{
+                                    marginLeft: '10px',
+                                    maxWidth: '100px',
+                                    padding: '15px 0px'
+                                }}>
+                                    <div className="avatar-photo" >
+                                        <div className="avatar-edit">
+                                            <span>Click to Choose Image</span>
+                                            <i className="fa fa-camera" style={{fontSize: 30}}></i>
+                                        </div>
+                                        <img src={this.state.croppedImg || this.state.imageUri || defaultUserImage} />
+                                    </div>
+                                    {this.state.cropperOpen &&
+                                      <AvatarCropper onRequestHide={this.handleRequestHide} cropperOpen={this.state.cropperOpen} onCrop={this.handleCrop} image={this.state.img} width={400} height={400}/>
+                                    }
                                 </Dropzone>
                               <RadioButtonGroup style={{width:450, margin: 5}} name="role" id="role" valueSelected={this.state.role} onChange={this.handleRoleChange}>
                                     <RadioButton

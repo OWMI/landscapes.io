@@ -179,7 +179,7 @@ class EditUser extends Component {
                             <span>Click to Choose Image</span>
                             <i className="fa fa-camera"></i>
                           </div>
-                          <img src={this.state.croppedImg || this.state.imageUri || defaultUserImage} style={{width: 200}} />
+                          <img src={this.state.croppedImg || this.state.imageUri || defaultUserImage} />
                         </div>
                         {
                           this.state.cropperOpen &&

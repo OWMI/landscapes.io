@@ -102,22 +102,20 @@ class EditLandscape extends Component {
                         <TextField id='infoLink' ref='infoLink' defaultValue={currentLandscape.infoLink} floatingLabelText='Info Link' fullWidth={true}/>
                         <TextField id='infoLinkText' ref='infoLinkText' defaultValue={currentLandscape.infoLinkText} floatingLabelText='Link Test' fullWidth={true}/>
 
-                        <Dropzone id='imageUri' onDrop={this.handlesImageUpload} multiple={false} accept='image/*'
-                            style={{ marginLeft: '10px', width: '180px', padding: '15px 0px' }}>
-                            {
-                                this.state.imageUri || currentLandscape.imageUri
-                                ?
-                                    <Row middle='xs'>
-                                        <img src={this.state.imageUri || currentLandscape.imageUri} style={{ margin: '0 10px', height: '50px' }}/>
-                                        <span style={{ fontSize: '11px' }}>{this.state.imageFileName || 'CURRENT IMAGE'}</span>
-                                    </Row>
-                                :
-                                    <Row middle='xs'>
-                                        <IconButton>
-                                            <UploadIcon/>
-                                        </IconButton>
-                                        <span style={{ fontSize: '11px' }}>LANDSCAPE IMAGE</span>
-                                    </Row>
+                        <Dropzone id='imageUri' onDrop={this.handlesImageUpload} multiple={false} accept='image/*' style={{
+                            marginLeft: '10px',
+                            maxWidth: '100px',
+                            padding: '15px 0px'
+                        }}>
+                            <div className="avatar-photo">
+                                <div className="avatar-edit">
+                                    <span>Click to Choose Image</span>
+                                    <i className="fa fa-camera" style={{fontSize: 30}}></i>
+                                </div>
+                                <img src={this.state.croppedImg || currentLandscape.imageUri}/>
+                            </div>
+                            {this.state.cropperOpen &&
+                              <AvatarCropper onRequestHide={this.handleRequestHide} cropperOpen={this.state.cropperOpen} onCrop={this.handleCrop} image={this.state.img} width={400} height={400}/>
                             }
                         </Dropzone>
 
@@ -145,7 +143,32 @@ class EditLandscape extends Component {
             </Row>
         )
     }
-
+    getInitialState = () => {
+        return {
+          cropperOpen: false,
+          img: null,
+          croppedImg: defaultImage
+        };
+      }
+      handleFileChange = (dataURI) => {
+        this.setState({
+          img: dataURI,
+          croppedImg: this.state.croppedImg,
+          cropperOpen: true
+        });
+      }
+      handleCrop = (dataURI) => {
+        this.setState({
+          cropperOpen: false,
+          img: null,
+          croppedImg: dataURI
+        });
+      }
+      handleRequestHide = () =>{
+        this.setState({
+          cropperOpen: false
+        });
+      }
     handlesImageUpload = (acceptedFiles, rejectedFiles) => {
         let reader = new FileReader()
 
@@ -153,6 +176,9 @@ class EditLandscape extends Component {
         reader.onload = () => {
             this.setState({
                 imageUri: reader.result,
+                img: reader.result,
+                croppedImg: this.state.croppedImg,
+                cropperOpen: true,
                 imageFileName: acceptedFiles[0].name
             })
         }
