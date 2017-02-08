@@ -1,5 +1,4 @@
 import cx from 'classnames'
-// import { Button } from 'antd'
 import { RaisedButton } from 'material-ui'
 import { Link } from 'react-router'
 import { Jumbotron } from '../../components'

@@ -2,26 +2,27 @@ import cx from 'classnames'
 import { Loader } from '../../components'
 import React, { Component, PropTypes } from 'react'
 import shallowCompare from 'react-addons-shallow-compare'
-import Dropzone from 'react-dropzone'
+import axios from 'axios'
 
 import { Checkbox, RaisedButton} from 'material-ui'
 import {GridList, GridTile} from 'material-ui/GridList';
-import Subheader from 'material-ui/Subheader';
-import IconButton from 'material-ui/IconButton';
-import StarBorder from 'material-ui/svg-icons/toggle/star-border';
-import Snackbar from 'material-ui/Snackbar';
-import UploadIcon from 'material-ui/svg-icons/file/file-upload'
-
+import {RadioButton, RadioButtonGroup} from 'material-ui/RadioButton'
 import {Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table';
 import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/Card';
 import {Tabs, Tab} from 'material-ui/Tabs';
 import TextField from 'material-ui/TextField';
+import Snackbar from 'material-ui/Snackbar';
+
+import {debounce} from 'lodash';
 
 import Slider from 'material-ui/Slider';
-import {RadioButtonGroup, RadioButton} from 'material-ui/RadioButton';
 import getMuiTheme from 'material-ui/styles/getMuiTheme'
 import FlatButton from 'material-ui/FlatButton';
+import defaultImage from '../../style/empty.png'
+import defaultGroupImage from '../../style/empty-group.png'
+
 import { auth } from '../../services/auth'
+
 
 const styles = {
   root: {
@@ -30,9 +31,7 @@ const styles = {
     justifyContent: 'space-around',
   },
   gridList: {
-    width: 500,
-    justifyContent: 'center',
-    overflowY: 'auto'
+    width: 500
   },
 };
 
@@ -41,11 +40,21 @@ class Password extends Component {
         animated: true,
         viewEntersAnim: true,
 
+        oldPassword: '',
         newPassword: '',
-        verifyPassword: ''
+        verifyPassword: '',
+
+        verfiyPasswordError: false,
+        buttonDisabled: true,
+        passwordErrors: [],
+        passwordSubmitError: false,
+
+        successOpen: false,
+        failOpen:false
     }
 
     componentDidMount() {
+      console.log('THIS PROPS ----->', this.props)
         const { enterPasswordChange } = this.props
         enterPasswordChange()
     }
@@ -68,24 +77,71 @@ class Password extends Component {
           <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
               <h4>Change Password</h4><br/>
                 <div style={styles.root}>
-
+                  <Snackbar
+                    open={this.state.successOpen}
+                    message="Password Changed"
+                    autoHideDuration={3000}
+                    onRequestClose={this.handleRequestClose}
+                  />
+                  <Snackbar
+                    open={this.state.failOpen}
+                    message="Invalid Password."
+                    autoHideDuration={3000}
+                    onRequestClose={this.handleRequestClose}
+                  />
                 <Card style={{padding:20}}>
-                  <CardActions>
-                    <GridList cols={1} cellHeight='auto' style={styles.gridList}>
-                        <GridTile key='oldPassword' style={{width:300, marginLeft: 115}}>
-                          <TextField onChange={this.handlesOldPasswordChange} id="oldPassword" type='password' placeholder='Old Password' />
+                <CardActions>
+
+                <GridList
+                  cols={1}
+                  cellHeight='auto'
+                  style={styles.gridList}
+                >
+                  {
+                    this.state.passwordSubmitError
+                      ?
+                      <GridTile key='passwordSubmitError' style={{width:400, marginLeft: 50, textAlign: 'center'}}>
+                          <h6 style={{color:'red'}}>Old password entered was invalid.</h6>
+                      </GridTile>
+                      :
+                      <div></div>
+                  }
+
+                  <GridTile key='description' style={{width:400, marginLeft: 50, textAlign: 'center'}}>
+                    <h6>The password must be at least 10 characters long, contain at least one uppercase letter, contain at least one number, and contain at least one special character.</h6>
+                  </GridTile>
+                  <GridTile key='oldPassword' style={{width:300, marginLeft: 115}}>
+                      <TextField onChange={this.handlesOldPasswordChange} id="oldPassword" type='password' floatingLabelText='Old Password' />
+                  </GridTile>
+                    <GridTile key='newPassword' style={{width:300, marginLeft: 115}}>
+                      <TextField onChange={this.handlesOnNewPasswordChange} id="newPassword" type='password' floatingLabelText='New Password' />
+                  </GridTile>
+
+                        <GridTile key='passwordErrors' style={{width:300, marginLeft: 115}}>
+                          {
+                            this.state.passwordErrors.map((error, index) =>{
+                              return <p  key={index} style={{color: 'red'}}>{error}</p>
+                            })
+                          }
                         </GridTile>
-                        <GridTile key='newPassword' style={{width:300, marginLeft: 115}}>
-                          <TextField onChange={this.handlesOnNewPasswordChange} id="newPassword" type='password' placeholder='New Password' />
-                        </GridTile>
-                        <GridTile key='verifyPassword' style={{width:300, marginLeft: 115}}>
-                          <TextField onChange={this.handlesOnVerifyPasswordChange} id="verifyPassword"  type='password' placeholder='Verify Password' />
-                        </GridTile>
-                        <GridTile key='createPassword' style={{width:300, marginLeft: 150}}>
-                          <RaisedButton primary={true} onClick={this.handlesOnPasswordChange} label="Change Password" />
-                        </GridTile>
-                    </GridList>
-                  </CardActions>
+                  <GridTile key='verifyPassword' style={{width:300, marginLeft: 115}}>
+                      <TextField onChange={this.handlesOnVerifyPasswordChange} id="verifyPassword" type='password' floatingLabelText='Verify Password' />
+                </GridTile>
+                {
+                  this.state.verfiyPasswordError
+                    ?
+                      <GridTile key='verifyPasswordError' style={{width:300, marginLeft: 115}}>
+                        <p style={{color: 'red'}}>ERROR: Passwords do not match</p>
+                      </GridTile>
+                    :
+                    <div></div>
+                }
+                  <GridTile style={{width:300, marginLeft: 150}} key='login-form-button'>
+                      <RaisedButton primary={true} className='login-form-button' disabled={loading || this.state.buttonDisabled} onClick={this.handlesOnPasswordChange} label="Change Password" />
+                  </GridTile>
+                </GridList>
+                </CardActions>
+
                 </Card>
                 </div>
           </div>
@@ -94,24 +150,80 @@ class Password extends Component {
 
     handlesOldPasswordChange = event => {
         event.preventDefault()
-        console.log('oldPassword changed', event.target.value)
-        // should add some validator before setState in real use cases
-        this.setState({ currentPassword: event.target.value })
+        this.setState({ currentPassword: event.target.value, passwordSubmitError: false })
     }
 
-    handlesOnNewPasswordChange = event => {
-        event.preventDefault()
-        console.log('newPassword changed', event.target.value)
-        // should add some validator before setState in real use cases
-        this.setState({ newPassword: event.target.value })
+    handlesOnNewPasswordChange = debounce(((event, value) => {
+        this.setState({newPassword: value});
+        this.checkPasswordStrength(value);
+      }), 1000)
+
+    handlesOnVerifyPasswordChange = debounce(((event, value) => {
+      this.setState({verifyPassword: value});
+      console.log('value', value)
+      console.log('this.state.newPassword', this.state.newPassword)
+      console.log('this.jsonEqual(value, this.state.newPassword)', this.jsonEqual(value, this.state.newPassword))
+      if(!this.jsonEqual(value, this.state.newPassword)){
+        this.setState({verfiyPasswordError: true, buttonDisabled: true})
+      }
+      else{
+        if(this.state.passwordErrors.length){
+          this.setState({verfiyPasswordError: false, buttonDisabled: true})
+        }
+        else{
+          this.setState({verfiyPasswordError: false, buttonDisabled: false})
+        }
+      }
+    }), 1000)
+
+    jsonEqual = (a,b) => {
+      return JSON.stringify(a) === JSON.stringify(b);
     }
 
-    handlesOnVerifyPasswordChange = event => {
-        event.preventDefault()
-        console.log('verifyPassword changed', event.target.value)
-        // should add some validator before setState in real use cases
-        this.setState({ verifyPassword: event.target.value })
-    }
+    checkPasswordStrength = (password) => {
+        let passwordErrors = [];
+        var tester = 'aaaa'
+        var reg = ".*[A-Z].*"
+
+        var KEY = password.match(reg);
+        console.log(KEY)
+        //
+        if (!password.match(".*[A-Z].*")){
+          passwordErrors.push('Password must contain an uppercase letter.')
+        };
+        if (!password.match(".*[a-z].*")){
+          passwordErrors.push('Password must contain a lowercase letter.')
+        };
+        //
+        if (!password.match(".*\\d.*")){
+          passwordErrors.push('Password must contain a number.')
+        };
+        //
+        if (!password.match(".*[~!.......].*")){
+          passwordErrors.push('Password must contain a special character.')
+        };
+
+        if (password.split('').length < 10){
+          console.log(password.split('').length)
+          passwordErrors.push('Password must contain atleast 10 characters.')
+        };
+
+        if(passwordErrors.length){
+          this.setState({passwordErrors});
+          console.log('passwordErrors', passwordErrors)
+          return false;
+        }
+        else{
+          this.setState({passwordErrors});
+          if(this.state.verifyPasswordError && this.state.verifyPassword){
+            this.setState({buttonDisabled: false})
+          }
+          else if(!this.state.verifyPasswordError && this.state.verifyPassword){
+            this.setState({buttonDisabled: true})
+          }
+          return true;
+        }
+      }
 
     handlesOnPasswordChange = event => {
         event.preventDefault()
@@ -145,7 +257,8 @@ class Password extends Component {
             this.setState({ verifyPassword: '' })
             router.push({ pathname: '/landscapes' })
         }).catch(err => {
-            console.log('ERROR: ', err )
+            this.setState({ passwordSubmitError: true })
+            console.log('ERROR111111111: ', err )
         })
     }
 }

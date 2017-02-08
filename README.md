@@ -11,7 +11,6 @@
 - Redux-devtools
 - React-Router-Redux
 - React-Router
-- AntDesign
 - Font-Awesome
 - animate.css
 - Classnames (scss lib)
