@@ -22,9 +22,9 @@ exports.default = {
     spacing: _spacing2.default,
     fontFamily: 'Nunito, sans-serif',
     palette: {
-        primary1Color: '#253B55',
-        primary2Color: '#172336',
-        primary3Color: _colors.grey400,
+        primary1Color: '#263D37',
+        primary2Color: '#263042',
+        primary3Color: '#4F4239',
         accent1Color: _colors.orange500,
         accent2Color: _colors.grey100,
         accent3Color: _colors.grey500,

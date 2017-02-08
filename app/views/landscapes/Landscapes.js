@@ -10,6 +10,7 @@ import { CardHeader, CardActions, CardText, FlatButton, Paper } from 'material-u
 import './landscapes.style.scss'
 import { Loader } from '../../components'
 import { auth } from '../../services/auth'
+import materialTheme from '../../style/custom-theme.js';
 
 class Landscapes extends Component {
 
@@ -56,7 +57,6 @@ class Landscapes extends Component {
                     axios.get(`http://localhost:8080/api/landscapes/${landscape._id}/deployments`).then(res => {
                         resolve(res.data)
                     }).catch(err => {
-                        console.log(err)
                         reject(err)
                     })
                 })
@@ -87,10 +87,8 @@ class Landscapes extends Component {
                                 return new Promise((resolve, reject) => {
                                     axios.get(`http://localhost:8080/api/deployments/describe/${stack.stackName}/${stack.location}/${stack.accountName}`)
                                     .then(res => {
-                                        console.log(res)
                                         resolve(res.data)
                                     }).catch(err => {
-                                        console.log(err)
                                         reject(err)
                                     })
                                 })
@@ -132,7 +130,6 @@ class Landscapes extends Component {
                 self.setState({ viewLandscapes: _viewLandscapes })
 
             }).catch(err => {
-                console.log(err)
             })
         } else if (_viewLandscapes.length) {
             self.setState({ viewLandscapes: _viewLandscapes })
@@ -162,7 +159,6 @@ class Landscapes extends Component {
         if (user.role !== 'admin') {
             if (groups) {
                 groups.map(group => group.users.map(user => {
-                    console.log(user.userId)
                     if (user.userId === auth.getUserInfo()._id) {
                         userGroups.push(group)
                         if (landscapes) {
@@ -195,14 +191,14 @@ class Landscapes extends Component {
             <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
 
                 <a onClick={this.handlesCreateLandscapeClick}>
-                    <p style={{ fontSize: '20px' }}><IoIosPlusEmpty size={30}/>Add Landscape</p>
+                    <p style={{ fontSize: '20px', cursor: 'pointer' }}><IoIosPlusEmpty size={30}/>Add Landscape</p>
                 </a>
 
                 <ul>
                     {
                         _viewLandscapes.map((landscape, i) =>
 
-                        <Paper key={i} className={cx({ 'landscape-card': true })} zDepth={3} rounded={false} onClick={this.handlesLandscapeClick.bind(this, landscape)}>
+                        <Paper key={i} className={cx({ 'landscape-card': true })} style={{backgroundColor: materialTheme.palette.primary1Color}} zDepth={3} rounded={false} onClick={this.handlesLandscapeClick.bind(this, landscape)}>
                                 {/* header */}
                                 <Row start='xs' top='xs' style={{ padding: '20px 0px' }}>
                                     <Col xs={8}>
@@ -218,7 +214,13 @@ class Landscapes extends Component {
 
                                 <Row style={{ margin: '0px 20px', height: '95px' }}>
                                     <div id='landscape-title'>{landscape.name}</div>
-                                    <div id='landscape-description'>{landscape.description}</div>
+                                    {
+                                      landscape.description.length > 120
+                                        ?
+                                        <div id='landscape-description'>{landscape.description.substr(0, 120) + '...'}</div>
+                                        :
+                                        <div id='landscape-description'>{landscape.description}</div>
+                                    }
                                 </Row>
 
                                 <Row end='xs' bottom='xs' id='icon-container'>

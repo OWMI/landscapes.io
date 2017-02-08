@@ -52,7 +52,7 @@ class Accounts extends Component {
             <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
 
                 <a onClick={this.handlesCreateAccountClick}>
-                    <p style={{ fontSize: '20px' }}><IoIosPlusEmpty size={30}/> Add Account </p>
+                    <p style={{ fontSize: '20px', cursor: 'pointer' }}><IoIosPlusEmpty size={30}/> Add Account </p>
                 </a>
 
                 <Table>
@@ -125,10 +125,8 @@ class Accounts extends Component {
         mutate({
             variables: { account: accountToDelete }
          }).then(({ data }) => {
-            console.log('deleted', data)
             router.push({ pathname: '/accounts' })
         }).catch((error) => {
-            console.error('graphql error', error)
         })
     }
 }

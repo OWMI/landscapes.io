@@ -124,8 +124,6 @@ class RightNav extends Component {
     }
     handleLogout = event => {
         auth.clearAllAppStorage()
-
-        console.log('fetched')
         this.setState({userIsAuthenticated: false})
     }
 }

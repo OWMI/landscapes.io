@@ -31,10 +31,6 @@ class Deployments extends Component {
         const { animated, viewEntersAnim } = this.state
         const { loading, landscapes } = this.props
 
-        // if (this.props.landscapes) {
-        //     console.log('%c landscapes ', 'background: #1c1c1c; color: deeppink', landscapes)
-        // }
-
         if (loading) {
             return (
                 <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>

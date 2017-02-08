@@ -10,6 +10,7 @@ import defaultImage from '../../style/empty.png'
 import { Paper , CardHeader, CardActions, CardText, FlatButton } from 'material-ui'
 
 import '../landscapes/landscapes.style.scss'
+import materialTheme from '../../style/custom-theme.js';
 
 
 class Users extends Component {
@@ -70,16 +71,15 @@ class Users extends Component {
 
         return (
             <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
-              {console.log('this.state.users', this.state.users)}
                 <a onClick={this.handlesCreateGroupClick}>
-                  <p style={{ fontSize: '20px' }}><IoIosPlusEmpty size={30}/>Add User</p>
+                  <p style={{ fontSize: '20px', cursor: 'pointer' }}><IoIosPlusEmpty size={30}/>Add User</p>
                 </a>
 
                 <ul>
                 {
                     this.state.users.map((user, i) =>
 
-                    <Paper key={i} className={cx({ 'landscape-card': true })} zDepth={3} rounded={false} onClick={this.handlesGroupClick.bind(this, user)}>
+                    <Paper key={i} style={{backgroundColor: materialTheme.palette.primary2Color}} className={cx({ 'landscape-card': true })} zDepth={3} rounded={false} onClick={this.handlesGroupClick.bind(this, user)}>
                             {/* header */}
                             <Row start='xs' middle='xs' style={{ padding: '20px 0px' }}>
                                 <Col xs={4}>

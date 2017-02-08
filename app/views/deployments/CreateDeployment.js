@@ -224,10 +224,8 @@ class CreateDeployment extends Component {
         mutate({
             variables: { deployment: deploymentToCreate }
          }).then(({ data }) => {
-            console.log('deployment created', data)
             router.push({ pathname: `/landscapes` })
         }).catch(error => {
-            console.error('graphql error', error)
         })
     }
 }

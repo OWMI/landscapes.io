@@ -141,7 +141,7 @@ class CreateLandscape extends Component {
         }
 
         reader.onerror = error => {
-            console.log('Error: ', error)
+
         }
     }
 
@@ -157,7 +157,6 @@ class CreateLandscape extends Component {
                 cloudFormationTemplate: JSON.stringify(res.data, null, 4)
             })
         }).catch(err => {
-            console.log(err)
         })
     }
 
@@ -181,19 +180,15 @@ class CreateLandscape extends Component {
         mutate({
             variables: { landscape: landscapeToCreate }
          }).then(({ data }) => {
-            console.log('landscape created', data)
             this.props.refetchLandscapes({}).then(({ data }) =>{
-              console.log('got MORE data', data);
               this.setState({
                 successOpen: true
               })
 
               router.push({ pathname: '/landscapes' })
             }).catch((error) => {
-                console.log('there was an error sending the SECOND query', error)
             })
         }).catch((error) => {
-            console.error('graphql error', error)
         })
     }
 

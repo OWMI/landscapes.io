@@ -12,6 +12,7 @@ import { auth } from '../../services/auth'
 import defaultImage from '../../style/empty-group.png'
 
 import '../landscapes/landscapes.style.scss'
+import materialTheme from '../../style/custom-theme.js';
 
 class Groups extends Component {
 
@@ -37,7 +38,6 @@ class Groups extends Component {
     render() {
         const { animated, viewEntersAnim } = this.state
         const { loading, groups } = this.props
-        console.log('GROUPS - ', groups)
 
         let stateGroups = groups || []
         const user = auth.getUserInfo();
@@ -46,7 +46,6 @@ class Groups extends Component {
           if(groups){
             stateGroups = []
             groups.map(group => group.users.map(user => {
-              console.log('userID', user.userId)
               if(user.userId === auth.getUserInfo()._id){
                 if(!group.imageUri)
                 group.imageUri = defaultImage;
@@ -54,8 +53,6 @@ class Groups extends Component {
               }
               })
             )
-          // viewLandscapes.filter(landscape)
-            console.log('stateGroups', stateGroups)
           }
         }
         else{
@@ -79,14 +76,14 @@ class Groups extends Component {
         return (
             <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
                 <a onClick={this.handlesCreateGroupClick}>
-                    <p style={{ fontSize: '20px' }}><IoIosPlusEmpty size={30}/>Add Group</p>
+                    <p style={{ fontSize: '20px', cursor: 'pointer' }}><IoIosPlusEmpty size={30}/>Add Group</p>
                 </a>
 
                 <ul>
                 {
                     stateGroups.map((group, i) =>
 
-                    <Paper key={i} className={cx({ 'landscape-card': true })} zDepth={3} rounded={false} onClick={this.handlesGroupClick.bind(this, group)}>
+                    <Paper key={i} className={cx({ 'landscape-card': true })} style={{backgroundColor: materialTheme.palette.primary3Color}} zDepth={3} rounded={false} onClick={this.handlesGroupClick.bind(this, group)}>
                             {/* header */}
                             <Row start='xs' middle='xs' style={{ padding: '20px 0px' }}>
                                 <Col xs={4}>

@@ -137,9 +137,7 @@ class CreateAccount extends Component {
         mutate({
             variables: { account: accountToCreate }
          }).then(({ data }) => {
-           console.log('account created', data)
            this.props.refetchAccounts({}).then(({ data }) =>{
-             console.log('got data', data);
              this.setState({
                successOpen: true,
                loading: false
@@ -147,10 +145,8 @@ class CreateAccount extends Component {
              router.push({ pathname: '/accounts' })
            }).catch((error) => {
              this.setState({loading: false})
-               console.log('there was an error sending the SECOND query', error)
            })
         }).catch(error => {
-            console.error('graphql error', error)
         })
     }
 }

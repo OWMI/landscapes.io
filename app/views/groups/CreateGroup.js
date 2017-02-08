@@ -105,7 +105,6 @@ class CreateGroup extends Component {
       this.setState({stateUsers: stateUsers || []})
 
       if(landscapes){
-        console.log('landscapes', landscapes)
         var landscapeIds = landscapes.map((index, landscape) =>{
           return {key: landscape._id, id: landscape._id, name: landscape.name, description: landscape.description}
         })
@@ -131,7 +130,6 @@ class CreateGroup extends Component {
       this.setState({stateUsers: stateUsers || []})
 
       if(landscapes){
-        console.log('landscapes', landscapes)
         var landscapeIds = landscapes.map((index, landscape) =>{
           return {key: landscape._id, id: landscape._id, name: landscape.name, description: landscape.description}
         })
@@ -332,25 +330,18 @@ class CreateGroup extends Component {
     }
 
     handleOnRowSelectionUsers = selectedRows => {
-        console.log(selectedRows)
         this.setState({selectedUserRows: selectedRows})
     }
 
     handleOnRowSelectionLandscapes = selectedRows => {
-        console.log(selectedRows)
         this.setState({selectedLandscapeRows: selectedRows})
     }
 
     handleRequestDelete = (row, index) => {
-      console.log('this.state.selectedUserRows before', this.state.selectedUserRows)
-      console.log('this.state.selectedUserRows index', index)
-      console.log('this.state.selectedUserRows index', row)
       var userSelected = this.state.selectedUserRows.splice(index, 1)
-      console.log('this.state.selectedUserRows spliced', userSelected)
       this.state.stateUsers[userSelected[0]].selected = false;
       this.setState({stateUsers: [...this.state.stateUsers]})
       this.setState({selectedUserRows: [...this.state.selectedUserRows]})
-      console.log('this.state.selectedUserRows after', this.state.selectedUserRows)
       this.render()
     }
 
@@ -400,7 +391,6 @@ class CreateGroup extends Component {
         }
 
         reader.onerror = error => {
-            console.log('Error: ', error)
         }
     }
     handlesOnNameChange = event => {
@@ -430,7 +420,6 @@ class CreateGroup extends Component {
 
     handlesOnCheck = event => {
         var isChecked = this.state.checkAll;
-        console.log(isChecked)
         if(isChecked){
           this.setState({
               permissionC: false,
@@ -468,20 +457,17 @@ class CreateGroup extends Component {
         if(this.state.permissionX){
           permissions.push('x')
         }
-        console.log('permissions', permissions)
         return permissions;
     }
 
 
     handlesOnEmailChange = event => {
         event.preventDefault()
-        // should add some validator before setState in real use cases
         this.setState({ username: event.target.value })
     }
 
     handlesOnPasswordChange = event => {
         event.preventDefault()
-        // should add some validator before setState in real use cases
         this.setState({ password: event.target.value })
     }
 
@@ -496,17 +482,13 @@ class CreateGroup extends Component {
         }
         groupToCreate.permissions = this.handlesCreatePermission()
         groupToCreate.users = []
-        // groupToCreate.landscapes = this.state.selectedRows;
-        console.log('this.state.selectedRows', this.state.selectedRows)
         groupToCreate.landscapes = []
         if (this.state.selectedLandscapeRows) {
-            console.log('theres landscapes');
             for (var i = 0; i < this.state.selectedLandscapeRows.length; i++) {
                 groupToCreate.landscapes.push(this.state.stateLandscapes[this.state.selectedLandscapeRows[i]]._id)
             }
         }
         if (this.state.selectedUserRows) {
-            console.log('theres landscapes');
             for (var i = 0; i < this.state.selectedUserRows.length; i++) {
                 if(this.state.users[this.state.selectedUserRows[i]].role === 'admin'){
                   this.state.users[this.state.selectedUserRows[i]].isAdmin = true;
@@ -519,28 +501,21 @@ class CreateGroup extends Component {
         }
         groupToCreate.imageUri = this.state.croppedImg
 
-        console.log('creating group -', groupToCreate)
-        console.log('this.props -', this.props)
         this.props.CreateGroupWithMutation({
             variables: { group: groupToCreate }
          }).then(({ data }) => {
-            console.log('got data', data)
             this.setState({
               successOpen: true
             })
-            // router.push({ pathname: '/groups' })
         }).then(() =>{
             this.props.refetchGroups({}).then(({ data }) =>{
-              console.log('got MORE data', data);
               router.push({ pathname: '/groups' })
             }).catch((error) => {
-                console.log('there was an error sending the SECOND query', error)
                 this.setState({
                   failOpen: true
                 })
             })
         }).catch((error) => {
-            console.error('graphql error', error)
             this.setState({
               failOpen: true
             })
@@ -559,7 +534,6 @@ class CreateGroup extends Component {
         indeterminate: !!checkedList.length && (checkedList.length < plainOptions.length),
         checkAll: checkedList.length === plainOptions.length,
       });
-      console.log(this.state)
     }
     onCheckAllChange = (e) => {
       this.setState({
@@ -567,11 +541,6 @@ class CreateGroup extends Component {
         indeterminate: false,
         checkAll: e.target.checked,
       });
-      console.log(this.state)
-    }
-
-    callback = (key) => {
-      console.log(key);
     }
 }
 

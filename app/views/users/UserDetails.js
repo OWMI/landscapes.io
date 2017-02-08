@@ -16,8 +16,7 @@ import getMuiTheme from 'material-ui/styles/getMuiTheme'
 import FlatButton from 'material-ui/FlatButton';
 import defaultImage from '../../style/empty.png'
 import defaultGroupImage from '../../style/empty-group.png'
-
-
+import materialTheme from '../../style/custom-theme.js';
 
 const styles = {
   root: {
@@ -47,10 +46,6 @@ class UserDetails extends Component {
       let userGroups = []
       if(users){
         currentUser = users.find(ls => { return ls._id === params.id })
-        console.log('CURRENT USER', currentUser)
-        if(!currentUser.imageUri){
-          // currentUser.imageUri = defaultImage
-        }
         this.setState({currentUser: currentUser})
       }
       if(groups){
@@ -83,10 +78,6 @@ class UserDetails extends Component {
       let userGroups = []
       if(users){
         currentUser = users.find(ls => { return ls._id === params.id })
-        console.log('CURRENT USER', currentUser)
-        if(!currentUser.imageUri){
-          // currentUser.imageUri = defaultImage
-        }
         this.setState({currentUser: currentUser})
       }
       if(groups){
@@ -133,8 +124,6 @@ class UserDetails extends Component {
                 wrapperCol: { span: 12 }
             }
 
-            console.log('this.state.currentUser', this.state.currentUser)
-
             if (loading) {
                 return (
                     <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
@@ -167,7 +156,7 @@ class UserDetails extends Component {
                         <GridTile key='Role'>
                         <p>Role:  {this.state.currentUser.role}</p>
                       </GridTile>
-                      <Tabs>
+                      <Tabs tabItemContainerStyle={{backgroundColor: materialTheme.palette.primary2Color}}>
                         <Tab key="1" label="Groups">
                           <Table height={this.state.height} fixedHeader={this.state.fixedHeader} fixedFooter={this.state.fixedFooter}
                               selectable={false} multiSelectable={false}

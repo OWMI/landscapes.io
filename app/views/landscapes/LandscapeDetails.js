@@ -7,6 +7,7 @@ import { Row, Col } from 'react-flexbox-grid'
 import { IoEdit, IoAndroidClose, IoIosCloudUploadOutline } from 'react-icons/lib/io'
 import { Card, CardHeader, CardText, Dialog, FlatButton, RaisedButton, Tab, Tabs, TextField } from 'material-ui'
 import { Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table'
+import materialTheme from '../../style/custom-theme.js';
 
 class LandscapeDetails extends Component {
 
@@ -97,9 +98,8 @@ class LandscapeDetails extends Component {
             currentLandscape = _landscapes.find(ls => { return ls._id === params.id })
 
         if(!currentLandscape){
-          currentLandscape = {cloudFormationTemplate: '{"Resources": [], "Parameters": []}'}
+          currentLandscape = {cloudFormationTemplate: '{}'}
         }
-
         const parsedCFTemplate = JSON.parse(currentLandscape.cloudFormationTemplate)
 
         let paramDetails = []
@@ -170,7 +170,8 @@ class LandscapeDetails extends Component {
                         <h5>{currentLandscape.description}</h5>
                     </Col>
                 </Row>
-                <Tabs>
+                <Tabs
+                  tabItemContainerStyle={{backgroundColor: materialTheme.palette.primary1Color}}>
                     <Tab label='Deployments'>
                         <CardHeader style={{ background: '#e6e6e6', padding: '0 25px' }}>
                             <Row between='xs' style={{ marginTop: '-10px' }}>
@@ -239,76 +240,98 @@ class LandscapeDetails extends Component {
                             })
                         }
                     </Tab>
-
-                    <Tab label='Template'>
-                        <textarea rows={100} value={currentLandscape.cloudFormationTemplate} readOnly={true}
-                            style={{ background: '#f9f9f9', fontFamily: 'monospace', width: '100%' }}/>
-                    </Tab>
-
-                    <Tab label='Resources'>
-                        <Table>
-                            <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
-                                <TableRow>
-                                    <TableHeaderColumn></TableHeaderColumn>
-                                    <TableHeaderColumn>Resource</TableHeaderColumn>
-                                    <TableHeaderColumn>Resource Type</TableHeaderColumn>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody displayRowCheckbox={false}>
-                                {
-                                    Object.keys(parsedCFTemplate.Resources).map((res, index) => {
-                                        return (
-                                            <TableRow key={`${index}`}>
-                                                <TableRowColumn>{index + 1}</TableRowColumn>
-                                                <TableRowColumn>{res}</TableRowColumn>
-                                                <TableRowColumn>{parsedCFTemplate.Resources[res].Type}</TableRowColumn>
-                                            </TableRow>
-                                        )
-                                    })
-                                }
-                            </TableBody>
-                        </Table>
-                    </Tab>
-
-                    <Tab label='Parameters'>
-                        {
-                            Object.keys(parsedCFTemplate.Parameters).map((key, index) => {
-                                let _param = parsedCFTemplate.Parameters[key]
-
-                                for (let k in _param) {
-
-                                    if (!paramDetails[index]) {
-                                        paramDetails[index] = []
+                        <Tab label='Template'>
+                            <textarea rows={100} value={currentLandscape.cloudFormationTemplate} readOnly={true}
+                                style={{ background: '#f9f9f9', fontFamily: 'monospace', width: '100%' }}/>
+                        </Tab>
+                    {
+                      parsedCFTemplate.Resources
+                        ?
+                        <Tab label='Resources'>
+                            <Table>
+                                <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
+                                    <TableRow>
+                                        <TableHeaderColumn></TableHeaderColumn>
+                                        <TableHeaderColumn>Resource</TableHeaderColumn>
+                                        <TableHeaderColumn>Resource Type</TableHeaderColumn>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody displayRowCheckbox={false}>
+                                    {
+                                        Object.keys(parsedCFTemplate.Resources).map((res, index) => {
+                                            return (
+                                                <TableRow key={`${index}`}>
+                                                    <TableRowColumn>{index + 1}</TableRowColumn>
+                                                    <TableRowColumn>{res}</TableRowColumn>
+                                                    <TableRowColumn>{parsedCFTemplate.Resources[res].Type}</TableRowColumn>
+                                                </TableRow>
+                                            )
+                                        })
                                     }
+                                </TableBody>
+                            </Table>
+                        </Tab>
+                        :
+                        <Tab label='Resources'>
+                          <p style={{flex: 1, textAlign: 'center', marginTop: 5}}>None</p>
+                        </Tab>
+                    }
 
-                                    paramDetails[index][k] = _param[k]
-                                }
+                    {
+                      parsedCFTemplate.Parameters
+                      ?
+                      <Tab label='Parameters'>
+                          {
+                              Object.keys(parsedCFTemplate.Parameters).map((key, index) => {
+                                  let _param = parsedCFTemplate.Parameters[key]
 
-                                return (
-                                    <Card key={index}>
-                                        <CardHeader title={key} titleStyle={{ fontSize: '13px', paddingRight: 0 }} actAsExpander={true} showExpandableButton={true}/>
+                                  for (let k in _param) {
 
-                                        {
-                                            paramDetails.map((p, i) => {
-                                                return (
-                                                    <CardText key={i} expandable={true}>
-                                                        <Row>
-                                                            <label style={{ margin: '0px 15px' }}>{Object.keys(p)[i]}</label>
-                                                            <label>{p.Description}</label>
-                                                        </Row>
-                                                    </CardText>
-                                                )
-                                            })
-                                        }
-                                    </Card>
-                                )
-                            })
-                        }
-                    </Tab>
+                                      if (!paramDetails[index]) {
+                                          paramDetails[index] = []
+                                      }
 
-                    <Tab label='Mappings'>
+                                      paramDetails[index][k] = _param[k]
+                                  }
 
-                    </Tab>
+                                  return (
+                                      <Card key={index}>
+                                          <CardHeader title={key} titleStyle={{ fontSize: '13px', paddingRight: 0 }} actAsExpander={true} showExpandableButton={true}/>
+
+                                          {
+                                              paramDetails.map((p, i) => {
+                                                  return (
+                                                      <CardText key={i} expandable={true}>
+                                                          <Row>
+                                                              <label style={{ margin: '0px 15px' }}>{Object.keys(p)[i]}</label>
+                                                              <label>{p.Description}</label>
+                                                          </Row>
+                                                      </CardText>
+                                                  )
+                                              })
+                                          }
+                                      </Card>
+                                  )
+                              })
+                          }
+                      </Tab>
+                      :
+                      <Tab label='Parameters'>
+                        <p style={{flex: 1, textAlign: 'center', marginTop: 5}}>None</p>
+                      </Tab>
+                    }
+                    {
+                      parsedCFTemplate.Mappings
+                      ?
+                      <Tab label='Mappings'>
+                        in progress
+                      </Tab>
+                      :
+                      <Tab label='Mappings'>
+                        <p style={{flex: 1, textAlign: 'center', marginTop: 5}}>None</p>
+                      </Tab>
+                    }
+
                 </Tabs>
             </div>
         )
@@ -340,7 +363,6 @@ class LandscapeDetails extends Component {
         mutate({
             variables: { deployment }
          }).then(({ data }) => {
-            console.log('deleted', data)
             return refetch()
          }).then(({ data }) => {
              landscapes = data.landscapes
@@ -354,7 +376,6 @@ class LandscapeDetails extends Component {
             })
             router.push({ pathname: `/landscape/${params.id}` })
         }).catch(error => {
-            console.error('graphql error', error)
         })
     }
 

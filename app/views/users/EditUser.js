@@ -23,6 +23,8 @@ import AvatarCropper from "react-avatar-cropper";
 import defaultUserImage from '../../style/empty.png'
 
 import { Loader } from '../../components'
+import materialTheme from '../../style/custom-theme.js';
+
 
 const CheckboxGroup = Checkbox.Group;
 
@@ -139,10 +141,6 @@ class EditUser extends Component {
               autoHideDuration={3000}
               onRequestClose={this.handleRequestClose}
             />
-            {
-              console.log('this.state.username', this.state.username)
-            }
-
                   <div style={styles.root}>
                   <Card style={{padding:20}}>
                   <GridList
@@ -271,34 +269,27 @@ class EditUser extends Component {
         }
 
         reader.onerror = error => {
-            console.log('Error: ', error)
         }
     }
     handleRoleChange = event => {
         event.preventDefault()
-        // should add some validator before setState in real use cases
         this.setState({ role: event.target.value })
     }
     handlesOnEmailChange = event => {
         event.preventDefault()
-        // should add some validator before setState in real use cases
         this.setState({ email: event.target.value })
     }
 
     handlesOnPasswordChange = event => {
         event.preventDefault()
-        // should add some validator before setState in real use cases
         this.setState({ password: event.target.value })
     }
     handlesOnUsernameChange = event => {
         event.preventDefault()
-        // should add some validator before setState in real use cases
         this.setState({ username: event.target.value })
     }
     handlesOnFirstNameChange = event => {
         event.preventDefault()
-        console.log('first name = ', event.target.value)
-        // should add some validator before setState in real use cases
         this.setState({ firstName: event.target.value })
     }
     handlesOnLastNameChange = event => {
@@ -312,10 +303,6 @@ class EditUser extends Component {
 
         event.preventDefault()
         this.setState({loading: true})
-
-        // let userToCreate = this.props.form.getFieldsValue()
-        console.log('this.state.role------', this.state.role)
-
         let userToEdit = {
           _id: this.state._id,
           username: this.state.username,
@@ -325,8 +312,6 @@ class EditUser extends Component {
           firstName: this.state.firstName,
           lastName: this.state.lastName
         };
-        console.log('UPDATING user -', userToEdit)
-        console.log('this.props -', this.props)
 
         this.props.EditUserWithMutation({
             variables: { user: userToEdit }
@@ -334,7 +319,6 @@ class EditUser extends Component {
 
            this.props.refetchUsers({
            }).then(({ data }) =>{
-             console.log('got MORE data', data);
              this.setState({
                successOpen: true
              })
@@ -343,7 +327,6 @@ class EditUser extends Component {
              router.push({ pathname: '/users' })
            }).catch((error) => {
                this.setState({loading: false})
-               console.log('there was an error sending the SECOND query', error)
            })
         }).catch((error) => {
           this.setState({

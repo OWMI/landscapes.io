@@ -183,7 +183,7 @@ class Register extends Component {
         () => router.push({ pathname: '/protected' })
       )
       .catch(
-        (err) => console.log('register user went wrong..., ', err)
+        (err) => {}
       );
   }
 

@@ -139,9 +139,7 @@ class UpdateAccount extends Component {
         mutate({
             variables: { account: accountToUpdate }
          }).then(({ data }) => {
-           console.log('account updated', data)
            this.props.refetchAccounts({}).then(({ data }) =>{
-             console.log('got data', data);
              this.setState({
                successOpen: true,
                loading: false
@@ -149,10 +147,8 @@ class UpdateAccount extends Component {
              router.push({ pathname: '/accounts' })
            }).catch((error) => {
              this.setState({loading: false})
-               console.log('there was an error sending the SECOND query', error)
            })
         }).catch(error => {
-            console.error('graphql error', error)
         })
     }
 }

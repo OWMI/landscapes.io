@@ -17,6 +17,8 @@ import FlatButton from 'material-ui/FlatButton';
 import defaultImage from '../../style/empty.png'
 import defaultGroupImage from '../../style/empty-group.png'
 import { auth } from '../../services/auth'
+import materialTheme from '../../style/custom-theme.js';
+
 
 const styles = {
   root: {
@@ -48,7 +50,6 @@ class Profile extends Component {
       let userGroups = []
       if(users){
         currentUser = users.find(ls => { return ls._id === auth.getUserInfo()._id })
-        console.log('CURRENT USER', currentUser)
         if(!currentUser.imageUri){
           currentUser.imageUri = defaultImage
         }
@@ -78,9 +79,7 @@ class Profile extends Component {
       let userGroups = []
       if(users){
         currentUser = users.find(ls => { return ls._id === auth.getUserInfo()._id })
-        console.log('CURRENT USER', currentUser)
         if(!currentUser.imageUri){
-          // currentUser.imageUri = defaultImage
         }
         this.setState({currentUser: currentUser})
       }
@@ -121,8 +120,6 @@ class Profile extends Component {
                 labelCol: { span: 8 },
                 wrapperCol: { span: 12 }
             }
-
-            console.log('this.state.currentUser', this.state.currentUser)
 
             if (loading) {
                 return (

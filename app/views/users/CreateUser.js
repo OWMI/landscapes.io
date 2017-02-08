@@ -113,10 +113,6 @@ class CreateUser extends Component {
                       autoHideDuration={3000}
                       onRequestClose={this.handleRequestClose}
                     />
-                    {
-                      console.log('this.state.username', this.state.username)
-                    }
-
                         <h4>Create User</h4><br/>
                           <div style={styles.root}>
                           <GridList
@@ -245,7 +241,6 @@ class CreateUser extends Component {
             }
 
             reader.onerror = error => {
-                console.log('Error: ', error)
             }
         }
 
@@ -292,8 +287,6 @@ class CreateUser extends Component {
 
           const { refetchUsers } = this.props
             event.preventDefault()
-            console.log('this.state.role------', this.state.role)
-            // let userToCreate = this.props.form.getFieldsValue()
             let userToCreate = {
               username: this.state.username,
               email: this.state.email,
@@ -303,28 +296,21 @@ class CreateUser extends Component {
               lastName: this.state.lastName,
               imageUri: this.state.croppedImg
             };
-            console.log('creating user -', userToCreate)
-            console.log('this.props -', this.props)
             this.props.CreateUserMutation({
                 variables: { user: userToCreate }
-             }).then(({ data }) => {
-                console.log('got data', data)
-            }).then(() =>{
+             }).then(() =>{
                 this.props.refetchUsers({}).then(({ data }) =>{
-                  console.log('got MORE data', data);
                   this.setState({
                     successOpen: true
                   })
 
                   router.push({ pathname: '/users' })
                 }).catch((error) => {
-                    console.log('there was an error sending the SECOND query', error)
                 })
             }).catch((error) => {
               this.setState({
                 failOpen: true
               })
-                console.error('graphql error', error)
             })
 
         }

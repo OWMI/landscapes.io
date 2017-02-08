@@ -54,7 +54,6 @@ class Password extends Component {
     }
 
     componentDidMount() {
-      console.log('THIS PROPS ----->', this.props)
         const { enterPasswordChange } = this.props
         enterPasswordChange()
     }
@@ -160,9 +159,6 @@ class Password extends Component {
 
     handlesOnVerifyPasswordChange = debounce(((event, value) => {
       this.setState({verifyPassword: value});
-      console.log('value', value)
-      console.log('this.state.newPassword', this.state.newPassword)
-      console.log('this.jsonEqual(value, this.state.newPassword)', this.jsonEqual(value, this.state.newPassword))
       if(!this.jsonEqual(value, this.state.newPassword)){
         this.setState({verfiyPasswordError: true, buttonDisabled: true})
       }
@@ -182,35 +178,24 @@ class Password extends Component {
 
     checkPasswordStrength = (password) => {
         let passwordErrors = [];
-        var tester = 'aaaa'
-        var reg = ".*[A-Z].*"
-
-        var KEY = password.match(reg);
-        console.log(KEY)
-        //
         if (!password.match(".*[A-Z].*")){
           passwordErrors.push('Password must contain an uppercase letter.')
         };
         if (!password.match(".*[a-z].*")){
           passwordErrors.push('Password must contain a lowercase letter.')
         };
-        //
         if (!password.match(".*\\d.*")){
           passwordErrors.push('Password must contain a number.')
         };
-        //
         if (!password.match(".*[~!.......].*")){
           passwordErrors.push('Password must contain a special character.')
         };
-
         if (password.split('').length < 10){
-          console.log(password.split('').length)
           passwordErrors.push('Password must contain atleast 10 characters.')
         };
 
         if(passwordErrors.length){
           this.setState({passwordErrors});
-          console.log('passwordErrors', passwordErrors)
           return false;
         }
         else{
@@ -234,8 +219,6 @@ class Password extends Component {
             ? auth.getUserInfo()
             : null
 
-        console.log('user ', user)
-
         axios({
             method: 'post',
             url: 'http://0.0.0.0:8080/api/users/password',
@@ -250,15 +233,12 @@ class Password extends Component {
 
         }).then(res => {
           const { router } = this.context
-
-            console.log('res --->', res)
             this.setState({ oldPassword: '' })
             this.setState({ newPassword: '' })
             this.setState({ verifyPassword: '' })
             router.push({ pathname: '/landscapes' })
         }).catch(err => {
             this.setState({ passwordSubmitError: true })
-            console.log('ERROR111111111: ', err )
         })
     }
 }

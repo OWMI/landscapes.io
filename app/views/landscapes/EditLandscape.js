@@ -11,6 +11,7 @@ import UploadIcon from 'material-ui/svg-icons/file/file-upload'
 import { Checkbox, Dialog, FlatButton, Paper, RaisedButton, TextField } from 'material-ui'
 
 import { Loader } from '../../components'
+import materialTheme from '../../style/custom-theme.js';
 
 class EditLandscape extends Component {
 
@@ -157,7 +158,6 @@ class EditLandscape extends Component {
         }
 
         reader.onerror = error => {
-            console.log('Error: ', error)
         }
     }
 
@@ -173,7 +173,6 @@ class EditLandscape extends Component {
                 cloudFormationTemplate: JSON.stringify(res.data, null, 4)
             })
         }).catch(err => {
-            console.log(err)
         })
     }
 
@@ -200,7 +199,6 @@ class EditLandscape extends Component {
         this.props.updateLandscape({
             variables: { landscape: landscapeToUpdate }
         }).then(({ data }) => {
-            console.log('updated', data)
             return refetch()
         }).then(({ data }) => {
             this.setState({
@@ -210,7 +208,6 @@ class EditLandscape extends Component {
             router.push({ pathname: '/landscapes' })
         }).catch((error) => {
             this.setState({ loading: false })
-            console.error('graphql error', error)
         })
     }
 
@@ -225,7 +222,6 @@ class EditLandscape extends Component {
         deleteLandscape({
             variables: { landscape }
         }).then(({ data }) => {
-            console.log('deleted', data)
             router.push({ pathname: `/landscapes` })
             return refetch()
         }).catch((error) => {

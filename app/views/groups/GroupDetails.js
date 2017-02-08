@@ -24,6 +24,7 @@ import defaultImage from '../../style/empty-group.png'
 import defaultUserImage from '../../style/empty.png'
 
 import { Loader } from '../../components'
+import materialTheme from '../../style/custom-theme.js';
 
 const CheckboxGroup = Checkbox.Group;
 
@@ -120,8 +121,6 @@ class GroupDetails extends Component {
         if(currentGroup.landscapes){
           for(var i = 0; i< currentGroup.landscapes.length; i++){
             landscapes.find(ls => {
-              console.log('ls', ls)
-              console.log('currentGroup.landscapes[i]', currentGroup.landscapes[i])
               if(currentGroup.landscapes[i] === ls._id){
                 ls.selected = true;
                 groupLandscapes.push(ls)
@@ -134,8 +133,6 @@ class GroupDetails extends Component {
         if(currentGroup.users){
           for(var i = 0; i< currentGroup.users.length; i++){
             users.find(user => {
-              console.log('user', user)
-              console.log('currentGroup.users[i]', currentGroup.users[i])
               if(currentGroup.users[i].userId === user._id){
                 user.selected = true;
                 if(!user.imageUri){
@@ -153,7 +150,6 @@ class GroupDetails extends Component {
           }
       }
       this.setState({groupUsers: groupUsers})
-      console.log('groups- ---- componentWillMount', groups)
     }
 
     componentWillReceiveProps(nextProps) {
@@ -191,8 +187,6 @@ class GroupDetails extends Component {
         if(currentGroup.landscapes){
           for(var i = 0; i< currentGroup.landscapes.length; i++){
             landscapes.find(ls => {
-              console.log('ls', ls)
-              console.log('currentGroup.landscapes[i]', currentGroup.landscapes[i])
               if(currentGroup.landscapes[i] === ls._id){
                 ls.selected = true;
                 groupLandscapes.push(ls)
@@ -205,8 +199,6 @@ class GroupDetails extends Component {
         if(currentGroup.users){
           for(var i = 0; i< currentGroup.users.length; i++){
             users.find(user => {
-              console.log('user', user)
-              console.log('currentGroup.users[i]', currentGroup.users[i])
               if(currentGroup.users[i].userId === user._id){
                 user.selected = true;
                 if(!user.imageUri){
@@ -224,12 +216,9 @@ class GroupDetails extends Component {
           }
       }
       this.setState({groupUsers: groupUsers})
-      console.log('groups- ---- componentWillMount', groups)
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        console.log('shouldComponentUpdate nextProps', nextProps)
-        console.log('shouldComponentUpdate nextState', nextState)
         return shallowCompare(this, nextProps, nextState)
     }
 
@@ -244,7 +233,6 @@ class GroupDetails extends Component {
         const { animated, viewEntersAnim } = this.state
         const { loading, groups, landscapes, users, params } = this.props
 
-        console.log('GROUPS', groups)
         if (loading || !groups) {
             return (
                 <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
@@ -284,7 +272,7 @@ class GroupDetails extends Component {
                         <p>Description: {this.state.currentGroup.description} </p>
                     </GridTile>
                 </GridList>
-                <Tabs>
+                <Tabs tabItemContainerStyle={{backgroundColor: materialTheme.palette.primary3Color}}>
                   <Tab key="1" label="Landscapes">
                     <Table height={this.state.height} fixedHeader={this.state.fixedHeader} fixedFooter={this.state.fixedFooter}
                         selectable={false} multiSelectable={false}
@@ -364,7 +352,6 @@ class GroupDetails extends Component {
         indeterminate: !!checkedList.length && (checkedList.length < plainOptions.length),
         checkAll: checkedList.length === plainOptions.length,
       });
-      console.log(this.state)
     }
     onCheckAllChange = (e) => {
       this.setState({
@@ -372,11 +359,6 @@ class GroupDetails extends Component {
         indeterminate: false,
         checkAll: e.target.checked,
       });
-      console.log(this.state)
-    }
-
-    callback = (key) => {
-      console.log(key);
     }
 }
 
