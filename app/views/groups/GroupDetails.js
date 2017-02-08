@@ -246,7 +246,7 @@ class GroupDetails extends Component {
             <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
                   <Row middle='xs'>
                       <Col xs={2} style={{ textAlign: 'left', marginBottom:30 }}>
-                        <Row><h4><strong>Group:</strong></h4></Row>
+                        <Row><h4><strong>Group</strong></h4></Row>
                       </Col>
                       <Col xs={10}>
                           <RaisedButton label='Edit' onClick={this.handlesEditGroupClick}
@@ -260,7 +260,7 @@ class GroupDetails extends Component {
 
                     <Row middle='xs'>
                         <Col xs={1} style={{ textAlign: 'left' }}>
-                            <img src={this.state.currentGroup.imageUri} style={{width: 75}} />
+                            <img src={this.state.currentGroup.imageUri} style={{width: 85}} />
                         </Col>
                         <Col xs={4} style={{ textAlign: 'left' }}>
                             <Row><h4>{this.state.currentGroup.name}</h4></Row>

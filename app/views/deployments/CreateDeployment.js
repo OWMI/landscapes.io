@@ -24,6 +24,31 @@ class CreateDeployment extends Component {
         return shallowCompare(this, nextProps, nextState)
     }
 
+    componentWillMount() {
+      const { landscapes, params } = this.props
+      let _landscapes = landscapes || []
+      const currentLandscape = _landscapes.find(ls => { return ls._id === params.landscapeId })
+      if(currentLandscape){
+        const template = JSON.parse(currentLandscape.cloudFormationTemplate)
+        this.setState({
+          templateDescription: template.Description,
+          templateParameters: template.Parameters
+        })
+      }
+    }
+    componentWillReceiveProps(nextProps) {
+      const { landscapes, params } = nextProps;
+      let _landscapes = landscapes || [];
+      const currentLandscape = _landscapes.find(ls => { return ls._id === params.landscapeId })
+      if(currentLandscape){
+        const template = JSON.parse(currentLandscape.cloudFormationTemplate)
+        this.setState({
+          templateDescription: template.Description,
+          templateParameters: template.Parameters
+        })
+      }
+    }
+
     componentWillUnmount() {
         const { leaveLandscapes } = this.props
         leaveLandscapes()
@@ -81,10 +106,6 @@ class CreateDeployment extends Component {
                                     })
                                 }
                             </SelectField>
-
-                            <TextField id='description' ref='description' value={ templateDescription ? templateDescription.substring(0, 255) : '' } multiLine={true} rows={4} maxLength={255}
-                                floatingLabelText='Description' fullWidth={true} floatingLabelStyle={{ left: '0px' }} textareaStyle={{ width: '95%' }}/>
-
                             <SelectField id='location' floatingLabelText='Region' value={this.state.location} onChange={this.handlesRegionChange}
                                 floatingLabelStyle={{ left: '0px' }} className={cx( { 'two-field-row': true } )}>
                                 {
@@ -118,9 +139,35 @@ class CreateDeployment extends Component {
                                     floatingLabelText='Signature Block' floatingLabelStyle={{ left: '0px' }}/>
                             </CardText>
                         </Card>
-
-                        <Row style={{ height: '50vh' }}>
-                            <Col xs={4}>
+                        <Col xs={12} style={{ minHeight: '200' }}>
+                            <label style={{ paddingTop: '30px', fontSize: '14px' }}>Parameters</label>
+                            <Row>
+                                <Col xs={3}>
+                                    {
+                                        Object.keys(templateParameters || {}).map((param, index) => {
+                                            return (
+                                                <Row key={index} bottom='xs' style={{ height: 72 }}>
+                                                    <label style={{ marginBottom: '12px' }}>{param}</label>
+                                                </Row>
+                                            )
+                                        })
+                                    }
+                                </Col>
+                                <Col xs={9}>
+                                    {
+                                        Object.keys(templateParameters || {}).map((param, index) => {
+                                            return (
+                                                <Row key={index} bottom='xs' style={{ height: 72 }}>
+                                                    <TextField id={'_p'+param} ref={'_p'+param} fullWidth={true} defaultValue={templateParameters[param].Default}
+                                                        hintText={templateParameters[param].Description} hintStyle={{ opacity: 1, fontSize: '10px', bottom: '-20px', textAlign: 'left' }}/>
+                                                </Row>
+                                            )
+                                        })
+                                    }
+                                </Col>
+                            </Row>
+                        </Col>
+                            <Col xs={12} style={{ minHeight: '200' }}>
                                 <label style={{ paddingTop: '30px', fontSize: '14px' }}>Tags</label>
                                 <Row>
                                     <Col xs={3}>
@@ -129,36 +176,7 @@ class CreateDeployment extends Component {
                                     </Col>
                                 </Row>
                             </Col>
-                            <Col xs={8}>
-                                <label style={{ paddingTop: '30px', fontSize: '14px' }}>Parameters</label>
-                                <Row>
-                                    <Col xs={3}>
-                                        {
-                                            Object.keys(templateParameters || {}).map((param, index) => {
-                                                return (
-                                                    <Row key={index} bottom='xs' style={{ height: 72 }}>
-                                                        <label style={{ marginBottom: '12px' }}>{param}</label>
-                                                    </Row>
-                                                )
-                                            })
-                                        }
-                                    </Col>
-                                    <Col xs={6}>
-                                        {
-                                            Object.keys(templateParameters || {}).map((param, index) => {
-                                                return (
-                                                    <Row key={index} bottom='xs' style={{ height: 72 }}>
-                                                        <TextField id={'_p'+param} ref={'_p'+param} fullWidth={true} defaultValue={templateParameters[param].Default}
-                                                            hintText={templateParameters[param].Description} hintStyle={{ opacity: 1, fontSize: '10px', bottom: '-20px', textAlign: 'left' }}/>
-                                                    </Row>
-                                                )
-                                            })
-                                        }
-                                    </Col>
-                                </Row>
-                            </Col>
-                        </Row>
-                    </Col>
+                        </Col>
                 </Row>
             </div>
         )
@@ -179,9 +197,7 @@ class CreateDeployment extends Component {
             location: account.region || '',
             caBundlePath: account.caBundlePath || '',
             rejectUnauthorizedSsl: account.rejectUnauthorizedSsl || '',
-            signatureBlock: account.signatureBlock || '',
-            templateDescription: template.Description,
-            templateParameters: template.Parameters
+            signatureBlock: account.signatureBlock || ''
         })
     }
 

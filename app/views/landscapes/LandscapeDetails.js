@@ -146,7 +146,7 @@ class LandscapeDetails extends Component {
             <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
                 <Row middle='xs'>
                     <Col xs={2} style={{ textAlign: 'left', marginBottom:30 }}>
-                      <Row><h4><strong>Landscape:</strong></h4></Row>
+                      <Row><h4><strong>Landscape</strong></h4></Row>
                     </Col>
                     <Col xs={10}>
                         <RaisedButton label='Deploy' onClick={this.handlesDeployClick}
@@ -161,7 +161,7 @@ class LandscapeDetails extends Component {
               <Card style={{padding:20}}>
                 <Row middle='xs'>
                     <Col xs={1} style={{ textAlign: 'left' }}>
-                        <img src={currentLandscape.imageUri} style={{width: 75}} />
+                        <img src={currentLandscape.imageUri} style={{width: 85}} />
                     </Col>
                     <Col xs={4} style={{ textAlign: 'left' }}>
                         <Row><h4>{currentLandscape.name}</h4></Row>
