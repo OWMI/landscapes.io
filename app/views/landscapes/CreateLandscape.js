@@ -10,6 +10,7 @@ import UploadIcon from 'material-ui/svg-icons/file/file-upload'
 import { Paper, RaisedButton, TextField } from 'material-ui'
 import Snackbar from 'material-ui/Snackbar';
 import AvatarCropper from "react-avatar-cropper";
+import defaultLandscapeImage from '../../style/AWS.png';
 
 
 import './landscapes.style.scss'
@@ -52,7 +53,7 @@ class CreateLandscape extends Component {
         }
 
         return (
-            <Row center='xs' middle='xs' className={cx({ 'screen-height': true, 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
+            <Row center='xs' middle='xs' className={cx({'animatedViews': animated, 'view-enter': viewEntersAnim })}>
             <Snackbar
               open={this.state.successOpen}
               message="Landscape successfully created."
@@ -200,7 +201,7 @@ class CreateLandscape extends Component {
             landscapeToCreate[key] = this.refs[key].getValue()
         }
         // attach imageUri and cloudFormationTemplate
-        landscapeToCreate.imageUri = this.state.croppedImg || ''
+        landscapeToCreate.imageUri = this.state.croppedImg || defaultLandscapeImage
         landscapeToCreate.cloudFormationTemplate = this.state.cloudFormationTemplate || ''
         if(!landscapeToCreate.version){
           landscapeToCreate.version = '1.0'

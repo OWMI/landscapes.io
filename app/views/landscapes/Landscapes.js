@@ -11,6 +11,7 @@ import './landscapes.style.scss'
 import { Loader } from '../../components'
 import { auth } from '../../services/auth'
 import materialTheme from '../../style/custom-theme.js';
+import defaultLandscapeImage from '../../style/AWS.png';
 
 class Landscapes extends Component {
 
@@ -202,7 +203,7 @@ class Landscapes extends Component {
                                 {/* header */}
                                 <Row start='xs' top='xs' style={{ padding: '20px 0px' }}>
                                     <Col xs={8}>
-                                        <img id='landscapeIcon' src={landscape.imageUri}/>
+                                        <img id='landscapeIcon' src={landscape.imageUri || defaultLandscapeImage}/>
                                     </Col>
                                     <Col xs={4}>
                                         <FlatButton id='landscape-edit' onTouchTap={this.handlesEditLandscapeClick.bind(this, landscape)}

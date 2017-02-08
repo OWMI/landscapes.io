@@ -12,6 +12,8 @@ import { Checkbox, Dialog, FlatButton, Paper, RaisedButton, TextField } from 'ma
 
 import { Loader } from '../../components'
 import materialTheme from '../../style/custom-theme.js';
+import defaultLandscapeImage from '../../style/AWS.png';
+
 
 class EditLandscape extends Component {
 
@@ -217,7 +219,7 @@ class EditLandscape extends Component {
         }
         // attach imageUri and cloudFormationTemplate
         landscapeToUpdate._id = params.id
-        landscapeToUpdate.imageUri = this.state.imageUri || currentLandscape.imageUri
+        landscapeToUpdate.imageUri = this.state.imageUri || currentLandscape.imageUri || defaultLandscapeImage
         landscapeToUpdate.cloudFormationTemplate = this.state.cloudFormationTemplate || currentLandscape.cloudFormationTemplate
         if(!landscapeToUpdate.version){
           landscapeToUpdate.version = currentLandscape.version || '1.0'
