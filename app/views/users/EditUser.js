@@ -2,6 +2,7 @@ import cx from 'classnames'
 import React, { Component, PropTypes } from 'react'
 import shallowCompare from 'react-addons-shallow-compare'
 import Dropzone from 'react-dropzone'
+import { Row, Col } from 'react-flexbox-grid'
 
 import { Checkbox, RaisedButton} from 'material-ui'
 import {GridList, GridTile} from 'material-ui/GridList';
@@ -127,8 +128,7 @@ class EditUser extends Component {
         }
 
         return (
-          <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
-              <h4><strong>Edit User:</strong> {this.state.firstName} {this.state.lastName}</h4><br/>
+          <Row center='xs' middle='xs' className={cx({'animatedViews': animated, 'view-enter': viewEntersAnim })}>
             <Snackbar
               open={this.state.successOpen}
               message="User successfully updated."
@@ -141,7 +141,18 @@ class EditUser extends Component {
               autoHideDuration={3000}
               onRequestClose={this.handleRequestClose}
             />
-                  <div style={styles.root}>
+            <Col xs={6} lg={9} className={cx( { 'create-landscape': true } )}>
+
+            <Row middle='xs'>
+                <Col xs={4} style={{ textAlign: 'left' }}>
+                    <h4><strong>Edit User:</strong> {this.state.firstName} {this.state.lastName}</h4>
+                </Col>
+                <Col xs={8}>
+                    <RaisedButton label='Save' onClick={this.handlesCreateClick}
+                        style={{ float: 'right', margin: '30px 0px' }}
+                        labelStyle={{ fontSize: '11px' }}/>
+                </Col>
+            </Row>
                   <Card style={{padding:20}}>
                   <GridList
                     cols={1}
@@ -170,6 +181,20 @@ class EditUser extends Component {
                       <TextField style={{width:450}} id="lastName" floatingLabelText="Last Name" value={this.state.lastName} onChange={this.handlesOnLastNameChange} placeholder='Last Name' />
                       </GridTile>
                       <GridTile
+                        key='role'
+                      >
+                      <RadioButtonGroup style={{width:200, margin: 5}} name="role" id="role" valueSelected={this.state.role} onChange={this.handleRoleChange}>
+                            <RadioButton
+                              value="admin"
+                              label="Global Admin"
+                            />
+                            <RadioButton
+                              value="user"
+                              label="User"
+                            />
+                          </RadioButtonGroup>
+                    </GridTile>
+                      <GridTile
                         key='image'
                       >
                       <Dropzone id='imageUri' onDrop={this.handlesImageUpload} multiple={false} accept='image/*'
@@ -194,30 +219,11 @@ class EditUser extends Component {
                         }
                         </Dropzone>
                     </GridTile>
-                      <GridTile
-                        key='role'
-                      >
-                      <RadioButtonGroup style={{width:450, margin: 5}} name="role" id="role" valueSelected={this.state.role} onChange={this.handleRoleChange}>
-                            <RadioButton
-                              value="admin"
-                              label="Global Admin"
-                            />
-                            <RadioButton
-                              value="user"
-                              label="User"
-                            />
-                          </RadioButtonGroup>
-                    </GridTile>
-                    <GridTile
-                      key='SubmitButton'
-                    >
-                    <RaisedButton style={{width:450, margin: 5}} primary={true} disabled={loading} label="Save" onClick={this.handlesCreateClick} />
-                    </GridTile>
                   </GridList>
                   </Card>
 
-                  </div>
-            </div>
+                </Col>
+            </Row>
         )
     }
     getInitialState = () => {

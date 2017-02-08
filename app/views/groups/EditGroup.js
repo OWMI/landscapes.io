@@ -344,10 +344,36 @@ class EditGroup extends Component {
                 <Row className={cx({'screen-width': true, 'animatedViews': animated, 'view-enter': viewEntersAnim})} style={{
                     justifyContent: 'space-between'
                 }}>
-                  <Row style={{width:200, justifyContent: 'space-between', }} >
-                    <h4>Edit Group </h4>
-                  </Row>
+                <Row style={{flex: 1}}>
+                    <Col xs={2} style={{ textAlign: 'left', marginBottom:30 }}>
+                      <Row><h4><strong>Edit Group</strong></h4></Row>
+                    </Col>
+                    <Col xs={9}>
+                      <RaisedButton label="Save" labelStyle={{ fontSize: '11px' }} style={{ float: 'right', marginBottom: '30px' }} onClick={this.handlesCreateClick}/>
+                    </Col>
+                    <Col xs={1}>
+                      {
+                        this.state.isAdmin
+                          ?
+                          <div>
+                            <RaisedButton label="Delete" labelStyle={{ fontSize: '11px' }} style={{ float: 'right', marginBottom: '30px' }} onClick={this.handlesDialogToggle} />
+                                                            <Dialog title='Delete Group' modal={false} labelStyle={{ fontSize: '11px' }}
+                                open={this.state.showDialog} onRequestClose={this.handlesDialogToggle}
+                                actions={[
+                                    <FlatButton label='Cancel' primary={true} onTouchTap={this.handlesDialogToggle}/>,
+                                    <FlatButton label='Delete' primary={true} onTouchTap={this.handlesDeleteAccountClick.bind(this, this.state.currentGroup)}/>
+                                ]}>
+                                Are you sure you want to delete {this.state.currentGroup.name}?
+                            </Dialog>
+                          </div>
+                          :
+                          <div style={{ float: 'right', marginBottom: '30px' }}></div>
+                      }
+                    </Col>
+                </Row>
+                <div style={styles.root}>
 
+                <Card style={{padding:20}}>
                       <Snackbar
                         open={this.state.successOpen}
                         message="Group successfully saved."
@@ -360,30 +386,7 @@ class EditGroup extends Component {
                         autoHideDuration={3000}
                         onRequestClose={this.handleRequestClose}
                       />
-                    <Row style={{justifyContent: 'space-between', marginBottom: 5 }}>
-                      <RaisedButton label="Save" onClick={this.handlesCreateClick}/>
-                      {
-                        this.state.isAdmin
-                          ?
-                          <div>
-                            <FlatButton onTouchTap={this.handlesDialogToggle}>
-                                Delete
-                            </FlatButton>
-                            <Dialog title='Delete Group' modal={false} open={this.state.showDialog}
-                                onRequestClose={this.handlesDialogToggle}
-                                actions={[
-                                    <FlatButton label='Cancel' primary={true} onTouchTap={this.handlesDialogToggle}/>,
-                                    <FlatButton label='Delete' primary={true} onTouchTap={this.handlesDeleteAccountClick.bind(this, this.state.currentGroup)}/>
-                                ]}>
-                                Are you sure you want to delete {this.state.currentGroup.name}?
-                            </Dialog>
-                          </div>
-                          :
-                          <div style={{width:1}}></div>
-                      }
-                    </Row>
-                </Row>
-                <Row center='xs' middle='xs' className={cx({'animatedViews': animated, 'view-enter': viewEntersAnim})}>
+                    <Row center='xs' middle='xs' className={cx({'animatedViews': animated, 'view-enter': viewEntersAnim})}>
                     <Snackbar open={this.state.successOpen} message="Group successfully updated." autoHideDuration={3000} onRequestClose={this.handleRequestClose}/>
                     <Snackbar open={this.state.failOpen} message="Error updating group" autoHideDuration={3000} onRequestClose={this.handleRequestClose}/>
                     <Tabs tabItemContainerStyle={{backgroundColor: materialTheme.palette.primary3Color}}>
@@ -517,6 +520,11 @@ class EditGroup extends Component {
                         </Tab>
                     </Tabs>
                 </Row>
+
+
+              </Card>
+            </div>
+            </Row>
             </div>
 
         )

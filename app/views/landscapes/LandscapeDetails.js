@@ -145,13 +145,10 @@ class LandscapeDetails extends Component {
         return (
             <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
                 <Row middle='xs'>
-                    <Col xs={1} style={{ textAlign: 'left' }}>
-                        <img src={currentLandscape.imageUri} style={{width: 75}} />
+                    <Col xs={2} style={{ textAlign: 'left', marginBottom:30 }}>
+                      <Row><h4><strong>Landscape:</strong></h4></Row>
                     </Col>
-                    <Col xs={4} style={{ textAlign: 'left' }}>
-                        <h4>Landscape: {currentLandscape.name}</h4>
-                    </Col>
-                    <Col xs={7}>
+                    <Col xs={10}>
                         <RaisedButton label='Deploy' onClick={this.handlesDeployClick}
                             style={{ float: 'right', marginBottom: '30px' }}
                             labelStyle={{ fontSize: '11px' }} icon={<IoIosCloudUploadOutline/>}/>
@@ -160,9 +157,18 @@ class LandscapeDetails extends Component {
                             labelStyle={{ fontSize: '11px' }} icon={<IoEdit/>}/>
                     </Col>
                 </Row>
-                <Row middle='xs' style={{flex: 1, marginLeft: 10}}>
-                    <Col style={{ textAlign: 'left', flex: 1 }}>
-                        <h5>Version: {currentLandscape.version}</h5>
+
+              <Card style={{padding:20}}>
+                <Row middle='xs'>
+                    <Col xs={1} style={{ textAlign: 'left' }}>
+                        <img src={currentLandscape.imageUri} style={{width: 75}} />
+                    </Col>
+                    <Col xs={4} style={{ textAlign: 'left' }}>
+                        <Row><h4>{currentLandscape.name}</h4></Row>
+                        <Row><h5>Version: {currentLandscape.version}</h5></Row>
+
+                    </Col>
+                    <Col xs={7}>
                     </Col>
                 </Row>
                 <Row middle='xs' style={{flex: 1, marginLeft: 10}}>
@@ -333,6 +339,7 @@ class LandscapeDetails extends Component {
                     }
 
                 </Tabs>
+              </Card>
             </div>
         )
     }
