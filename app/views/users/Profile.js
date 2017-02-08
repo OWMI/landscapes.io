@@ -141,7 +141,7 @@ class Profile extends Component {
                     <CardHeader
                       title={this.state.currentUser.firstName + ' ' +  this.state.currentUser.lastName}
                       subtitle={this.state.currentUser.email}
-                      avatar={this.state.currentUser.imageUri}
+                      avatar={this.state.currentUser.imageUri || defaultImage}
                     />
                     <CardActions>
 
