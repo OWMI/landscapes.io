@@ -32,7 +32,7 @@ class Landscapes extends Component {
         let _viewLandscapes = []
 
         // set landscapes based on permissions
-        if (currentUser.isGlobalAdmin) {
+        if (landscapes && landscapes.length && currentUser.isGlobalAdmin) {
             _viewLandscapes = landscapes
         } else if (landscapes && landscapes.length && !userAccess) {
             setUserAccess('landscapes', { landscapes })
