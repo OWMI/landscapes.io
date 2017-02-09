@@ -129,17 +129,19 @@ export const auth = {
         if (user.role !== 'admin') {
             if (groups) {
                 groups.forEach(group => {
-                    group.landscapes.forEach(landscape => {
-                        user.permissions.push({
-                            landscapeId: landscape,
-                            allowedActions: group.permissions
-                        })
-                    })
                     group.users.forEach(groupUser => {
                         if (groupUser.userId === user._id) {
+                            // groups
                             user.groups.push({
                                 groupId: group._id,
                                 isAdmin: groupUser.isAdmin
+                            })
+                            group.landscapes.forEach(landscape => {
+                                // permissions
+                                user.permissions.push({
+                                    landscapeId: landscape,
+                                    allowedActions: group.permissions
+                                })
                             })
                         }
                     })
