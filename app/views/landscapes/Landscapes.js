@@ -157,7 +157,7 @@ class Landscapes extends Component {
 
     render() {
 
-        const { loading, landscapes, users, groups } = this.props
+        const { currentUser, loading, landscapes, users, groups, userAccess } = this.props
         const { animated, viewEntersAnim, viewLandscapes } = this.state
 
         if (loading) {
@@ -171,9 +171,15 @@ class Landscapes extends Component {
         return (
             <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
 
-                <a onClick={this.handlesCreateLandscapeClick}>
-                    <p style={{ fontSize: '20px', cursor: 'pointer' }}><IoIosPlusEmpty size={30}/>Add Landscape</p>
-                </a>
+                {
+                    currentUser.isGlobalAdmin || userAccess && userAccess.canCreate
+                    ?
+                        <a onClick={this.handlesCreateLandscapeClick}>
+                            <p style={{ fontSize: '20px', cursor: 'pointer' }}><IoIosPlusEmpty size={30}/>Add Landscape</p>
+                        </a>
+                    :
+                        null
+                }
 
                 <ul>
                     {
@@ -186,10 +192,23 @@ class Landscapes extends Component {
                                         <img id='landscapeIcon' src={landscape.imageUri || defaultLandscapeImage}/>
                                     </Col>
                                     <Col xs={4}>
-                                        <FlatButton id='landscape-edit' onTouchTap={this.handlesEditLandscapeClick.bind(this, landscape)}
-                                            label='Edit' labelStyle={{ fontSize: '10px' }} icon={<IoEdit/>}/>
-                                        <FlatButton id='landscape-deploy' onTouchTap={this.handlesDeployClick.bind(this, landscape)}
-                                            label='Deploy' labelStyle={{ fontSize: '10px' }} icon={<IoIosCloudUploadOutline/>}/>
+                                        {
+                                            currentUser.isGlobalAdmin || currentUser.permissions[landscape._id].indexOf('u') > -1
+                                            ?
+                                                <FlatButton id='landscape-edit' onTouchTap={this.handlesEditLandscapeClick.bind(this, landscape)}
+                                                    label='Edit' labelStyle={{ fontSize: '10px' }} icon={<IoEdit/>}/>
+                                            :
+                                                null
+                                        }
+
+                                        {
+                                            currentUser.isGlobalAdmin || currentUser.permissions[landscape._id].indexOf('x') > -1
+                                            ?
+                                                <FlatButton id='landscape-deploy' onTouchTap={this.handlesDeployClick.bind(this, landscape)}
+                                                    label='Deploy' labelStyle={{ fontSize: '10px' }} icon={<IoIosCloudUploadOutline/>}/>
+                                            :
+                                                null
+                                        }
                                     </Col>
                                 </Row>
 

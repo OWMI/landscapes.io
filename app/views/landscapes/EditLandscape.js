@@ -40,7 +40,7 @@ class EditLandscape extends Component {
     render() {
 
         const { animated, showDeleteDialog, viewEntersAnim } = this.state
-        const { activeLandscape, loading, landscapes, params } = this.props
+        const { activeLandscape, currentUser, loading, landscapes, params } = this.props
         let disableDelete = false,
             self = this,
             currentLandscape = activeLandscape
@@ -51,12 +51,14 @@ class EditLandscape extends Component {
             currentLandscape = _landscapes.find(ls => { return ls._id === params.id })
 
         // set disableDelete value
-        if(currentLandscape && currentLandscape.status){
+        if (currentLandscape && currentLandscape.status){
           forIn(currentLandscape.status, (value, key) => {
               if (value > 0)
                   disableDelete = true
           })
         }
+
+        disableDelete = !currentUser.isGlobalAdmin || (Object.keys(currentUser.permissions).length > 0 && !currentUser.permissions[currentLandscape._id].indexOf('d') > -1)
 
         if (loading || this.state.loading) {
             return (
@@ -77,6 +79,7 @@ class EditLandscape extends Component {
                             <RaisedButton label='Save' onTouchTap={this.handlesUpdateClick}
                                 style={{ float: 'right', margin: '30px 0px' }}
                                 labelStyle={{ fontSize: '11px' }}/>
+
                             <RaisedButton label='Delete' onTouchTap={() => { this.setState({ showDeleteDialog: !showDeleteDialog }) }}
                                 disabled={disableDelete}
                                 style={{ float: 'right', margin: '30px 0px' }}
