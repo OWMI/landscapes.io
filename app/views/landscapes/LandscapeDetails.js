@@ -20,12 +20,15 @@ class LandscapeDetails extends Component {
     componentWillReceiveProps(nextProps){
       let self = this
       const { deploymentsByLandscapeId, deploymentStatus, params } = nextProps
+      var cloudFormationParameters = {}
 
       deploymentsByLandscapeId({
           variables: { landscapeId: params.id }
       }).then(({ data }) => {
           return Promise.all(data.deploymentsByLandscapeId.map(deployment => {
             console.log('deployment____', deployment)
+              cloudFormationParameters[deployment._id] = deployment.cloudFormationParameters
+              this.setState({cloudFormationParameters})
               if (deployment.isDeleted || deployment.awsErrors) {
                   return {
                       data: {
@@ -46,12 +49,14 @@ class LandscapeDetails extends Component {
     componentWillMount() {
         let self = this
         const { deploymentsByLandscapeId, deploymentStatus, params } = this.props
-
+        var cloudFormationParameters = {}
         deploymentsByLandscapeId({
             variables: { landscapeId: params.id }
         }).then(({ data }) => {
             return Promise.all(data.deploymentsByLandscapeId.map(deployment => {
                 console.log('deployment____', deployment)
+                cloudFormationParameters[deployment._id] = deployment.cloudFormationParameters
+                this.setState({cloudFormationParameters})
                 if (deployment.isDeleted || deployment.awsErrors) {
                     return {
                         data: {
@@ -64,6 +69,7 @@ class LandscapeDetails extends Component {
                 })
             }))
         }).then(deploymentStatusArray => {
+            console.log('deploymentStatusArray', deploymentStatusArray)
             self.setState({
                 currentDeployments: deploymentStatusArray.map(({ data }) => { return data.deploymentStatus })
             })
@@ -87,13 +93,16 @@ class LandscapeDetails extends Component {
     render() {
 
         const { activeLandscape, loading, landscapes, deploymentsByLandscapeId, params } = this.props
-        const { animated, viewEntersAnim, currentDeployment, currentDeployments, deleteType, refetchedLandscapes } = this.state
+        const { animated, viewEntersAnim, currentDeployment, currentDeployments, deleteType, refetchedLandscapes, cloudFormationParameters } = this.state
 
         let _landscapes = landscapes || []
         let currentLandscape = activeLandscape
         let runningStatus = ['CREATE_COMPLETE', 'ROLLBACK_COMPLETE', 'ROLLBACK_COMPLETE', 'DELETE_COMPLETE', 'UPDATE_COMPLETE', 'UPDATE_ROLLBACK_COMPLETE']
         let pendingStatus = ['CREATE_IN_PROGRESS', 'ROLLBACK_IN_PROGRESS', 'DELETE_IN_PROGRESS', 'UPDATE_IN_PROGRESS', 'UPDATE_COMPLETE_CLEANUP_IN_PROGRESS', 'UPDATE_ROLLBACK_IN_PROGRESS', 'UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS', 'REVIEW_IN_PROGRESS']
 
+        console.log('currentDeployments', currentDeployments)
+        console.log('currentDeployment', currentDeployment)
+        console.log('cloudFormationParameters', this.state.cloudFormationParameters)
         // for direct request
         // if (activeLandscape && activeLandscape._id !== params.id)
         if(!currentLandscape)
@@ -107,11 +116,9 @@ class LandscapeDetails extends Component {
         let paramDetails = []
 
         function getDeploymentInfo(deployment) {
-
+            var self = this;
+            console.log('deployment', deployment)
             let deploymentInfo = []
-
-            console.log('DEPLOYMENT', deployment)
-
             for (let key in deployment) {
                 switch (key) {
                     case 'location':
@@ -122,12 +129,6 @@ class LandscapeDetails extends Component {
                         break
                     case 'stackId':
                         deploymentInfo.push({ key: 'Stack ID', value: deployment.stackId })
-                        break
-                    case 'tags':
-                        deploymentInfo.push({ key: 'Tags', value: deployment.tags })
-                        break
-                    case 'cloudFormationParameters':
-                        deploymentInfo.push({ key: 'Parameters', value: deployment.cloudFormationParameters })
                         break
                     default:
                         break
@@ -250,6 +251,16 @@ class LandscapeDetails extends Component {
                                         </CardHeader>
                                         <CardText key={index} expandable={true}>
                                             { getDeploymentInfo(deployment) }
+                                            <h5>Parameters</h5>
+                                            {
+                                              this.state.cloudFormationParameters[deployment._id].map(parameter => {
+                                                return(
+                                                  <Row key={parameter.ParameterKey}>
+                                                      <label style={{ margin: '0px 15px' }}>{parameter.ParameterKey}</label>
+                                                      <label>{parameter.ParameterValue}</label>
+                                                  </Row>)
+                                              })
+                                            }
                                         </CardText>
                                     </Card>
                                 )
