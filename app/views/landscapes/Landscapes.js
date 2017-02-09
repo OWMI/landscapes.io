@@ -28,11 +28,13 @@ class Landscapes extends Component {
 
     componentWillReceiveProps(nextProps) {
         const self = this
-        const { landscapes, userAccess, setUserAccess } = nextProps
+        const { currentUser, landscapes, userAccess, setUserAccess } = nextProps
         let _viewLandscapes = []
 
         // set landscapes based on permissions
-        if (landscapes && landscapes.length && !userAccess) {
+        if (currentUser.isGlobalAdmin) {
+            _viewLandscapes = landscapes
+        } else if (landscapes && landscapes.length && !userAccess) {
             setUserAccess('landscapes', { landscapes })
         } else if (userAccess && userAccess.landscapes) {
             _viewLandscapes = userAccess.landscapes
