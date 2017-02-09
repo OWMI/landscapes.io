@@ -7,7 +7,6 @@ import Dropzone from 'react-dropzone'
 import { Checkbox, RaisedButton} from 'material-ui'
 import {GridList, GridTile} from 'material-ui/GridList';
 import Subheader from 'material-ui/Subheader';
-import IconButton from 'material-ui/IconButton';
 import StarBorder from 'material-ui/svg-icons/toggle/star-border';
 import Snackbar from 'material-ui/Snackbar';
 import UploadIcon from 'material-ui/svg-icons/file/file-upload'

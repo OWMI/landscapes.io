@@ -37,7 +37,7 @@ class App extends Component {
                 }).then(res => {
                     const user = res.data
                     receivedUserLoggedIn(token, user)
-                }).catch(err => console.log(err))
+                }).catch(err => {})
                 // return true
             } else {
                 // expired token - log user out

@@ -4,6 +4,7 @@ var _ = require('lodash'),
   config = require('../config'),
   mongoose = require('mongoose'),
   chalk = require('chalk'),
+  winston = require('winston'),
   crypto = require('crypto');
 
 var seedOptions = {};
@@ -26,7 +27,7 @@ function saveUser(user) {
       // Then save the user
       user.save(function (err, theuser) {
         if (err) {
-          console.log(err)
+          winston.log('Error --->', err)
           reject(new Error('Failed to add local ' + user.username));
         } else {
           resolve(theuser);
@@ -58,7 +59,7 @@ function reportSuccess(password) {
   return function (user) {
     return new Promise(function (resolve, reject) {
       if (seedOptions.logResults) {
-        console.log(chalk.bold.red('Database seeding:\t\t\tLocal ' + user.username + ' added with password set to ' + password));
+        winston.log('Database seeding:\t\t\tLocal ' + user.username + ' added with password set to ' + password);
       }
       resolve();
     });
@@ -103,7 +104,7 @@ function seedTheUser(user) {
 function reportError(reject) {
   return function (err) {
     if (seedOptions.logResults) {
-      console.log('Database seeding:\t\t\t' + err + '\n');
+      winston.log('Database seeding:\t\t\t' + err + '\n');
     }
     reject(err);
   };
@@ -118,11 +119,11 @@ function seedGroup(group){
           .then(saveGroup(group))
           .then(reportSuccess(group.name))
           .then(function () {
-            console.log('GROUP MADE: ', group.name)
+            winston.info('GROUP MADE: ', group.name)
             resolve();
           })
           .catch(function (err) {
-            console.log('GROUP REJECTED: ', group.name)
+            winston.info('GROUP REJECTED: ', group.name)
             reject(err);
           });
       } else {
@@ -131,11 +132,11 @@ function seedGroup(group){
           .then(saveGroup(group))
           .then(reportSuccess(group.name))
           .then(function () {
-            console.log('GROUP MADE: ', group.name)
+            winston.info('GROUP MADE: ', group.name)
             resolve();
           })
           .catch(function (err) {
-            console.log('GROUP REJECTED: ', group.name)
+            winston.info('GROUP REJECTED: ', group.name)
             reject(err);
           });
       }
@@ -148,7 +149,7 @@ function saveGroup(group) {
       // Then save the group
       group.save(function (err, thegroup) {
         if (err) {
-          console.log(err)
+          winston.log(err)
           reject(new Error('Failed to add local ' + group.name));
         } else {
           resolve(thegroup);
@@ -174,7 +175,7 @@ function checkGroupNotExists(group) {
 }
 
 module.exports.start = function start(options) {
-console.log('Database seeding: CREATING EVERYTHINGx')
+winston.log('Database seeding: CREATING EVERYTHINGx')
   // Initialize the default seed options
   seedOptions = _.clone(config.seedDB.options, true);
 

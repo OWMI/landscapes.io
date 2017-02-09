@@ -19,7 +19,6 @@ module.exports = (app, db) => {
         //   .exec(function (err, user) {
 
         //   //  user.role = user.role.map((r) => { return r.name })
-        //    console.log('passport.deserializeUser --> ', user)
         //    done(err, user)
         //   })
 

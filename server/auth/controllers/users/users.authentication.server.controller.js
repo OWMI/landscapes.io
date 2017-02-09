@@ -1,11 +1,9 @@
 'use strict'
 
-/**
- * Module dependencies
- */
 let path            = require('path')
 let mongoose        = require('mongoose')
 let passport        = require('passport')
+let winston        = require('winston')
 let User            = mongoose.model('User')
 let jwt             = require('jsonwebtoken')
 let config          = require(path.resolve('./server/config/config'))
@@ -54,7 +52,7 @@ exports.signin = (req, res, next) => {
     if (config.authStrategy === 'ldap') {
         passport.authenticate('ldapauth', { session: false }, (err, user, info) => {
             if (err || !user) {
-                console.log('passport.authenticate.ldapauth --> ERROR:', err)
+                winston.log('passport.authenticate.ldapauth --> ERROR:', err)
                 res.status(400).send(info)
             } else {
                 // Remove sensitive data before login
@@ -73,7 +71,7 @@ exports.signin = (req, res, next) => {
     } else {
         passport.authenticate('local', (err, user, info) => {
             if (err || !user) {
-                console.log(err)
+                winston.log('Error --->',err);
                 res.status(400).send(info)
             } else {
                 // Remove sensitive data before login
@@ -82,12 +80,12 @@ exports.signin = (req, res, next) => {
 
                 req.login(user, err => {
                     if (err) {
-                        console.log(err)
+                        winston.log('Error --->',err);
                         res.status(400).send(err)
                     } else {
                         User.findOne({ '_id': user._id }, '-salt -password').exec((err, userWithRoles) => {
                             if (err) {
-                                console.log(err)
+                                winston.log('Error --->',err);
                                 res.status(400).send(err)
                             } else {
                                 res.json(userWithRoles)

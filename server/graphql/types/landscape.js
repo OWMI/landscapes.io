@@ -14,14 +14,23 @@ const Landscape = `
         version: String!
         imageUri: String!
 
+        documents: [DocumentObject]
+
         cloudFormationTemplate: String!
         infoLink: String
         infoLinkText: String
         description: String
     }
 `
+const DocumentObject = `
+    type DocumentObject {
+        type: String
+        name: String
+        url: String
+    }
+`
 
-export default() => [Landscape, User]
+export default() => [Landscape, DocumentObject, User]
 
  // createdBy: { type: Schema.ObjectId, ref: 'User' },
  // img: { data: Buffer, contentType: String },
