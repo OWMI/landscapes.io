@@ -1,6 +1,7 @@
 'use strict';
 
 var passport = require('passport'),
+  winston = require('winston'),
   LdapStrategy = require('passport-ldapauth'),
   User = require('mongoose').model('User'),
   path = require('path'),
@@ -28,7 +29,7 @@ var loginSuccess = function (userLdap, done) {
             //
             // TO DO: Map User values via UI and save to DB
 
-      console.log('userLdap -->', userLdap)
+      winston.log('userLdap -->', userLdap)
 
       user = new User({
         firstName: userLdap.givenName,
@@ -72,7 +73,7 @@ module.exports = function () {
     User.findOne({
       _id: id
     }).exec(function (err, user) {
-      console.log('passport.deserializeUser:', user)
+      winston.log('passport.deserializeUser:', user)
       done(err, user);
     });
   });

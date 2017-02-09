@@ -16,13 +16,10 @@ exports.retrieve = function (req, res) {
     } else {
       winston.info(' ---> Groups retrieved: ' + groups.length);
       // async.eachSeries(groups, function(group, callback) {
-      //   console.log('\t\t retrieving Users for Group "' + group.name + '"');
-      //
       //   User.find({ groups: group._id },'-salt -password', function (err, users) {
       //     if (err) {
       //       callback(err);
       //     } else {
-      //       console.log('\t\t Users retrieved for Group "' + group.name + '": ' + users.length);
       //       var userList = [];
       //       for(var count = 0; count < users.length; count++) {
       //         userList.push(users[count].userInfo);
@@ -34,7 +31,7 @@ exports.retrieve = function (req, res) {
       //
       // }, function(err) {
       //   if (err) {
-      //     winston.error(err);
+      //     winston.log('Error --->',err);
       //     return res.send(500, err);
       // } else {
           return res.json(groups);

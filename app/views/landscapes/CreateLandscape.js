@@ -3,14 +3,18 @@ import axios from 'axios'
 import cx from 'classnames'
 import { Row, Col } from 'react-flexbox-grid'
 import Dropzone from 'react-dropzone'
-import { IoCube } from 'react-icons/lib/io'
-import IconButton from 'material-ui/IconButton'
+import { IoClose, IoCube } from 'react-icons/lib/io'
+import { MdClear } from 'react-icons/lib/md/clear'
+import FlatButton from 'material-ui/FlatButton'
 import shallowCompare from 'react-addons-shallow-compare'
 import UploadIcon from 'material-ui/svg-icons/file/file-upload'
 import { Paper, RaisedButton, TextField } from 'material-ui'
 import Snackbar from 'material-ui/Snackbar';
 import AvatarCropper from "react-avatar-cropper";
 import defaultLandscapeImage from '../../style/AWS.png';
+import MenuItem from 'material-ui/MenuItem';
+import SelectField from 'material-ui/SelectField';
+import {Table, TableRow, TableBody, TableRowColumn, TableHeader, TableHeaderColumn} from 'material-ui';
 
 
 import './landscapes.style.scss'
@@ -22,7 +26,18 @@ class CreateLandscape extends Component {
         animated: true,
         viewEntersAnim: true,
         successOpen: false,
-        failOpen: false
+        failOpen: false,
+
+        typeOptions: [
+          "Wiki",
+          "Other",
+          "Test",
+          "Link"
+        ],
+        addedDocuments: [
+
+        ],
+        showAddDocument: false
     }
 
     componentDidMount() {
@@ -85,13 +100,100 @@ class CreateLandscape extends Component {
                         <TextField id='description' ref='description' multiLine={true} rows={4} floatingLabelText='Description'
                             fullWidth={true} floatingLabelStyle={{ left: '0px' }} textareaStyle={{ width: '95%' }}/>
 
-                        <TextField id='infoLink' ref='infoLink' floatingLabelText='Info Link' fullWidth={true}/>
-                        <TextField id='infoLinkText' ref='infoLinkText' floatingLabelText='Link Text' fullWidth={true}/>
+                          <Row center='xs' middle='xs' style={{marginBottom: 10}}>
+                              <Col xs={2}>
+                                <h4 style={{float:'left', marginLeft: 10}}>Documents</h4>
+                              </Col>
+                              <Col xs={10}>
+                                {
+                                  this.state.showAddDocument
+                                    ?
+                                    <RaisedButton label="Cancel" style={{float: 'right', marginRight:10}} onClick={() => this.setState({showAddDocument: false})} />
+                                    :
+                                    <RaisedButton label="Add" style={{float: 'right', marginRight:10}} onClick={() => this.setState({showAddDocument: true})} />
+                                }
+                              </Col>
+                          </Row>
+                          {
+                            this.state.addedDocuments.length > 0
+                            ?
+                            <Row style={{width:'95%', marginLeft: 10, borderBottom: '1px solid #DCDCDC', borderTop:  '1px solid #DCDCDC'}}>
+                                <Table selectable={false} fixedHeader={true}>
+                                  <TableHeader adjustForCheckbox={false} displaySelectAll={false}>
+                                    <TableRow>
+                                      <TableHeaderColumn>Type</TableHeaderColumn>
+                                      <TableHeaderColumn>Name</TableHeaderColumn>
+                                      <TableHeaderColumn>URL</TableHeaderColumn>
+                                      <TableHeaderColumn>Remove</TableHeaderColumn>
+                                    </TableRow>
+                                  </TableHeader>
+                                  <TableBody displayRowCheckbox={false}>
+                                    {
+                                      this.state.addedDocuments.map((document, index)=>{
+                                        return(
+                                          <TableRow key={index}>
+                                            <TableRowColumn>{document.type}</TableRowColumn>
+                                            <TableRowColumn>{document.name}</TableRowColumn>
+                                            <TableRowColumn>{document.url}</TableRowColumn>
+                                            <TableRowColumn>
+                                              <FlatButton onTouchTap={() =>{
+                                                  var documentArray = this.state.addedDocuments;
+                                                  documentArray.splice(index, 1);
+                                                  this.setState({addedDocuments: [...documentArray]
+                                                  })
+                                                }} hoverColor={'none'}
+                                                        labelStyle={{ fontSize: '12px', fontWeight: 'bold' }}icon={<IoClose/>}/>
+                                            </TableRowColumn>
+                                          </TableRow>
+                                        )
+                                      })
+                                    }
+                                  </TableBody>
+                                </Table>
+                            </Row>
+                            :
+                            <div></div>
+                          }
+
+                          {
+                            this.state.showAddDocument
+                              ?
+                              <div>
+                                <Row  middle='xs' style={{marginBottom: 10, marginLeft: 10}}>
+                                  <h4>New Document</h4>
+                                </Row>
+                                <Row middle='xs' style={{marginBottom: 10, marginLeft: 10}}>
+                                  <SelectField style={{width:'95%'}} id='type' floatingLabelText='Type' value={this.state.docType} onChange={this.handlesTypeChange}
+                                      floatingLabelStyle={{ left: '0px' }} className={cx( { 'two-field-row': true } )}>
+                                      {
+                                        this.state.typeOptions.map((type, index)=>{
+                                          return(
+                                            <MenuItem key={index} value={type} primaryText={type}/>
+                                          )
+
+                                      })
+                                    }
+                                  </SelectField>
+                                </Row>
+                                <Row center='xs' middle='xs' style={{marginBottom: 10}}>
+                                  <TextField id='docName' ref='docName' floatingLabelText='Name' value={this.docName} onChange={this.handlesdocNameChange} maxLength={64} style={{width:'95%'}}/>
+                                </Row>
+                                <Row center='xs' middle='xs' style={{marginBottom: 10}}>
+                                  <TextField id='url' ref='url' floatingLabelText='URL' value={this.docUrl} onChange={this.handlesdocUrlChange} maxLength={64} style={{width:'95%'}} />
+                                </Row>
+                                <Row center='xs' middle='xs' style={{marginBottom: 10}}>
+                                    <RaisedButton label="Save" onClick={this.handlesCreateDocumentClick}/>
+                                </Row>
+                              </div>
+                              :
+                              <div></div>
+                          }
 
                           <Dropzone id='imageUri' onDrop={this.handlesImageUpload} multiple={false} accept='image/*' style={{
                               marginLeft: '10px',
                               maxWidth: '100px',
-                              padding: '15px 0px'
+                              padding: '15px 0px',
+                              marginTop:10
                           }}>
                               <div className="avatar-photo" >
                                   <div className="avatar-edit">
@@ -175,6 +277,30 @@ class CreateLandscape extends Component {
         }
     }
 
+    handlesTypeChange = (event, index, value) => {
+      this.setState({docType: value})
+
+    }
+    handlesdocNameChange = (event) => {
+      this.setState({docName: event.target.value})
+
+    }
+    handlesdocUrlChange = (event) => {
+      this.setState({docUrl: event.target.value})
+
+    }
+
+    handlesCreateDocumentClick = () => {
+      var data = {
+        url: this.state.docUrl,
+        name: this.state.docName,
+        type: this.state.docType
+      }
+      var array = this.state.addedDocuments;
+      array.push(data);
+      this.setState({addedDocuments: array, showAddDocument: false, docType:'', docName: '', docUrl: ''})
+    }
+
     handlesTemplateClick = (acceptedFiles, rejectedFiles) => {
 
         let self = this
@@ -206,6 +332,7 @@ class CreateLandscape extends Component {
         if(!landscapeToCreate.version){
           landscapeToCreate.version = '1.0'
         }
+        landscapeToCreate.documents = this.state.addedDocuments;
 
         mutate({
             variables: { landscape: landscapeToCreate }

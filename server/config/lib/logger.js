@@ -77,7 +77,7 @@ logger.getLogOptions = function getLogOptions() {
   var configFileLogger = _config.log.fileLogger;
 
   if (!_.has(_config, 'log.fileLogger.directoryPath') || !_.has(_config, 'log.fileLogger.fileName')) {
-    console.log('unable to find logging file configuration');
+    winston.log('unable to find logging file configuration');
     return false;
   }
 

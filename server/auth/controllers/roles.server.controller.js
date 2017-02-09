@@ -1,18 +1,5 @@
-// Copyright 2014 OpenWhere, Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 'use strict';
+
 var winston = require('winston'),
   mongoose = require('mongoose'),
   async = require('async'),
@@ -25,19 +12,16 @@ exports.retrieve = function (req, res) {
 
   return Role.find(function (err, roles) {
     if (err) {
-      winston.error(err);
+      winston.log('error --->', err);
       return res.send(500, err);
     } else {
       winston.info(' ---> Roles retrieved: ' + roles.length);
 
       async.eachSeries(roles, function(role, callback) {
-        console.log('> > retrieving Users for Role "' + role.name + '"');
-
         User.find({ role: role._id }, '-salt -password',function (err, users) {
           if (err) {
             callback(err);
           } else {
-            console.log('> > > > Users retrieved for Role "' + role.name + '": ' + users.length);
             var userList = [];
             for(var count = 0; count < users.length; count++) {
               userList.push(users[count].userInfo);
@@ -49,7 +33,7 @@ exports.retrieve = function (req, res) {
 
       }, function(err) {
         if (err) {
-          winston.error(err);
+          winston.log('Error --->',err);
           return res.send(500, err);
         } else {
           return res.json(role);
@@ -106,7 +90,7 @@ exports.retrieveOne = function (req, res) {
   }],
         function (err, asyncSeriesData) {
           if (err) {
-            winston.error(err);
+            winston.log('Error --->', err);
             return res.send(500, err);
           }
           var role = asyncSeriesData[0];
@@ -129,7 +113,7 @@ exports.retrieveUsers = function (req, res, next) {
 
   Role.findById(roleId, function (err, role) {
     if (err) {
-      winston.error(err);
+      winston.log('Error --->', err);
       return next(err);
     }
     if (!role) {
@@ -165,7 +149,6 @@ exports.create = function (req, res, next) {
   }
 
   var data = req.body;
-  console.log(data);
 
   var newRole = new Role(req.body);
   newRole.createdBy = user._id;
@@ -174,7 +157,6 @@ exports.create = function (req, res, next) {
       winston.log('error', err);
       return res.json(400, err);
     } else {
-      console.log(JSON.stringify(newRole));
       return res.json(newRole);
     }
   });

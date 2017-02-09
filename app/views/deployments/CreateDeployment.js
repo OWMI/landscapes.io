@@ -221,7 +221,6 @@ class CreateDeployment extends Component {
 
         // map all fields to deploymentToCreate
         for (let key in this.refs) {
-            console.log('deploymentToCreate.cloudFormationParameters', deploymentToCreate.cloudFormationParameters)
             if (key.indexOf('_p') === 0) {
                 deploymentToCreate.cloudFormationParameters[key.replace('_p', '')] = this.refs[key].getValue()
             } else if (key === 'rejectUnauthorizedSsl') {

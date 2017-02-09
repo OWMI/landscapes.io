@@ -26,7 +26,6 @@ class LandscapeDetails extends Component {
           variables: { landscapeId: params.id }
       }).then(({ data }) => {
           return Promise.all(data.deploymentsByLandscapeId.map(deployment => {
-            console.log('deployment____', deployment)
               cloudFormationParameters[deployment._id] = deployment.cloudFormationParameters
               this.setState({cloudFormationParameters})
               if (deployment.isDeleted || deployment.awsErrors) {
@@ -54,7 +53,6 @@ class LandscapeDetails extends Component {
             variables: { landscapeId: params.id }
         }).then(({ data }) => {
             return Promise.all(data.deploymentsByLandscapeId.map(deployment => {
-                console.log('deployment____', deployment)
                 cloudFormationParameters[deployment._id] = deployment.cloudFormationParameters
                 this.setState({cloudFormationParameters})
                 if (deployment.isDeleted || deployment.awsErrors) {
@@ -69,7 +67,6 @@ class LandscapeDetails extends Component {
                 })
             }))
         }).then(deploymentStatusArray => {
-            console.log('deploymentStatusArray', deploymentStatusArray)
             self.setState({
                 currentDeployments: deploymentStatusArray.map(({ data }) => { return data.deploymentStatus })
             })
@@ -100,9 +97,6 @@ class LandscapeDetails extends Component {
         let runningStatus = ['CREATE_COMPLETE', 'ROLLBACK_COMPLETE', 'ROLLBACK_COMPLETE', 'DELETE_COMPLETE', 'UPDATE_COMPLETE', 'UPDATE_ROLLBACK_COMPLETE']
         let pendingStatus = ['CREATE_IN_PROGRESS', 'ROLLBACK_IN_PROGRESS', 'DELETE_IN_PROGRESS', 'UPDATE_IN_PROGRESS', 'UPDATE_COMPLETE_CLEANUP_IN_PROGRESS', 'UPDATE_ROLLBACK_IN_PROGRESS', 'UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS', 'REVIEW_IN_PROGRESS']
 
-        console.log('currentDeployments', currentDeployments)
-        console.log('currentDeployment', currentDeployment)
-        console.log('cloudFormationParameters', this.state.cloudFormationParameters)
         // for direct request
         // if (activeLandscape && activeLandscape._id !== params.id)
         if(!currentLandscape)
@@ -117,7 +111,6 @@ class LandscapeDetails extends Component {
 
         function getDeploymentInfo(deployment) {
             var self = this;
-            console.log('deployment', deployment)
             let deploymentInfo = []
             for (let key in deployment) {
                 switch (key) {

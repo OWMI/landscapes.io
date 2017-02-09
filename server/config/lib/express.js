@@ -152,7 +152,7 @@ module.exports.initMiddleware = app => {
             jwt.verify(token, 'CHANGE_ME', (err, decoded) => {
 
                 if (err) {
-                    console.log(err)
+                    console.log('Error --->',err);
                     res.status(401).json({ err })
                 }
 
@@ -180,7 +180,6 @@ module.exports.initMiddleware = app => {
         }
 
         function tryParseJSON(jsonString) {
-            console.log(' ---> validating JSON')
             try {
                 let o = JSON.parse(jsonString)
                 if (o && typeof o === 'object' && o !== null) {
@@ -192,11 +191,9 @@ module.exports.initMiddleware = app => {
         }
 
         function tryParseYAML(yamlString) {
-            console.log(' ---> validating YAML')
             try {
                 let o = YAML.parse(yamlString)
                 if (o && typeof o === 'object' && o !== null) {
-                    console.log('YAML', o)
                     return o
                 }
             } catch (e) {}
@@ -205,13 +202,11 @@ module.exports.initMiddleware = app => {
         }
 
         function deleteFile(filePath, callback) {
-            console.log(' ---> deleting file')
 
             fs.unlink(filePath, err => {
                 if (err) {
                     callback(err)
                 } else {
-                    console.log('file deleted --> ' + filePath)
                     callback(null)
                 }
             })
