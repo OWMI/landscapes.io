@@ -17,7 +17,7 @@ const Deployment = `
         accessKeyId: String
         secretAccessKey: String
         cloudFormationTemplate: String
-        cloudFormationParameters: [String]
+        cloudFormationParameters: [parameterObject]
         tags: [String]
         notes: [String]
         stackId: String
@@ -27,4 +27,11 @@ const Deployment = `
     }
 `
 
-export default() => [Deployment, User]
+const parameterObject = `
+    type parameterObject {
+        ParameterKey: String
+        ParameterValue: String
+    }
+`
+
+export default() => [Deployment, parameterObject, User]

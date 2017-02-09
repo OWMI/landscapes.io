@@ -25,6 +25,7 @@ class LandscapeDetails extends Component {
           variables: { landscapeId: params.id }
       }).then(({ data }) => {
           return Promise.all(data.deploymentsByLandscapeId.map(deployment => {
+            console.log('deployment____', deployment)
               if (deployment.isDeleted || deployment.awsErrors) {
                   return {
                       data: {
@@ -50,6 +51,7 @@ class LandscapeDetails extends Component {
             variables: { landscapeId: params.id }
         }).then(({ data }) => {
             return Promise.all(data.deploymentsByLandscapeId.map(deployment => {
+                console.log('deployment____', deployment)
                 if (deployment.isDeleted || deployment.awsErrors) {
                     return {
                         data: {
@@ -108,6 +110,8 @@ class LandscapeDetails extends Component {
 
             let deploymentInfo = []
 
+            console.log('DEPLOYMENT', deployment)
+
             for (let key in deployment) {
                 switch (key) {
                     case 'location':
@@ -118,6 +122,12 @@ class LandscapeDetails extends Component {
                         break
                     case 'stackId':
                         deploymentInfo.push({ key: 'Stack ID', value: deployment.stackId })
+                        break
+                    case 'tags':
+                        deploymentInfo.push({ key: 'Tags', value: deployment.tags })
+                        break
+                    case 'cloudFormationParameters':
+                        deploymentInfo.push({ key: 'Parameters', value: deployment.cloudFormationParameters })
                         break
                     default:
                         break
@@ -226,7 +236,7 @@ class LandscapeDetails extends Component {
                                     <Card key={index} style={{ padding: '5px 15px' }}>
                                         <CardHeader actAsExpander={true} showExpandableButton={true} style={{ padding: '0px 15px' }}>
                                             <Row middle='xs' between='xs' style={{ marginTop: '-15px' }}>
-                                                <Col xs={2}>{deployment.stackName}</Col>
+                                                <Col xs={2}>{deployment.stackName || ''}</Col>
                                                 <Col xs={2}>{deployment.location}</Col>
                                                 <Col xs={2}>{moment(deployment.createdAt).format('MMM DD YYYY')}</Col>
                                                 <Col xs={4} style={{ color: _stackStatus.color }}>

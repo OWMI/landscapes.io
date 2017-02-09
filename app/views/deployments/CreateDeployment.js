@@ -32,7 +32,8 @@ class CreateDeployment extends Component {
         const template = JSON.parse(currentLandscape.cloudFormationTemplate)
         this.setState({
           templateDescription: template.Description,
-          templateParameters: template.Parameters
+          templateParameters: template.Parameters,
+          currentLandscape
         })
       }
     }
@@ -44,7 +45,8 @@ class CreateDeployment extends Component {
         const template = JSON.parse(currentLandscape.cloudFormationTemplate)
         this.setState({
           templateDescription: template.Description,
-          templateParameters: template.Parameters
+          templateParameters: template.Parameters,
+          currentLandscape
         })
       }
     }
@@ -219,6 +221,7 @@ class CreateDeployment extends Component {
 
         // map all fields to deploymentToCreate
         for (let key in this.refs) {
+            console.log('deploymentToCreate.cloudFormationParameters', deploymentToCreate.cloudFormationParameters)
             if (key.indexOf('_p') === 0) {
                 deploymentToCreate.cloudFormationParameters[key.replace('_p', '')] = this.refs[key].getValue()
             } else if (key === 'rejectUnauthorizedSsl') {
@@ -229,7 +232,7 @@ class CreateDeployment extends Component {
         }
 
         // attach derived fields
-        deploymentToCreate.tags = {}
+        deploymentToCreate.tags = JSON.stringify({});
         deploymentToCreate.location = this.state.location
         deploymentToCreate.accountName = this.state.accountName
         deploymentToCreate.landscapeId = params.landscapeId
@@ -240,7 +243,7 @@ class CreateDeployment extends Component {
         mutate({
             variables: { deployment: deploymentToCreate }
          }).then(({ data }) => {
-            router.push({ pathname: `/landscapes` })
+            router.push({ pathname: `/landscape/${this.state.currentLandscape._id}` })
         }).catch(error => {
         })
     }

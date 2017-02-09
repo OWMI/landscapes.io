@@ -71,7 +71,10 @@ const DeploymentByLandscapeIdMutation = gql `
             billingCode,
             flavor,
             cloudFormationTemplate,
-            cloudFormationParameters,
+            cloudFormationParameters{
+              ParameterKey,
+              ParameterValue
+            },
             tags,
             notes,
             stackId,

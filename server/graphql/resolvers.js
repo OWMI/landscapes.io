@@ -306,6 +306,8 @@ const resolveFunctions = {
 
             let _cloudFormationParameters = JSON.parse(deployment.cloudFormationParameters)
 
+            console.log('_cloudFormationParameters', _cloudFormationParameters)
+
             function _setCABundle(pathToCertDotPemFile, rejectUnauthorized) {
                 let filePath = path.join(process.cwd(), pathToCertDotPemFile)
                 winston.info('## rejectUnauthorizedSsl -->', deployment.rejectUnauthorizedSsl)
@@ -411,6 +413,7 @@ const resolveFunctions = {
                                 ParameterKey: keys[j],
                                 ParameterValue: _cloudFormationParameters[keys[j]]
                             }
+
                             newDeployment.cloudFormationParameters.push(cloudFormationParameter)
                         }
 
