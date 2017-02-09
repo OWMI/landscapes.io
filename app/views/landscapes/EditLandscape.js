@@ -226,7 +226,7 @@ class EditLandscape extends Component {
                                 <Row center='xs' middle='xs' style={{marginBottom: 10}}>
                                   <TextField id='url' ref='url' floatingLabelText='URL' value={this.docUrl} onChange={this.handlesdocUrlChange} maxLength={64} style={{width:'95%'}} />
                                 </Row>
-                                <Row center='xs' middle='xs' style={{marginBottom: 10}}>
+                                <Row middle='xs' style={{marginBottom: 20, marginLeft: 10}}>
                                     <RaisedButton label="Save" onClick={this.handlesCreateDocumentClick}/>
                                 </Row>
                               </div>
@@ -378,6 +378,11 @@ class EditLandscape extends Component {
         }
         landscapeToUpdate.documents = this.state.addedDocuments;
 
+        landscapeToUpdate.documents.map(document =>{
+          delete document.__typename
+        })
+        delete landscapeToUpdate.documents.__typename
+
         this.props.updateLandscape({
             variables: { landscape: landscapeToUpdate }
         }).then(({ data }) => {
@@ -389,6 +394,7 @@ class EditLandscape extends Component {
             })
             router.push({ pathname: '/landscapes' })
         }).catch((error) => {
+            console.log(error)
             this.setState({ loading: false })
         })
     }
