@@ -1,8 +1,11 @@
+import axios from 'axios'
+import moment from 'moment'
 import React, { Component, PropTypes } from 'react'
 import { NavigationBar, BackToTop } from '../../components'
 import navigationModel from '../../models/navigation.json'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
+import { auth } from '../../services/auth'
 import * as viewsActions from '../../redux/modules/views'
 import * as userAuthActions from '../../redux/modules/userAuth'
 
@@ -12,9 +15,39 @@ class App extends Component {
         navModel: navigationModel
     }
 
+    componentWillReceiveProps(nextProps) {
+
+        const { user, userIsAuthenticated } = nextProps
+        const { actions: { setUserLogout, receivedUserLoggedIn } } = this.props
+
+        if (userIsAuthenticated && !user.permissions && !user.groups) {
+
+            const token = auth.getToken()
+
+            // extract expDate from token
+            let expDate = JSON.parse(window.atob(token.split('.')[1])).exp
+
+            if (moment().valueOf() > moment(expDate).valueOf()) {
+                // valid token - fetch user
+                // send token to backend and set user on state
+                return axios({
+                    method: 'get',
+                    url: 'http://0.0.0.0:8080/api/verifyToken',
+                    headers: { 'x-access-token': token }
+                }).then(res => {
+                    const user = res.data
+                    receivedUserLoggedIn(token, user)
+                }).catch(err => console.log(err))
+                // return true
+            } else {
+                // expired token - log user out
+                setUserLogout()
+            }
+        }
+    }
+
     componentDidMount() {
         const { actions: { checkIfUserIsAuthenticated } } = this.props
-
         checkIfUserIsAuthenticated()
     }
 
@@ -37,18 +70,14 @@ class App extends Component {
 
     handleLeftNavItemClick = (event, viewName) => {
         if (viewName === 'logout') {
-            const {actions: {
-                    setUserLogout
-                }} = this.props
+            const { actions: { setUserLogout } } = this.props
             setUserLogout()
         }
     }
 
     handleRightNavItemClick = (event, viewName) => {
         if (viewName === 'logout') {
-            const {actions: {
-                    setUserLogout
-                }} = this.props
+            const { actions: { setUserLogout } } = this.props
             setUserLogout()
         }
     }
@@ -66,7 +95,6 @@ App.propTypes = {
 
 const mapStateToProps = state => {
     return {
-        // userAuth:
         user: state.userAuth,
         userIsAuthenticated: state.userAuth.isAuthenticated
     }

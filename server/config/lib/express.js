@@ -4,8 +4,8 @@
  * Module dependencies.
  */
 
-import _ from 'lodash'
 import fs from 'fs'
+import _ from 'lodash'
 import path from 'path'
 import cors from 'cors'
 import YAML from 'yamljs'
@@ -14,6 +14,7 @@ import morgan from 'morgan'
 import helmet from 'helmet'
 import express from 'express'
 import hbs from 'express-hbs'
+import jwt from 'jsonwebtoken'
 import mongoose from 'mongoose'
 import passport from 'passport'
 import flash from 'connect-flash'
@@ -79,7 +80,6 @@ module.exports.initMiddleware = app => {
         level: 9
     }))
 
-
     // Enable logger (morgan) if enabled in the configuration file
     if (_.has(config, 'log.format')) {
         app.use(morgan(logger.getLogFormat(), logger.getMorganOptions()))
@@ -115,6 +115,58 @@ module.exports.initMiddleware = app => {
     let upload = multer({ dest: 'uploads/' })
 
     // TODO: Move to its own folder
+
+    app.post('/api/generateToken', (req, res) => {
+
+        let user = ''
+
+        req.on('data', chunk => {
+            user += chunk
+        })
+
+        req.on('end', () => {
+            user = JSON.parse(user)
+
+            // create a token
+            let token = jwt.sign({
+                data: user,
+                exp: Math.floor(Date.now() / 1000) + (60 * 60) // 1-hour token
+            }, 'CHANGE_ME')
+
+            res.json({
+                user,
+                token
+            })
+        })
+    })
+
+    app.get('/api/verifyToken', (req, res) => {
+
+        // route middleware to verify a token
+        // check header or url parameters or post parameters for token
+        let token = req.body.token || req.query.token || req.headers['x-access-token']
+
+        // decode token
+        if (token) {
+            // verifies secret and checks exp
+            jwt.verify(token, 'CHANGE_ME', (err, decoded) => {
+
+                if (err) {
+                    console.log(err)
+                    res.status(401).json({ err })
+                }
+
+                res.json(decoded.data)
+            })
+
+        } else {
+            // if there is no token
+            return res.status(403).send({
+                message: 'No token provided'
+            })
+        }
+    })
+
     app.get('/api/deployments/describe/:stackName/:region/:accountName', describe)
     app.get('/api/landscapes/:landscapeId/deployments', deploymentsByLandscapeId)
     app.post('/api/upload/template', upload.single('file'), (req, res) => {
@@ -187,7 +239,7 @@ module.exports.initMiddleware = app => {
     })
 
     app.use('/uploads', express.static('uploads'))
-    app.use(bodyParser.json({limit: '50mb'}))
+    app.use(bodyParser.json({ limit: '50mb' }))
     app.use(methodOverride())
 
     // Add the cookie parser and flash middleware

@@ -8,7 +8,7 @@ const dateFormat = 'DD/MM/YYYY HH:mm'
 /* -----------------------------------------
   constants
  ------------------------------------------*/
-const CHECK_IS_USER_IS_AUTHENTICATED = 'CHECK_IS_USER_IS_AUTHENTICATED'
+const CHECK_IF_USER_IS_AUTHENTICATED = 'CHECK_IF_USER_IS_AUTHENTICATED'
 
 const RECEIVED_USER_LOGGED_IN = 'RECEIVED_USER_LOGGED_IN'
 const ERROR_USER_LOGGED_IN = 'ERROR_USER_LOGGED_IN'
@@ -94,7 +94,7 @@ export default function(state = initialState, action) {
                 loading: action.loading
             }
 
-        case CHECK_IS_USER_IS_AUTHENTICATED:
+        case CHECK_IF_USER_IS_AUTHENTICATED:
             return {
                 ...state,
                 lastActionTime: action.time,
@@ -137,7 +137,7 @@ export default function(state = initialState, action) {
 // //////////////////
 // login sucess:
 // //////////////////
-export function receivedUserLoggedIn(userToken = null, user = emptyUser, groups, time = moment().format(dateFormat)) {
+export function receivedUserLoggedIn(userToken = null, user = emptyUser, time = moment().format(dateFormat)) {
     const isAuthenticated = userToken
         ? true
         : false
@@ -145,7 +145,6 @@ export function receivedUserLoggedIn(userToken = null, user = emptyUser, groups,
     auth.clearAllAppStorage() // clear previous token
     auth.setToken(userToken) // set token to default store = localStorage and to default token key = 'token'
     auth.setUserInfo(user)
-    user = auth.setUserAcess(user, groups)
 
     return {
         type: RECEIVED_USER_LOGGED_IN,
@@ -264,22 +263,24 @@ export function setUserLogout(time = moment().format(dateFormat)) {
 // check user auth (check token)
 // //////////////////////////////
 export function checkIfUserIsAuthenticated(time = moment().format(dateFormat)) {
+
     const user = auth.getUserInfo()
         ? auth.getUserInfo()
         : emptyUser
 
-    // need token and user info in localStorage to be authenticated
+    // need valid token and user info in localStorage to be authenticated
     const isAuthenticated = (auth.isAuthenticated() && checkUserHasId(user))
         ? true
         : false
 
     return {
-        type: CHECK_IS_USER_IS_AUTHENTICATED,
+        type: CHECK_IF_USER_IS_AUTHENTICATED,
         time,
         isAuthenticated: isAuthenticated,
         user
     }
 }
+
 
 function checkUserHasId(user) {
     return user && user._id && (user._id.length > 0)

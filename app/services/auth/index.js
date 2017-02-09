@@ -125,7 +125,7 @@ export const auth = {
         }
     },
 
-    setUserAcess(user, groups) {
+    setUserPermissions(user, groups) {
         if (user.role !== 'admin') {
             if (groups) {
                 groups.forEach(group => {
