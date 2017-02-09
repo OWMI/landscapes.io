@@ -1,3 +1,4 @@
+import { forIn } from 'lodash'
 import { auth } from '../../services/auth'
 
 /* -----------------------------------------
@@ -34,27 +35,31 @@ export function setUserAccess(pageType, data) {
 
     let user = auth.getUserInfo()
     let userAccess = {
-        isGlobalAdmin: false,
         isGroupAdmin: false,
         canCreate: false,
         canRead: false,
         canUpdate: false,
         canDelete: false,
-        canDeploy: false,
+        canExecute: false,
         landscapes: []
     }
+
+    forIn(user.permissions, value => {
+        if (value.indexOf('c') > -1) {
+            userAccess.canCreate = true
+        }
+    })
 
     switch (pageType) {
         case 'landscapes':
             if (user.permissions && data.landscapes) {
-                user.permissions.forEach(permission => {
+                for (let landscapeId in user.permissions) {
                     data.landscapes.forEach(landscape => {
-                        if (permission.landscapeId === landscape._id) {
-                            landscape.allowedActions = permission.allowedActions
+                        if (landscapeId === landscape._id) {
                             userAccess.landscapes.push(landscape)
                         }
                     })
-                })
+                }
             }
 
             break

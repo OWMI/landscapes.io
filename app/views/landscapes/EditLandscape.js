@@ -23,14 +23,9 @@ class EditLandscape extends Component {
         viewEntersAnim: true,
         showDeleteDialog: false,
         typeOptions: [
-          "Wiki",
-          "Other",
-          "Test",
-          "Link"
+            "Wiki", "Other", "Test", "Link"
         ],
-        addedDocuments: [
-
-        ],
+        addedDocuments: [],
         showAddDocument: false
     }
 
@@ -39,28 +34,30 @@ class EditLandscape extends Component {
         enterLandscapes()
     }
 
-    componentWillReceiveProps(nextProps){
-      const { activeLandscape, loading, landscapes, params } = nextProps
+    componentWillReceiveProps(nextProps) {
+        const { activeLandscape, loading, landscapes, params } = nextProps
 
         let currentLandscape = activeLandscape
 
-      var _landscapes = landscapes || []
-      // for direct request
-      // if (activeLandscape && activeLandscape._id !== params.id)
+          var _landscapes = landscapes || []
+          
+          // for direct request
+          // if (activeLandscape && activeLandscape._id !== params.id)
           currentLandscape = _landscapes.find(ls => { return ls._id === params.id })
 
           if(currentLandscape && currentLandscape.documents){
             this.setState({addedDocuments: currentLandscape.documents});
           }
-      // set disableDelete value
-      if(currentLandscape && currentLandscape.status){
-        forIn(currentLandscape.status, (value, key) => {
-            if (value > 0)
-                disableDelete = true
-        })
-      }
 
-      this.setState({currentLandscape})
+          // set disableDelete value
+          if (currentLandscape && currentLandscape.status){
+            forIn(currentLandscape.status, (value, key) => {
+                if (value > 0)
+                    disableDelete = true
+            })
+          }
+
+          this.setState({currentLandscape})
     }
 
     componentWillMount(){
@@ -70,21 +67,23 @@ class EditLandscape extends Component {
       var _landscapes = landscapes || []
       // for direct request
       // if (activeLandscape && activeLandscape._id !== params.id)
-          currentLandscape = _landscapes.find(ls => { return ls._id === params.id })
+      currentLandscape = _landscapes.find(ls => { return ls._id === params.id })
 
-          if(currentLandscape && currentLandscape.documents){
-            this.setState({addedDocuments: currentLandscape.documents});
-          }
+      if(currentLandscape && currentLandscape.documents){
+        this.setState({addedDocuments: currentLandscape.documents});
+      }
+
       // set disableDelete value
-      if(currentLandscape && currentLandscape.status){
+      if (currentLandscape && currentLandscape.status){
         forIn(currentLandscape.status, (value, key) => {
             if (value > 0)
                 disableDelete = true
         })
       }
 
-      this.setState({currentLandscape})
+      this.setState({ currentLandscape })
     }
+
     shouldComponentUpdate(nextProps, nextState) {
         return shallowCompare(this, nextProps, nextState)
     }
@@ -96,11 +95,26 @@ class EditLandscape extends Component {
 
     render() {
 
-        const { animated, showDeleteDialog, viewEntersAnim, currentLandscape } = this.state
-        const { activeLandscape, loading, landscapes, params } = this.props
-
+        const { animated, showDeleteDialog, viewEntersAnim } = this.state
+        const { activeLandscape, currentUser, loading, landscapes, params } = this.props
         let disableDelete = false,
-            self = this
+            self = this,
+            currentLandscape = activeLandscape
+
+        var _landscapes = landscapes || []
+        // for direct request
+        // if (activeLandscape && activeLandscape._id !== params.id)
+            currentLandscape = _landscapes.find(ls => { return ls._id === params.id })
+
+        // set disableDelete value
+        if (currentLandscape && currentLandscape.status){
+          forIn(currentLandscape.status, (value, key) => {
+              if (value > 0)
+                  disableDelete = true
+          })
+        }
+
+        disableDelete = !currentUser.isGlobalAdmin || (Object.keys(currentUser.permissions).length > 0 && !currentUser.permissions[currentLandscape._id].indexOf('d') > -1)
 
         if (loading || this.state.loading) {
             return (
@@ -121,6 +135,7 @@ class EditLandscape extends Component {
                             <RaisedButton label='Save' onTouchTap={this.handlesUpdateClick}
                                 style={{ float: 'right', margin: '30px 0px' }}
                                 labelStyle={{ fontSize: '11px' }}/>
+
                             <RaisedButton label='Delete' onTouchTap={() => { this.setState({ showDeleteDialog: !showDeleteDialog }) }}
                                 disabled={disableDelete}
                                 style={{ float: 'right', margin: '30px 0px' }}

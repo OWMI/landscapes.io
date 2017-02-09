@@ -126,6 +126,7 @@ export const auth = {
     },
 
     setUserPermissions(user, groups) {
+        user.permissions = {}
         if (user.role !== 'admin') {
             if (groups) {
                 groups.forEach(group => {
@@ -138,10 +139,7 @@ export const auth = {
                             })
                             group.landscapes.forEach(landscape => {
                                 // permissions
-                                user.permissions.push({
-                                    landscapeId: landscape,
-                                    allowedActions: group.permissions
-                                })
+                                user.permissions[landscape] = group.permissions
                             })
                         }
                     })
