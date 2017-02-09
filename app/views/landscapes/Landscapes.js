@@ -28,8 +28,15 @@ class Landscapes extends Component {
 
     componentWillReceiveProps(nextProps) {
         const self = this
-        const { landscapes } = nextProps
-        let _viewLandscapes = landscapes || []
+        const { landscapes, userAccess, setUserAccess } = nextProps
+        let _viewLandscapes = []
+
+        // set landscapes based on permissions
+        if (landscapes && landscapes.length && !userAccess) {
+            setUserAccess('landscapes', { landscapes })
+        } else if (userAccess && userAccess.landscapes) {
+            _viewLandscapes = userAccess.landscapes
+        }
 
         let runningStatus = ['CREATE_COMPLETE', 'ROLLBACK_COMPLETE', 'ROLLBACK_COMPLETE', 'DELETE_COMPLETE', 'UPDATE_COMPLETE', 'UPDATE_ROLLBACK_COMPLETE']
         let pendingStatus = ['CREATE_IN_PROGRESS', 'ROLLBACK_IN_PROGRESS', 'DELETE_IN_PROGRESS', 'UPDATE_IN_PROGRESS', 'UPDATE_COMPLETE_CLEANUP_IN_PROGRESS', 'UPDATE_ROLLBACK_IN_PROGRESS', 'UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS', 'REVIEW_IN_PROGRESS']
@@ -63,12 +70,12 @@ class Landscapes extends Component {
                 })
             })
 
-            Promise.all(_promises).then(landscapes => {
+            Promise.all(_promises).then(_landscapes => {
 
-                landscapesDetails = landscapes
+                landscapesDetails = _landscapes
 
-                // count deleted/purged/failed landscapes
-                landscapes.forEach((landscape, i) => {
+                // count deleted/purged/failed _landscapes
+                _landscapes.forEach((landscape, i) => {
                     landscape.forEach(deployment => {
                         if (deployment && deployment.isDeleted) {
                             _viewLandscapes[i].status.deleted++
@@ -78,10 +85,10 @@ class Landscapes extends Component {
                     })
                 })
 
-                // gather status for other landscapes
+                // gather status for other _landscapes
                 let _promises = []
 
-                let _promiseAll = landscapes.map((landscape, x) => {
+                let _promiseAll = _landscapes.map((landscape, x) => {
                     if (landscape.length) {
                         _promises[x] = landscape.map(stack => {
                             if (!stack.isDeleted && !stack.awsErrors) {
@@ -150,35 +157,6 @@ class Landscapes extends Component {
 
         const { loading, landscapes, users, groups } = this.props
         const { animated, viewEntersAnim, viewLandscapes } = this.state
-        const user = auth.getUserInfo()
-
-        let userGroups = [],
-            userLandscapes = {}
-
-        let _viewLandscapes = viewLandscapes
-
-        if (user.role !== 'admin') {
-            if (groups) {
-                groups.map(group => group.users.map(user => {
-                    if (user.userId === auth.getUserInfo()._id) {
-                        userGroups.push(group)
-                        if (landscapes) {
-                            landscapes.map(landscape => {
-                                group.landscapes.map(landscapeId => {
-                                    if (landscapeId === landscape._id) {
-                                        userLandscapes[landscapeId] = landscape
-                                    }
-                                })
-                            })
-                        }
-                    }
-                }))
-
-                _viewLandscapes = Object.keys(userLandscapes).map(key => {
-                    return userLandscapes[key]
-                })
-            }
-        }
 
         if (loading) {
             return (
@@ -197,7 +175,7 @@ class Landscapes extends Component {
 
                 <ul>
                     {
-                        _viewLandscapes.map((landscape, i) =>
+                        viewLandscapes.map((landscape, i) =>
 
                         <Paper key={i} className={cx({ 'landscape-card': true })} style={{backgroundColor: materialTheme.palette.primary1Color}} zDepth={3} rounded={false} onClick={this.handlesLandscapeClick.bind(this, landscape)}>
                                 {/* header */}
@@ -283,7 +261,6 @@ class Landscapes extends Component {
 }
 
 Landscapes.propTypes = {
-    currentView: PropTypes.string.isRequired,
     enterLandscapes: PropTypes.func.isRequired,
     leaveLandscapes: PropTypes.func.isRequired,
     setActiveLandscape: PropTypes.func.isRequired
