@@ -98,7 +98,7 @@ class CreateLandscape extends Component {
                                       <span>Click to Choose Image</span>
                                       <i className="fa fa-camera" style={{fontSize: 30}}></i>
                                   </div>
-                                  <img src={this.state.croppedImg || this.state.imageUri}/>
+                                  <img src={this.state.croppedImg || this.state.imageUri || defaultLandscapeImage}/>
                               </div>
                               {this.state.cropperOpen &&
                                 <AvatarCropper onRequestHide={this.handleRequestHide} cropperOpen={this.state.cropperOpen} onCrop={this.handleCrop} image={this.state.img} width={400} height={400}/>

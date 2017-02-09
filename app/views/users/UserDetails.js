@@ -160,8 +160,8 @@ class UserDetails extends Component {
                               <img src={this.state.currentUser.imageUri} style={{width: 85}} />
                           </Col>
                           <Col xs={4} style={{ textAlign: 'left' }}>
-                              <Row><h4>{this.state.currentUser.firstName + ' ' +  this.state.currentUser.lastName}</h4></Row>
-                              <Row><h5>{this.state.currentUser.email}</h5></Row>
+                              <Row style={{marginLeft:10}}><h4>{this.state.currentUser.firstName + ' ' +  this.state.currentUser.lastName}</h4></Row>
+                              <Row style={{marginLeft:10}}><h5>{this.state.currentUser.email}</h5></Row>
 
                           </Col>
                           <Col xs={7}>
