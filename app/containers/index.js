@@ -22,6 +22,9 @@ import ConnectedGroupDetails from './groups/GroupDetails'
 import ConnectedDeployments from './deployments/Deployments'
 import ConnectedCreateDeployment from './deployments/CreateDeployment'
 
+import ConnectedDocumentTypes from './documentTypes/DocumentTypes'
+import ConnectedCreateDocumentTypes from './documentTypes/CreateDocumentTypes'
+
 import ConnectedAccounts from './accounts/Accounts'
 import ConnectedCreateAccount from './accounts/CreateAccount'
 import ConnectedUpdateAccount from './accounts/UpdateAccount'
@@ -50,6 +53,9 @@ export {
 
     ConnectedDeployments,
     ConnectedCreateDeployment,
+
+    ConnectedDocumentTypes,
+    ConnectedCreateDocumentTypes,
 
     ConnectedAccounts,
     ConnectedCreateAccount,

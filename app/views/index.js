@@ -30,6 +30,9 @@ import UpdateAccount    from './accounts/UpdateAccount'
 import Deployments      from './deployments/Deployments'
 import CreateDeployment      from './deployments/CreateDeployment'
 
+import DocumentTypes      from './documentTypes/DocumentTypes'
+import CreateDocumentTypes      from './documentTypes/CreateDocumentTypes'
+
 export {
     // non protected views:
     Home,
@@ -60,5 +63,8 @@ export {
     UpdateAccount,
 
     Deployments,
-    CreateDeployment
+    CreateDeployment,
+
+    DocumentTypes,
+    CreateDocumentTypes
 }

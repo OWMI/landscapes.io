@@ -40,7 +40,7 @@ class EditLandscape extends Component {
         let currentLandscape = activeLandscape
 
           var _landscapes = landscapes || []
-          
+
           // for direct request
           // if (activeLandscape && activeLandscape._id !== params.id)
           currentLandscape = _landscapes.find(ls => { return ls._id === params.id })
@@ -236,10 +236,10 @@ class EditLandscape extends Component {
                                   </SelectField>
                                 </Row>
                                 <Row center='xs' middle='xs' style={{marginBottom: 10}}>
-                                  <TextField id='docName' ref='docName' floatingLabelText='Name' value={this.docName} onChange={this.handlesdocNameChange} maxLength={64} style={{width:'95%'}}/>
+                                  <TextField id='docName' ref='docName' floatingLabelText='Name' onChange={this.handlesdocNameChange} maxLength={64} style={{width:'95%'}}/>
                                 </Row>
                                 <Row center='xs' middle='xs' style={{marginBottom: 10}}>
-                                  <TextField id='url' ref='url' floatingLabelText='URL' value={this.docUrl} onChange={this.handlesdocUrlChange} maxLength={64} style={{width:'95%'}} />
+                                  <TextField id='url' ref='url' floatingLabelText='URL' onChange={this.handlesdocUrlChange} maxLength={64} style={{width:'95%'}} />
                                 </Row>
                                 <Row middle='xs' style={{marginBottom: 20, marginLeft: 10}}>
                                     <RaisedButton label="Save" onClick={this.handlesCreateDocumentClick}/>

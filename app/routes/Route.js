@@ -24,6 +24,9 @@ import {
     ConnectedDeployments,
     ConnectedCreateDeployment,
 
+    ConnectedDocumentTypes,
+    ConnectedCreateDocumentTypes,
+
     ConnectedUsers,
     ConnectedCreateUser,
     ConnectedEditUser,
@@ -60,6 +63,9 @@ export const Routes = () => {
                         <Route path="/accounts" component={ConnectedAccounts} onEnter={requireAuth}/>
                         <Route path="/accounts/create" component={ConnectedCreateAccount} onEnter={requireAuth}/>
                         <Route path="/accounts/update/:id" component={ConnectedUpdateAccount} onEnter={requireAuth}/>
+                        {/* document types views */}
+                        <Route path="/documentTypes" component={ConnectedDocumentTypes}/>
+                        <Route path="/documentTypes/create" component={ConnectedCreateDocumentTypes}/>
                         {/* landscape views */}
                         <Route path="/landscapes" component={ConnectedLandscapes} onEnter={requireAuth}/>
                         <Route path="/landscape/:id" component={ConnectedLandscapeDetails} onEnter={requireAuth}/>
