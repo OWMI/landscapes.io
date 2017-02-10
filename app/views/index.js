@@ -1,6 +1,6 @@
 // non protected views:
 import Home             from './home/Home'
-import PageNotFound     from './pageNotFound/PageNotFound'
+import PageNotFound     from './home/Home'
 import Login            from './login/Login'
 import Register         from './register/Register'
 import Password         from './password/Password'

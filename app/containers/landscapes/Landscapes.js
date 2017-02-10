@@ -5,6 +5,7 @@ import { graphql, compose } from 'react-apollo'
 import { bindActionCreators } from 'redux'
 import * as viewsActions from '../../redux/modules/views'
 import * as landscapesActions from '../../redux/modules/landscapes'
+import * as authorizationActions from '../../redux/modules/authorization'
 
 /* -----------------------------------------
   GraphQL - Apollo client
@@ -47,6 +48,11 @@ const LandscapeQuery = gql `
             imageUri,
             infoLink,
             infoLinkText,
+            documents{
+              type,
+              name,
+              url
+            },
             createdAt,
             description,
             cloudFormationTemplate
@@ -118,14 +124,18 @@ const composedRequest = compose(
  ------------------------------------------*/
 
 const mapStateToProps = state => {
-    return { currentView: state.views.currentView }
+    return {
+        currentUser: state.userAuth,
+        userAccess: state.authorization.userAccess
+    }
 }
 
 const mapDispatchToProps = dispatch => {
     return bindActionCreators({
         enterLandscapes: viewsActions.enterLandscapes,
         leaveLandscapes: viewsActions.leaveLandscapes,
-        setActiveLandscape: landscapesActions.setActiveLandscape
+        setActiveLandscape: landscapesActions.setActiveLandscape,
+        setUserAccess: authorizationActions.setUserAccess
     }, dispatch)
 }
 

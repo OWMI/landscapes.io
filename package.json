@@ -112,6 +112,7 @@
     "https": "^1.0.0",
     "jquery": "^2.2.1",
     "js-base64": "^2.1.9",
+    "jsonwebtoken": "^7.2.1",
     "jsx-loader": "^0.13.2",
     "lodash": "^4.17.4",
     "lost": "^7.1.1",

@@ -10,6 +10,8 @@ import {Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow,
 import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/Card';
 import {Tabs, Tab} from 'material-ui/Tabs';
 import TextField from 'material-ui/TextField';
+import {Row, Col} from 'react-flexbox-grid'
+import { IoEdit, IoAndroidClose, IoIosCloudUploadOutline } from 'react-icons/lib/io'
 
 import Slider from 'material-ui/Slider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme'
@@ -27,8 +29,6 @@ const styles = {
     justifyContent: 'space-around',
   },
   gridList: {
-    width: 500,
-    overflowY: 'auto'
   },
 };
 
@@ -131,43 +131,51 @@ class Profile extends Component {
 
             return (
               <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
-                  <h4><strong>User:</strong> {this.state.currentUser.firstName} {this.state.currentUser.lastName}</h4><br/>
-                    <div style={styles.root}>
+                <Row middle='xs'>
+                    <Col xs={2} style={{ textAlign: 'left', marginBottom:30 }}>
+                      <Row><h4><strong>User</strong></h4></Row>
+                    </Col>
+                    <Col xs={10}>
+                      
+                    </Col>
+                </Row>
+                <div style={styles.root}>
 
                     <Card style={{padding:20}}>
-                    <CardHeader
-                      title={this.state.currentUser.firstName + ' ' +  this.state.currentUser.lastName}
-                      subtitle={this.state.currentUser.email}
-                      avatar={this.state.currentUser.imageUri || defaultImage}
-                    />
-                    <CardActions>
+                      <Row middle='xs'style={{marginBottom: 10}}>
+                          <Col xs={1} style={{ textAlign: 'left' }}>
+                              <img src={this.state.currentUser.imageUri || defaultImage} style={{width: 85}} />
+                          </Col>
+                          <Col xs={4} style={{ textAlign: 'left' }}>
+                              <Row style={{marginLeft:10}}><h4>{this.state.currentUser.firstName + ' ' +  this.state.currentUser.lastName}</h4></Row>
+                              <Row style={{marginLeft:10}}><h5>{this.state.currentUser.email}</h5></Row>
+
+                          </Col>
+                          <Col xs={7}>
+                          </Col>
+                      </Row>
+                      <Col>
+                        <h5>Username:  {this.state.currentUser.username}</h5>
+                        <h5>Role:  {this.state.currentUser.role}</h5>
+                      </Col>
 
                     <GridList
                       cols={1}
                       cellHeight='auto'
                       style={styles.gridList}
                     >
-                        <GridTile key='username'>
-                        <p>Username:  {this.state.currentUser.username}</p>
-                      </GridTile>
-                        <GridTile key='Role'>
-                        <p>Role:  {this.state.currentUser.role}</p>
-                      </GridTile>
-                      <GridTile>
+                      <Tabs tabItemContainerStyle={{backgroundColor: materialTheme.palette.primary2Color}}>
+                        <Tab key="1" label="Groups">
                           <Table height={this.state.height} fixedHeader={this.state.fixedHeader} fixedFooter={this.state.fixedFooter}
                               selectable={false} multiSelectable={false}
                               onRowSelection={this.handleOnRowSelection}>
                                 <TableHeader displaySelectAll={false} adjustForCheckbox={false}
                                   enableSelectAll={false} >
                                   <TableRow>
-                                    <TableHeaderColumn colSpan="4" tooltip="Groups" style={{textAlign: 'center', fontSize:18}}>
-                                      Groups
-                                    </TableHeaderColumn>
-                                  </TableRow>
-                                  <TableRow>
                                     <TableHeaderColumn tooltip="Image"></TableHeaderColumn>
                                     <TableHeaderColumn tooltip="Name">Name</TableHeaderColumn>
                                     <TableHeaderColumn tooltip="Description">Description</TableHeaderColumn>
+                                    <TableHeaderColumn tooltip="GroupAdmin">Admin?</TableHeaderColumn>
                                     <TableHeaderColumn tooltip="Button"></TableHeaderColumn>
                                   </TableRow>
                                 </TableHeader>
@@ -178,6 +186,7 @@ class Profile extends Component {
                                     <TableRowColumn><img src={row.imageUri} style={{width: 40, borderRadius: 50}} /></TableRowColumn>
                                       <TableRowColumn>{row.name}</TableRowColumn>
                                       <TableRowColumn>{row.description}</TableRowColumn>
+                                      <TableRowColumn>{row.isGroupAdmin}</TableRowColumn>
                                       <TableRowColumn><FlatButton onClick={() => { this.handleOnClick(row._id) }} label="View"/></TableRowColumn>
                                     </TableRow>
                                     ))}
@@ -187,42 +196,9 @@ class Profile extends Component {
                                 >
                                 </TableFooter>
                               </Table>
-                      </GridTile>
-                    {/*  <GridTile>
-                      <Table height={this.state.height} fixedHeader={this.state.fixedHeader} fixedFooter={this.state.fixedFooter}
-                          selectable={false} multiSelectable={false}
-                          onRowSelection={this.handleOnRowSelection}>
-                            <TableHeader displaySelectAll={false} adjustForCheckbox={false}
-                              enableSelectAll={false} >
-                                  <TableRow>
-                                    <TableHeaderColumn colSpan="3" tooltip="Users" style={{textAlign: 'center', fontSize:18}}>
-                                      Users
-                                    </TableHeaderColumn>
-                                  </TableRow>
-                                  <TableRow>
-                                    <TableHeaderColumn tooltip="Email">Email</TableHeaderColumn>
-                                    <TableHeaderColumn tooltip="Name">Name</TableHeaderColumn>
-                                    <TableHeaderColumn tooltip="Role">Role</TableHeaderColumn>
-                                  </TableRow>
-                                </TableHeader>
-                                <TableBody displayRowCheckbox={false} deselectOnClickaway={this.state.deselectOnClickaway}
-                                  showRowHover={this.state.showRowHover} stripedRows={false}>
-                                  {this.state.groupUsers.map( (row, index) => (
-                                    <TableRow key={row._id} >
-                                      <TableRowColumn>{row.email}</TableRowColumn>
-                                      <TableRowColumn>{row.firstName} {row.lastName}</TableRowColumn>
-                                      <TableRowColumn>{row.role}</TableRowColumn>
-                                    </TableRow>
-                                    ))}
-                                </TableBody>
-                                <TableFooter
-                                  adjustForCheckbox={false}
-                                >
-                                </TableFooter>
-                              </Table>
-                      </GridTile>*/}
+                        </Tab>
+                      </Tabs>
                     </GridList>
-                    </CardActions>
 
                     </Card>
                     </div>

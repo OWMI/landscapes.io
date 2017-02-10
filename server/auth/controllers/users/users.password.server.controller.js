@@ -10,6 +10,7 @@ var path = require('path'),
   User = mongoose.model('User'),
   nodemailer = require('nodemailer'),
   async = require('async'),
+  winston = require('winston'),
   crypto = require('crypto');
 
 var smtpTransport = nodemailer.createTransport(config.mailer.options);
@@ -62,13 +63,11 @@ exports.forgot = function (req, res, next) {
         httpTransport = 'https://';
       }
       var baseUrl = req.app.get('domain') || httpTransport + req.headers.host;
-      console.log(baseUrl);
       res.render(path.resolve('modules/users/server/templates/reset-password-email'), {
         name: user.displayName,
         appName: config.app.title,
         url: baseUrl + '/api/auth/reset/' + token
       }, function (err, emailHTML) {
-        console.log(emailHTML);
         done(err, emailHTML, user);
       });
     },
@@ -208,23 +207,19 @@ exports.reset = function (req, res, next) {
 exports.changePassword = function (req, res, next) {
   // Init Variables
   var passwordDetails = req.body.passwordDetails;
-  console.log('passwordDetails', passwordDetails);
-  console.log('req.user,', req.body.user);
 
   if (req.body.user) {
     if (passwordDetails.newPassword) {
       User.findById(req.body.user._id, function (err, user) {
-        console.log('err --->', err)
-        console.log('user --->', user)
 
         if (!err && user) {
           if (user.authenticate(passwordDetails.currentPassword)) {
-            console.log('User Authenticated');
+            winston.info(' -------> User Authenticated');
             if (passwordDetails.newPassword === passwordDetails.verifyPassword) {
               user.password = passwordDetails.newPassword;
 
               user.save(function (err) {
-                console.log('save err--', err)
+                winston.log('save err--', err)
                 if (err) {
                   return res.status(400).send({
                     // message: errorHandler.getErrorMessage(err)

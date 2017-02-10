@@ -12,6 +12,7 @@ const landscapeSchema = new Schema({
     imageUri: { type: String },
     img: { data: Buffer, contentType: String },
     cloudFormationTemplate: { type: String, required: true },
+    documents: {type: Array, 'default' : []},
     infoLink: String,
     infoLinkText: String,
     description: String

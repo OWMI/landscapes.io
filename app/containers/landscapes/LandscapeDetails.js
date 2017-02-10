@@ -18,6 +18,11 @@ const LandscapeQuery = gql `
             imageUri,
             infoLink,
             infoLinkText,
+            documents{
+              type,
+              name,
+              url
+            },
             createdAt,
             description,
             cloudFormationTemplate
@@ -71,7 +76,10 @@ const DeploymentByLandscapeIdMutation = gql `
             billingCode,
             flavor,
             cloudFormationTemplate,
-            cloudFormationParameters,
+            cloudFormationParameters{
+              ParameterKey,
+              ParameterValue
+            },
             tags,
             notes,
             stackId,

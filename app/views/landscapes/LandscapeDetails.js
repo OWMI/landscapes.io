@@ -2,10 +2,13 @@ import moment from 'moment'
 import cx from 'classnames'
 import { Loader } from '../../components'
 import React, { Component, PropTypes } from 'react'
+import { IoCube, IoClose } from 'react-icons/lib/io'
 import shallowCompare from 'react-addons-shallow-compare'
 import { Row, Col } from 'react-flexbox-grid'
 import { IoEdit, IoAndroidClose, IoIosCloudUploadOutline } from 'react-icons/lib/io'
 import { Card, CardHeader, CardText, Dialog, FlatButton, RaisedButton, Tab, Tabs, TextField } from 'material-ui'
+import MenuItem from 'material-ui/MenuItem';
+import SelectField from 'material-ui/SelectField';
 import { Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table'
 import materialTheme from '../../style/custom-theme.js';
 
@@ -15,16 +18,31 @@ class LandscapeDetails extends Component {
         animated: true,
         viewEntersAnim: true,
         showDialog: false,
-        currentDeployments: []
+        currentDeployments: [],
+        addedDocuments: []
     }
     componentWillReceiveProps(nextProps){
       let self = this
-      const { deploymentsByLandscapeId, deploymentStatus, params } = nextProps
+      const { activeLandscape, deploymentsByLandscapeId, deploymentStatus, landscapes, params } = nextProps
+      let _landscapes = landscapes || []
+      let currentLandscape = activeLandscape;
+      if(!currentLandscape)
+          currentLandscape = _landscapes.find(ls => { return ls._id === params.id })
 
+      if(!currentLandscape){
+        currentLandscape = {cloudFormationTemplate: '{}'}
+      }
+      if(currentLandscape && currentLandscape.documents){
+        this.setState({addedDocuments: currentLandscape.documents});
+      }
+      this.setState({currentLandscape})
+      var cloudFormationParameters = {}
       deploymentsByLandscapeId({
           variables: { landscapeId: params.id }
       }).then(({ data }) => {
           return Promise.all(data.deploymentsByLandscapeId.map(deployment => {
+              cloudFormationParameters[deployment._id] = deployment.cloudFormationParameters
+              this.setState({cloudFormationParameters})
               if (deployment.isDeleted || deployment.awsErrors) {
                   return {
                       data: {
@@ -44,12 +62,26 @@ class LandscapeDetails extends Component {
     }
     componentWillMount() {
         let self = this
-        const { deploymentsByLandscapeId, deploymentStatus, params } = this.props
+        const { activeLandscape, deploymentsByLandscapeId, deploymentStatus, landscapes, params } = this.props
+        let _landscapes = landscapes || []
+        let currentLandscape = activeLandscape;
+        if(!currentLandscape)
+            currentLandscape = _landscapes.find(ls => { return ls._id === params.id })
 
+        if(!currentLandscape){
+          currentLandscape = {cloudFormationTemplate: '{}'}
+        }
+        if(currentLandscape && currentLandscape.documents){
+          this.setState({addedDocuments: currentLandscape.documents});
+        }
+        this.setState({currentLandscape})
+        var cloudFormationParameters = {}
         deploymentsByLandscapeId({
             variables: { landscapeId: params.id }
         }).then(({ data }) => {
             return Promise.all(data.deploymentsByLandscapeId.map(deployment => {
+                cloudFormationParameters[deployment._id] = deployment.cloudFormationParameters
+                this.setState({cloudFormationParameters})
                 if (deployment.isDeleted || deployment.awsErrors) {
                     return {
                         data: {
@@ -85,29 +117,22 @@ class LandscapeDetails extends Component {
     render() {
 
         const { activeLandscape, loading, landscapes, deploymentsByLandscapeId, params } = this.props
-        const { animated, viewEntersAnim, currentDeployment, currentDeployments, deleteType, refetchedLandscapes } = this.state
+        const { animated, viewEntersAnim, currentDeployment, currentDeployments, deleteType, refetchedLandscapes, cloudFormationParameters, currentLandscape } = this.state
 
         let _landscapes = landscapes || []
-        let currentLandscape = activeLandscape
         let runningStatus = ['CREATE_COMPLETE', 'ROLLBACK_COMPLETE', 'ROLLBACK_COMPLETE', 'DELETE_COMPLETE', 'UPDATE_COMPLETE', 'UPDATE_ROLLBACK_COMPLETE']
         let pendingStatus = ['CREATE_IN_PROGRESS', 'ROLLBACK_IN_PROGRESS', 'DELETE_IN_PROGRESS', 'UPDATE_IN_PROGRESS', 'UPDATE_COMPLETE_CLEANUP_IN_PROGRESS', 'UPDATE_ROLLBACK_IN_PROGRESS', 'UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS', 'REVIEW_IN_PROGRESS']
 
         // for direct request
         // if (activeLandscape && activeLandscape._id !== params.id)
-        if(!currentLandscape)
-            currentLandscape = _landscapes.find(ls => { return ls._id === params.id })
 
-        if(!currentLandscape){
-          currentLandscape = {cloudFormationTemplate: '{}'}
-        }
         const parsedCFTemplate = JSON.parse(currentLandscape.cloudFormationTemplate)
 
         let paramDetails = []
 
         function getDeploymentInfo(deployment) {
-
+            var self = this;
             let deploymentInfo = []
-
             for (let key in deployment) {
                 switch (key) {
                     case 'location':
@@ -145,13 +170,10 @@ class LandscapeDetails extends Component {
         return (
             <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
                 <Row middle='xs'>
-                    <Col xs={1} style={{ textAlign: 'left' }}>
-                        <img src={currentLandscape.imageUri} style={{width: 75}} />
+                    <Col xs={2} style={{ textAlign: 'left', marginBottom:30 }}>
+                      <Row><h4><strong>Landscape</strong></h4></Row>
                     </Col>
-                    <Col xs={4} style={{ textAlign: 'left' }}>
-                        <h4>Landscape: {currentLandscape.name}</h4>
-                    </Col>
-                    <Col xs={7}>
+                    <Col xs={10}>
                         <RaisedButton label='Deploy' onClick={this.handlesDeployClick}
                             style={{ float: 'right', marginBottom: '30px' }}
                             labelStyle={{ fontSize: '11px' }} icon={<IoIosCloudUploadOutline/>}/>
@@ -160,9 +182,18 @@ class LandscapeDetails extends Component {
                             labelStyle={{ fontSize: '11px' }} icon={<IoEdit/>}/>
                     </Col>
                 </Row>
-                <Row middle='xs' style={{flex: 1, marginLeft: 10}}>
-                    <Col style={{ textAlign: 'left', flex: 1 }}>
-                        <h5>Version: {currentLandscape.version}</h5>
+
+              <Card style={{padding:20}}>
+                <Row middle='xs'>
+                    <Col xs={1} style={{ textAlign: 'left' }}>
+                        <img src={currentLandscape.imageUri} style={{width: 85}} />
+                    </Col>
+                    <Col xs={4} style={{ textAlign: 'left', marginLeft:20 }}>
+                        <Row><h4>{currentLandscape.name}</h4></Row>
+                        <Row><h5>Version: {currentLandscape.version}</h5></Row>
+
+                    </Col>
+                    <Col xs={7}>
                     </Col>
                 </Row>
                 <Row middle='xs' style={{flex: 1, marginLeft: 10}}>
@@ -220,7 +251,7 @@ class LandscapeDetails extends Component {
                                     <Card key={index} style={{ padding: '5px 15px' }}>
                                         <CardHeader actAsExpander={true} showExpandableButton={true} style={{ padding: '0px 15px' }}>
                                             <Row middle='xs' between='xs' style={{ marginTop: '-15px' }}>
-                                                <Col xs={2}>{deployment.stackName}</Col>
+                                                <Col xs={2}>{deployment.stackName || ''}</Col>
                                                 <Col xs={2}>{deployment.location}</Col>
                                                 <Col xs={2}>{moment(deployment.createdAt).format('MMM DD YYYY')}</Col>
                                                 <Col xs={4} style={{ color: _stackStatus.color }}>
@@ -234,12 +265,55 @@ class LandscapeDetails extends Component {
                                         </CardHeader>
                                         <CardText key={index} expandable={true}>
                                             { getDeploymentInfo(deployment) }
+                                            <h5>Parameters</h5>
+                                            {
+                                              this.state.cloudFormationParameters[deployment._id].map(parameter => {
+                                                return(
+                                                  <Row key={parameter.ParameterKey}>
+                                                      <label style={{ margin: '0px 15px' }}>{parameter.ParameterKey}</label>
+                                                      <label>{parameter.ParameterValue}</label>
+                                                  </Row>)
+                                              })
+                                            }
                                         </CardText>
                                     </Card>
                                 )
                             })
                         }
                     </Tab>
+                        <Tab label='Documents'>
+                          {
+                            this.state.addedDocuments.length > 0
+                            ?
+                            <Row style={{width:'95%', marginLeft: 10, borderBottom: '1px solid #DCDCDC', borderTop:  '1px solid #DCDCDC'}}>
+                                <Table selectable={false} fixedHeader={true}>
+                                  <TableHeader adjustForCheckbox={false} displaySelectAll={false}>
+                                    <TableRow>
+                                      <TableHeaderColumn>Type</TableHeaderColumn>
+                                      <TableHeaderColumn>Name</TableHeaderColumn>
+                                      <TableHeaderColumn>URL</TableHeaderColumn>
+                                    </TableRow>
+                                  </TableHeader>
+                                  <TableBody displayRowCheckbox={false}>
+                                    {
+                                      this.state.addedDocuments.map((document, index)=>{
+                                        return(
+                                          <TableRow key={index}>
+                                            <TableRowColumn>{document.type}</TableRowColumn>
+                                            <TableRowColumn>{document.name}</TableRowColumn>
+                                            <TableRowColumn><a target="_blank" href={document.url}>{document.url}</a></TableRowColumn>
+                                          </TableRow>
+                                        )
+                                      })
+                                    }
+                                  </TableBody>
+                                </Table>
+                            </Row>
+                            :
+                            <div>None</div>
+                          }
+                        </Tab>
+
                         <Tab label='Template'>
                             <textarea rows={100} value={currentLandscape.cloudFormationTemplate} readOnly={true}
                                 style={{ background: '#f9f9f9', fontFamily: 'monospace', width: '100%' }}/>
@@ -333,6 +407,7 @@ class LandscapeDetails extends Component {
                     }
 
                 </Tabs>
+              </Card>
             </div>
         )
     }

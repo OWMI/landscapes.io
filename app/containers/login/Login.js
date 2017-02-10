@@ -50,10 +50,9 @@ const logUser = gql `
 const LoginWithMutation = graphql(logUser, {
     name: 'logUserMutation',
     props: ({ ownProps, logUserMutation }) => ({
-        loginUser(user, groups) {
-
+        loginUser(token, user, groups) {
             // TODO: Add JWT capability
-            ownProps.onUserLoggedIn('testToken', user, groups)
+            ownProps.onUserLoggedIn(token, user, groups)
         }
     })
 })

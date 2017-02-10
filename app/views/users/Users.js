@@ -78,27 +78,26 @@ class Users extends Component {
                 <ul>
                 {
                     this.state.users.map((user, i) =>
-
-                    <Paper key={i} style={{backgroundColor: materialTheme.palette.primary2Color}} className={cx({ 'landscape-card': true })} zDepth={3} rounded={false} onClick={this.handlesGroupClick.bind(this, user)}>
+                    <Paper key={i} className={cx({ 'landscape-card': true })} style={{backgroundColor: materialTheme.palette.primary2Color}} zDepth={3} rounded={false} onClick={this.handlesGroupClick.bind(this, user)}>
                             {/* header */}
                             <Row start='xs' middle='xs' style={{ padding: '20px 0px' }}>
-                                <Col xs={4}>
-                                    <img id='landscapeIcon' src={user.imageUri} style={{width:50, borderRadius:50}}/>
-                                </Col>
-                                <Col xs={4}>
-                                    <span>{user.username}</span><br/>
+                                <Col xs={8}>
+                                    <img id='landscapeIcon' src={user.imageUri} style={{width:85}}/>
                                 </Col>
                                 <Col xs={4}>
                                     <FlatButton id='landscape-edit' onTouchTap={this.handlesEditGroupClick.bind(this, user)}
                                         label='Edit' labelStyle={{ fontSize: '10px' }} icon={<IoEdit/>}/>
+                                      <div style={{height:35}}></div>
                                 </Col>
                             </Row>
-
-                            <CardText  style={{ fontSize: '12px' }}>
-                              Name:  {user.firstName} {user.lastName} <br/>
-                              Email: {user.email}<br/>
-                              Role:  {user.role}
-                            </CardText>
+                            <Row style={{ margin: '0px 20px', height: '95px' }}>
+                                <div id='landscape-title'>{user.lastName}, {user.firstName} </div>
+                                    <div id='landscape-description'>
+                                      Username:  {user.username}<br/>
+                                      Email: {user.email}<br/>
+                                      Role:  {user.role}
+                                    </div>
+                            </Row>
                     </Paper>)
                 }
                 </ul>

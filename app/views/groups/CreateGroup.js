@@ -6,7 +6,6 @@ import {Row, Col} from 'react-flexbox-grid'
 import {Checkbox, RaisedButton} from 'material-ui'
 import {GridList, GridTile} from 'material-ui/GridList';
 import Subheader from 'material-ui/Subheader';
-import IconButton from 'material-ui/IconButton';
 import StarBorder from 'material-ui/svg-icons/toggle/star-border';
 import Snackbar from 'material-ui/Snackbar';
 import Toggle from 'material-ui/Toggle';
@@ -25,7 +24,6 @@ import UploadIcon from 'material-ui/svg-icons/file/file-upload'
 import defaultUserImage from '../../style/empty.png'
 import defaultImage from '../../style/empty-group.png'
 import AvatarCropper from "react-avatar-cropper";
-import ReactDom from "react-dom";
 import {sortBy} from "lodash";
 
 import {Loader} from '../../components'
@@ -165,18 +163,6 @@ class CreateGroup extends Component {
                   justifyContent: 'space-between'
               }}>
                   <h4>Create Group</h4><br/>
-                    <Snackbar
-                      open={this.state.successOpen}
-                      message="Group successfully saved."
-                      autoHideDuration={3000}
-                      onRequestClose={this.handleRequestClose}
-                    />
-                    <Snackbar
-                      open={this.state.failOpen}
-                      message="Error saving group."
-                      autoHideDuration={3000}
-                      onRequestClose={this.handleRequestClose}
-                    />
                   <RaisedButton primary={true} label="Save" onClick={this.handlesCreateClick}/>
               </Row>
               <Row center='xs' middle='xs' className={cx({'animatedViews': animated, 'view-enter': viewEntersAnim})}>
@@ -215,24 +201,22 @@ class CreateGroup extends Component {
                                       <Checkbox label="Execute" checked={this.state.permissionX} onCheck={this.handlesPermissionClickX}/>
                                   </GridTile>
                                   <GridTile key='image'>
-                                      <Dropzone id='imageUri' onDrop={this.handlesImageUpload} multiple={false} accept='image/*' style={{
-                                          marginLeft: '10px',
-                                          width: '180px',
-                                          padding: '15px 0px'
-                                      }}>
-                                          <div className="avatar-photo">
-                                              <div className="avatar-edit">
-                                                  <span>Click to Choose Image</span>
-                                                  <i className="fa fa-camera"></i>
-                                              </div>
-                                              <img src={this.state.croppedImg || this.state.imageUri} style={{
-                                                  width: 200
-                                              }}/>
-                                          </div>
-                                          {this.state.cropperOpen &&
-                                            <AvatarCropper onRequestHide={this.handleRequestHide} cropperOpen={this.state.cropperOpen} onCrop={this.handleCrop} image={this.state.img} width={400} height={400}/>
-                                          }
-                                      </Dropzone>
+                                    <Dropzone id='imageUri' onDrop={this.handlesImageUpload} multiple={false} accept='image/*' style={{
+                                        marginLeft: '10px',
+                                        maxWidth: '100px',
+                                        padding: '15px 0px'
+                                    }}>
+                                        <div className="avatar-photo">
+                                            <div className="avatar-edit">
+                                                <span>Click to Choose Image</span>
+                                                <i className="fa fa-camera" style={{fontSize: 30}}></i>
+                                            </div>
+                                            <img src={this.state.croppedImg || this.state.imageUri || defaultImage} />
+                                        </div>
+                                        {this.state.cropperOpen &&
+                                          <AvatarCropper onRequestHide={this.handleRequestHide} cropperOpen={this.state.cropperOpen} onCrop={this.handleCrop} image={this.state.img} width={400} height={400}/>
+                                        }
+                                    </Dropzone>
                                   </GridTile>
                               </GridList>
                           </div>

@@ -86,21 +86,25 @@ class Groups extends Component {
                     <Paper key={i} className={cx({ 'landscape-card': true })} style={{backgroundColor: materialTheme.palette.primary3Color}} zDepth={3} rounded={false} onClick={this.handlesGroupClick.bind(this, group)}>
                             {/* header */}
                             <Row start='xs' middle='xs' style={{ padding: '20px 0px' }}>
-                                <Col xs={4}>
-                                    <img id='landscapeIcon' src={group.imageUri} style={{width:50, borderRadius:50}}/>
-                                </Col>
-                                <Col xs={4}>
-                                    <span>{group.name}</span><br/>
+                                <Col xs={8}>
+                                    <img id='landscapeIcon' src={group.imageUri} style={{width:85}}/>
                                 </Col>
                                 <Col xs={4}>
                                     <FlatButton id='landscape-edit' onTouchTap={this.handlesEditGroupClick.bind(this, group)}
                                         label='Edit' labelStyle={{ fontSize: '10px' }} icon={<IoEdit/>}/>
+                                      <div style={{height:35}}></div>
                                 </Col>
                             </Row>
-
-                            <CardText id="landscape-description" style={{ fontSize: '12px' }}>
-                              {group.description}
-                            </CardText>
+                            <Row style={{ margin: '0px 20px', height: '95px' }}>
+                                <div id='landscape-title'>{group.name}</div>
+                                {
+                                  group.description.length > 120
+                                    ?
+                                    <div id='landscape-description'>{group.description.substr(0, 120) + '...'}</div>
+                                    :
+                                    <div id='landscape-description'>{group.description}</div>
+                                }
+                            </Row>
                     </Paper>)
                 }
                 </ul>

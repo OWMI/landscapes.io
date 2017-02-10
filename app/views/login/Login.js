@@ -6,6 +6,7 @@ import { Row, Col } from 'react-flexbox-grid'
 import { Paper, RaisedButton, Checkbox, TextField } from 'material-ui'
 
 import './login.style.scss'
+import { auth } from '../../services/auth'
 import { ErrorAlert } from '../../components'
 
 class Login extends Component {
@@ -68,15 +69,32 @@ class Login extends Component {
         username = username.getValue()
         password = password.getValue()
 
+        // user login & auth token generation
         axios({
             method: 'post',
-            url: 'http://0.0.0.0:8080/api/auth/signin',
+            url: `http://${SERVER_IP}:${SERVER_PORT}/api/auth/signin`,
             data: {
                 username,
                 password
             }
         }).then(res => {
-            loginUser(res.data, groups)
+            let userWithPermissions = auth.setUserPermissions(res.data, groups)
+            return axios({
+                method: 'post',
+                url: `http://${SERVER_IP}:${SERVER_PORT}/api/generateToken`,
+                data: userWithPermissions
+            })
+        }).then(res => {
+            const { user, token } = res.data
+            loginUser(token, user, groups)
+
+            return axios({
+                method: 'get',
+                url: `http://${SERVER_IP}:${SERVER_PORT}/api/verifyToken`,
+                headers: { 'x-access-token': token }
+            })
+
+        }).then(res => {
             router.push({ pathname: '/landscapes' })
         })
     }
@@ -94,7 +112,9 @@ Login.propTypes = {
     enterLogin: PropTypes.func.isRequired,
     leaveLogin: PropTypes.func.isRequired,
     // apollo props:
-    user: PropTypes.shape({username: PropTypes.string}),
+    user: PropTypes.shape({
+        username: PropTypes.string
+    }),
 
     // auth props:
     userIsAuthenticated: PropTypes.bool.isRequired,

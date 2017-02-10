@@ -5,7 +5,6 @@ import shallowCompare from 'react-addons-shallow-compare'
 import { Checkbox, RaisedButton} from 'material-ui'
 import {GridList, GridTile} from 'material-ui/GridList';
 import Subheader from 'material-ui/Subheader';
-import IconButton from 'material-ui/IconButton';
 import StarBorder from 'material-ui/svg-icons/toggle/star-border';
 import Snackbar from 'material-ui/Snackbar';
 
@@ -14,6 +13,7 @@ import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'mat
 import {Tabs, Tab} from 'material-ui/Tabs';
 import TextField from 'material-ui/TextField';
 import Chip from 'material-ui/Chip';
+import { IoEdit, IoAndroidClose, IoIosCloudUploadOutline } from 'react-icons/lib/io'
 
 import Slider from 'material-ui/Slider';
 import {Row, Col} from 'react-flexbox-grid'
@@ -243,34 +243,49 @@ class GroupDetails extends Component {
 
         return (
             <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
-                <h4><strong>Group:</strong> {this.state.currentGroup.name}</h4><br/>
+                  <Row middle='xs'>
+                      <Col xs={2} style={{ textAlign: 'left', marginBottom:30 }}>
+                        <Row><h4><strong>Group</strong></h4></Row>
+                      </Col>
+                      <Col xs={10}>
+                          <RaisedButton label='Edit' onClick={this.handlesEditGroupClick}
+                              style={{ float: 'right', marginBottom: '30px' }}
+                              labelStyle={{ fontSize: '11px' }} icon={<IoEdit/>}/>
+                      </Col>
+                  </Row>
                   <div style={styles.root}>
 
                   <Card style={{padding:20}}>
-                  <CardHeader
-                    title={this.state.currentGroup.name}
-                    subtitle={<Row>
 
-                      {
-                        this.state.currentGroup.readablePermissions.map((row, index) => (
-                          <Chip style = {styles.chip} key={index} >
-                             {row}
-                          </Chip>
-                      ))
-                    }
+                    <Row middle='xs'>
+                        <Col xs={1} style={{ textAlign: 'left' }}>
+                            <img src={this.state.currentGroup.imageUri} style={{width: 85}} />
+                        </Col>
+                        <Col xs={4} style={{ textAlign: 'left' }}>
+                            <Row><h4>{this.state.currentGroup.name}</h4></Row>
+                            <Row>
+                              {
+                              this.state.currentGroup.readablePermissions.map((row, index) => (
+                                <Chip style = {styles.chip} key={index} >
+                                   {row}
+                                </Chip>
+                            ))
+                          }</Row>
+
+                        </Col>
+                        <Col xs={7}>
+                        </Col>
                     </Row>
-                    }
-
-                    avatar={this.state.currentGroup.imageUri}
-                  />
+                    <Row middle='xs' style={{flex: 1, marginLeft: 10, marginBottom:10}}>
+                        <Col style={{ textAlign: 'left', flex: 1 }}>
+                            <h5>{this.state.currentGroup.description}</h5>
+                        </Col>
+                    </Row>
                   <GridList
                     cols={1}
                     cellHeight='auto'
                     style={styles.gridList}
                   >
-                    <GridTile key='description' >
-                        <p>Description: {this.state.currentGroup.description} </p>
-                    </GridTile>
                 </GridList>
                 <Tabs tabItemContainerStyle={{backgroundColor: materialTheme.palette.primary3Color}}>
                   <Tab key="1" label="Landscapes">
@@ -339,6 +354,12 @@ class GroupDetails extends Component {
                   </div>
             </div>
         )
+    }
+
+    handlesEditGroupClick = (group, event) => {
+        const { params } = this.props
+        const { router } = this.context
+        router.push({ pathname: '/groups/edit/' + params.id })
     }
 
     closeError = (event) => {

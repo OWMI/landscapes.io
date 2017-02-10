@@ -221,7 +221,7 @@ class Password extends Component {
 
         axios({
             method: 'post',
-            url: 'http://0.0.0.0:8080/api/users/password',
+            url: `http://${SERVER_IP}:${SERVER_PORT}/api/users/password`,
             data: {
                 passwordDetails:{
                   currentPassword: currentPassword,

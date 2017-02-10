@@ -4,26 +4,84 @@ import axios from 'axios'
 import cx from 'classnames'
 import { Row, Col } from 'react-flexbox-grid'
 import Dropzone from 'react-dropzone'
-import { IoCube } from 'react-icons/lib/io'
-import IconButton from 'material-ui/IconButton'
+import { IoCube, IoClose } from 'react-icons/lib/io'
 import shallowCompare from 'react-addons-shallow-compare'
 import UploadIcon from 'material-ui/svg-icons/file/file-upload'
 import { Checkbox, Dialog, FlatButton, Paper, RaisedButton, TextField } from 'material-ui'
 
 import { Loader } from '../../components'
 import materialTheme from '../../style/custom-theme.js';
+import defaultLandscapeImage from '../../style/AWS.png';
+import MenuItem from 'material-ui/MenuItem';
+import SelectField from 'material-ui/SelectField';
+import {Table, TableRow, TableBody, TableRowColumn, TableHeader, TableHeaderColumn} from 'material-ui';
 
 class EditLandscape extends Component {
 
     state = {
         animated: true,
         viewEntersAnim: true,
-        showDeleteDialog: false
+        showDeleteDialog: false,
+        typeOptions: [
+            "Wiki", "Other", "Test", "Link"
+        ],
+        addedDocuments: [],
+        showAddDocument: false
     }
 
     componentDidMount() {
         const { enterLandscapes, landscapes, params } = this.props
         enterLandscapes()
+    }
+
+    componentWillReceiveProps(nextProps) {
+        const { activeLandscape, loading, landscapes, params } = nextProps
+
+        let currentLandscape = activeLandscape
+
+          var _landscapes = landscapes || []
+
+          // for direct request
+          // if (activeLandscape && activeLandscape._id !== params.id)
+          currentLandscape = _landscapes.find(ls => { return ls._id === params.id })
+
+          if(currentLandscape && currentLandscape.documents){
+            this.setState({addedDocuments: currentLandscape.documents});
+          }
+
+          // set disableDelete value
+          if (currentLandscape && currentLandscape.status){
+            forIn(currentLandscape.status, (value, key) => {
+                if (value > 0)
+                    disableDelete = true
+            })
+          }
+
+          this.setState({currentLandscape})
+    }
+
+    componentWillMount(){
+      const { activeLandscape, loading, landscapes, params } = this.props
+      let currentLandscape = activeLandscape
+
+      var _landscapes = landscapes || []
+      // for direct request
+      // if (activeLandscape && activeLandscape._id !== params.id)
+      currentLandscape = _landscapes.find(ls => { return ls._id === params.id })
+
+      if(currentLandscape && currentLandscape.documents){
+        this.setState({addedDocuments: currentLandscape.documents});
+      }
+
+      // set disableDelete value
+      if (currentLandscape && currentLandscape.status){
+        forIn(currentLandscape.status, (value, key) => {
+            if (value > 0)
+                disableDelete = true
+        })
+      }
+
+      this.setState({ currentLandscape })
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -38,7 +96,7 @@ class EditLandscape extends Component {
     render() {
 
         const { animated, showDeleteDialog, viewEntersAnim } = this.state
-        const { activeLandscape, loading, landscapes, params } = this.props
+        const { activeLandscape, currentUser, loading, landscapes, params } = this.props
         let disableDelete = false,
             self = this,
             currentLandscape = activeLandscape
@@ -49,12 +107,14 @@ class EditLandscape extends Component {
             currentLandscape = _landscapes.find(ls => { return ls._id === params.id })
 
         // set disableDelete value
-        if(currentLandscape && currentLandscape.status){
+        if (currentLandscape && currentLandscape.status){
           forIn(currentLandscape.status, (value, key) => {
               if (value > 0)
                   disableDelete = true
           })
         }
+
+        disableDelete = !currentUser.isGlobalAdmin || (Object.keys(currentUser.permissions).length > 0 && !currentUser.permissions[currentLandscape._id].indexOf('d') > -1)
 
         if (loading || this.state.loading) {
             return (
@@ -75,6 +135,7 @@ class EditLandscape extends Component {
                             <RaisedButton label='Save' onTouchTap={this.handlesUpdateClick}
                                 style={{ float: 'right', margin: '30px 0px' }}
                                 labelStyle={{ fontSize: '11px' }}/>
+
                             <RaisedButton label='Delete' onTouchTap={() => { this.setState({ showDeleteDialog: !showDeleteDialog }) }}
                                 disabled={disableDelete}
                                 style={{ float: 'right', margin: '30px 0px' }}
@@ -99,25 +160,109 @@ class EditLandscape extends Component {
                         <TextField id='description' ref='description' defaultValue={currentLandscape.description} multiLine={true} rows={4}
                             floatingLabelText='Description' fullWidth={true} floatingLabelStyle={{ left: '0px' }} textareaStyle={{ width: '95%' }}/>
 
-                        <TextField id='infoLink' ref='infoLink' defaultValue={currentLandscape.infoLink} floatingLabelText='Info Link' fullWidth={true}/>
-                        <TextField id='infoLinkText' ref='infoLinkText' defaultValue={currentLandscape.infoLinkText} floatingLabelText='Link Test' fullWidth={true}/>
+                          <Row center='xs' middle='xs' style={{marginBottom: 10}}>
+                              <Col xs={2}>
+                                <h4 style={{float:'left', marginLeft: 10}}>Documents</h4>
+                              </Col>
+                              <Col xs={10}>
+                                {
+                                  this.state.showAddDocument
+                                    ?
+                                    <RaisedButton label="Cancel" style={{float: 'right', marginRight:10}} onClick={() => this.setState({showAddDocument: false})} />
+                                    :
+                                    <RaisedButton label="Add" style={{float: 'right', marginRight:10}} onClick={() => this.setState({showAddDocument: true})} />
+                                }
+                              </Col>
+                          </Row>
+                          {
+                            this.state.addedDocuments.length > 0
+                            ?
+                            <Row style={{width:'95%', marginLeft: 10, borderBottom: '1px solid #DCDCDC', borderTop:  '1px solid #DCDCDC'}}>
+                                <Table selectable={false} fixedHeader={true}>
+                                  <TableHeader adjustForCheckbox={false} displaySelectAll={false}>
+                                    <TableRow>
+                                      <TableHeaderColumn>Type</TableHeaderColumn>
+                                      <TableHeaderColumn>Name</TableHeaderColumn>
+                                      <TableHeaderColumn>URL</TableHeaderColumn>
+                                      <TableHeaderColumn>Remove</TableHeaderColumn>
+                                    </TableRow>
+                                  </TableHeader>
+                                  <TableBody displayRowCheckbox={false}>
+                                    {
+                                      this.state.addedDocuments.map((document, index)=>{
+                                        return(
+                                          <TableRow key={index}>
+                                            <TableRowColumn>{document.type}</TableRowColumn>
+                                            <TableRowColumn>{document.name}</TableRowColumn>
+                                            <TableRowColumn>{document.url}</TableRowColumn>
+                                            <TableRowColumn>
+                                              <FlatButton onTouchTap={() =>{
+                                                  var documentArray = this.state.addedDocuments;
+                                                  documentArray.splice(index, 1);
+                                                  this.setState({addedDocuments: [...documentArray]
+                                                  })
+                                                }} hoverColor={'none'}
+                                                        labelStyle={{ fontSize: '12px', fontWeight: 'bold' }}icon={<IoClose/>}/>
+                                            </TableRowColumn>
+                                          </TableRow>
+                                        )
+                                      })
+                                    }
+                                  </TableBody>
+                                </Table>
+                            </Row>
+                            :
+                            <div></div>
+                          }
 
-                        <Dropzone id='imageUri' onDrop={this.handlesImageUpload} multiple={false} accept='image/*'
-                            style={{ marginLeft: '10px', width: '180px', padding: '15px 0px' }}>
-                            {
-                                this.state.imageUri || currentLandscape.imageUri
-                                ?
-                                    <Row middle='xs'>
-                                        <img src={this.state.imageUri || currentLandscape.imageUri} style={{ margin: '0 10px', height: '50px' }}/>
-                                        <span style={{ fontSize: '11px' }}>{this.state.imageFileName || 'CURRENT IMAGE'}</span>
-                                    </Row>
-                                :
-                                    <Row middle='xs'>
-                                        <IconButton>
-                                            <UploadIcon/>
-                                        </IconButton>
-                                        <span style={{ fontSize: '11px' }}>LANDSCAPE IMAGE</span>
-                                    </Row>
+                          {
+                            this.state.showAddDocument
+                              ?
+                              <div>
+                                <Row  middle='xs' style={{marginBottom: 10, marginLeft: 10}}>
+                                  <h4>New Document</h4>
+                                </Row>
+                                <Row middle='xs' style={{marginBottom: 10, marginLeft: 10}}>
+                                  <SelectField style={{width:'95%'}} id='type' floatingLabelText='Type' value={this.state.docType} onChange={this.handlesTypeChange}
+                                      floatingLabelStyle={{ left: '0px' }} className={cx( { 'two-field-row': true } )}>
+                                      {
+                                        this.state.typeOptions.map((type, index)=>{
+                                          return(
+                                            <MenuItem key={index} value={type} primaryText={type}/>
+                                          )
+
+                                      })
+                                    }
+                                  </SelectField>
+                                </Row>
+                                <Row center='xs' middle='xs' style={{marginBottom: 10}}>
+                                  <TextField id='docName' ref='docName' floatingLabelText='Name' value={this.docName} onChange={this.handlesdocNameChange} maxLength={64} style={{width:'95%'}}/>
+                                </Row>
+                                <Row center='xs' middle='xs' style={{marginBottom: 10}}>
+                                  <TextField id='url' ref='url' floatingLabelText='URL' value={this.docUrl} onChange={this.handlesdocUrlChange} maxLength={64} style={{width:'95%'}} />
+                                </Row>
+                                <Row middle='xs' style={{marginBottom: 20, marginLeft: 10}}>
+                                    <RaisedButton label="Save" onClick={this.handlesCreateDocumentClick}/>
+                                </Row>
+                              </div>
+                              :
+                              <div></div>
+                          }
+
+                        <Dropzone id='imageUri' onDrop={this.handlesImageUpload} multiple={false} accept='image/*' style={{
+                            marginLeft: '10px',
+                            maxWidth: '100px',
+                            padding: '15px 0px'
+                        }}>
+                            <div className="avatar-photo">
+                                <div className="avatar-edit">
+                                    <span>Click to Choose Image</span>
+                                    <i className="fa fa-camera" style={{fontSize: 30}}></i>
+                                </div>
+                                <img src={this.state.croppedImg || currentLandscape.imageUri}/>
+                            </div>
+                            {this.state.cropperOpen &&
+                              <AvatarCropper onRequestHide={this.handleRequestHide} cropperOpen={this.state.cropperOpen} onCrop={this.handleCrop} image={this.state.img} width={400} height={400}/>
                             }
                         </Dropzone>
 
@@ -145,7 +290,32 @@ class EditLandscape extends Component {
             </Row>
         )
     }
-
+    getInitialState = () => {
+        return {
+          cropperOpen: false,
+          img: null,
+          croppedImg: defaultImage
+        };
+      }
+      handleFileChange = (dataURI) => {
+        this.setState({
+          img: dataURI,
+          croppedImg: this.state.croppedImg,
+          cropperOpen: true
+        });
+      }
+      handleCrop = (dataURI) => {
+        this.setState({
+          cropperOpen: false,
+          img: null,
+          croppedImg: dataURI
+        });
+      }
+      handleRequestHide = () =>{
+        this.setState({
+          cropperOpen: false
+        });
+      }
     handlesImageUpload = (acceptedFiles, rejectedFiles) => {
         let reader = new FileReader()
 
@@ -153,6 +323,9 @@ class EditLandscape extends Component {
         reader.onload = () => {
             this.setState({
                 imageUri: reader.result,
+                img: reader.result,
+                croppedImg: this.state.croppedImg,
+                cropperOpen: true,
                 imageFileName: acceptedFiles[0].name
             })
         }
@@ -160,7 +333,29 @@ class EditLandscape extends Component {
         reader.onerror = error => {
         }
     }
+    handlesTypeChange = (event, index, value) => {
+      this.setState({docType: value})
 
+    }
+    handlesdocNameChange = (event) => {
+      this.setState({docName: event.target.value})
+
+    }
+    handlesdocUrlChange = (event) => {
+      this.setState({docUrl: event.target.value})
+
+    }
+
+    handlesCreateDocumentClick = () => {
+      var data = {
+        url: this.state.docUrl,
+        name: this.state.docName,
+        type: this.state.docType
+      }
+      var array = this.state.addedDocuments;
+      array.push(data);
+      this.setState({addedDocuments: array, showAddDocument: false, docType:'', docName: '', docUrl: ''})
+    }
     handlesTemplateClick = (acceptedFiles, rejectedFiles) => {
 
         let self = this
@@ -168,7 +363,7 @@ class EditLandscape extends Component {
 
         data.append('file', acceptedFiles[0])
 
-        axios.post('http://0.0.0.0:8080/api/upload/template', data).then(res => {
+        axios.post(`http://${SERVER_IP}:${SERVER_PORT}/api/upload/template`, data).then(res => {
             self.setState({
                 cloudFormationTemplate: JSON.stringify(res.data, null, 4)
             })
@@ -191,11 +386,18 @@ class EditLandscape extends Component {
         }
         // attach imageUri and cloudFormationTemplate
         landscapeToUpdate._id = params.id
-        landscapeToUpdate.imageUri = this.state.imageUri || currentLandscape.imageUri
+        landscapeToUpdate.imageUri = currentLandscape.imageUri || defaultLandscapeImage
         landscapeToUpdate.cloudFormationTemplate = this.state.cloudFormationTemplate || currentLandscape.cloudFormationTemplate
         if(!landscapeToUpdate.version){
           landscapeToUpdate.version = currentLandscape.version || '1.0'
         }
+        landscapeToUpdate.documents = this.state.addedDocuments;
+
+        landscapeToUpdate.documents.map(document =>{
+          delete document.__typename
+        })
+        delete landscapeToUpdate.documents.__typename
+
         this.props.updateLandscape({
             variables: { landscape: landscapeToUpdate }
         }).then(({ data }) => {
@@ -207,6 +409,7 @@ class EditLandscape extends Component {
             })
             router.push({ pathname: '/landscapes' })
         }).catch((error) => {
+            console.log(error)
             this.setState({ loading: false })
         })
     }

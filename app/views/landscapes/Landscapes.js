@@ -11,6 +11,7 @@ import './landscapes.style.scss'
 import { Loader } from '../../components'
 import { auth } from '../../services/auth'
 import materialTheme from '../../style/custom-theme.js';
+import defaultLandscapeImage from '../../style/AWS.png';
 
 class Landscapes extends Component {
 
@@ -27,8 +28,17 @@ class Landscapes extends Component {
 
     componentWillReceiveProps(nextProps) {
         const self = this
-        const { landscapes } = nextProps
-        let _viewLandscapes = landscapes || []
+        const { currentUser, landscapes, userAccess, setUserAccess } = nextProps
+        let _viewLandscapes = []
+
+        // set landscapes based on permissions
+        if (landscapes && landscapes.length && currentUser.isGlobalAdmin) {
+            _viewLandscapes = landscapes
+        } else if (landscapes && landscapes.length && !userAccess) {
+            setUserAccess('landscapes', { landscapes })
+        } else if (userAccess && userAccess.landscapes) {
+            _viewLandscapes = userAccess.landscapes
+        }
 
         let runningStatus = ['CREATE_COMPLETE', 'ROLLBACK_COMPLETE', 'ROLLBACK_COMPLETE', 'DELETE_COMPLETE', 'UPDATE_COMPLETE', 'UPDATE_ROLLBACK_COMPLETE']
         let pendingStatus = ['CREATE_IN_PROGRESS', 'ROLLBACK_IN_PROGRESS', 'DELETE_IN_PROGRESS', 'UPDATE_IN_PROGRESS', 'UPDATE_COMPLETE_CLEANUP_IN_PROGRESS', 'UPDATE_ROLLBACK_IN_PROGRESS', 'UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS', 'REVIEW_IN_PROGRESS']
@@ -54,7 +64,7 @@ class Landscapes extends Component {
             // create promise array to gather all deployments
             let _promises = _viewLandscapes.map((landscape, index) => {
                 return new Promise((resolve, reject) => {
-                    axios.get(`http://localhost:8080/api/landscapes/${landscape._id}/deployments`).then(res => {
+                    axios.get(`http://${SERVER_IP}:${SERVER_PORT}/api/landscapes/${landscape._id}/deployments`).then(res => {
                         resolve(res.data)
                     }).catch(err => {
                         reject(err)
@@ -62,12 +72,12 @@ class Landscapes extends Component {
                 })
             })
 
-            Promise.all(_promises).then(landscapes => {
+            Promise.all(_promises).then(_landscapes => {
 
-                landscapesDetails = landscapes
+                landscapesDetails = _landscapes
 
-                // count deleted/purged/failed landscapes
-                landscapes.forEach((landscape, i) => {
+                // count deleted/purged/failed _landscapes
+                _landscapes.forEach((landscape, i) => {
                     landscape.forEach(deployment => {
                         if (deployment && deployment.isDeleted) {
                             _viewLandscapes[i].status.deleted++
@@ -77,15 +87,15 @@ class Landscapes extends Component {
                     })
                 })
 
-                // gather status for other landscapes
+                // gather status for other _landscapes
                 let _promises = []
 
-                let _promiseAll = landscapes.map((landscape, x) => {
+                let _promiseAll = _landscapes.map((landscape, x) => {
                     if (landscape.length) {
                         _promises[x] = landscape.map(stack => {
                             if (!stack.isDeleted && !stack.awsErrors) {
                                 return new Promise((resolve, reject) => {
-                                    axios.get(`http://localhost:8080/api/deployments/describe/${stack.stackName}/${stack.location}/${stack.accountName}`)
+                                    axios.get(`http://${SERVER_IP}:${SERVER_PORT}/api/deployments/describe/${stack.stackName}/${stack.location}/${stack.accountName}`)
                                     .then(res => {
                                         resolve(res.data)
                                     }).catch(err => {
@@ -147,37 +157,8 @@ class Landscapes extends Component {
 
     render() {
 
-        const { loading, landscapes, users, groups } = this.props
+        const { currentUser, loading, landscapes, users, groups, userAccess } = this.props
         const { animated, viewEntersAnim, viewLandscapes } = this.state
-        const user = auth.getUserInfo()
-
-        let userGroups = [],
-            userLandscapes = {}
-
-        let _viewLandscapes = viewLandscapes
-
-        if (user.role !== 'admin') {
-            if (groups) {
-                groups.map(group => group.users.map(user => {
-                    if (user.userId === auth.getUserInfo()._id) {
-                        userGroups.push(group)
-                        if (landscapes) {
-                            landscapes.map(landscape => {
-                                group.landscapes.map(landscapeId => {
-                                    if (landscapeId === landscape._id) {
-                                        userLandscapes[landscapeId] = landscape
-                                    }
-                                })
-                            })
-                        }
-                    }
-                }))
-
-                _viewLandscapes = Object.keys(userLandscapes).map(key => {
-                    return userLandscapes[key]
-                })
-            }
-        }
 
         if (loading) {
             return (
@@ -190,25 +171,44 @@ class Landscapes extends Component {
         return (
             <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
 
-                <a onClick={this.handlesCreateLandscapeClick}>
-                    <p style={{ fontSize: '20px', cursor: 'pointer' }}><IoIosPlusEmpty size={30}/>Add Landscape</p>
-                </a>
+                {
+                    currentUser.isGlobalAdmin || userAccess && userAccess.canCreate
+                    ?
+                        <a onClick={this.handlesCreateLandscapeClick}>
+                            <p style={{ fontSize: '20px', cursor: 'pointer' }}><IoIosPlusEmpty size={30}/>Add Landscape</p>
+                        </a>
+                    :
+                        null
+                }
 
                 <ul>
                     {
-                        _viewLandscapes.map((landscape, i) =>
+                        viewLandscapes.map((landscape, i) =>
 
                         <Paper key={i} className={cx({ 'landscape-card': true })} style={{backgroundColor: materialTheme.palette.primary1Color}} zDepth={3} rounded={false} onClick={this.handlesLandscapeClick.bind(this, landscape)}>
                                 {/* header */}
                                 <Row start='xs' top='xs' style={{ padding: '20px 0px' }}>
                                     <Col xs={8}>
-                                        <img id='landscapeIcon' src={landscape.imageUri}/>
+                                        <img id='landscapeIcon' src={landscape.imageUri || defaultLandscapeImage}/>
                                     </Col>
                                     <Col xs={4}>
-                                        <FlatButton id='landscape-edit' onTouchTap={this.handlesEditLandscapeClick.bind(this, landscape)}
-                                            label='Edit' labelStyle={{ fontSize: '10px' }} icon={<IoEdit/>}/>
-                                        <FlatButton id='landscape-deploy' onTouchTap={this.handlesDeployClick.bind(this, landscape)}
-                                            label='Deploy' labelStyle={{ fontSize: '10px' }} icon={<IoIosCloudUploadOutline/>}/>
+                                        {
+                                            currentUser.isGlobalAdmin || currentUser.permissions[landscape._id].indexOf('u') > -1
+                                            ?
+                                                <FlatButton id='landscape-edit' onTouchTap={this.handlesEditLandscapeClick.bind(this, landscape)}
+                                                    label='Edit' labelStyle={{ fontSize: '10px' }} icon={<IoEdit/>}/>
+                                            :
+                                                null
+                                        }
+
+                                        {
+                                            currentUser.isGlobalAdmin || currentUser.permissions[landscape._id].indexOf('x') > -1
+                                            ?
+                                                <FlatButton id='landscape-deploy' onTouchTap={this.handlesDeployClick.bind(this, landscape)}
+                                                    label='Deploy' labelStyle={{ fontSize: '10px' }} icon={<IoIosCloudUploadOutline/>}/>
+                                            :
+                                                null
+                                        }
                                     </Col>
                                 </Row>
 
@@ -282,7 +282,6 @@ class Landscapes extends Component {
 }
 
 Landscapes.propTypes = {
-    currentView: PropTypes.string.isRequired,
     enterLandscapes: PropTypes.func.isRequired,
     leaveLandscapes: PropTypes.func.isRequired,
     setActiveLandscape: PropTypes.func.isRequired

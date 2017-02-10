@@ -9,6 +9,7 @@ var _ = require('lodash'),
   errorHandler = require(path.resolve('./server/auth/controllers/errors.server.controller')),
   mongoose = require('mongoose'),
   multer = require('multer'),
+  winston = require('winston'),
   config = require(path.resolve('./server/config/config')),
   User = mongoose.model('User'),
   validator = require('validator');
@@ -16,7 +17,6 @@ var _ = require('lodash'),
 var whitelistedFields = ['firstName', 'lastName', 'email', 'username'];
 
 function _login(user, req, res) {
-  console.log('_login')
   req.login(user, function (err) {
     if (err) {
       res.status(400).send(err);
@@ -50,8 +50,6 @@ exports.update = function (req, res) {
 
     user.updated = Date.now();
     user.displayName = user.firstName + ' ' + user.lastName;
-
-    console.log('user', user)
 
     user.save(function (err) {
       if (err) {
@@ -136,7 +134,7 @@ exports.changeProfilePicture = function (req, res) {
       if (existingImageUrl !== User.schema.path('profileImageURL').defaultValue) {
         fs.unlink(existingImageUrl, function (unlinkError) {
           if (unlinkError) {
-            console.log(unlinkError);
+            winston.log('Error: ', unlinkError);
             reject({
               message: 'Error occurred while deleting old profile picture'
             });

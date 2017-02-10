@@ -5,7 +5,6 @@ import passport from 'passport'
 import async from 'async'
 import https from 'https'
 import AWS from 'aws-sdk'
-import winston from 'winston'
 import { find, filter } from 'lodash'
 import { pubsub } from './subscriptions'
 
@@ -243,7 +242,7 @@ const resolveFunctions = {
         },
         deploymentStatus(_, { deployment }) {
 
-            winston.info('---> Describing Deployment')
+            console.log('---> Describing Deployment')
 
             let cloudformation = new AWS.CloudFormation()
 
@@ -259,7 +258,7 @@ const resolveFunctions = {
                     })
 
                     if (account && account.accessKeyId && account.secretAccessKey) {
-                        winston.info('---> setting AWS security credentials');
+                        console.log('---> setting AWS security credentials');
 
                         cloudformation.config.update({
                             accessKeyId: account.accessKeyId,
@@ -267,7 +266,7 @@ const resolveFunctions = {
                         })
 
                     } else {
-                        winston.info(' ---> No AWS security credentials set - assuming Server IAM Role');
+                        console.log(' ---> No AWS security credentials set - assuming Server IAM Role');
                     }
 
                     resolve(deployment.accountName)
@@ -306,13 +305,15 @@ const resolveFunctions = {
 
             let _cloudFormationParameters = JSON.parse(deployment.cloudFormationParameters)
 
+            console.log('_cloudFormationParameters', _cloudFormationParameters)
+
             function _setCABundle(pathToCertDotPemFile, rejectUnauthorized) {
                 let filePath = path.join(process.cwd(), pathToCertDotPemFile)
-                winston.info('## rejectUnauthorizedSsl -->', deployment.rejectUnauthorizedSsl)
-                winston.info('##          caBundlePath -->', deployment.caBundlePath)
+                console.log('## rejectUnauthorizedSsl -->', deployment.rejectUnauthorizedSsl)
+                console.log('##          caBundlePath -->', deployment.caBundlePath)
 
                 let certs = [fs.readFileSync(filePath)]
-                winston.info('##        Read CA Bundle -->', filePath)
+                console.log('##        Read CA Bundle -->', filePath)
 
                 AWS.config.update({
                     httpOptions: {
@@ -325,7 +326,7 @@ const resolveFunctions = {
             }
 
             function _setRejectUnauthorizedSsl(rejectUnauthorized) {
-                winston.info('## rejectUnauthorizedSsl -->', rejectUnauthorized)
+                console.log('## rejectUnauthorizedSsl -->', rejectUnauthorized)
                 AWS.config.update({
                     httpOptions: {
                         agent: new https.Agent({
@@ -344,22 +345,22 @@ const resolveFunctions = {
 
             if (deployment.location.substring(0, 'openstack'.length) === 'openstack') {
 
-                winston.info('using OpenStack provider')
+                console.log('using OpenStack provider')
                 cloudFormation = new OpenStack()
                 cloudFormation.config(deployment.accessKeyId, deployment.secretAccessKey)
 
             } else {
 
-                winston.info('---> Default to AWS provider')
+                console.log('---> Default to AWS provider')
                 if (deployment.accessKeyId && deployment.secretAccessKey) {
-                    winston.info('---> setting AWS security credentials')
+                    console.log('---> setting AWS security credentials')
 
                     AWS.config.update({
                         accessKeyId: deployment.accessKeyId,
                         secretAccessKey: deployment.secretAccessKey
                     })
                 } else {
-                    winston.info(' ---> No AWS security credentials set - assuming Server Role')
+                    console.log(' ---> No AWS security credentials set - assuming Server Role')
                 }
 
                 if (deployment.caBundlePath) {
@@ -372,11 +373,11 @@ const resolveFunctions = {
                 }
 
                 if (deployment.endpoint) {
-                    winston.info('##              endpoint -->', deployment.endpoint)
+                    console.log('##              endpoint -->', deployment.endpoint)
                     AWS.config.endpoint = deployment.endpoint
                 }
 
-                winston.info('##            AWS Region -->', deployment.location)
+                console.log('##            AWS Region -->', deployment.location)
                 AWS.config.region = deployment.location
 
                 cloudFormation = new AWS.CloudFormation({apiVersion: '2010-05-15'})
@@ -386,7 +387,7 @@ const resolveFunctions = {
 
             async.series({
                 saveDeploymentData: function(callback) {
-                    winston.info('---> async.series >> saving deployment deployment...')
+                    console.log('---> async.series >> saving deployment deployment...')
                     try {
                         newDeployment = new Deployment(deployment)
                         // TODO: update with username
@@ -402,7 +403,7 @@ const resolveFunctions = {
                             }
                             newDeployment.tags.push(tag)
                         }
-                        // winston.info('## Tags:', JSON.stringify(newDeployment.tags))
+                        // console.log('## Tags:', JSON.stringify(newDeployment.tags))
 
                         newDeployment.cloudFormationParameters = [] //
                         let keys = Object.keys(_cloudFormationParameters)
@@ -411,6 +412,7 @@ const resolveFunctions = {
                                 ParameterKey: keys[j],
                                 ParameterValue: _cloudFormationParameters[keys[j]]
                             }
+
                             newDeployment.cloudFormationParameters.push(cloudFormationParameter)
                         }
 
@@ -420,7 +422,7 @@ const resolveFunctions = {
                             if (err) {
                                 callback(err)
                             } else {
-                                winston.info('---> async.series >> deployment deployment saved!')
+                                console.log('---> async.series >> deployment deployment saved!')
                                 //What are the next three lines for - AH ?
                                 stackName = newDeployment.stackName
                                 params = {
@@ -434,7 +436,7 @@ const resolveFunctions = {
                     }
                 },
                 setStackParameters: function(callback) {
-                    winston.info('---> async.series >> setting stack parameters...')
+                    console.log('---> async.series >> setting stack parameters...')
                     Landscape.findOne({
                         _id: newDeployment.landscapeId
                     }, function(err, landscape) {
@@ -462,17 +464,17 @@ const resolveFunctions = {
                                 stackParams.Tags.push({ Key: 'Billing Code', Value: newDeployment.billingCode })
                             }
 
-                            winston.info('---> async.series >> stack parameters set!')
+                            console.log('---> async.series >> stack parameters set!')
                             callback(null)
                         }
                     })
                 },
                 verifyStackNameAvailability: function(callback) {
-                    winston.info('---> async.series >> verifying availability of stack name...')
+                    console.log('---> async.series >> verifying availability of stack name...')
                     cloudFormation.describeStacks(params, function(err, deployment) {
                         if (err) {
                             if (err.message.indexOf('does not exist') !== -1) {
-                                winston.info('---> async.series >> stack name "' + stackName + '" available!')
+                                console.log('---> async.series >> stack name "' + stackName + '" available!')
                                 callback(null)
                             } else {
                                 // It's a real error...
@@ -483,13 +485,13 @@ const resolveFunctions = {
                             let e = {
                                 message: 'Stack with name \'' + stackName + '\' already exists.'
                             }
-                            winston.info('---> async.series >> stack name "' + stackName + '" already exists!')
+                            console.log('---> async.series >> stack name "' + stackName + '" already exists!')
                             callback(e)
                         }
                     })
                 },
                 createStack: function(callback) {
-                    winston.info('---> async.series >> creating stack...')
+                    console.log('---> async.series >> creating stack...')
 
                     // fix single quote issue...
                     let cleanStackParams = JSON.parse(JSON.stringify(stackParams))
@@ -499,7 +501,7 @@ const resolveFunctions = {
                             callback(err)
 
                         } else {
-                            winston.info('---> async.series >> stack created!')
+                            console.log('---> async.series >> stack created!')
 
                             newDeployment.stackId = deployment.StackId
                             newDeployment.save(function(err) {
@@ -513,18 +515,18 @@ const resolveFunctions = {
                 }
             }, function(err, results) {
                 if (err) {
-                    winston.info('---> async.series >> final callback: ERR')
-                    winston.error(err)
+                    console.log('---> async.series >> final callback: ERR')
+                    console.log('Error --->',err);
 
                     newDeployment.awsErrors = err.message || err
                     newDeployment.save(function(err) {
                         if (err) {
-                            winston.log('error', err)
+                            console.log('Error --->',err);
                         }
                         return err
                     })
                 } else {
-                    winston.info('---> async.series >> final callback: SUCCESS')
+                    console.log('---> async.series >> final callback: SUCCESS')
                     return results
                 }
             }) // end - async.series
@@ -566,7 +568,7 @@ const resolveFunctions = {
                         })
 
                         if (account && account.accessKeyId && account.secretAccessKey) {
-                            winston.info('---> setting AWS security credentials');
+                            console.log('---> setting AWS security credentials');
 
                             cloudformation.config.update({
                                 accessKeyId: account.accessKeyId,
@@ -574,7 +576,7 @@ const resolveFunctions = {
                             })
 
                         } else {
-                            winston.info(' ---> No AWS security credentials set - assuming Server IAM Role');
+                            console.log(' ---> No AWS security credentials set - assuming Server IAM Role');
                         }
 
                         resolve(deployment.accountName)

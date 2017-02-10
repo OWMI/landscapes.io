@@ -14,6 +14,11 @@ const Query = `
         userId: String
         isAdmin: Boolean
     }
+    input documentInput {
+        type: String
+        url: String
+        name: String
+    }
 
     input LoginInput {
         username: String
@@ -77,6 +82,7 @@ const Query = `
         version: String
         imageUri: String
         img: String
+        documents: [documentInput]
         createdAt: String
         infoLink: String
         infoLinkText: String

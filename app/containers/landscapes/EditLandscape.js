@@ -18,6 +18,11 @@ import * as viewsActions from '../../redux/modules/views'
              imageUri,
              infoLink,
              infoLinkText,
+             documents{
+               type,
+               name,
+               url
+             },
              createdAt,
              description,
              cloudFormationTemplate
@@ -62,6 +67,7 @@ import * as viewsActions from '../../redux/modules/views'
 
 const mapStateToProps = state => {
     return {
+        currentUser: state.userAuth,
         currentView: state.views.currentView,
         activeLandscape: state.landscapes.activeLandscape
     }
