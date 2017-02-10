@@ -152,7 +152,7 @@ module.exports.initMiddleware = app => {
             jwt.verify(token, 'CHANGE_ME', (err, decoded) => {
 
                 if (err) {
-                    console.log('Error --->',err);
+                    console.log('Error --->', err);
                     res.status(401).json({ err })
                 }
 

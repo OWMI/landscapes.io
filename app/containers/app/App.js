@@ -19,11 +19,9 @@ class App extends Component {
 
         const { user, userIsAuthenticated } = nextProps
         const { actions: { setUserLogout, receivedUserLoggedIn } } = this.props
+        const token = auth.getToken()
 
-        if (userIsAuthenticated && !user.permissions && !user.groups) {
-
-            const token = auth.getToken()
-
+        if (userIsAuthenticated && !user.permissions && !user.groups && token) {
             // extract expDate from token
             let expDate = JSON.parse(window.atob(token.split('.')[1])).exp
 
