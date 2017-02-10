@@ -18,6 +18,11 @@ const LandscapeQuery = gql `
             imageUri,
             infoLink,
             infoLinkText,
+            documents{
+              type,
+              name,
+              url
+            },
             createdAt,
             description,
             cloudFormationTemplate

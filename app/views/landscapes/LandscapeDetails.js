@@ -2,10 +2,13 @@ import moment from 'moment'
 import cx from 'classnames'
 import { Loader } from '../../components'
 import React, { Component, PropTypes } from 'react'
+import { IoCube, IoClose } from 'react-icons/lib/io'
 import shallowCompare from 'react-addons-shallow-compare'
 import { Row, Col } from 'react-flexbox-grid'
 import { IoEdit, IoAndroidClose, IoIosCloudUploadOutline } from 'react-icons/lib/io'
 import { Card, CardHeader, CardText, Dialog, FlatButton, RaisedButton, Tab, Tabs, TextField } from 'material-ui'
+import MenuItem from 'material-ui/MenuItem';
+import SelectField from 'material-ui/SelectField';
 import { Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table'
 import materialTheme from '../../style/custom-theme.js';
 
@@ -15,13 +18,25 @@ class LandscapeDetails extends Component {
         animated: true,
         viewEntersAnim: true,
         showDialog: false,
-        currentDeployments: []
+        currentDeployments: [],
+        addedDocuments: []
     }
     componentWillReceiveProps(nextProps){
       let self = this
-      const { deploymentsByLandscapeId, deploymentStatus, params } = nextProps
-      var cloudFormationParameters = {}
+      const { activeLandscape, deploymentsByLandscapeId, deploymentStatus, landscapes, params } = nextProps
+      let _landscapes = landscapes || []
+      let currentLandscape = activeLandscape;
+      if(!currentLandscape)
+          currentLandscape = _landscapes.find(ls => { return ls._id === params.id })
 
+      if(!currentLandscape){
+        currentLandscape = {cloudFormationTemplate: '{}'}
+      }
+      if(currentLandscape && currentLandscape.documents){
+        this.setState({addedDocuments: currentLandscape.documents});
+      }
+      this.setState({currentLandscape})
+      var cloudFormationParameters = {}
       deploymentsByLandscapeId({
           variables: { landscapeId: params.id }
       }).then(({ data }) => {
@@ -47,7 +62,19 @@ class LandscapeDetails extends Component {
     }
     componentWillMount() {
         let self = this
-        const { deploymentsByLandscapeId, deploymentStatus, params } = this.props
+        const { activeLandscape, deploymentsByLandscapeId, deploymentStatus, landscapes, params } = this.props
+        let _landscapes = landscapes || []
+        let currentLandscape = activeLandscape;
+        if(!currentLandscape)
+            currentLandscape = _landscapes.find(ls => { return ls._id === params.id })
+
+        if(!currentLandscape){
+          currentLandscape = {cloudFormationTemplate: '{}'}
+        }
+        if(currentLandscape && currentLandscape.documents){
+          this.setState({addedDocuments: currentLandscape.documents});
+        }
+        this.setState({currentLandscape})
         var cloudFormationParameters = {}
         deploymentsByLandscapeId({
             variables: { landscapeId: params.id }
@@ -90,21 +117,15 @@ class LandscapeDetails extends Component {
     render() {
 
         const { activeLandscape, loading, landscapes, deploymentsByLandscapeId, params } = this.props
-        const { animated, viewEntersAnim, currentDeployment, currentDeployments, deleteType, refetchedLandscapes, cloudFormationParameters } = this.state
+        const { animated, viewEntersAnim, currentDeployment, currentDeployments, deleteType, refetchedLandscapes, cloudFormationParameters, currentLandscape } = this.state
 
         let _landscapes = landscapes || []
-        let currentLandscape = activeLandscape
         let runningStatus = ['CREATE_COMPLETE', 'ROLLBACK_COMPLETE', 'ROLLBACK_COMPLETE', 'DELETE_COMPLETE', 'UPDATE_COMPLETE', 'UPDATE_ROLLBACK_COMPLETE']
         let pendingStatus = ['CREATE_IN_PROGRESS', 'ROLLBACK_IN_PROGRESS', 'DELETE_IN_PROGRESS', 'UPDATE_IN_PROGRESS', 'UPDATE_COMPLETE_CLEANUP_IN_PROGRESS', 'UPDATE_ROLLBACK_IN_PROGRESS', 'UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS', 'REVIEW_IN_PROGRESS']
 
         // for direct request
         // if (activeLandscape && activeLandscape._id !== params.id)
-        if(!currentLandscape)
-            currentLandscape = _landscapes.find(ls => { return ls._id === params.id })
 
-        if(!currentLandscape){
-          currentLandscape = {cloudFormationTemplate: '{}'}
-        }
         const parsedCFTemplate = JSON.parse(currentLandscape.cloudFormationTemplate)
 
         let paramDetails = []
@@ -167,7 +188,7 @@ class LandscapeDetails extends Component {
                     <Col xs={1} style={{ textAlign: 'left' }}>
                         <img src={currentLandscape.imageUri} style={{width: 85}} />
                     </Col>
-                    <Col xs={4} style={{ textAlign: 'left' }}>
+                    <Col xs={4} style={{ textAlign: 'left', marginLeft:20 }}>
                         <Row><h4>{currentLandscape.name}</h4></Row>
                         <Row><h5>Version: {currentLandscape.version}</h5></Row>
 
@@ -260,6 +281,39 @@ class LandscapeDetails extends Component {
                             })
                         }
                     </Tab>
+                        <Tab label='Documents'>
+                          {
+                            this.state.addedDocuments.length > 0
+                            ?
+                            <Row style={{width:'95%', marginLeft: 10, borderBottom: '1px solid #DCDCDC', borderTop:  '1px solid #DCDCDC'}}>
+                                <Table selectable={false} fixedHeader={true}>
+                                  <TableHeader adjustForCheckbox={false} displaySelectAll={false}>
+                                    <TableRow>
+                                      <TableHeaderColumn>Type</TableHeaderColumn>
+                                      <TableHeaderColumn>Name</TableHeaderColumn>
+                                      <TableHeaderColumn>URL</TableHeaderColumn>
+                                    </TableRow>
+                                  </TableHeader>
+                                  <TableBody displayRowCheckbox={false}>
+                                    {
+                                      this.state.addedDocuments.map((document, index)=>{
+                                        return(
+                                          <TableRow key={index}>
+                                            <TableRowColumn>{document.type}</TableRowColumn>
+                                            <TableRowColumn>{document.name}</TableRowColumn>
+                                            <TableRowColumn><a target="_blank" href={document.url}>{document.url}</a></TableRowColumn>
+                                          </TableRow>
+                                        )
+                                      })
+                                    }
+                                  </TableBody>
+                                </Table>
+                            </Row>
+                            :
+                            <div>None</div>
+                          }
+                        </Tab>
+
                         <Tab label='Template'>
                             <textarea rows={100} value={currentLandscape.cloudFormationTemplate} readOnly={true}
                                 style={{ background: '#f9f9f9', fontFamily: 'monospace', width: '100%' }}/>
