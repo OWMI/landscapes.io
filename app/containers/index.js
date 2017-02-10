@@ -24,6 +24,7 @@ import ConnectedCreateDeployment from './deployments/CreateDeployment'
 
 import ConnectedDocumentTypes from './documentTypes/DocumentTypes'
 import ConnectedCreateDocumentTypes from './documentTypes/CreateDocumentTypes'
+import ConnectedUpdateDocumentTypes from './documentTypes/UpdateDocumentTypes'
 
 import ConnectedAccounts from './accounts/Accounts'
 import ConnectedCreateAccount from './accounts/CreateAccount'
@@ -56,6 +57,7 @@ export {
 
     ConnectedDocumentTypes,
     ConnectedCreateDocumentTypes,
+    ConnectedUpdateDocumentTypes,
 
     ConnectedAccounts,
     ConnectedCreateAccount,

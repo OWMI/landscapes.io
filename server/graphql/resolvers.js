@@ -145,6 +145,19 @@ const resolveFunctions = {
                 }
             })
         },
+        updateDocumentType(_, { documentType }) {
+          console.log(' ---> updating documentType')
+
+          TypeDocument.findOneAndUpdate({ _id: documentType._id }, documentType, { new: true }, (err, doc) => {
+              if (err) {
+                  console.log(err)
+                  return err
+              } else {
+                  console.log(' ---> updated: ', doc)
+                  return doc
+              }
+          })
+        },
         deleteDocumentType(_, { documentType }) {
             console.log(' ---> deleting Document Type')
 

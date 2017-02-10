@@ -127,6 +127,7 @@ const Mutation = `
         deleteUser ( user: UserInput! ): User
 
         createDocumentType ( documentType: DocumentTypeInput! ): TypeDocument
+        updateDocumentType ( documentType: DocumentTypeInput! ): TypeDocument
         deleteDocumentType ( documentType: DocumentTypeInput! ): TypeDocument
 
         createGroup ( group: GroupInput! ): Group

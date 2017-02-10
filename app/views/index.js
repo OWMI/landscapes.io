@@ -32,6 +32,7 @@ import CreateDeployment      from './deployments/CreateDeployment'
 
 import DocumentTypes      from './documentTypes/DocumentTypes'
 import CreateDocumentTypes      from './documentTypes/CreateDocumentTypes'
+import UpdateDocumentTypes      from './documentTypes/UpdateDocumentTypes'
 
 export {
     // non protected views:
@@ -66,5 +67,6 @@ export {
     CreateDeployment,
 
     DocumentTypes,
-    CreateDocumentTypes
+    CreateDocumentTypes,
+    UpdateDocumentTypes
 }

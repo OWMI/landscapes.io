@@ -107,9 +107,9 @@ class DocumentTypes extends Component {
         router.push({ pathname: '/documentTypes/create' })
     }
 
-    handlesEditAccountClick = (account, event) => {
+    handlesEditAccountClick = (documentType, event) => {
         const { router } = this.context
-        router.push({ pathname: '/documentTypes/update/' + account._id })
+        router.push({ pathname: '/documentTypes/update/' + documentType._id })
     }
 
     handlesDeleteAccountClick = (documentTypeToDelete, event) => {
@@ -119,7 +119,6 @@ class DocumentTypes extends Component {
         const { router } = this.context
 
         this.handlesDialogToggle()
-        console.log('documentTypeToDelete', documentTypeToDelete)
         delete documentTypeToDelete.__typename
         mutate({
             variables: { documentType: documentTypeToDelete }
