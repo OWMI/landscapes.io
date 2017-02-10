@@ -186,7 +186,7 @@ class CreateLandscape extends Component {
                                   <TextField id='docName' ref='docName' floatingLabelText='Name' onChange={this.handlesdocNameChange} maxLength={64} style={{width:'95%'}}/>
                                 </Row>
                                 <Row center='xs' middle='xs' style={{marginBottom: 10}}>
-                                  <TextField id='url' ref='url' floatingLabelText='URL' onChange={this.handlesdocUrlChange} maxLength={64} style={{width:'95%'}} />
+                                  <TextField id='url' ref='url' floatingLabelText='URL' onChange={this.handlesdocUrlChange} style={{width:'95%'}} />
                                 </Row>
                                 <Row middle='xs' style={{marginBottom: 10, marginLeft: 10, marginBottom: 20}}>
                                     <RaisedButton label="Save" onClick={this.handlesCreateDocumentClick}/>
