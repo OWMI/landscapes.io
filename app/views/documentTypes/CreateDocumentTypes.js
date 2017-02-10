@@ -46,10 +46,10 @@ class CreateDocumentTypes extends Component {
                 <Row center='xs' middle='xs'>
                     <Col xs={6} lg={9} className={cx( { 'create-account': true } )}>
                         <Row middle='xs'>
-                            <Col xs={4} style={{ textAlign: 'left' }}>
-                                <h4>New Account</h4>
+                            <Col xs={5} style={{ textAlign: 'left' }}>
+                                <h4>New Document Type</h4>
                             </Col>
-                            <Col xs={8}>
+                            <Col xs={7}>
                                 <RaisedButton label='Save' onClick={this.handlesCreateClick}
                                     style={{ float: 'right', margin: '30px 0px' }}
                                     labelStyle={{ fontSize: '11px' }}/>

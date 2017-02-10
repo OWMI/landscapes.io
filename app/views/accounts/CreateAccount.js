@@ -125,7 +125,7 @@ class CreateAccount extends Component {
         // map all fields to accountToCreate
         for (let key in this.refs) {
             if (key === 'rejectUnauthorizedSsl') {
-                accountToCreate[key] = this.refs[key].isToggled()
+                  accountToCreate[key] = this.refs[key].isToggled()
             } else {
                 accountToCreate[key] = this.refs[key].getValue()
             }

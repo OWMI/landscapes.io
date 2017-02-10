@@ -13,6 +13,7 @@ const Deployment = require('./models/deployment')
 const Group = require('./models/group')
 const Account = require('./models/account')
 const User = require('../auth/models/user.server.model')
+// const TypeDocument = require('./models/documentTypes')
 
 // FIX: Attempts to resolve 'UnknownEndpoint' error experienced on GovCloud
 // AWS.events.on('httpError', () => {
@@ -49,6 +50,12 @@ const resolveFunctions = {
                 return groups
             })
         },
+        // documentTypes(root, args, context) {
+        //     return TypeDocument.find().sort('-created').exec((err, DocumentTypes) => {
+        //         if (err) return err
+        //         return DocumentTypes
+        //     })
+        // },
         users(root, args, context) {
             return User.find().sort('-created').populate('user', 'displayName').exec((err, groups) => {
                 if (err) return err
@@ -96,6 +103,21 @@ const resolveFunctions = {
                 }
             })
         },
+        // createDocumentTypes(_, { documentType }) {
+        //
+        //     console.log(' ---> creating DocumentTypes', TypeDocument)
+        //     let newDocumentTypes = new TypeDocument(documentTypes)
+        //
+        //     newDocumentTypes.save(err => {
+        //         if (err) {
+        //             console.log(err)
+        //             return err
+        //         } else {
+        //             console.log(' ---> created: ', newDocumentTypes._id)
+        //             return newDocumentTypes
+        //         }
+        //     })
+        // },
         updateUser(_, { user }) {
 
           console.log(' ---> updating user')

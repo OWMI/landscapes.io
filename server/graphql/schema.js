@@ -8,6 +8,7 @@ import Account from './types/account.js'
 import Landscape from './types/landscape.js'
 import Deployment from './types/deployment.js'
 import Subscription from './types/subscriptions.js'
+import TypeDocument from './types/documentTypes.js'
 
 const Query = `
     input userInput {
@@ -100,10 +101,17 @@ const Query = `
       description: String
     }
 
+    input DocumentTypeInput {
+      _id: String
+      name: String
+      description: String
+    }
+
     type Query {
         groups: [Group]
         accounts: [Account]
         landscapes: [Landscape]
+        documentTypes: [TypeDocument]
         landscapeById(id: String): [Landscape]
         landscapesWithDeploymentStatus: [Landscape]
         users: [User],
@@ -117,6 +125,8 @@ const Mutation = `
         createUser ( user: UserInput! ): User
         updateUser ( user: UserInput! ): User
         deleteUser ( user: UserInput! ): User
+
+        createDocumentTypes ( documentType: DocumentTypeInput! ): TypeDocument
 
         createGroup ( group: GroupInput! ): Group
         updateGroup ( group: GroupInput! ): Group
@@ -140,6 +150,6 @@ const Mutation = `
 `
 
 export default makeExecutableSchema({
-    typeDefs: [ Query, User, Group, Mutation, Landscape, Deployment, Account, Subscription ],
+    typeDefs: [ Query, User, Group, Mutation, Landscape, Deployment, TypeDocument,  Account, Subscription ],
     resolvers,
 })
