@@ -1,5 +1,5 @@
 import gql from 'graphql-tag'
-import { DocumentTypes } from '../../views'
+import { UpdateDocumentTypes } from '../../views'
 import { connect } from 'react-redux'
 import { graphql, compose } from 'react-apollo'
 import { bindActionCreators } from 'redux'
@@ -20,25 +20,26 @@ import * as viewsActions from '../../redux/modules/views'
   `
  // createdBy
 
-const AccountsWithQuery = graphql(AccountsQuery, {
-    props: ({ data: { loading, documentTypes, refetch } }) => ({
-        documentTypes,
-        loading,
-        refetchDocumentTypes: refetch
-    })
-})
+ const AccountsWithQuery = graphql(AccountsQuery, {
+     props: ({ data: { loading, documentTypes, refetch } }) => ({
+         documentTypes,
+         loading,
+         refetchDocumentTypes: refetch
+     })
+ })
 
-const deleteDocumentTypeMutation = gql `
-    mutation deleteDocumentType($documentType: DocumentTypeInput!) {
-        deleteDocumentType(documentType: $documentType) {
+const updateAccountMutation = gql `
+    mutation updateDocumentType($documentType: DocumentTypeInput!) {
+        updateDocumentType(documentType: $documentType) {
             name
         }
     }
 `
+
 const composedRequest = compose(
     AccountsWithQuery,
-    graphql(deleteDocumentTypeMutation)
-)(DocumentTypes)
+    graphql(updateAccountMutation)
+)(UpdateDocumentTypes)
 
 
 /* -----------------------------------------

@@ -30,6 +30,16 @@ import * as viewsActions from '../../redux/modules/views'
      }
   `
 
+  const AccountsQuery = gql `
+      query getDocumentTypes {
+          documentTypes {
+              _id,
+              name,
+              description
+          }
+      }
+   `
+
  // queries:
  const EditLandscapeWithQuery = graphql(LandscapeQuery, {
      props: ({ data: { loading, landscapes, refetch } }) => ({
@@ -38,6 +48,12 @@ import * as viewsActions from '../../redux/modules/views'
          refetch
      })
  })
+
+ const EditLandscapeQuery = graphql(AccountsQuery, {
+     props: ({ data: { loading, documentTypes } }) => ({
+         documentTypes,
+         loading
+     })})
 
  const UpdateLandscapeMutation = gql `
      mutation updateLandscape($landscape: LandscapeInput!) {
@@ -57,6 +73,7 @@ import * as viewsActions from '../../redux/modules/views'
 
  const composedRequest = compose(
      EditLandscapeWithQuery,
+     EditLandscapeQuery,
      graphql(UpdateLandscapeMutation, { name: 'updateLandscape' }),
      graphql(DeleteLandscapeMutation, { name: 'deleteLandscape' })
  )(EditLandscape)

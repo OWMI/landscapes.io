@@ -26,6 +26,7 @@ import {
 
     ConnectedDocumentTypes,
     ConnectedCreateDocumentTypes,
+    ConnectedUpdateDocumentTypes,
 
     ConnectedUsers,
     ConnectedCreateUser,
@@ -66,6 +67,7 @@ export const Routes = () => {
                         {/* document types views */}
                         <Route path="/documentTypes" component={ConnectedDocumentTypes}/>
                         <Route path="/documentTypes/create" component={ConnectedCreateDocumentTypes}/>
+                        <Route path="/documentTypes/update/:id" component={ConnectedUpdateDocumentTypes}/>
                         {/* landscape views */}
                         <Route path="/landscapes" component={ConnectedLandscapes} onEnter={requireAuth}/>
                         <Route path="/landscape/:id" component={ConnectedLandscapeDetails} onEnter={requireAuth}/>
@@ -81,10 +83,10 @@ export const Routes = () => {
                         <Route path="/users/:id" component={ConnectedUserDetails} onEnter={requireAuth}/>
                         <Route path="/users/edit/:id" component={ConnectedEditUser} onEnter={requireAuth}/>
                         {/* group views */}
-                          <Route path="/groups" component={ConnectedGroups} onEnter={requireAuth}/>
-                          <Route path="/groups/create" component={ConnectedCreateGroup} onEnter={requireAuth}/>
-                          <Route path="/groups/edit/:id" component={ConnectedEditGroup} onEnter={requireAuth}/>
-                          <Route path="/groups/:id" component={ConnectedGroupDetails} onEnter={requireAuth}/>
+                        <Route path="/groups" component={ConnectedGroups} onEnter={requireAuth}/>
+                        <Route path="/groups/create" component={ConnectedCreateGroup} onEnter={requireAuth}/>
+                        <Route path="/groups/edit/:id" component={ConnectedEditGroup} onEnter={requireAuth}/>
+                        <Route path="/groups/:id" component={ConnectedGroupDetails} onEnter={requireAuth}/>
                         {/* misc views */}
                         <Route path="/login" component={ConnectedLogin}/>
                         <Route path="/profile" component={ConnectedProfile}/>
