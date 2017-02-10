@@ -3,7 +3,7 @@ import {appConfig} from '../../config'
 
 // networkInterface:
 // const networkInterface = createNetworkInterface(appConfig.apollo.networkInterface)
-const networkInterface = createNetworkInterface({ uri: 'http://localhost:8080/graphql'})
+const networkInterface = createNetworkInterface({ uri: `http://${SERVER_IP}:${SERVER_PORT}/graphql`})
 
 // when need token based authentication:
 networkInterface.use([
