@@ -393,7 +393,7 @@ class EditLandscape extends Component {
         }
         // attach imageUri and cloudFormationTemplate
         landscapeToUpdate._id = params.id
-        landscapeToUpdate.imageUri = currentLandscape.imageUri || defaultLandscapeImage
+        landscapeToUpdate.imageUri = this.state.croppedImg || currentLandscape.imageUri || defaultLandscapeImage
         landscapeToUpdate.cloudFormationTemplate = this.state.cloudFormationTemplate || currentLandscape.cloudFormationTemplate
         if(!landscapeToUpdate.version){
           landscapeToUpdate.version = currentLandscape.version || '1.0'
