@@ -59,7 +59,7 @@ function reportSuccess(password) {
   return function (user) {
     return new Promise(function (resolve, reject) {
       if (seedOptions.logResults) {
-        winston.log('Database seeding:\t\t\tLocal ' + user.username + ' added with password set to ' + password);
+        conole.log('Database seeding:\t\t\tLocal ' + user.username + ' added with password set to ' + password);
       }
       resolve();
     });
