@@ -42,13 +42,25 @@
         "showOnUserDropdown": false,
         "hideWhenUserAuth": false
     }, {
-        "label": "Settings",
+        "label": "Accounts",
         "link": "/accounts",
         "view": "accounts",
         "isRouteBtn": true,
         "alwaysShows": false,
         "showAdminOnly": true,
         "showWhenUserAuth": true,
+        "showOnUserDropdown": false,
+        "showOnSettingsDropdown": true,
+        "hideWhenUserAuth": false
+    }, {
+        "label": "Document Types",
+        "link": "/documentTypes",
+        "view": "documentTypes",
+        "isRouteBtn": true,
+        "alwaysShows": false,
+        "showAdminOnly": true,
+        "showWhenUserAuth": true,
+        "showOnSettingsDropdown": true,
         "showOnUserDropdown": false,
         "hideWhenUserAuth": false
     }, {

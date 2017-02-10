@@ -64,6 +64,35 @@ class RightNav extends Component {
                     }
                     </div>
                 }
+                {
+                    (userIsAuthenticated && this.state.userIsAuthenticated)
+                    ?
+                    <div>
+                    <FlatButton onTouchTap={this.handleSettingsClick}
+                        label='Settings' hoverColor={'none'}
+                        labelStyle={{ fontSize: '12px', fontWeight: 'bold' }}
+                    />
+                    <IconMenu
+                        open={this.state.settings}
+                        iconButtonElement={<IconButton style={{ display: 'none' }}></IconButton>}
+                        onRequestChange={this.handleOnRequestChange}
+                        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                        targetOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                        >
+                            {
+                                rightLinks.filter(btnLink => ((btnLink.showWhenUserAuth === true) && (btnLink.showOnSettingsDropdown === true))).map((aLinkBtn, index) => {
+                                      return (
+                                          <Link key={index} to={aLinkBtn.link} onClick={this.handleRightNavItemClick}>
+                                              <MenuItem primaryText={aLinkBtn.label}/>
+                                          </Link>
+                                      )
+                                })
+                            }
+                    </IconMenu>
+                    </div>
+                    :
+                        null
+                }
 
                 {
                     (userIsAuthenticated && this.state.userIsAuthenticated)
@@ -121,6 +150,10 @@ class RightNav extends Component {
     handleUsernameClick = event => {
         const { userMenu } = this.state
         this.setState({ userMenu: !userMenu })
+    }
+    handleSettingsClick = event => {
+        const { settings } = this.state
+        this.setState({ settings: !settings })
     }
     handleLogout = event => {
         auth.clearAllAppStorage()
