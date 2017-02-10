@@ -35,18 +35,12 @@ RUN apt-get update -q  \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN mkdir -p /opt/landscapes/public/lib
+
 WORKDIR /opt/landscapes
 
-# Copies the local package.json file to the container
-# and utilities docker container cache to not needing to rebuild
-# and install node_modules/ everytime we build the docker, but only
-# when the local package.json file changes.
-COPY package.json /opt/landscapes/package.json
-
-# Install npm packages
-RUN npm install --quiet && npm cache clean
-
 COPY . /opt/landscapes
+
+RUN npm install --quiet && npm cache clean
 
 RUN npm run build
 
