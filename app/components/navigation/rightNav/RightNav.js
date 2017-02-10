@@ -22,6 +22,7 @@ class RightNav extends Component {
       const { userIsAuthenticated } = nextProps
       this.setState({userIsAuthenticated: isAuthenticated})
       this.setState({userMenu: false})
+      this.setState({settings: false})
       if(auth.getUserInfo() && auth.getUserInfo().role === 'admin'){
         this.setState({userIsAdmin: true})
       }
@@ -38,7 +39,7 @@ class RightNav extends Component {
                 {
                     (userIsAuthenticated && this.state.userIsAuthenticated && this.state.userIsAdmin)
                     ?
-                        rightLinks.filter(btnLink => ((btnLink.showWhenUserAuth === true) && (btnLink.showOnUserDropdown === false))).map((aLinkBtn, index) => {
+                        rightLinks.filter(btnLink => ((btnLink.showWhenUserAuth === true) && (btnLink.showOnUserDropdown === false) && (btnLink.showOnSettingsDropdown !== true))).map((aLinkBtn, index) => {
                             return (
                                 <RightNavButton key={index} link={aLinkBtn.link} label={aLinkBtn.label}
                                     viewName={aLinkBtn.view} onClick={onRightNavButtonClick}/>
