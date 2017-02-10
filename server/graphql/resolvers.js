@@ -13,7 +13,7 @@ const Deployment = require('./models/deployment')
 const Group = require('./models/group')
 const Account = require('./models/account')
 const User = require('../auth/models/user.server.model')
-// const TypeDocument = require('./models/documentTypes')
+const TypeDocument = require('./models/documentTypes')
 
 // FIX: Attempts to resolve 'UnknownEndpoint' error experienced on GovCloud
 // AWS.events.on('httpError', () => {
@@ -50,12 +50,12 @@ const resolveFunctions = {
                 return groups
             })
         },
-        // documentTypes(root, args, context) {
-        //     return TypeDocument.find().sort('-created').exec((err, DocumentTypes) => {
-        //         if (err) return err
-        //         return DocumentTypes
-        //     })
-        // },
+        documentTypes(root, args, context) {
+            return TypeDocument.find().sort('-created').exec((err, documentTypes) => {
+                if (err) return err
+                return documentTypes
+            })
+        },
         users(root, args, context) {
             return User.find().sort('-created').populate('user', 'displayName').exec((err, groups) => {
                 if (err) return err
@@ -103,21 +103,21 @@ const resolveFunctions = {
                 }
             })
         },
-        // createDocumentTypes(_, { documentType }) {
-        //
-        //     console.log(' ---> creating DocumentTypes', TypeDocument)
-        //     let newDocumentTypes = new TypeDocument(documentTypes)
-        //
-        //     newDocumentTypes.save(err => {
-        //         if (err) {
-        //             console.log(err)
-        //             return err
-        //         } else {
-        //             console.log(' ---> created: ', newDocumentTypes._id)
-        //             return newDocumentTypes
-        //         }
-        //     })
-        // },
+        createDocumentType(_, { documentType }) {
+
+            console.log(' ---> creating DocumentType', TypeDocument)
+            let newDocumentType = new TypeDocument(documentType)
+
+            newDocumentType.save(err => {
+                if (err) {
+                    console.log(err)
+                    return err
+                } else {
+                    console.log(' ---> created: ', newDocumentType._id)
+                    return newDocumentType
+                }
+            })
+        },
         updateUser(_, { user }) {
 
           console.log(' ---> updating user')
@@ -133,7 +133,7 @@ const resolveFunctions = {
           })
         },
         deleteUser(_, { user }) {
-            console.log(' ---> deleting Group')
+            console.log(' ---> deleting User')
 
             User.findByIdAndRemove(user._id, (err, doc) => {
                 if (err) {
@@ -141,6 +141,19 @@ const resolveFunctions = {
                     return err
                 } else {
                     console.log(' ---> Account deleted: ', doc)
+                    return doc
+                }
+            })
+        },
+        deleteDocumentType(_, { documentType }) {
+            console.log(' ---> deleting Document Type')
+
+            TypeDocument.findByIdAndRemove({ _id: documentType._id }, (err, doc) => {
+                if (err) {
+                    console.log('error', err)
+                    return err
+                } else {
+                    console.log(' ---> Document Type deleted: ', doc)
                     return doc
                 }
             })

@@ -9,42 +9,35 @@ import * as viewsActions from '../../redux/modules/views'
   GraphQL - Apollo client
  ------------------------------------------*/
 
-const AccountsQuery = gql `
-    query getAccounts {
-        accounts {
-            _id,
-            name,
-            region,
-            createdAt,
-            endpoint,
-            caBundlePath,
-            rejectUnauthorizedSsl,
-            signatureBlock,
-            isOtherRegion,
-            accessKeyId,
-            secretAccessKey
-        }
-    }
- `
+ const AccountsQuery = gql `
+     query getDocumentTypes {
+         documentTypes {
+             _id,
+             name,
+             description
+         }
+     }
+  `
  // createdBy
 
 const AccountsWithQuery = graphql(AccountsQuery, {
-    props: ({ data: { loading, accounts } }) => ({
-        accounts,
-        loading
+    props: ({ data: { loading, documentTypes, refetch } }) => ({
+        documentTypes,
+        loading,
+        refetchDocumentTypes: refetch
     })
 })
 
-const deleteAccountMutation = gql `
-    mutation deleteAccount($account: AccountInput!) {
-        deleteAccount(account: $account) {
+const deleteDocumentTypeMutation = gql `
+    mutation deleteDocumentType($documentType: DocumentTypeInput!) {
+        deleteDocumentType(documentType: $documentType) {
             name
         }
     }
 `
 const composedRequest = compose(
     AccountsWithQuery,
-    graphql(deleteAccountMutation)
+    graphql(deleteDocumentTypeMutation)
 )(DocumentTypes)
 
 

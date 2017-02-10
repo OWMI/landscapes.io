@@ -97,7 +97,7 @@ class CreateDocumentTypes extends Component {
         }
 
         mutate({
-            variables: { account: documentTypeToCreate }
+            variables: { documentType: documentTypeToCreate }
          }).then(({ data }) => {
            this.props.refetchDocumentTypes({}).then(({ data }) =>{
              this.setState({
@@ -105,7 +105,8 @@ class CreateDocumentTypes extends Component {
                loading: false
              })
              router.push({ pathname: '/documentTypes' })
-           }).catch((error) => {
+           })
+           .catch((error) => {
              this.setState({loading: false})
            })
         }).catch(error => {

@@ -33,7 +33,7 @@ class DocumentTypes extends Component {
 
     render() {
         const { animated, viewEntersAnim } = this.state
-        const { loading, accounts } = this.props
+        const { loading, documentTypes } = this.props
 
         const confirmActions = [
             <FlatButton label='Cancel' primary={true} onTouchTap={this.handlesDialogToggle}/>,
@@ -58,34 +58,32 @@ class DocumentTypes extends Component {
                 <Table>
                     <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
                         <TableRow>
-                            <TableHeaderColumn>Account Name</TableHeaderColumn>
-                            <TableHeaderColumn>Region</TableHeaderColumn>
-                            <TableHeaderColumn>Date Created</TableHeaderColumn>
+                            <TableHeaderColumn>Name</TableHeaderColumn>
+                            <TableHeaderColumn>Description</TableHeaderColumn>
                             <TableHeaderColumn></TableHeaderColumn>
                         </TableRow>
                     </TableHeader>
                     <TableBody displayRowCheckbox={false}>
                         {
-                            accounts.map((account, index) => {
+                            documentTypes.map((type, index) => {
                                 return (
                                     <TableRow key={`${index}`}>
-                                        <TableRowColumn>{account.name}</TableRowColumn>
-                                        <TableRowColumn>{account.region}</TableRowColumn>
-                                        <TableRowColumn>{account.createdAt}</TableRowColumn>
+                                        <TableRowColumn>{type.name}</TableRowColumn>
+                                        <TableRowColumn>{type.description}</TableRowColumn>
                                         <TableRowColumn>
-                                            <FlatButton onTouchTap={this.handlesEditAccountClick.bind(this, account)}>
-                                                <IoEdit/>
+                                            <FlatButton onTouchTap={this.handlesEditAccountClick.bind(this, type)}>
+                                                <IoEdit/> Edit
                                             </FlatButton>
                                             <FlatButton onTouchTap={this.handlesDialogToggle}>
-                                                <IoAndroidClose/>
+                                                <IoAndroidClose/> Delete
                                             </FlatButton>
-                                            <Dialog title='Delete Account' modal={false} open={this.state.showDialog}
+                                            <Dialog title='Delete Document Type' modal={false} open={this.state.showDialog}
                                                 onRequestClose={this.handlesDialogToggle}
                                                 actions={[
                                                     <FlatButton label='Cancel' primary={true} onTouchTap={this.handlesDialogToggle}/>,
-                                                    <FlatButton label='Delete' primary={true} onTouchTap={this.handlesDeleteAccountClick.bind(this, account)}/>
+                                                    <FlatButton label='Delete' primary={true} onTouchTap={this.handlesDeleteAccountClick.bind(this, type)}/>
                                                 ]}>
-                                                Are you sure you want to delete {account.name}?
+                                                Are you sure you want to delete {type.name}?
                                             </Dialog>
                                         </TableRowColumn>
                                     </TableRow>
@@ -114,18 +112,28 @@ class DocumentTypes extends Component {
         router.push({ pathname: '/documentTypes/update/' + account._id })
     }
 
-    handlesDeleteAccountClick = (accountToDelete, event) => {
+    handlesDeleteAccountClick = (documentTypeToDelete, event) => {
         event.preventDefault()
 
         const { mutate } = this.props
         const { router } = this.context
 
         this.handlesDialogToggle()
-
+        console.log('documentTypeToDelete', documentTypeToDelete)
+        delete documentTypeToDelete.__typename
         mutate({
-            variables: { account: accountToDelete }
+            variables: { documentType: documentTypeToDelete }
          }).then(({ data }) => {
-            router.push({ pathname: '/documentTypes' })
+           this.props.refetchDocumentTypes({}).then(({ data }) =>{
+             this.setState({
+               successOpen: true,
+               loading: false
+             })
+             router.push({ pathname: '/documentTypes' })
+           })
+           .catch((error) => {
+             this.setState({loading: false})
+           })
         }).catch((error) => {
         })
     }

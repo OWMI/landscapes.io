@@ -1,7 +1,7 @@
 import gql from 'graphql-tag'
 import { CreateDocumentTypes } from '../../views'
 import { connect } from 'react-redux'
-import { graphql } from 'react-apollo'
+import { graphql, compose } from 'react-apollo'
 import { bindActionCreators } from 'redux'
 import * as viewsActions from '../../redux/modules/views'
 
@@ -9,38 +9,38 @@ import * as viewsActions from '../../redux/modules/views'
   GraphQL - Apollo client
  ------------------------------------------*/
 
+const AccountsQuery = gql `
+    query getDocumentTypes {
+        documentTypes {
+            _id,
+            name,
+            description
+        }
+    }
+ `
+ // createdBy
+
+const AccountsWithQuery = graphql(AccountsQuery, {
+    props: ({ data: { loading, documentTypes, refetch } }) => ({
+        documentTypes,
+        loading,
+        refetchDocumentTypes: refetch
+    })
+})
+
 const createAccountMutation = gql `
-    mutation createAccount($account: AccountInput!) {
-        createAccount(account: $account) {
+    mutation createDocumentType($documentType: DocumentTypeInput!) {
+        createDocumentType(documentType: $documentType) {
             name
         }
     }
 `
-const AccountsQuery = gql `
-    query getAccounts {
-        accounts {
-            _id,
-            name,
-            region,
-            createdAt,
-            endpoint,
-            caBundlePath,
-            rejectUnauthorizedSsl,
-            signatureBlock,
-            isOtherRegion,
-            accessKeyId,
-            secretAccessKey
-        }
-    }
- `
 
-const CreateAccountWithMutation = graphql(createAccountMutation)(graphql(AccountsQuery, {
-    props: ({ data: { loading, accounts, refetch } }) => ({
-        accounts,
-        loading,
-        refetchAccounts: refetch
-    })
-})(CreateDocumentTypes))
+const composedRequest = compose(
+    AccountsWithQuery,
+    graphql(createAccountMutation)
+)(CreateDocumentTypes)
+
 
 /* -----------------------------------------
   Redux
@@ -57,4 +57,4 @@ const mapDispatchToProps = (dispatch) => {
     }, dispatch)
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(CreateAccountWithMutation)
+export default connect(mapStateToProps, mapDispatchToProps)(composedRequest)
