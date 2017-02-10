@@ -151,12 +151,17 @@ module.exports.initMiddleware = app => {
             // verifies secret and checks exp
             jwt.verify(token, 'CHANGE_ME', (err, decoded) => {
 
-                if (err) {
-                    console.log('Error --->', err);
+                if (err && err.name === 'TokenExpiredError') {
+                    console.log('token expired')
+                    return res.status(401).json({ expired: true })
+                    // res.json({ expired: true })
+                } else if (err) {
+                    console.log('Error --->', err)
                     res.status(401).json({ err })
+                } else {
+                    res.json(decoded.data)
                 }
 
-                res.json(decoded.data)
             })
 
         } else {

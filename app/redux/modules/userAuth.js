@@ -249,8 +249,9 @@ export function unsetLoadingStateForUserRegister(time = moment().format(dateForm
 // //////////////////
 // user logout:
 // //////////////////
-export function setUserLogout(time = moment().format(dateFormat)) {
+export function setUserLogout(router, time = moment().format(dateFormat)) {
     auth.clearAllAppStorage()
+    auth.redirectToLogin(router)
     return {
         type: SET_USER_LOGOUT,
         time,

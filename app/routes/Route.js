@@ -97,9 +97,11 @@ export const Routes = () => {
                         <Route path="*" component={PageNotFound}/>
                     </Route>
                 </Router>
-                {process.env.NODE_ENV !== 'production'
-                    ? <DevTools/>
-                    : null}
+                {
+                    process.env.NODE_ENV !== 'production'
+                        ? <DevTools/>
+                        : null
+                }
             </div>
         </ApolloProvider>
     )

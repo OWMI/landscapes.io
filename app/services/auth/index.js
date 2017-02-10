@@ -91,6 +91,12 @@ export const auth = {
         }
     },
 
+    redirectToLogin(router) {
+        if (!router.isActive({ pathname: '/login' })) {
+            router.push({ pathname: '/login' })
+        }
+    },
+
     // -------------------------
     // USER_INFO
     // -------------------------

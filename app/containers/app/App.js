@@ -17,6 +17,7 @@ class App extends Component {
 
     componentWillReceiveProps(nextProps) {
 
+        const { router } = this.context
         const { user, userIsAuthenticated } = nextProps
         const { actions: { setUserLogout, receivedUserLoggedIn } } = this.props
         const token = auth.getToken()
@@ -35,11 +36,14 @@ class App extends Component {
                 }).then(res => {
                     const user = res.data
                     receivedUserLoggedIn(token, user)
-                }).catch(err => {})
-                // return true
+                }).catch(err => {
+                    setUserLogout(router)
+                    console.error(err)
+                })
             } else {
                 // expired token - log user out
-                setUserLogout()
+                console.log('token expired')
+                setUserLogout(router)
             }
         }
     }
@@ -68,15 +72,17 @@ class App extends Component {
 
     handleLeftNavItemClick = (event, viewName) => {
         if (viewName === 'logout') {
+            const { router } = this.context
             const { actions: { setUserLogout } } = this.props
-            setUserLogout()
+            setUserLogout(router)
         }
     }
 
     handleRightNavItemClick = (event, viewName) => {
         if (viewName === 'logout') {
+            const { router } = this.context
             const { actions: { setUserLogout } } = this.props
-            setUserLogout()
+            setUserLogout(router)
         }
     }
 }
@@ -89,6 +95,10 @@ App.propTypes = {
 
     user: PropTypes.object,
     userIsAuthenticated: PropTypes.bool.isRequired
+}
+
+App.contextTypes = {
+    router: PropTypes.object
 }
 
 const mapStateToProps = state => {
