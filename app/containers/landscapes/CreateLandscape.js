@@ -16,6 +16,15 @@ const createLandscapeMutation = gql `
         }
     }
 `
+const AccountsQuery = gql `
+    query getDocumentTypes {
+        documentTypes {
+            _id,
+            name,
+            description
+        }
+    }
+ `
 const LandscapeQuery = gql `
     query getLandscapes {
         landscapes {
@@ -39,7 +48,12 @@ const CreateLandscapeWithMutation = graphql(createLandscapeMutation)(
         loading,
         refetchLandscapes: refetch
     })
-})(CreateLandscape))
+})(graphql(AccountsQuery, {
+    props: ({ data: { loading, documentTypes } }) => ({
+        documentTypes,
+        loading
+    })})
+  (CreateLandscape)))
 
 /* -----------------------------------------
   Redux

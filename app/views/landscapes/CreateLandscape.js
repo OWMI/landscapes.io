@@ -57,7 +57,7 @@ class CreateLandscape extends Component {
     render() {
 
         const { animated, viewEntersAnim } = this.state
-        const { loading, landscapes } = this.props
+        const { loading, landscapes, documentTypes } = this.props
 
         if (loading) {
             return (
@@ -163,17 +163,24 @@ class CreateLandscape extends Component {
                                   <h4>New Document</h4>
                                 </Row>
                                 <Row middle='xs' style={{marginBottom: 10, marginLeft: 10}}>
-                                  <SelectField style={{width:'95%'}} id='type' floatingLabelText='Type' value={this.state.docType} onChange={this.handlesTypeChange}
-                                      floatingLabelStyle={{ left: '0px' }} className={cx( { 'two-field-row': true } )}>
-                                      {
-                                        this.state.typeOptions.map((type, index)=>{
-                                          return(
-                                            <MenuItem key={index} value={type} primaryText={type}/>
-                                          )
+                                  {
+                                    documentTypes && documentTypes.length > 0
+                                      ?
+                                      <SelectField style={{width:'95%'}} id='type' floatingLabelText='Type' value={this.state.docType} onChange={this.handlesTypeChange}
+                                          floatingLabelStyle={{ left: '0px' }} className={cx( { 'two-field-row': true } )}>
+                                          {
+                                            documentTypes.map((type, index)=>{
+                                              return(
+                                                <MenuItem key={index} value={type.name} primaryText={type.name}/>
+                                              )
 
-                                      })
-                                    }
-                                  </SelectField>
+                                          })
+                                        }
+                                      </SelectField>
+                                      :
+                                      <p>Must have Document Types Defined</p>
+                                  }
+
                                 </Row>
                                 <Row center='xs' middle='xs' style={{marginBottom: 10}}>
                                   <TextField id='docName' ref='docName' floatingLabelText='Name' onChange={this.handlesdocNameChange} maxLength={64} style={{width:'95%'}}/>

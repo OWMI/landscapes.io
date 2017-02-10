@@ -8,6 +8,7 @@ import { IoCube, IoClose } from 'react-icons/lib/io'
 import shallowCompare from 'react-addons-shallow-compare'
 import UploadIcon from 'material-ui/svg-icons/file/file-upload'
 import { Checkbox, Dialog, FlatButton, Paper, RaisedButton, TextField } from 'material-ui'
+import AvatarCropper from "react-avatar-cropper";
 
 import { Loader } from '../../components'
 import materialTheme from '../../style/custom-theme.js';
@@ -35,7 +36,7 @@ class EditLandscape extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        const { activeLandscape, loading, landscapes, params } = nextProps
+        const { activeLandscape, loading, landscapes, documentTypes, params } = nextProps
 
         let currentLandscape = activeLandscape
 
@@ -96,7 +97,7 @@ class EditLandscape extends Component {
     render() {
 
         const { animated, showDeleteDialog, viewEntersAnim } = this.state
-        const { activeLandscape, currentUser, loading, landscapes, params } = this.props
+        const { activeLandscape, currentUser, loading, landscapes, documentTypes, params } = this.props
         let disableDelete = false,
             self = this,
             currentLandscape = activeLandscape
@@ -223,17 +224,23 @@ class EditLandscape extends Component {
                                   <h4>New Document</h4>
                                 </Row>
                                 <Row middle='xs' style={{marginBottom: 10, marginLeft: 10}}>
-                                  <SelectField style={{width:'95%'}} id='type' floatingLabelText='Type' value={this.state.docType} onChange={this.handlesTypeChange}
-                                      floatingLabelStyle={{ left: '0px' }} className={cx( { 'two-field-row': true } )}>
-                                      {
-                                        this.state.typeOptions.map((type, index)=>{
-                                          return(
-                                            <MenuItem key={index} value={type} primaryText={type}/>
-                                          )
+                                  {
+                                    documentTypes && documentTypes.length > 0
+                                      ?
+                                      <SelectField style={{width:'95%'}} id='type' floatingLabelText='Type' value={this.state.docType} onChange={this.handlesTypeChange}
+                                          floatingLabelStyle={{ left: '0px' }} className={cx( { 'two-field-row': true } )}>
+                                          {
+                                            documentTypes.map((type, index)=>{
+                                              return(
+                                                <MenuItem key={index} value={type.name} primaryText={type.name}/>
+                                              )
 
-                                      })
-                                    }
-                                  </SelectField>
+                                          })
+                                        }
+                                      </SelectField>
+                                      :
+                                      <p>Must have Document Types Defined</p>
+                                  }
                                 </Row>
                                 <Row center='xs' middle='xs' style={{marginBottom: 10}}>
                                   <TextField id='docName' ref='docName' floatingLabelText='Name' onChange={this.handlesdocNameChange} maxLength={64} style={{width:'95%'}}/>
