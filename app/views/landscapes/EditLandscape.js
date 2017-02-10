@@ -363,7 +363,7 @@ class EditLandscape extends Component {
 
         data.append('file', acceptedFiles[0])
 
-        axios.post('http://0.0.0.0:8080/api/upload/template', data).then(res => {
+        axios.post(`http://${SERVER_IP}:${SERVER_PORT}/api/upload/template`, data).then(res => {
             self.setState({
                 cloudFormationTemplate: JSON.stringify(res.data, null, 4)
             })

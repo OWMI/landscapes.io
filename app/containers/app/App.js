@@ -32,7 +32,7 @@ class App extends Component {
                 // send token to backend and set user on state
                 return axios({
                     method: 'get',
-                    url: 'http://0.0.0.0:8080/api/verifyToken',
+                    url: `http://${SERVER_IP}:${SERVER_PORT}/api/verifyToken`,
                     headers: { 'x-access-token': token }
                 }).then(res => {
                     const user = res.data

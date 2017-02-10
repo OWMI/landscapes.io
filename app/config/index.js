@@ -1,6 +1,6 @@
 export const appConfig = {
     // apollo client:
     apollo: {
-        networkInterface: 'http://localhost:8080/graphql'
+        networkInterface: `http://${SERVER_IP}:${SERVER_PORT}/graphql`
     }
 }
