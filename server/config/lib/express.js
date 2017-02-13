@@ -114,16 +114,7 @@ module.exports.initMiddleware = app => {
     let multer = require('multer')
     let upload = multer({ dest: 'uploads/' })
 
-    let DIST_DIR = path.resolve(__dirname, '../../../dist/')
-
-    app.use(express.static(DIST_DIR))
-
     // TODO: Move to its own folder
-    app.get('*', (req, res) => {
-        res.sendFile(path.join(DIST_DIR, 'index.html'))
-    })
-
-
     app.post('/api/generateToken', (req, res) => {
 
         let user = ''
@@ -357,6 +348,14 @@ module.exports.initGraphQLServer = app => {
     app.use('/graphiql', graphiqlExpress({
         endpointURL: '/graphql',
     }))
+
+    let DIST_DIR = path.resolve(__dirname, '../../../dist/')
+
+    app.use(express.static(DIST_DIR))
+
+    app.get('*', (req, res) => {
+        res.sendFile(path.join(DIST_DIR, 'index.html'))
+    })
 }
 
 /**
@@ -425,7 +424,7 @@ module.exports.init = function (db) {
     // Initialize modules server routes
     this.initModulesServerRoutes(app)
 
-    // Initialize error routes
+    // Initialize graphql routes
     this.initGraphQLServer(app)
 
     // Initialize error routes
