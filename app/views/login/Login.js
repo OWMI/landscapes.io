@@ -72,7 +72,7 @@ class Login extends Component {
         // user login & auth token generation
         axios({
             method: 'post',
-            url: `http://${SERVER_IP}:${SERVER_PORT}/api/auth/signin`,
+            url: `${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/auth/signin`,
             data: {
                 username,
                 password
@@ -81,7 +81,7 @@ class Login extends Component {
             let userWithPermissions = auth.setUserPermissions(res.data, groups)
             return axios({
                 method: 'post',
-                url: `http://${SERVER_IP}:${SERVER_PORT}/api/generateToken`,
+                url: `${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/generateToken`,
                 data: userWithPermissions
             })
         }).then(res => {
@@ -90,7 +90,7 @@ class Login extends Component {
 
             return axios({
                 method: 'get',
-                url: `http://${SERVER_IP}:${SERVER_PORT}/api/verifyToken`,
+                url: `${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/verifyToken`,
                 headers: { 'x-access-token': token }
             })
 

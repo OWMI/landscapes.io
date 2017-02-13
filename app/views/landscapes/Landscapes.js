@@ -64,7 +64,7 @@ class Landscapes extends Component {
             // create promise array to gather all deployments
             let _promises = _viewLandscapes.map((landscape, index) => {
                 return new Promise((resolve, reject) => {
-                    axios.get(`http://${SERVER_IP}:${SERVER_PORT}/api/landscapes/${landscape._id}/deployments`).then(res => {
+                    axios.get(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/landscapes/${landscape._id}/deployments`).then(res => {
                         resolve(res.data)
                     }).catch(err => {
                         reject(err)
@@ -95,7 +95,7 @@ class Landscapes extends Component {
                         _promises[x] = landscape.map(stack => {
                             if (!stack.isDeleted && !stack.awsErrors) {
                                 return new Promise((resolve, reject) => {
-                                    axios.get(`http://${SERVER_IP}:${SERVER_PORT}/api/deployments/describe/${stack.stackName}/${stack.location}/${stack.accountName}`)
+                                    axios.get(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/deployments/describe/${stack.stackName}/${stack.location}/${stack.accountName}`)
                                     .then(res => {
                                         resolve(res.data)
                                     }).catch(err => {

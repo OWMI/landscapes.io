@@ -315,7 +315,7 @@ class CreateLandscape extends Component {
 
         data.append('file', acceptedFiles[0])
 
-        axios.post(`http://${SERVER_IP}:${SERVER_PORT}/api/upload/template`, data).then(res => {
+        axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/upload/template`, data).then(res => {
             self.setState({
                 cloudFormationTemplate: JSON.stringify(res.data, null, 4)
             })
