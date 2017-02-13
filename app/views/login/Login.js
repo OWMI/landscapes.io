@@ -86,6 +86,10 @@ class Login extends Component {
             })
         }).then(res => {
             const { user, token } = res.data
+
+            // HACK: temporary hack, will be removed once the images are redone
+            delete user.imageUri
+
             loginUser(token, user, groups)
 
             return axios({
