@@ -114,7 +114,15 @@ module.exports.initMiddleware = app => {
     let multer = require('multer')
     let upload = multer({ dest: 'uploads/' })
 
+    let DIST_DIR = path.resolve(__dirname, '../../../dist/')
+
+    app.use(express.static(DIST_DIR))
+
     // TODO: Move to its own folder
+    app.get('*', (req, res) => {
+        res.sendFile(path.join(DIST_DIR, 'index.html'))
+    })
+
 
     app.post('/api/generateToken', (req, res) => {
 
