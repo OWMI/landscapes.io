@@ -66,7 +66,7 @@ function setNodeEnv() {
         },
         PROTOCOL: JSON.stringify(process.env.PROTOCOL || 'http'),
         SERVER_IP: JSON.stringify(process.env.PUBLIC_IP || '0.0.0.0'),
-        SERVER_PORT: JSON.stringify(process.env.PORT || '8080'),
+        SERVER_PORT: JSON.stringify(process.env.PORT || '443'),
     })
 }
 
