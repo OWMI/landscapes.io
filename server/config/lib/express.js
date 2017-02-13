@@ -127,6 +127,9 @@ module.exports.initMiddleware = app => {
         req.on('end', () => {
             user = JSON.parse(user)
 
+            // HACK: temporary hack, will be removed once the images are redone
+            delete user.imageUri
+
             // create a token
             let token = jwt.sign({
                 data: user,
