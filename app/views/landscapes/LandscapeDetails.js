@@ -59,6 +59,25 @@ class LandscapeDetails extends Component {
               currentDeployments: deploymentStatusArray.map(({ data }) => { return data.deploymentStatus })
           })
       })
+      let paramDetails = []
+      if(currentLandscape){
+        let parsedCFTemplate = JSON.parse(currentLandscape.cloudFormationTemplate)
+        if(parsedCFTemplate.Parameters){
+          Object.keys(parsedCFTemplate.Parameters).map((key, index) => {
+              let _param = parsedCFTemplate.Parameters[key]
+              for (let k in _param) {
+                  if (!paramDetails[index]) {
+                      paramDetails[index] = []
+                  }
+
+                  paramDetails[index][k] = _param[k]
+                  paramDetails[index].key = key
+              }
+            })
+        }
+      }
+
+        this.setState({paramDetails})
     }
     componentWillMount() {
         let self = this
@@ -98,6 +117,27 @@ class LandscapeDetails extends Component {
                 currentDeployments: deploymentStatusArray.map(({ data }) => { return data.deploymentStatus })
             })
         })
+
+        let parsedCFTemplate = JSON.parse(currentLandscape.cloudFormationTemplate)
+        let paramDetails = []
+        if(currentLandscape){
+          let parsedCFTemplate = JSON.parse(currentLandscape.cloudFormationTemplate)
+          if(parsedCFTemplate.Parameters){
+            Object.keys(parsedCFTemplate.Parameters).map((key, index) => {
+                let _param = parsedCFTemplate.Parameters[key]
+                for (let k in _param) {
+                    if (!paramDetails[index]) {
+                        paramDetails[index] = []
+                    }
+
+                    paramDetails[index][k] = _param[k]
+                    paramDetails[index].key = key
+                }
+              })
+          }
+        }
+          this.setState({paramDetails})
+
     }
 
     componentDidMount() {
@@ -117,7 +157,7 @@ class LandscapeDetails extends Component {
     render() {
 
         const { activeLandscape, loading, landscapes, deploymentsByLandscapeId, params } = this.props
-        const { animated, viewEntersAnim, currentDeployment, currentDeployments, deleteType, refetchedLandscapes, cloudFormationParameters, currentLandscape } = this.state
+        const { animated, viewEntersAnim, currentDeployment, currentDeployments, deleteType, refetchedLandscapes, cloudFormationParameters, currentLandscape, paramDetails } = this.state
 
         let _landscapes = landscapes || []
         let runningStatus = ['CREATE_COMPLETE', 'ROLLBACK_COMPLETE', 'ROLLBACK_COMPLETE', 'DELETE_COMPLETE', 'UPDATE_COMPLETE', 'UPDATE_ROLLBACK_COMPLETE']
@@ -127,8 +167,6 @@ class LandscapeDetails extends Component {
         // if (activeLandscape && activeLandscape._id !== params.id)
 
         const parsedCFTemplate = JSON.parse(currentLandscape.cloudFormationTemplate)
-
-        let paramDetails = []
 
         function getDeploymentInfo(deployment) {
             var self = this;
@@ -356,37 +394,20 @@ class LandscapeDetails extends Component {
                       ?
                       <Tab label='Parameters'>
                           {
-                              Object.keys(parsedCFTemplate.Parameters).map((key, index) => {
-                                  let _param = parsedCFTemplate.Parameters[key]
+                            paramDetails.map((p, i) => {
+                                return (
+                                  <Card key={i}>
+                                    <CardHeader title={p.key} titleStyle={{ fontSize: '13px', paddingRight: 0 }} actAsExpander={true} showExpandableButton={true}/>
+                                    <CardText key={i} expandable={true}>
+                                        <Row>
+                                            <label style={{ margin: '0px 15px' }}>{Object.keys(p)[i]}</label>
+                                            <label>{p.Description}</label>
+                                        </Row>
+                                    </CardText>
+                                  </Card>
 
-                                  for (let k in _param) {
-
-                                      if (!paramDetails[index]) {
-                                          paramDetails[index] = []
-                                      }
-
-                                      paramDetails[index][k] = _param[k]
-                                  }
-
-                                  return (
-                                      <Card key={index}>
-                                          <CardHeader title={key} titleStyle={{ fontSize: '13px', paddingRight: 0 }} actAsExpander={true} showExpandableButton={true}/>
-
-                                          {
-                                              paramDetails.map((p, i) => {
-                                                  return (
-                                                      <CardText key={i} expandable={true}>
-                                                          <Row>
-                                                              <label style={{ margin: '0px 15px' }}>{Object.keys(p)[i]}</label>
-                                                              <label>{p.Description}</label>
-                                                          </Row>
-                                                      </CardText>
-                                                  )
-                                              })
-                                          }
-                                      </Card>
-                                  )
-                              })
+                                )
+                            })
                           }
                       </Tab>
                       :
