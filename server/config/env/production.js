@@ -9,7 +9,7 @@ module.exports = {
         certificate: './config/sslcerts/cert.pem',
         caBundle: './config/sslcerts/cabundle.crt'
     },
-    port: process.env.PORT || 443,
+    port: process.env.PORT || 8080,
     // Binding to 127.0.0.1 is safer in production.
     host: '0.0.0.0',
     db: {
