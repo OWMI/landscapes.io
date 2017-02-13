@@ -36,6 +36,7 @@ import config from '../config'
 import schema from '../../graphql/schema'
 import { subscriptionManager } from '../../graphql/subscriptions'
 
+const DIST_DIR = path.resolve(__dirname, '../../../dist/')
 const WEBSOCKET_PORT = 8090
 const MongoStore = require('connect-mongo')(session)
 
@@ -348,14 +349,6 @@ module.exports.initGraphQLServer = app => {
     app.use('/graphiql', graphiqlExpress({
         endpointURL: '/graphql',
     }))
-
-    let DIST_DIR = path.resolve(__dirname, '../../../dist/')
-
-    app.use(express.static(DIST_DIR))
-
-    app.get('*', (req, res) => {
-        res.sendFile(path.join(DIST_DIR, 'index.html'))
-    })
 }
 
 /**
@@ -373,6 +366,18 @@ module.exports.initErrorRoutes = app => {
 
         // Redirect to error page
         res.redirect('/server-error')
+    })
+}
+
+/**
+ * Configure Socket.io
+ */
+module.exports.setupDistributionBuild = app => {
+    // All routes will resolve to /dist
+    app.use(express.static(DIST_DIR))
+
+    app.get('*', (req, res) => {
+        res.sendFile(path.join(DIST_DIR, 'index.html'))
     })
 }
 
@@ -429,6 +434,9 @@ module.exports.init = function (db) {
 
     // Initialize error routes
     this.initErrorRoutes(app)
+
+    // Setup static route for DIST_DIR
+    this.setupDistributionBuild(app)
 
     // Configure Socket.io
     app = this.configureSocketIO(app, db)
