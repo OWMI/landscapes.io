@@ -561,15 +561,15 @@ const resolveFunctions = {
                         }
                     })
                 }
-            }, function(err, results) {
+            }, (err, results) => {
                 if (err) {
                     console.log('---> async.series >> final callback: ERR')
                     console.log('Error --->',err);
 
                     newDeployment.awsErrors = err.message || err
-                    newDeployment.save(function(err) {
+                    newDeployment.save(err => {
                         if (err) {
-                            console.log('Error --->',err);
+                            console.log('Error --->', err);
                         }
                         return err
                     })

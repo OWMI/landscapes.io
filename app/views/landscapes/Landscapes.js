@@ -1,6 +1,6 @@
 import cx from 'classnames'
 import axios from 'axios'
-import { compact, findIndex } from 'lodash'
+import { compact, findIndex, isEqual } from 'lodash'
 import { Row, Col } from 'react-flexbox-grid'
 import React, { Component, PropTypes } from 'react'
 import shallowCompare from 'react-addons-shallow-compare'
@@ -28,7 +28,8 @@ class Landscapes extends Component {
 
     componentWillReceiveProps(nextProps) {
         const self = this
-        const { currentUser, landscapes, userAccess, setUserAccess } = nextProps
+        const { currentUser, deploymentsByLandscapeId, deploymentStatus, hasPendingDeployments, landscapes,
+                pendingDeployments, userAccess, setPendingDeployments, setUserAccess } = nextProps
         let _viewLandscapes = []
 
         // set landscapes based on permissions
@@ -50,8 +51,6 @@ class Landscapes extends Component {
             this.deleted = 0
         }
 
-        /////////// STATUS ////////////
-        // if (_viewLandscapes.length > 1 && 'status' in _viewLandscapes[0]) {
         if (_viewLandscapes.length) {
 
             let landscapesDetails = []
@@ -121,6 +120,8 @@ class Landscapes extends Component {
                     }))
                 })
 
+                let _pendingDeployments = []
+
                 // loop through each deployment and increment the running/pending statuses
                 landscapesStatus.forEach((ls, index) => {
                     ls.forEach(deployment => {
@@ -130,16 +131,27 @@ class Landscapes extends Component {
                             _viewLandscapes[index].status.pending++
 
                             // derive the index of the pending deployment and poll AWS until its resolved
-                            // let _pendingIndex = findIndex(landscapesDetails[index], { stackName: deployment.StackName })
-                            // let _pendingDeployment = landscapesDetails[index][_pendingIndex]
-                            // poll(index, 5000, _pendingDeployment.stackName, _pendingDeployment.location, _pendingDeployment.accountName)
+                            let _pendingIndex = findIndex(landscapesDetails[index], { stackName: deployment.StackName })
+                            let _pendingDeployment = landscapesDetails[index][_pendingIndex]
+
+                            delete _pendingDeployment.__v
+
+                            _pendingDeployments.push(_pendingDeployment)
                         }
                     })
                 })
 
+
+                if (!hasPendingDeployments && _pendingDeployments.length && _pendingDeployments !== pendingDeployments) {
+                    clearTimeout(self.timeout)
+                    setPendingDeployments(_pendingDeployments)
+                } else if (_pendingDeployments.length && _pendingDeployments !== pendingDeployments) {
+                    clearTimeout(self.timeout)
+                    self.handlesPollingDeployments(_pendingDeployments, 10000)
+                }
+
                 self.setState({ viewLandscapes: _viewLandscapes })
 
-            }).catch(err => {
             })
         } else if (_viewLandscapes.length) {
             self.setState({ viewLandscapes: _viewLandscapes })
@@ -254,6 +266,29 @@ class Landscapes extends Component {
                 </ul>
             </div>
         )
+    }
+
+    handlesPollingDeployments = (pendingDeployments, interval) => {
+
+        const self = this
+        const { deploymentStatus } = this.props
+
+        this.timeout = setTimeout(() => {
+            Promise.all(pendingDeployments.map(deployment => {
+                // delete version
+                delete deployment.__v
+
+                return deploymentStatus({
+                    variables: { deployment }
+                })
+            })).then(deploymentStatusArray => {
+                let statuses = deploymentStatusArray.map(status => status.data.deploymentStatus.stackStatus)
+                if (statuses.indexOf('CREATE_COMPLETE') > -1) {
+                    clearTimeout(self.timeout)
+                }
+            }).catch(err => console.log(err))
+
+        }, interval)
     }
 
     handlesCreateLandscapeClick = event => {
