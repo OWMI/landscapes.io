@@ -243,8 +243,7 @@ class CreateDeployment extends Component {
             variables: { deployment: deploymentToCreate }
          }).then(({ data }) => {
             router.push({ pathname: `/landscape/${this.state.currentLandscape._id}` })
-        }).catch(error => {
-        })
+        }).catch(error => console.log(err))
     }
 }
 
