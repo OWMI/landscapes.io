@@ -21,28 +21,31 @@ class LandscapeDetails extends Component {
         currentDeployments: [],
         addedDocuments: []
     }
-    componentWillReceiveProps(nextProps){
-      let self = this
-      const { activeLandscape, deploymentsByLandscapeId, deploymentStatus, landscapes, params } = nextProps
-      let _landscapes = landscapes || []
-      let currentLandscape = activeLandscape;
-      if(!currentLandscape)
-          currentLandscape = _landscapes.find(ls => { return ls._id === params.id })
 
-      if(!currentLandscape){
-        currentLandscape = {cloudFormationTemplate: '{}'}
+    componentWillReceiveProps(nextProps) {
+      let self = this
+      let _landscapes = landscapes || []
+      let currentLandscape = activeLandscape
+      let cloudFormationParameters = {}
+      const { activeLandscape, deploymentsByLandscapeId, deploymentStatus, landscapes, params } = nextProps
+
+      if (!currentLandscape) {
+          currentLandscape = _landscapes.find(ls => { return ls._id === params.id })
+          currentLandscape = { cloudFormationTemplate: '{}' }
       }
-      if(currentLandscape && currentLandscape.documents){
-        this.setState({addedDocuments: currentLandscape.documents});
+
+      if (currentLandscape && currentLandscape.documents) {
+        this.setState({ addedDocuments: currentLandscape.documents })
       }
-      this.setState({currentLandscape})
-      var cloudFormationParameters = {}
+
+      this.setState({ currentLandscape })
+
       deploymentsByLandscapeId({
           variables: { landscapeId: params.id }
       }).then(({ data }) => {
           return Promise.all(data.deploymentsByLandscapeId.map(deployment => {
               cloudFormationParameters[deployment._id] = deployment.cloudFormationParameters
-              this.setState({cloudFormationParameters})
+              this.setState({ cloudFormationParameters })
               if (deployment.isDeleted || deployment.awsErrors) {
                   return {
                       data: {
@@ -79,22 +82,25 @@ class LandscapeDetails extends Component {
 
         this.setState({paramDetails})
     }
+
     componentWillMount() {
         let self = this
-        const { activeLandscape, deploymentsByLandscapeId, deploymentStatus, landscapes, params } = this.props
         let _landscapes = landscapes || []
-        let currentLandscape = activeLandscape;
-        if(!currentLandscape)
-            currentLandscape = _landscapes.find(ls => { return ls._id === params.id })
+        let currentLandscape = activeLandscape
+        let cloudFormationParameters = {}
+        const { activeLandscape, deploymentsByLandscapeId, deploymentStatus, landscapes, params } = this.props
 
-        if(!currentLandscape){
-          currentLandscape = {cloudFormationTemplate: '{}'}
+        if (!currentLandscape) {
+            currentLandscape = _landscapes.find(ls => { return ls._id === params.id })
+            currentLandscape = { cloudFormationTemplate: '{}' }
         }
-        if(currentLandscape && currentLandscape.documents){
-          this.setState({addedDocuments: currentLandscape.documents});
+
+        if (currentLandscape && currentLandscape.documents) {
+          this.setState({ addedDocuments: currentLandscape.documents })
         }
-        this.setState({currentLandscape})
-        var cloudFormationParameters = {}
+
+        this.setState({ currentLandscape })
+
         deploymentsByLandscapeId({
             variables: { landscapeId: params.id }
         }).then(({ data }) => {

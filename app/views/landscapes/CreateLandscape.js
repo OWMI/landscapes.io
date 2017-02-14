@@ -304,8 +304,14 @@ class CreateLandscape extends Component {
         type: this.state.docType
       }
       var array = this.state.addedDocuments;
-      array.push(data);
-      this.setState({addedDocuments: array, showAddDocument: false, docType:'', docName: '', docUrl: ''})
+      array.push(data)
+      this.setState({
+          addedDocuments: array,
+          showAddDocument: false,
+          docType:'',
+          docName: '',
+          docUrl: ''
+      })
     }
 
     handlesTemplateClick = (acceptedFiles, rejectedFiles) => {

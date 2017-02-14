@@ -56,6 +56,7 @@ const Query = `
         _id: String
         __typename: String
         createdAt: String
+        createdBy: String
         stackName: String
         accountName: String
         landscapeId: String

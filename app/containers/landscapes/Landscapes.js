@@ -76,12 +76,29 @@ const DeploymentByLandscapeIdMutation = gql `
             billingCode,
             flavor,
             cloudFormationTemplate,
-            cloudFormationParameters,
+            cloudFormationParameters{
+              ParameterKey,
+              ParameterValue
+            },
             tags,
             notes,
             stackId,
             stackStatus,
             stackLastUpdate,
+            awsErrors
+        }
+    }
+`
+
+const DeploymentStatusMutation = gql `
+    mutation getDeploymentStatus($deployment: DeploymentInput!) {
+        deploymentStatus(deployment: $deployment) {
+            _id,
+            stackStatus,
+            stackName,
+            location,
+            createdAt,
+            isDeleted,
             awsErrors
         }
     }
@@ -109,13 +126,12 @@ const GroupsWithQuery = graphql(GroupQuery, {
     })
 })
 
-const DeploymentsWithMutation = graphql(DeploymentByLandscapeIdMutation, { name: 'deploymentsByLandscapeId' })
-
 const composedRequest = compose(
     LandscapesWithQuery,
     UsersWithQuery,
     GroupsWithQuery,
-    DeploymentsWithMutation
+    graphql(DeploymentStatusMutation, { name: 'deploymentStatus' }),
+    graphql(DeploymentByLandscapeIdMutation, { name: 'deploymentsByLandscapeId' })
 )(Landscapes)
 
 
@@ -126,7 +142,9 @@ const composedRequest = compose(
 const mapStateToProps = state => {
     return {
         currentUser: state.userAuth,
-        userAccess: state.authorization.userAccess
+        userAccess: state.authorization.userAccess,
+        pendingDeployments: state.landscapes.pendingDeployments,
+        hasPendingDeployments: state.landscapes.hasPendingDeployments
     }
 }
 
@@ -135,6 +153,7 @@ const mapDispatchToProps = dispatch => {
         enterLandscapes: viewsActions.enterLandscapes,
         leaveLandscapes: viewsActions.leaveLandscapes,
         setActiveLandscape: landscapesActions.setActiveLandscape,
+        setPendingDeployments: landscapesActions.setPendingDeployments,
         setUserAccess: authorizationActions.setUserAccess
     }, dispatch)
 }
