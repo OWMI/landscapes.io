@@ -145,7 +145,8 @@ class RightNav extends Component {
 
     handleOnRequestChange = (event, value) => {
         if (value === 'clickAway')
-            this.setState({ userMenu: !this.state.userMenu })
+            this.setState({ userMenu: false })
+            this.setState({ settings: false })
     }
 
     handleUsernameClick = event => {
