@@ -415,7 +415,7 @@ class LandscapeDetails extends Component {
                         <p style={{flex: 1, textAlign: 'center', marginTop: 5}}>None</p>
                       </Tab>
                     }
-                    {
+                    {/*
                       parsedCFTemplate.Mappings
                       ?
                       <Tab label='Mappings'>
@@ -425,7 +425,7 @@ class LandscapeDetails extends Component {
                       <Tab label='Mappings'>
                         <p style={{flex: 1, textAlign: 'center', marginTop: 5}}>None</p>
                       </Tab>
-                    }
+                  */  }
 
                 </Tabs>
               </Card>
