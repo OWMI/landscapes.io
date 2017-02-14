@@ -136,14 +136,10 @@ class LandscapeDetails extends Component {
                 })
             }))
         }).then(deploymentStatusArray => {
-            let _deploymentStatuses = deploymentStatusArray.map(({ data }) => {
-                return data.deploymentStatus
-            })
-
-            console.log('%c _deploymentStatuses ', 'background: #1c1c1c; color: limegreen', _deploymentStatuses)
-
             self.setState({
-                currentDeployments: _deploymentStatuses
+                currentDeployments: deploymentStatusArray.map(({ data }) => {
+                    return data.deploymentStatus
+                })
             })
         })
 
