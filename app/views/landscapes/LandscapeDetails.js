@@ -1,5 +1,6 @@
 import moment from 'moment'
 import cx from 'classnames'
+import { orderBy } from 'lodash'
 import { Loader } from '../../components'
 import React, { Component, PropTypes } from 'react'
 import { IoCube, IoClose } from 'react-icons/lib/io'
@@ -166,8 +167,8 @@ class LandscapeDetails extends Component {
         const { animated, viewEntersAnim, currentDeployment, currentDeployments, deleteType, refetchedLandscapes, cloudFormationParameters, currentLandscape, paramDetails } = this.state
 
         let _landscapes = landscapes || []
-        let runningStatus = ['CREATE_COMPLETE', 'ROLLBACK_COMPLETE', 'ROLLBACK_COMPLETE', 'DELETE_COMPLETE', 'UPDATE_COMPLETE', 'UPDATE_ROLLBACK_COMPLETE']
-        let pendingStatus = ['CREATE_IN_PROGRESS', 'ROLLBACK_IN_PROGRESS', 'DELETE_IN_PROGRESS', 'UPDATE_IN_PROGRESS', 'UPDATE_COMPLETE_CLEANUP_IN_PROGRESS', 'UPDATE_ROLLBACK_IN_PROGRESS', 'UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS', 'REVIEW_IN_PROGRESS']
+        let sortedCurrentDeployments = currentDeployments
+        sortedCurrentDeployments = orderBy(currentDeployments, value => { return new Date(value.createdAt) }, ['desc'])
 
         // for direct request
         // if (activeLandscape && activeLandscape._id !== params.id)
@@ -266,18 +267,19 @@ class LandscapeDetails extends Component {
                             </Dialog>
                         </CardHeader>
                         {
-                            currentDeployments.map((deployment, index) => {
+                            sortedCurrentDeployments.map((deployment, index) => {
 
                                 let _stackStatus = {}
-                                if (deployment && deployment.isDeleted) {
+
+                                if ((deployment && deployment.stackStatus === 'ROLLBACK_COMPLETE') || (deployment && deployment.awsErrors)) {
+                                    _stackStatus = {
+                                        status: deployment.stackStatus || 'FAILED',
+                                        color: 'rgb(236, 11, 67)'
+                                    }
+                                } else if (deployment && deployment.isDeleted) {
                                     _stackStatus = {
                                         status: 'DELETED',
                                         color: 'rgb(204, 204, 204)'
-                                    }
-                                } else if (deployment && deployment.awsErrors) {
-                                    _stackStatus = {
-                                        status: 'FAILED',
-                                        color: 'rgb(236, 11, 67)'
                                     }
                                 } else if (deployment && deployment.stackStatus === 'CREATE_COMPLETE') {
                                     _stackStatus = {

@@ -41,9 +41,6 @@ class Landscapes extends Component {
             _viewLandscapes = userAccess.landscapes
         }
 
-        let runningStatus = ['CREATE_COMPLETE', 'ROLLBACK_COMPLETE', 'ROLLBACK_COMPLETE', 'DELETE_COMPLETE', 'UPDATE_COMPLETE', 'UPDATE_ROLLBACK_COMPLETE']
-        let pendingStatus = ['CREATE_IN_PROGRESS', 'ROLLBACK_IN_PROGRESS', 'DELETE_IN_PROGRESS', 'UPDATE_IN_PROGRESS', 'UPDATE_COMPLETE_CLEANUP_IN_PROGRESS', 'UPDATE_ROLLBACK_IN_PROGRESS', 'UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS', 'REVIEW_IN_PROGRESS']
-
         function StatusModel() {
             this.pending = 0
             this.running = 0
@@ -125,9 +122,9 @@ class Landscapes extends Component {
                 // loop through each deployment and increment the running/pending statuses
                 landscapesStatus.forEach((ls, index) => {
                     ls.forEach(deployment => {
-                        if (runningStatus.indexOf(deployment.StackStatus) > -1) {
+                        if (deployment && deployment.StackStatus === 'CREATE_COMPLETE') {
                             _viewLandscapes[index].status.running++
-                        } else if (pendingStatus.indexOf(deployment.StackStatus) > -1) {
+                        } else if (deployment && deployment.StackStatus && deployment.StackStatus.indexOf('IN_PROGRESS') > -1) {
                             _viewLandscapes[index].status.pending++
 
                             // derive the index of the pending deployment and poll AWS until its resolved
@@ -137,6 +134,9 @@ class Landscapes extends Component {
                             delete _pendingDeployment.__v
 
                             _pendingDeployments.push(_pendingDeployment)
+                        } else {
+                            // ROLLBACK_COMPLETE
+                            _viewLandscapes[index].status.failed++
                         }
                     })
                 })

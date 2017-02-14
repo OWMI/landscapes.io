@@ -198,7 +198,7 @@ class CreateDeployment extends Component {
             endpoint: account.endpoint || '',
             location: account.region || '',
             caBundlePath: account.caBundlePath || '',
-            rejectUnauthorizedSsl: account.rejectUnauthorizedSsl || '',
+            rejectUnauthorizedSsl: account.rejectUnauthorizedSsl || false,
             signatureBlock: account.signatureBlock || ''
         })
     }
