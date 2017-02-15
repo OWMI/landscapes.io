@@ -6,6 +6,7 @@ import async from 'async'
 import https from 'https'
 import AWS from 'aws-sdk'
 import { find, filter } from 'lodash'
+import lodash from 'lodash'
 import { pubsub } from './subscriptions'
 
 const Landscape = require('./models/landscape')
@@ -49,6 +50,27 @@ const resolveFunctions = {
                 if (err) return err
                 return groups
             })
+        },
+        groupsByUser(root, args, context) {
+            return new Promise((resolve, reject) => {
+              return Group.find().sort('-created').populate('user', 'displayName').exec((err, groups) => {
+                  if (err) return reject(err)
+                  return User.findById(args.id).exec((err, user) =>{
+                    if(user.role === 'admin'){
+                      return resolve(groups)
+                    }
+                    else{
+                      return resolve(lodash.filter(groups, lodash.flow(lodash.property('users'), lodash.partialRight(lodash.some, { userId: args.id }))));
+                    }
+                  })
+              })
+            })
+        },
+        groupById(root, args, context) {
+            return Group.findById(args.id).exec((err, group) =>{
+                if (err) return err
+                return group
+          })
         },
         documentTypes(root, args, context) {
             return TypeDocument.find().sort('-created').exec((err, documentTypes) => {

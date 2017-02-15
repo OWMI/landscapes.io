@@ -21,6 +21,7 @@ const GroupQuery = gql `
               isAdmin,
               userId
             },
+            accounts,
             imageUri,
             description,
             landscapes,
@@ -56,9 +57,33 @@ const LoginWithMutation = graphql(logUser, {
         }
     })
 })
+const AccountsQuery = gql `
+    query getAccounts {
+        accounts {
+            _id,
+            name,
+            region,
+            createdAt,
+            endpoint,
+            caBundlePath,
+            rejectUnauthorizedSsl,
+            signatureBlock,
+            isOtherRegion,
+            accessKeyId,
+            secretAccessKey
+        }
+    }
+ `
+ const AccountsWithQuery =  graphql(AccountsQuery, {
+      props: ({ data: { loading, accounts } }) => ({
+          accounts,
+          loading
+      })
+    })
 
 const composedRequest = compose(
     GroupsWithQuery,
+    AccountsWithQuery,
     LoginWithMutation
 )(Login)
 

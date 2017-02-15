@@ -131,27 +131,46 @@ export const auth = {
         }
     },
 
-    setUserPermissions(user, groups) {
+    setUserPermissions(user, groups, accounts) {
         user.permissions = {}
-        if (user.role !== 'admin') {
+        user.accounts = {}
             if (groups) {
                 groups.forEach(group => {
                     group.users.forEach(groupUser => {
                         if (groupUser.userId === user._id) {
                             // groups
-                            user.groups.push({
-                                groupId: group._id,
-                                isAdmin: groupUser.isAdmin
-                            })
+                            if (user.role !== 'admin') {
+                              user.groups.push({
+                                  groupId: group._id,
+                                  isAdmin: groupUser.isAdmin
+                              })
+                            }
                             group.landscapes.forEach(landscape => {
                                 // permissions
-                                user.permissions[landscape] = group.permissions
+                                if (user.role !== 'admin') {
+                                  user.permissions[landscape] = group.permissions
+                                }
+                                //accounts
+                                if(!user.accounts[landscape]){
+                                  user.accounts[landscape] = [];
+                                }
+                                var _account = {};
+                                if(group.accounts){
+                                  group.accounts.forEach(groupAccount => {
+                                    accounts.forEach(account => {
+                                      if (groupAccount === account._id) {
+                                          _account[account._id] = account.name
+                                          user.accounts[landscape].push(_account)
+                                          _account = {}
+                                      }
+                                    })
+                                  })
+                                }
                             })
                         }
                     })
                 })
             }
-        }
         return user
     },
 

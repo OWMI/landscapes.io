@@ -4,18 +4,11 @@ import { connect } from 'react-redux'
 import { graphql } from 'react-apollo'
 import { bindActionCreators } from 'redux'
 import * as viewsActions from '../../redux/modules/views'
+import { auth } from '../../services/auth'
 
 /* -----------------------------------------
   GraphQL - Apollo client
  ------------------------------------------*/
-
- const editGroupMutation = gql `
-     mutation updateGroup($group: GroupInput!) {
-         updateGroup(group: $group) {
-             name
-         }
-     }
- `
 
  // const CreateGroupWithMutation = graphql(editGroupMutation)(CreateGroup)
  const UserQuery = gql `
@@ -32,15 +25,16 @@ import * as viewsActions from '../../redux/modules/views'
      }
   `
 
- const GroupQuery = gql `
-     query getGroups {
-         groups {
+ const GroupByIdQuery = gql `
+     query getGroup($id: String) {
+         groupById(id: $id) {
              _id,
              name,
              users{
                isAdmin,
                userId
              },
+             accounts,
              imageUri,
              description,
              landscapes,
@@ -48,6 +42,41 @@ import * as viewsActions from '../../redux/modules/views'
          }
      }
   `
+  const AccountsQuery = gql `
+      query getAccounts {
+          accounts {
+              _id,
+              name,
+              region,
+              createdAt,
+              endpoint,
+              caBundlePath,
+              rejectUnauthorizedSsl,
+              signatureBlock,
+              isOtherRegion,
+              accessKeyId,
+              secretAccessKey
+          }
+      }
+   `
+  var user = auth.getUserInfo() || {}
+  const GroupQuery = gql `
+      query getGroupsByUser($userId: String, $isGlobalAdmin: Boolean) {
+          groupsByUser(id: $userId, isGlobalAdmin: $isGlobalAdmin ) {
+              _id,
+              name,
+              users{
+                isAdmin,
+                userId
+              },
+              imageUri,
+              description,
+              landscapes,
+              permissions
+          }
+      }
+
+   `
 
  const LandscapeQuery = gql `
      query getLandscapes {
@@ -64,12 +93,12 @@ import * as viewsActions from '../../redux/modules/views'
      }
   `
  // 1- add queries:
- const GroupsWithQuery = graphql(GroupQuery, {
-     props: ({ data: { loading, groups, refetch } }) => ({
-         groups,
-         loading,
-         refetchGroups: refetch
-     })
+ const GroupById = graphql(GroupByIdQuery, {
+    options: ({ params }) => ({ variables: { id: params.id } }),
+    props: ({ data: { loading, groupById } }) => ({
+        groupById,
+        loading
+    })
  })
  (graphql(LandscapeQuery, {
      props: ({ data: { loading, landscapes } }) => ({
@@ -78,6 +107,21 @@ import * as viewsActions from '../../redux/modules/views'
      })
    }
  )
+ (graphql(AccountsQuery, {
+     props: ({ data: { loading, accounts } }) => ({
+         accounts,
+         loading
+     })
+   }
+ )
+ (graphql(GroupQuery, {
+      options: { variables: { userId: user._id || '', isGlobalAdmin: (user.role === 'admin') || false } },
+     props: ({ data: { loading, groupsByUser, refetch } }) => ({
+         groupsByUser,
+         loading,
+         refetchGroups: refetch
+     })
+ })
  (graphql(UserQuery, {
      props: ({ data: { loading, users } }) => ({
          users,
@@ -85,9 +129,7 @@ import * as viewsActions from '../../redux/modules/views'
      })
    }
  )
- (
-   graphql(editGroupMutation, {name: 'EditGroupWithMutation'})
- (GroupDetails))))
+ (GroupDetails)))))
 
 
 
@@ -106,4 +148,4 @@ const mapDispatchToProps = (dispatch) => {
     }, dispatch)
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(GroupsWithQuery)
+export default connect(mapStateToProps, mapDispatchToProps)(GroupById)

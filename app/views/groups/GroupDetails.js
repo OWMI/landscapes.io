@@ -88,10 +88,10 @@ class GroupDetails extends Component {
     }
 
     componentWillMount(){
-      const { enterGroupDetails, groups, users, landscapes, params } = this.props
+      const { enterGroupDetails, groupById, users, landscapes, accounts, params } = this.props
       let currentGroup = {};
-      if(groups){
-        currentGroup = groups.find(ls => { return ls._id === params.id })
+      if(groupById && (groupById._id === params.id)){
+        currentGroup = groupById
         var readablePermissions = []
         currentGroup.permissions.map(permission =>{
           if(permission === 'c'){
@@ -118,7 +118,8 @@ class GroupDetails extends Component {
       }
       let groupLandscapes = []
       let groupUsers = []
-        if(currentGroup.landscapes){
+      let groupAccounts = []
+        if(currentGroup.landscapes && landscapes){
           for(var i = 0; i< currentGroup.landscapes.length; i++){
             landscapes.find(ls => {
               if(currentGroup.landscapes[i] === ls._id){
@@ -128,9 +129,19 @@ class GroupDetails extends Component {
             })
           }
       }
-      this.setState({groupLandscapes: groupLandscapes})
+        if(currentGroup.accounts && accounts){
+          for(var i = 0; i< currentGroup.landscapes.length; i++){
+            accounts.find(ls => {
+              if(currentGroup.accounts[i] === ls._id){
+                ls.selected = true;
+                groupAccounts.push(ls)
+              }
+            })
+          }
+      }
+      this.setState({groupLandscapes: groupLandscapes, groupAccounts})
 
-        if(currentGroup.users){
+        if(currentGroup.users && users){
           for(var i = 0; i< currentGroup.users.length; i++){
             users.find(user => {
               if(currentGroup.users[i].userId === user._id){
@@ -154,10 +165,10 @@ class GroupDetails extends Component {
 
     componentWillReceiveProps(nextProps) {
       // use the name from nextProps to get the profile
-      const { enterGroupDetails, groups, users, landscapes, params } = nextProps
+      const { enterGroupDetails, groups, groupById, users, landscapes, accounts, params } = nextProps
       let currentGroup = {};
-      if(groups){
-        currentGroup = groups.find(ls => { return ls._id === params.id })
+      if(groupById && (groupById._id === params.id)){
+        currentGroup = groupById
         var readablePermissions = []
         currentGroup.permissions.map(permission =>{
           if(permission === 'c'){
@@ -184,7 +195,8 @@ class GroupDetails extends Component {
       }
       let groupLandscapes = []
       let groupUsers = []
-        if(currentGroup.landscapes){
+      let groupAccounts = []
+        if(currentGroup.landscapes && landscapes){
           for(var i = 0; i< currentGroup.landscapes.length; i++){
             landscapes.find(ls => {
               if(currentGroup.landscapes[i] === ls._id){
@@ -194,9 +206,19 @@ class GroupDetails extends Component {
             })
           }
       }
-      this.setState({groupLandscapes: groupLandscapes})
+        if(currentGroup.accounts && accounts){
+          for(var i = 0; i< currentGroup.landscapes.length; i++){
+            accounts.find(ls => {
+              if(currentGroup.accounts[i] === ls._id){
+                ls.selected = true;
+                groupAccounts.push(ls)
+              }
+            })
+          }
+      }
+      this.setState({groupLandscapes: groupLandscapes, groupAccounts})
 
-        if(currentGroup.users){
+        if(currentGroup.users && users){
           for(var i = 0; i< currentGroup.users.length; i++){
             users.find(user => {
               if(currentGroup.users[i].userId === user._id){
@@ -231,9 +253,11 @@ class GroupDetails extends Component {
 
         let self = this
         const { animated, viewEntersAnim } = this.state
-        const { loading, groups, landscapes, users, params } = this.props
+        const { loading, groupById, landscapes, users, params } = this.props
 
-        if (loading || !groups) {
+        console.log(this.props)
+
+        if (loading || !groupById) {
             return (
                 <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
                     <Loader/>
@@ -261,7 +285,7 @@ class GroupDetails extends Component {
                         <Col xs={1} style={{ textAlign: 'left' }}>
                             <img src={this.state.currentGroup.imageUri} style={{width: 85}} />
                         </Col>
-                        <Col xs={4} style={{ textAlign: 'left' }}>
+                        <Col xs={4} style={{ textAlign: 'left', marginLeft:20 }}>
                             <Row><h4>{this.state.currentGroup.name}</h4></Row>
                             <Row>
                               {
@@ -346,8 +370,26 @@ class GroupDetails extends Component {
                               </TableFooter>
                             </Table>
                   </Tab>
-                  <Tab key="3" label="Accounts">
-
+                  <Tab label="Accounts" key="4">
+                      <Table key="accountsTable" height={this.state.height} fixedHeader={this.state.fixedHeader} fixedFooter={this.state.fixedFooter} selectable={false} multiSelectable={false}>
+                          <TableHeader displaySelectAll={false} adjustForCheckbox={false} enableSelectAll={false}>
+                              <TableRow>
+                                  <TableHeaderColumn tooltip="Name">Name</TableHeaderColumn>
+                                  <TableHeaderColumn tooltip="Region">Region</TableHeaderColumn>
+                                  <TableHeaderColumn tooltip="Created At">Created At</TableHeaderColumn>
+                              </TableRow>
+                          </TableHeader>
+                          <TableBody displayRowCheckbox={false} deselectOnClickaway={false} showRowHover={this.state.showRowHover} stripedRows={false}>
+                              {this.state.groupAccounts.map((row, index) => (
+                                  <TableRow key={row._id}>
+                                      <TableRowColumn>{row.name}</TableRowColumn>
+                                      <TableRowColumn>{row.region}</TableRowColumn>
+                                      <TableRowColumn>{row.createdAt}</TableRowColumn>
+                                  </TableRow>
+                              ))}
+                          </TableBody>
+                          <TableFooter adjustForCheckbox={this.state.showCheckboxes}></TableFooter>
+                      </Table>
                   </Tab>
                 </Tabs>
                   </Card>

@@ -62,7 +62,7 @@ class Login extends Component {
 
     handlesOnLogin = event => {
         event.preventDefault()
-        const { loginUser, groups } = this.props
+        const { loginUser, groups, accounts } = this.props
         const { router } = this.context
         let { username, password } = this.refs
 
@@ -78,7 +78,7 @@ class Login extends Component {
                 password
             }
         }).then(res => {
-            let userWithPermissions = auth.setUserPermissions(res.data, groups)
+            let userWithPermissions = auth.setUserPermissions(res.data, groups, accounts)
             return axios({
                 method: 'post',
                 url: `${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/generateToken`,

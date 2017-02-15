@@ -8,6 +8,7 @@ const Group = `
 
         landscapes: [String]
         users: [userObject]
+        accounts: [String]
         permissions: [String!]
         createdAt: String
         createdBy: User

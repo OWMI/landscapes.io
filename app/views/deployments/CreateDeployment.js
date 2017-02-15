@@ -7,6 +7,8 @@ import { Card, CardHeader, CardText, MenuItem, RaisedButton, SelectField, TextFi
 
 import './deployments.style.scss'
 import { Loader } from '../../components'
+import { auth } from '../../services/auth'
+
 
 class CreateDeployment extends Component {
 
@@ -33,7 +35,9 @@ class CreateDeployment extends Component {
         this.setState({
           templateDescription: template.Description,
           templateParameters: template.Parameters,
-          currentLandscape
+          currentLandscape,
+          landscapeAccounts: auth.getUserInfo().accounts[params.landscapeId] || []
+
         })
       }
     }
@@ -46,7 +50,8 @@ class CreateDeployment extends Component {
         this.setState({
           templateDescription: template.Description,
           templateParameters: template.Parameters,
-          currentLandscape
+          currentLandscape,
+          landscapeAccounts: auth.getUserInfo().accounts[params.landscapeId] || []
         })
       }
     }
@@ -59,7 +64,7 @@ class CreateDeployment extends Component {
     render() {
 
         const { loading, accounts } = this.props
-        const { animated, viewEntersAnim, templateParameters, templateDescription, secretAccessKey, signatureBlock } = this.state
+        const { animated, viewEntersAnim, templateParameters, templateDescription, secretAccessKey, signatureBlock, landscapeAccounts } = this.state
 
         const menuItems = [
             { text: 'Gov Cloud', value: 'us-gov-west-1' },
@@ -97,13 +102,13 @@ class CreateDeployment extends Component {
                         </Row>
                         <Card>
                             <TextField id='stackName' ref='stackName' floatingLabelText='Stack Name' className={cx( { 'two-field-row': true } )}/>
-
+                            {console.log(landscapeAccounts)}
                             <SelectField id='accountName' floatingLabelText='Account Name' value={this.state.accountName} onChange={this.handlesAccountChange}
                                 floatingLabelStyle={{ left: '0px' }} className={cx( { 'two-field-row': true } )}>
                                 {
-                                    accounts.map((acc, index) => {
+                                    landscapeAccounts.map((acc, index) => {
                                         return (
-                                            <MenuItem key={index} value={acc.name} primaryText={acc.name}/>
+                                            <MenuItem key={Object.keys(acc)[0]} value={acc[Object.keys(acc)[0]]} primaryText={acc[Object.keys(acc)[0]]}/>
                                         )
                                     })
                                 }

@@ -13,7 +13,8 @@ const groupSchema = new Schema({
   users: { type: Array, 'default':[] },
   description: { type: String, required: true, trim: true },
   permissions: { type : Array , 'default' : [] },
-  landscapes: [Schema.Types.ObjectId]
+  landscapes: [Schema.Types.ObjectId],
+  accounts: [Schema.Types.ObjectId]
 })
 
 module.exports = mongoose.model('Group', groupSchema)

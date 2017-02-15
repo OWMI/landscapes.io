@@ -88,7 +88,7 @@ class CreateGroup extends Component {
         return shallowCompare(this, nextProps, nextState)
     }
     componentWillMount(){
-      const { loading, groups, landscapes, users } = this.props
+      const { loading, groups, landscapes, users, accounts } = this.props
 
       var stateUsers = []
       if(users){
@@ -101,19 +101,15 @@ class CreateGroup extends Component {
         })
       }
       this.setState({stateUsers: stateUsers || []})
-
-      if(landscapes){
-        var landscapeIds = landscapes.map((index, landscape) =>{
-          return {key: landscape._id, id: landscape._id, name: landscape.name, description: landscape.description}
-        })
-      }
       this.setState({stateLandscapes: landscapes || []})
+      this.setState({stateAccounts: accounts || []})
       this.setState({selectedLandscapeRows: []})
       this.setState({selectedUserRows: []})
+      this.setState({selectedAccountRows: []})
       this.setState({imageUri: defaultImage})
     }
     componentWillReceiveProps(nextProps){
-      const { loading, groups, landscapes, users } = nextProps
+      const { loading, groups, landscapes, users, accounts } = nextProps
 
       var stateUsers = []
       if(users){
@@ -126,15 +122,11 @@ class CreateGroup extends Component {
         })
       }
       this.setState({stateUsers: stateUsers || []})
-
-      if(landscapes){
-        var landscapeIds = landscapes.map((index, landscape) =>{
-          return {key: landscape._id, id: landscape._id, name: landscape.name, description: landscape.description}
-        })
-      }
       this.setState({stateLandscapes: landscapes || []})
+      this.setState({stateAccounts: accounts || []})
       this.setState({selectedLandscapeRows: []})
       this.setState({selectedUserRows: []})
+      this.setState({selectedAccountRows: []})
       this.setState({imageUri: defaultImage})
     }
 
@@ -307,6 +299,27 @@ class CreateGroup extends Component {
                             <TableFooter adjustForCheckbox={this.state.showCheckboxes}></TableFooter>
                         </Table>
                       </Tab>
+                      <Tab label="Accounts" key="4">
+                          <Table key="accountsTable" height={this.state.height} fixedHeader={this.state.fixedHeader} fixedFooter={this.state.fixedFooter} selectable={this.state.selectable} multiSelectable={this.state.multiSelectable} onRowSelection={this.handleOnRowSelectionAccounts}>
+                              <TableHeader displaySelectAll={this.state.showCheckboxes} adjustForCheckbox={this.state.showCheckboxes} enableSelectAll={this.state.enableSelectAll}>
+                                  <TableRow>
+                                      <TableHeaderColumn tooltip="Name">Name</TableHeaderColumn>
+                                      <TableHeaderColumn tooltip="Region">Region</TableHeaderColumn>
+                                      <TableHeaderColumn tooltip="Created At">Created At</TableHeaderColumn>
+                                  </TableRow>
+                              </TableHeader>
+                              <TableBody displayRowCheckbox={this.state.showCheckboxes} deselectOnClickaway={false} showRowHover={this.state.showRowHover} stripedRows={false}>
+                                  {this.state.stateAccounts.map((row, index) => (
+                                      <TableRow key={row._id} selected={this.state.selectedAccountRows.indexOf(index) !== -1}>
+                                          <TableRowColumn>{row.name}</TableRowColumn>
+                                          <TableRowColumn>{row.region}</TableRowColumn>
+                                          <TableRowColumn>{row.createdAt}</TableRowColumn>
+                                      </TableRow>
+                                  ))}
+                              </TableBody>
+                              <TableFooter adjustForCheckbox={this.state.showCheckboxes}></TableFooter>
+                          </Table>
+                      </Tab>
                   </Tabs>
               </Row>
           </div>
@@ -319,6 +332,9 @@ class CreateGroup extends Component {
 
     handleOnRowSelectionLandscapes = selectedRows => {
         this.setState({selectedLandscapeRows: selectedRows})
+    }
+    handleOnRowSelectionAccounts = selectedRows => {
+        this.setState({selectedAccountRows: selectedRows})
     }
 
     handleRequestDelete = (row, index) => {
@@ -467,6 +483,7 @@ class CreateGroup extends Component {
         groupToCreate.permissions = this.handlesCreatePermission()
         groupToCreate.users = []
         groupToCreate.landscapes = []
+        groupToCreate.accounts = []
         if (this.state.selectedLandscapeRows) {
             for (var i = 0; i < this.state.selectedLandscapeRows.length; i++) {
                 groupToCreate.landscapes.push(this.state.stateLandscapes[this.state.selectedLandscapeRows[i]]._id)
@@ -474,8 +491,12 @@ class CreateGroup extends Component {
         }
         if (this.state.selectedUserRows) {
             for (var i = 0; i < this.state.selectedUserRows.length; i++) {
-                if(this.state.users[this.state.selectedUserRows[i]].role === 'admin'){
-                  this.state.users[this.state.selectedUserRows[i]].isAdmin = true;
+              console.log('this.state.selectedUserRows',this.state.selectedUserRows)
+              console.log('this.state.selectedUserRows[i]',this.state.selectedUserRows[i])
+              console.log('this.state.stateUsers', this.state.stateUsers)
+              console.log('this.state.stateUsers[this.state.selectedUserRows[i]]', this.state.stateUsers[this.state.selectedUserRows[i]])
+                if(this.state.stateUsers[this.state.selectedUserRows[i]].role === 'admin'){
+                  this.state.stateUsers[this.state.selectedUserRows[i]].isAdmin = true;
                 }
                 groupToCreate.users.push({
                     userId: this.state.stateUsers[this.state.selectedUserRows[i]]._id,
@@ -483,7 +504,13 @@ class CreateGroup extends Component {
                 })
             }
         }
-        groupToCreate.imageUri = this.state.croppedImg
+        if (this.state.selectedAccountRows) {
+            for (var i = 0; i < this.state.selectedAccountRows.length; i++) {
+              groupToCreate.accounts.push(this.state.stateAccounts[this.state.selectedAccountRows[i]]._id)
+
+            }
+        }
+        groupToCreate.imageUri = this.state.croppedImg || this.state.imageUri
 
         this.props.CreateGroupWithMutation({
             variables: { group: groupToCreate }

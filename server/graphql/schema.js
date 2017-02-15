@@ -96,6 +96,7 @@ const Query = `
       landscapes: [String]
       users: [userInput]
       permissions: [String]
+      accounts: [String]
       imageUri: String
       name: String
       description: String
@@ -109,6 +110,8 @@ const Query = `
 
     type Query {
         groups: [Group]
+        groupsByUser(id: String, isGlobalAdmin: Boolean): [Group]
+        groupById(id: String): Group
         accounts: [Account]
         landscapes: [Landscape]
         documentTypes: [TypeDocument]

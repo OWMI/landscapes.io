@@ -92,7 +92,7 @@ class EditGroup extends Component {
     }
 
     componentWillMount() {
-        const {loading, groups, landscapes, users, params} = this.props
+        const {loading, groupById, landscapes, users, accounts, params} = this.props
         let currentUser = {
           id: auth.getUserInfo()._id,
           role: auth.getUserInfo().role
@@ -103,10 +103,8 @@ class EditGroup extends Component {
         }
 
         let currentGroup = {};
-        if (groups) {
-            currentGroup = groups.find(ls => {
-                return ls._id === params.id
-            })
+        if (groupById && (groupById._id === params.id)) {
+            currentGroup = groupById
             if (currentGroup) {
                 this.setState({description: currentGroup.description})
                 this.setState({name: currentGroup.name})
@@ -119,6 +117,7 @@ class EditGroup extends Component {
         }
         var usersSorted = [];
         var landscapesSorted = [];
+        var accountsSorted = [];
         if(users){
           usersSorted = sortBy(users, ['lastName']);
           this.setState({users: usersSorted})
@@ -126,11 +125,17 @@ class EditGroup extends Component {
         if(landscapes){
           landscapesSorted = sortBy(landscapes, ['name']);
         }
+        if(accounts){
+          accountsSorted = sortBy(accounts, ['name']);
+        }
         this.setState({currentGroup: currentGroup})
         this.setState({landscapes: landscapes})
         let selectedLandscapeRows = []
         let selectedUserRows = []
+        let selectedAccountRows = []
         let stateLandscapes = []
+        let stateAccounts = []
+
         if (currentGroup.landscapes) {
             for (var i = 0; i < currentGroup.landscapes.length; i++) {
                 landscapesSorted.find((ls, index) => {
@@ -139,6 +144,17 @@ class EditGroup extends Component {
                         selectedLandscapeRows.push(index)
                     }
                     stateLandscapes.push(ls)
+                })
+            }
+        }
+        if (currentGroup.accounts) {
+            for (var i = 0; i < currentGroup.accounts.length; i++) {
+                accountsSorted.find((ls, index) => {
+                    if (currentGroup.accounts[i] === ls._id) {
+                        ls.selected = true;
+                        selectedAccountRows.push(index)
+                    }
+                    stateAccounts.push(ls)
                 })
             }
         }
@@ -173,6 +189,7 @@ class EditGroup extends Component {
         this.setState({isAdmin: isAdmin})
         this.setState({selectedLandscapeRows: selectedLandscapeRows})
         this.setState({selectedUserRows: selectedUserRows})
+        this.setState({selectedAccountRows: selectedAccountRows})
 
         if (currentGroup.permissions) {
             if (currentGroup.permissions.length === 5) {
@@ -193,12 +210,12 @@ class EditGroup extends Component {
                 }
             })
         }
-        this.setState({stateLandscapes: landscapesSorted, stateUsers})
+        this.setState({stateLandscapes: landscapesSorted, stateUsers, stateAccounts: accountsSorted})
 
     }
 
     componentWillReceiveProps(nextProps) {
-        const {loading, groups, landscapes, users, params} = nextProps
+        const {loading, groupById, landscapes, accounts, users, params} = nextProps
         let currentUser = {
           id: auth.getUserInfo()._id,
           role: auth.getUserInfo().role
@@ -208,10 +225,8 @@ class EditGroup extends Component {
           isAdmin = true
         }
         let currentGroup = {};
-        if (groups) {
-            currentGroup = groups.find(ls => {
-                return ls._id === params.id
-            })
+        if (groupById && (groupById._id === params.id)) {
+            currentGroup = groupById
             if (currentGroup) {
                 this.setState({description: currentGroup.description})
                 this.setState({name: currentGroup.name})
@@ -224,6 +239,7 @@ class EditGroup extends Component {
         }
         var usersSorted = [];
         var landscapesSorted = [];
+        var accountsSorted = [];
         if(users){
           usersSorted = sortBy(users, ['lastName']);
           this.setState({users: usersSorted})
@@ -231,12 +247,17 @@ class EditGroup extends Component {
         if(landscapes){
           landscapesSorted = sortBy(landscapes, ['name']);
         }
+        if(accounts){
+          accountsSorted = sortBy(accounts, ['name']);
+        }
         this.setState({currentGroup: currentGroup})
         this.setState({landscapes: landscapes})
         let selectedLandscapeRows = []
         let selectedUserRows = []
+        let selectedAccountRows = []
         let userImageUsers = []
         let stateLandscapes = []
+        let stateAccounts = []
         if (currentGroup.landscapes) {
             for (var i = 0; i < currentGroup.landscapes.length; i++) {
                 landscapesSorted.find((ls, index) => {
@@ -245,6 +266,17 @@ class EditGroup extends Component {
                         selectedLandscapeRows.push(index)
                     }
                     stateLandscapes.push(ls)
+                })
+            }
+        }
+        if (currentGroup.accounts) {
+            for (var i = 0; i < currentGroup.accounts.length; i++) {
+                accountsSorted.find((ls, index) => {
+                    if (currentGroup.accounts[i] === ls._id) {
+                        ls.selected = true;
+                        selectedAccountRows.push(index)
+                    }
+                    stateAccounts.push(ls)
                 })
             }
         }
@@ -301,7 +333,7 @@ class EditGroup extends Component {
                 }
             })
         }
-        this.setState({stateLandscapes: landscapesSorted, stateUsers})
+        this.setState({stateLandscapes: landscapesSorted, stateUsers, stateAccounts: accountsSorted, selectedAccountRows})
     }
 
     componentDidMount() {
@@ -322,13 +354,11 @@ class EditGroup extends Component {
 
         let self = this
         const {animated, viewEntersAnim} = this.state
-        const {loading, groups, landscapes, users, params} = this.props
+        const {loading, groupById, landscapes, users, accounts, params} = this.props
         let stateCurrentGroup = this.state.currentGroup || {
             name: '',
             description: ''
         }
-        let selectedLandscapeRows = []
-        let selectedUserRows = []
 
         if (loading || this.state.loading) {
             return (
@@ -373,18 +403,6 @@ class EditGroup extends Component {
                 <div style={styles.root}>
 
                 <Card style={{padding:20}}>
-                      <Snackbar
-                        open={this.state.successOpen}
-                        message="Group successfully saved."
-                        autoHideDuration={3000}
-                        onRequestClose={this.handleRequestClose}
-                      />
-                      <Snackbar
-                        open={this.state.failOpen}
-                        message="Error saving group."
-                        autoHideDuration={3000}
-                        onRequestClose={this.handleRequestClose}
-                      />
                     <Row center='xs' middle='xs' className={cx({'animatedViews': animated, 'view-enter': viewEntersAnim})}>
                     <Snackbar open={this.state.successOpen} message="Group successfully updated." autoHideDuration={3000} onRequestClose={this.handleRequestClose}/>
                     <Snackbar open={this.state.failOpen} message="Error updating group" autoHideDuration={3000} onRequestClose={this.handleRequestClose}/>
@@ -517,6 +535,27 @@ class EditGroup extends Component {
                                 <TableFooter adjustForCheckbox={this.state.showCheckboxes}></TableFooter>
                             </Table>
                         </Tab>
+                        <Tab label="Accounts" key="4">
+                            <Table key="accountsTable" height={this.state.height} fixedHeader={this.state.fixedHeader} fixedFooter={this.state.fixedFooter} selectable={this.state.selectable} multiSelectable={this.state.multiSelectable} onRowSelection={this.handleOnRowSelectionAccounts}>
+                                <TableHeader displaySelectAll={this.state.showCheckboxes} adjustForCheckbox={this.state.showCheckboxes} enableSelectAll={this.state.enableSelectAll}>
+                                    <TableRow>
+                                        <TableHeaderColumn tooltip="Name">Name</TableHeaderColumn>
+                                        <TableHeaderColumn tooltip="Region">Region</TableHeaderColumn>
+                                        <TableHeaderColumn tooltip="Created At">Created At</TableHeaderColumn>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody displayRowCheckbox={this.state.showCheckboxes} deselectOnClickaway={false} showRowHover={this.state.showRowHover} stripedRows={false}>
+                                    {this.state.stateAccounts.map((row, index) => (
+                                        <TableRow key={row._id} selected={this.state.selectedAccountRows.indexOf(index) !== -1}>
+                                            <TableRowColumn>{row.name}</TableRowColumn>
+                                            <TableRowColumn>{row.region}</TableRowColumn>
+                                            <TableRowColumn>{row.createdAt}</TableRowColumn>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                                <TableFooter adjustForCheckbox={this.state.showCheckboxes}></TableFooter>
+                            </Table>
+                        </Tab>
                     </Tabs>
                 </Row>
 
@@ -626,6 +665,10 @@ class EditGroup extends Component {
         this.setState({selectedLandscapeRows: selectedRows})
     }
 
+    handleOnRowSelectionAccounts = selectedRows => {
+        this.setState({selectedAccountRows: selectedRows})
+    }
+
     handlesOnCheck = event => {
         var isChecked = this.state.checkAll;
         if (isChecked) {
@@ -666,20 +709,22 @@ class EditGroup extends Component {
         const {router} = this.context
         this.setState({loading: true})
         event.preventDefault()
+        this.setState({loading: true})
 
-        let groupToCreate = {
+        let groupToEdit = {
             name: this.state.name,
             description: this.state.description,
             _id: this.state.currentGroup._id,
-            imageUri: this.state.croppedImg
+            imageUri: this.state.croppedImg || this.state.currentGroup.imageUri
         };
 
-        groupToCreate.permissions = this.handlesCreatePermission()
-        groupToCreate.users = []
-        groupToCreate.landscapes = []
+        groupToEdit.permissions = this.handlesCreatePermission()
+        groupToEdit.users = []
+        groupToEdit.landscapes = []
+        groupToEdit.accounts = []
         if (this.state.selectedLandscapeRows) {
             for (var i = 0; i < this.state.selectedLandscapeRows.length; i++) {
-                groupToCreate.landscapes.push(this.state.stateLandscapes[this.state.selectedLandscapeRows[i]]._id)
+                groupToEdit.landscapes.push(this.state.stateLandscapes[this.state.selectedLandscapeRows[i]]._id)
             }
         }
         if (this.state.selectedUserRows) {
@@ -687,24 +732,40 @@ class EditGroup extends Component {
                 if(this.state.users[this.state.selectedUserRows[i]].role === 'admin'){
                   this.state.users[this.state.selectedUserRows[i]].isAdmin = true;
                 }
-                groupToCreate.users.push({
+                groupToEdit.users.push({
                     userId: this.state.users[this.state.selectedUserRows[i]]._id,
                     isAdmin: this.state.users[this.state.selectedUserRows[i]].isAdmin || false
                 })
             }
         }
+        if (this.state.selectedAccountRows) {
+            for (var i = 0; i < this.state.selectedAccountRows.length; i++) {
+              groupToEdit.accounts.push(this.state.stateAccounts[this.state.selectedAccountRows[i]]._id)
+
+            }
+        }
+        console.log('groupToEdit', groupToEdit)
         this.props.EditGroupWithMutation({
             variables: {
-                group: groupToCreate
+                group: groupToEdit
             }
         }).then(({data}) => {
-            this.props.refetchGroups({}).then(({data}) => {
-                this.setState({successOpen: true})
-
-                router.push({pathname: '/groups'})
-            }).catch((error) => {
-                this.setState({loading: false})
+          console.log('updated')
+            this.props.refetchGroup({}).then(() => {
+              console.log('refetched group')
+              this.props.refetchGroups({}).then(({data}) => {
+                  console.log('refetched groups')
+                  this.setState({successOpen: true})
+                  this.setState({loading: false})
+                  this.props.refetchLandscapes({}).then(({data}) => {
+                    
+                    router.push({pathname: '/groups'})
+                  })
+              }).catch((error) => {
+                  this.setState({loading: false})
+              })
             })
+
         }).catch((error) => {
             this.setState({failOpen: true})
             this.setState({loading: false})

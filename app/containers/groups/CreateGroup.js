@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import { graphql } from 'react-apollo'
 import { bindActionCreators } from 'redux'
 import * as viewsActions from '../../redux/modules/views'
+import { auth } from '../../services/auth'
 
 /* -----------------------------------------
   GraphQL - Apollo client
@@ -32,7 +33,23 @@ import * as viewsActions from '../../redux/modules/views'
          }
      }
   `
-
+  const AccountsQuery = gql `
+      query getAccounts {
+          accounts {
+              _id,
+              name,
+              region,
+              createdAt,
+              endpoint,
+              caBundlePath,
+              rejectUnauthorizedSsl,
+              signatureBlock,
+              isOtherRegion,
+              accessKeyId,
+              secretAccessKey
+          }
+      }
+   `
  const CreateGroupWithMutation = graphql(createGroupMutation)(CreateGroup)
 
 //
@@ -50,22 +67,24 @@ const LandscapeQuery = gql `
         }
     }
  `
-const GroupQuery = gql `
-    query getGroups {
-        groups {
-            _id,
-            name,
-            users{
-              isAdmin,
-              userId
-            },
-            imageUri,
-            description,
-            landscapes,
-            permissions
-        }
-    }
- `
+ var user = auth.getUserInfo() || {}
+ const GroupQuery = gql `
+     query getGroupsByUser($userId: String, $isGlobalAdmin: Boolean) {
+         groupsByUser(id: $userId, isGlobalAdmin: $isGlobalAdmin ) {
+             _id,
+             name,
+             users{
+               isAdmin,
+               userId
+             },
+             imageUri,
+             description,
+             landscapes,
+             permissions
+         }
+     }
+
+  `
  // infoLinkText,
  // img,
  // createdBy
@@ -77,6 +96,13 @@ const GroupsWithQuery = graphql(UserQuery, {
         loading
     })
 })
+(graphql(AccountsQuery, {
+    props: ({ data: { loading, accounts } }) => ({
+        accounts,
+        loading
+    })
+  }
+)
 (graphql(LandscapeQuery, {
     props: ({ data: { loading, landscapes } }) => ({
         landscapes,
@@ -85,16 +111,16 @@ const GroupsWithQuery = graphql(UserQuery, {
   }
 )
 (graphql(GroupQuery, {
-    props: ({ data: { loading, groups, refetch } }) => ({
-        groups,
+     options: { variables: { userId: user._id || '', isGlobalAdmin: (user.role === 'admin') || false } },
+    props: ({ data: { loading, groupsByUser, refetch } }) => ({
+        groupsByUser,
         loading,
         refetchGroups: refetch
     })
-  }
-)
+})
 (
   graphql(createGroupMutation, {name: 'CreateGroupWithMutation'})
-(CreateGroup))))
+(CreateGroup)))))
 /* -----------------------------------------
   Redux
  ------------------------------------------*/

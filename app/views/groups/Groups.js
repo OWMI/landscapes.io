@@ -37,33 +37,9 @@ class Groups extends Component {
 
     render() {
         const { animated, viewEntersAnim } = this.state
-        const { loading, groups } = this.props
-
-        let stateGroups = groups || []
+        const { loading, groupsByUser } = this.props
+        let stateGroups = groupsByUser || []
         const user = auth.getUserInfo();
-
-        if(user.role !== 'admin'){
-          if(groups){
-            stateGroups = []
-            groups.map(group => group.users.map(user => {
-              if(user.userId === auth.getUserInfo()._id){
-                if(!group.imageUri)
-                group.imageUri = defaultImage;
-                stateGroups.push(group)
-              }
-              })
-            )
-          }
-        }
-        else{
-          stateGroups.map(group => {
-            if(!group.imageUri){
-              group.imageUri = defaultImage;
-            }
-          })
-        }
-
-
 
         if (loading) {
             return (
