@@ -1,5 +1,6 @@
 import moment from 'moment'
 import cx from 'classnames'
+import { compact, orderBy } from 'lodash'
 import { Loader } from '../../components'
 import React, { Component, PropTypes } from 'react'
 import { IoCube, IoClose } from 'react-icons/lib/io'
@@ -21,86 +22,108 @@ class LandscapeDetails extends Component {
         currentDeployments: [],
         addedDocuments: []
     }
-    componentWillReceiveProps(nextProps){
-      let self = this
-      const { activeLandscape, deploymentsByLandscapeId, deploymentStatus, landscapes, params } = nextProps
-      let _landscapes = landscapes || []
-      let currentLandscape = activeLandscape;
-      if(!currentLandscape)
-          currentLandscape = _landscapes.find(ls => { return ls._id === params.id })
 
-      if(!currentLandscape){
-        currentLandscape = {cloudFormationTemplate: '{}'}
-      }
-      if(currentLandscape && currentLandscape.documents){
-        this.setState({addedDocuments: currentLandscape.documents});
-      }
-      this.setState({currentLandscape})
-      var cloudFormationParameters = {}
-      deploymentsByLandscapeId({
-          variables: { landscapeId: params.id }
-      }).then(({ data }) => {
-          return Promise.all(data.deploymentsByLandscapeId.map(deployment => {
-              cloudFormationParameters[deployment._id] = deployment.cloudFormationParameters
-              this.setState({cloudFormationParameters})
-              if (deployment.isDeleted || deployment.awsErrors) {
-                  return {
-                      data: {
-                          deploymentStatus: deployment
-                      }
-                  }
-              }
-              return deploymentStatus({
-                  variables: { deployment }
-              })
-          }))
-      }).then(deploymentStatusArray => {
-          self.setState({
-              currentDeployments: deploymentStatusArray.map(({ data }) => { return data.deploymentStatus })
-          })
-      })
-      let paramDetails = []
-      if(currentLandscape){
-        let parsedCFTemplate = JSON.parse(currentLandscape.cloudFormationTemplate)
-        if(parsedCFTemplate.Parameters){
-          Object.keys(parsedCFTemplate.Parameters).map((key, index) => {
-              let _param = parsedCFTemplate.Parameters[key]
-              for (let k in _param) {
-                  if (!paramDetails[index]) {
-                      paramDetails[index] = []
-                  }
+    componentWillReceiveProps(nextProps) {
+        const self = this
+        const { activeLandscape, deploymentsByLandscapeId, deploymentStatus, landscapes, params } = nextProps
 
-                  paramDetails[index][k] = _param[k]
-                  paramDetails[index].key = key
-              }
+        let _landscapes = landscapes || []
+        let currentLandscape = activeLandscape
+
+        if (!currentLandscape)
+            currentLandscape = _landscapes.find(ls => {
+                return ls._id === params.id
             })
-        }
-      }
 
-        this.setState({paramDetails})
+        if (!currentLandscape) {
+            currentLandscape = {
+                cloudFormationTemplate: '{}'
+            }
+        }
+
+        if (currentLandscape && currentLandscape.documents) {
+            this.setState({ addedDocuments: currentLandscape.documents })
+        }
+
+        this.setState({ currentLandscape })
+
+        let cloudFormationParameters = {}
+
+        deploymentsByLandscapeId({
+            variables: {
+                landscapeId: params.id
+            }
+        }).then(({ data }) => {
+            return Promise.all(data.deploymentsByLandscapeId.map(deployment => {
+                cloudFormationParameters[deployment._id] = deployment.cloudFormationParameters
+                this.setState({cloudFormationParameters})
+                if (deployment.isDeleted || deployment.awsErrors) {
+                    return {
+                        data: {
+                            deploymentStatus: deployment
+                        }
+                    }
+                }
+                return deploymentStatus({variables: {
+                        deployment
+                    }})
+            }))
+        }).then(deploymentStatusArray => {
+            self.setState({
+                currentDeployments: deploymentStatusArray.map(({ data }) => {
+                    return data.deploymentStatus
+                })
+            })
+        })
+
+        let paramDetails = []
+
+        if (currentLandscape) {
+            let parsedCFTemplate = JSON.parse(currentLandscape.cloudFormationTemplate)
+            if (parsedCFTemplate.Parameters) {
+                Object.keys(parsedCFTemplate.Parameters).map((key, index) => {
+                    let _param = parsedCFTemplate.Parameters[key]
+                    for (let k in _param) {
+                        if (!paramDetails[index]) {
+                            paramDetails[index] = []
+                        }
+
+                        paramDetails[index][k] = _param[k]
+                        paramDetails[index].key = key
+                    }
+                })
+            }
+        }
+
+        this.setState({ paramDetails })
     }
+
     componentWillMount() {
         let self = this
-        const { activeLandscape, deploymentsByLandscapeId, deploymentStatus, landscapes, params } = this.props
         let _landscapes = landscapes || []
-        let currentLandscape = activeLandscape;
-        if(!currentLandscape)
-            currentLandscape = _landscapes.find(ls => { return ls._id === params.id })
+        let currentLandscape = activeLandscape
+        let cloudFormationParameters = {}
+        const { activeLandscape, deploymentsByLandscapeId, deploymentStatus, landscapes, params } = this.props
 
-        if(!currentLandscape){
-          currentLandscape = {cloudFormationTemplate: '{}'}
+        if (!currentLandscape) {
+            currentLandscape = _landscapes.find(ls => { return ls._id === params.id })
+            currentLandscape = { cloudFormationTemplate: '{}' }
         }
-        if(currentLandscape && currentLandscape.documents){
-          this.setState({addedDocuments: currentLandscape.documents});
+
+        if (currentLandscape && currentLandscape.documents) {
+          this.setState({ addedDocuments: currentLandscape.documents })
         }
-        this.setState({currentLandscape})
-        var cloudFormationParameters = {}
+
+        this.setState({ currentLandscape })
+
         deploymentsByLandscapeId({
             variables: { landscapeId: params.id }
         }).then(({ data }) => {
             return Promise.all(data.deploymentsByLandscapeId.map(deployment => {
                 cloudFormationParameters[deployment._id] = deployment.cloudFormationParameters
-                this.setState({cloudFormationParameters})
+
+                this.setState({ cloudFormationParameters })
+
                 if (deployment.isDeleted || deployment.awsErrors) {
                     return {
                         data: {
@@ -114,30 +137,33 @@ class LandscapeDetails extends Component {
             }))
         }).then(deploymentStatusArray => {
             self.setState({
-                currentDeployments: deploymentStatusArray.map(({ data }) => { return data.deploymentStatus })
+                currentDeployments: deploymentStatusArray.map(({ data }) => {
+                    return data.deploymentStatus
+                })
             })
         })
 
         let parsedCFTemplate = JSON.parse(currentLandscape.cloudFormationTemplate)
         let paramDetails = []
-        if(currentLandscape){
-          let parsedCFTemplate = JSON.parse(currentLandscape.cloudFormationTemplate)
-          if(parsedCFTemplate.Parameters){
-            Object.keys(parsedCFTemplate.Parameters).map((key, index) => {
-                let _param = parsedCFTemplate.Parameters[key]
-                for (let k in _param) {
-                    if (!paramDetails[index]) {
-                        paramDetails[index] = []
+
+        if (currentLandscape) {
+            let parsedCFTemplate = JSON.parse(currentLandscape.cloudFormationTemplate)
+            if (parsedCFTemplate.Parameters) {
+                Object.keys(parsedCFTemplate.Parameters).map((key, index) => {
+                    let _param = parsedCFTemplate.Parameters[key]
+                    for (let k in _param) {
+                        if (!paramDetails[index]) {
+                            paramDetails[index] = []
+                        }
+
+                        paramDetails[index][k] = _param[k]
+                        paramDetails[index].key = key
                     }
-
-                    paramDetails[index][k] = _param[k]
-                    paramDetails[index].key = key
-                }
-              })
-          }
+                })
+            }
         }
-          this.setState({paramDetails})
 
+        this.setState({ paramDetails })
     }
 
     componentDidMount() {
@@ -160,8 +186,11 @@ class LandscapeDetails extends Component {
         const { animated, viewEntersAnim, currentDeployment, currentDeployments, deleteType, refetchedLandscapes, cloudFormationParameters, currentLandscape, paramDetails } = this.state
 
         let _landscapes = landscapes || []
-        let runningStatus = ['CREATE_COMPLETE', 'ROLLBACK_COMPLETE', 'ROLLBACK_COMPLETE', 'DELETE_COMPLETE', 'UPDATE_COMPLETE', 'UPDATE_ROLLBACK_COMPLETE']
-        let pendingStatus = ['CREATE_IN_PROGRESS', 'ROLLBACK_IN_PROGRESS', 'DELETE_IN_PROGRESS', 'UPDATE_IN_PROGRESS', 'UPDATE_COMPLETE_CLEANUP_IN_PROGRESS', 'UPDATE_ROLLBACK_IN_PROGRESS', 'UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS', 'REVIEW_IN_PROGRESS']
+        let sortedCurrentDeployments = compact(currentDeployments)
+
+        if (sortedCurrentDeployments.length) {
+            sortedCurrentDeployments = orderBy(currentDeployments, value => { return new Date(value.createdAt) }, ['desc'])
+        }
 
         // for direct request
         // if (activeLandscape && activeLandscape._id !== params.id)
@@ -260,18 +289,19 @@ class LandscapeDetails extends Component {
                             </Dialog>
                         </CardHeader>
                         {
-                            currentDeployments.map((deployment, index) => {
+                            sortedCurrentDeployments.map((deployment, index) => {
 
                                 let _stackStatus = {}
-                                if (deployment && deployment.isDeleted) {
+
+                                if ((deployment && deployment.stackStatus === 'ROLLBACK_COMPLETE') || (deployment && deployment.awsErrors)) {
+                                    _stackStatus = {
+                                        status: deployment.stackStatus || 'FAILED',
+                                        color: 'rgb(236, 11, 67)'
+                                    }
+                                } else if (deployment && deployment.isDeleted) {
                                     _stackStatus = {
                                         status: 'DELETED',
                                         color: 'rgb(204, 204, 204)'
-                                    }
-                                } else if (deployment && deployment.awsErrors) {
-                                    _stackStatus = {
-                                        status: 'FAILED',
-                                        color: 'rgb(236, 11, 67)'
                                     }
                                 } else if (deployment && deployment.stackStatus === 'CREATE_COMPLETE') {
                                     _stackStatus = {

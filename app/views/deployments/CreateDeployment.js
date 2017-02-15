@@ -203,7 +203,7 @@ class CreateDeployment extends Component {
             endpoint: account.endpoint || '',
             location: account.region || '',
             caBundlePath: account.caBundlePath || '',
-            rejectUnauthorizedSsl: account.rejectUnauthorizedSsl || '',
+            rejectUnauthorizedSsl: account.rejectUnauthorizedSsl || false,
             signatureBlock: account.signatureBlock || ''
         })
     }
@@ -248,8 +248,7 @@ class CreateDeployment extends Component {
             variables: { deployment: deploymentToCreate }
          }).then(({ data }) => {
             router.push({ pathname: `/landscape/${this.state.currentLandscape._id}` })
-        }).catch(error => {
-        })
+        }).catch(error => console.log(err))
     }
 }
 
