@@ -27,33 +27,45 @@ class CreateDeployment extends Component {
     }
 
     componentWillMount() {
-      const { landscapes, params } = this.props
-      let _landscapes = landscapes || []
-      const currentLandscape = _landscapes.find(ls => { return ls._id === params.landscapeId })
-      if(currentLandscape){
-        const template = JSON.parse(currentLandscape.cloudFormationTemplate)
-        this.setState({
-          templateDescription: template.Description,
-          templateParameters: template.Parameters,
-          currentLandscape,
-          landscapeAccounts: auth.getUserInfo().accounts[params.landscapeId] || []
+        let _landscapes = landscapes || []
+        let landscapeAccounts = []
+        const { landscapes, params } = this.props
+        const currentLandscape = _landscapes.find(ls => { return ls._id === params.landscapeId })
 
-        })
-      }
+        if (auth.getUserInfo().accounts && auth.getUserInfo().accounts[params.landscapeId]) {
+            landscapeAccounts = auth.getUserInfo().accounts[params.landscapeId]
+        }
+
+        if (currentLandscape) {
+            const template = JSON.parse(currentLandscape.cloudFormationTemplate)
+            this.setState({
+                templateDescription: template.Description,
+                templateParameters: template.Parameters,
+                currentLandscape,
+                landscapeAccounts
+            })
+        }
     }
+
     componentWillReceiveProps(nextProps) {
-      const { landscapes, params } = nextProps;
-      let _landscapes = landscapes || [];
-      const currentLandscape = _landscapes.find(ls => { return ls._id === params.landscapeId })
-      if(currentLandscape){
-        const template = JSON.parse(currentLandscape.cloudFormationTemplate)
-        this.setState({
-          templateDescription: template.Description,
-          templateParameters: template.Parameters,
-          currentLandscape,
-          landscapeAccounts: auth.getUserInfo().accounts[params.landscapeId] || []
-        })
-      }
+        let _landscapes = landscapes || []
+        let landscapeAccounts = []
+        const { landscapes, params } = nextProps;
+        const currentLandscape = _landscapes.find(ls => { return ls._id === params.landscapeId })
+
+        if (auth.getUserInfo().accounts && auth.getUserInfo().accounts[params.landscapeId]) {
+            landscapeAccounts = auth.getUserInfo().accounts[params.landscapeId]
+        }
+
+        if (currentLandscape) {
+            const template = JSON.parse(currentLandscape.cloudFormationTemplate)
+            this.setState({
+                templateDescription: template.Description,
+                templateParameters: template.Parameters,
+                currentLandscape,
+                landscapeAccounts
+            })
+        }
     }
 
     componentWillUnmount() {
@@ -106,11 +118,15 @@ class CreateDeployment extends Component {
                             <SelectField id='accountName' floatingLabelText='Account Name' value={this.state.accountName} onChange={this.handlesAccountChange}
                                 floatingLabelStyle={{ left: '0px' }} className={cx( { 'two-field-row': true } )}>
                                 {
-                                    landscapeAccounts.map((acc, index) => {
-                                        return (
-                                            <MenuItem key={Object.keys(acc)[0]} value={acc[Object.keys(acc)[0]]} primaryText={acc[Object.keys(acc)[0]]}/>
-                                        )
-                                    })
+                                    landscapeAccounts && landscapeAccounts.length
+                                    ?
+                                        landscapeAccounts.map((acc, index) => {
+                                            return (
+                                                <MenuItem key={Object.keys(acc)[0]} value={acc[Object.keys(acc)[0]]} primaryText={acc[Object.keys(acc)[0]]}/>
+                                            )
+                                        })
+                                    :
+                                        null
                                 }
                             </SelectField>
                             <SelectField id='location' floatingLabelText='Region' value={this.state.location} onChange={this.handlesRegionChange}
@@ -129,7 +145,7 @@ class CreateDeployment extends Component {
 
                             <TextField id='accessKeyId' ref='accessKeyId' value={this.state.accessKeyId} floatingLabelText='Access Key ID' fullWidth={true}/>
 
-                            <TextField id='secretAccessKey' ref='secretAccessKey' value={ secretAccessKey ? secretAccessKey.substring(0, 255) : '' } multiLine={true} rows={4}
+                            <TextField id='secretAccessKey' ref='secretAccessKey' defaultValue={ secretAccessKey ? secretAccessKey.substring(0, 255) : '' } multiLine={true} rows={4}
                                 maxLength={255} floatingLabelStyle={{ left: '0px' }} floatingLabelText='Secret Access Key' fullWidth={true}/>
 
                             <CardHeader title='Advanced' titleStyle={{ fontSize: '13px', paddingRight: 0 }} actAsExpander={true} showExpandableButton={true}/>
@@ -248,7 +264,7 @@ class CreateDeployment extends Component {
             variables: { deployment: deploymentToCreate }
          }).then(({ data }) => {
             router.push({ pathname: `/landscape/${this.state.currentLandscape._id}` })
-        }).catch(error => console.log(err))
+        }).catch(error => console.log(error))
     }
 }
 

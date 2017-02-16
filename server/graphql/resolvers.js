@@ -56,10 +56,10 @@ const resolveFunctions = {
               return Group.find().sort('-created').populate('user', 'displayName').exec((err, groups) => {
                   if (err) return reject(err)
                   return User.findById(args.id).exec((err, user) =>{
-                    if(user.role === 'admin'){
+                    if (user && user.role === 'admin') {
                       return resolve(groups)
                     }
-                    else{
+                    else {
                       return resolve(lodash.filter(groups, lodash.flow(lodash.property('users'), lodash.partialRight(lodash.some, { userId: args.id }))));
                     }
                   })
