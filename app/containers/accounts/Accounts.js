@@ -29,9 +29,10 @@ const AccountsQuery = gql `
  // createdBy
 
 const AccountsWithQuery = graphql(AccountsQuery, {
-    props: ({ data: { loading, accounts } }) => ({
+    props: ({ data: { loading, accounts, refetch } }) => ({
         accounts,
-        loading
+        loading,
+        refetchAccounts:refetch
     })
 })
 
