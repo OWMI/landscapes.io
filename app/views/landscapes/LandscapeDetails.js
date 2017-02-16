@@ -250,10 +250,10 @@ class LandscapeDetails extends Component {
                     </Col>
                 </Row>
 
-              <Card style={{padding:20}}>
+              <Card style={{ padding:20 }}>
                 <Row middle='xs'>
                     <Col xs={1} style={{ textAlign: 'left' }}>
-                        <img src={currentLandscape.imageUri} style={{width: 85}} />
+                        <img src={currentLandscape.imageUri} style={{ width: 85 }} />
                     </Col>
                     <Col xs={4} style={{ textAlign: 'left', marginLeft:20 }}>
                         <Row><h4>{currentLandscape.name}</h4></Row>
@@ -263,13 +263,13 @@ class LandscapeDetails extends Component {
                     <Col xs={7}>
                     </Col>
                 </Row>
-                <Row middle='xs' style={{flex: 1, marginLeft: 10}}>
+                <Row middle='xs' style={{ flex: 1, marginLeft: 10 }}>
                     <Col style={{ textAlign: 'left', flex: 1 }}>
                         <h5>{currentLandscape.description}</h5>
                     </Col>
                 </Row>
-                <Tabs
-                  tabItemContainerStyle={{backgroundColor: materialTheme.palette.primary1Color}}>
+
+                <Tabs tabItemContainerStyle={{ backgroundColor: materialTheme.palette.primary1Color }}>
                     <Tab label='Deployments'>
                         <CardHeader style={{ background: '#e6e6e6', padding: '0 25px' }}>
                             <Row between='xs' style={{ marginTop: '-10px' }}>
@@ -290,7 +290,6 @@ class LandscapeDetails extends Component {
                         </CardHeader>
                         {
                             sortedCurrentDeployments.map((deployment, index) => {
-                                console.log('%c deployment ', 'background: #1c1c1c; color: deepskyblue', deployment)
                                 let _stackStatus = {}
 
                                 if ((deployment && deployment.stackStatus === 'ROLLBACK_COMPLETE') || (deployment && deployment.awsErrors)) {
@@ -354,118 +353,107 @@ class LandscapeDetails extends Component {
                             })
                         }
                     </Tab>
-                        <Tab label='Documents'>
-                          {
-                            this.state.addedDocuments.length > 0
-                            ?
-                            <Row style={{width:'95%', marginLeft: 10, borderBottom: '1px solid #DCDCDC', borderTop:  '1px solid #DCDCDC'}}>
-                                <Table selectable={false} fixedHeader={true}>
-                                  <TableHeader adjustForCheckbox={false} displaySelectAll={false}>
-                                    <TableRow>
-                                      <TableHeaderColumn>Type</TableHeaderColumn>
-                                      <TableHeaderColumn>Name</TableHeaderColumn>
-                                      <TableHeaderColumn>URL</TableHeaderColumn>
-                                    </TableRow>
-                                  </TableHeader>
-                                  <TableBody displayRowCheckbox={false}>
-                                    {
-                                      this.state.addedDocuments.map((document, index)=>{
-                                        return(
-                                          <TableRow key={index}>
-                                            <TableRowColumn>{document.type}</TableRowColumn>
-                                            <TableRowColumn>{document.name}</TableRowColumn>
-                                            <TableRowColumn><a target="_blank" href={document.url}>{document.url}</a></TableRowColumn>
-                                          </TableRow>
-                                        )
-                                      })
-                                    }
-                                  </TableBody>
-                                </Table>
-                            </Row>
-                            :
-                            <div>None</div>
-                          }
-                        </Tab>
 
-                        <Tab label='Template'>
-                            <textarea rows={100} value={currentLandscape.cloudFormationTemplate} readOnly={true}
-                                style={{ background: '#f9f9f9', fontFamily: 'monospace', width: '100%' }}/>
-                        </Tab>
-
-                        {
-                          parsedCFTemplate.Resources
-                            ?
-                                <Tab label='Resources'>
-                                    <Table>
-                                        <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
-                                            <TableRow>
-                                                <TableHeaderColumn></TableHeaderColumn>
-                                                <TableHeaderColumn>Resource</TableHeaderColumn>
-                                                <TableHeaderColumn>Resource Type</TableHeaderColumn>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody displayRowCheckbox={false}>
-                                            {
-                                                Object.keys(parsedCFTemplate.Resources).map((res, index) => {
-                                                    return (
-                                                        <TableRow key={`${index}`}>
-                                                            <TableRowColumn>{index + 1}</TableRowColumn>
-                                                            <TableRowColumn>{res}</TableRowColumn>
-                                                            <TableRowColumn>{parsedCFTemplate.Resources[res].Type}</TableRowColumn>
-                                                        </TableRow>
-                                                    )
-                                                })
-                                            }
-                                        </TableBody>
-                                    </Table>
-                                </Tab>
-                            :
-                                <Tab label='Resources'>
-                                  <p style={{flex: 1, textAlign: 'center', marginTop: 5}}>None</p>
-                                </Tab>
-                        }
-
-                        {
-                          parsedCFTemplate.Parameters
+                    <Tab label='Documents'>
+                      {
+                          this.state.addedDocuments.length > 0
                           ?
-                              <Tab label='Parameters'>
-                                  {
-                                    paramDetails.map((p, i) => {
-                                        return (
-                                          <Card key={i}>
-                                            <CardHeader title={p.key} titleStyle={{ fontSize: '13px', paddingRight: 0 }} actAsExpander={true} showExpandableButton={true}/>
-                                            <CardText key={i} expandable={true}>
-                                                <Row>
-                                                    <label style={{ margin: '0px 15px' }}>{Object.keys(p)[i]}</label>
-                                                    <label>{p.Description}</label>
-                                                </Row>
-                                            </CardText>
-                                          </Card>
-
-                                        )
-                                    })
-                                  }
-                              </Tab>
+                              <Row style={{ width:'95%', marginLeft: 10, borderBottom: '1px solid #DCDCDC', borderTop: '1px solid #DCDCDC' }}>
+                                  <Table selectable={false} fixedHeader={true}>
+                                      <TableHeader adjustForCheckbox={false} displaySelectAll={false}>
+                                          <TableRow>
+                                              <TableHeaderColumn>Type</TableHeaderColumn>
+                                              <TableHeaderColumn>Name</TableHeaderColumn>
+                                              <TableHeaderColumn>URL</TableHeaderColumn>
+                                          </TableRow>
+                                      </TableHeader>
+                                      <TableBody displayRowCheckbox={false}>
+                                        {
+                                            this.state.addedDocuments.map((document, index) => {
+                                                return (
+                                                    <TableRow key={index}>
+                                                        <TableRowColumn>{document.type}</TableRowColumn>
+                                                        <TableRowColumn>{document.name}</TableRowColumn>
+                                                        <TableRowColumn><a target="_blank" href={document.url}>{document.url}</a></TableRowColumn>
+                                                    </TableRow>
+                                                )
+                                            })
+                                        }
+                                      </TableBody>
+                                  </Table>
+                              </Row>
                           :
-                              <Tab label='Parameters'>
-                                <p style={{flex: 1, textAlign: 'center', marginTop: 5}}>None</p>
-                              </Tab>
-                        }
-                    {/*
-                      parsedCFTemplate.Mappings
-                      ?
-                      <Tab label='Mappings'>
-                        in progress
-                      </Tab>
-                      :
-                      <Tab label='Mappings'>
-                        <p style={{flex: 1, textAlign: 'center', marginTop: 5}}>None</p>
-                      </Tab>
-                  */  }
+                              <div>None</div>
+                      }
+                    </Tab>
 
-                </Tabs>
+                    <Tab label='Template'>
+                        <textarea rows={100} value={currentLandscape.cloudFormationTemplate} readOnly={true}
+                            style={{ background: '#f9f9f9', fontFamily: 'monospace', width: '100%' }}/>
+                    </Tab>
+
+                    {
+                      parsedCFTemplate.Resources
+                        ?
+                            <Tab label='Resources'>
+                                <Table>
+                                    <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
+                                        <TableRow>
+                                            <TableHeaderColumn></TableHeaderColumn>
+                                            <TableHeaderColumn>Resource</TableHeaderColumn>
+                                            <TableHeaderColumn>Resource Type</TableHeaderColumn>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody displayRowCheckbox={false}>
+                                        {
+                                            Object.keys(parsedCFTemplate.Resources).map((res, index) => {
+                                                return (
+                                                    <TableRow key={`${index}`}>
+                                                        <TableRowColumn>{index + 1}</TableRowColumn>
+                                                        <TableRowColumn>{res}</TableRowColumn>
+                                                        <TableRowColumn>{parsedCFTemplate.Resources[res].Type}</TableRowColumn>
+                                                    </TableRow>
+                                                )
+                                            })
+                                        }
+                                    </TableBody>
+                                </Table>
+                            </Tab>
+                        :
+                            <Tab label='Resources'>
+                              <p style={{ flex: 1, textAlign: 'center', marginTop: 5 }}>None</p>
+                            </Tab>
+                    }
+
+                    {
+                      parsedCFTemplate.Parameters
+                      ?
+                          <Tab label='Parameters'>
+                              {
+                                paramDetails.map((p, i) => {
+                                    return (
+                                      <Card key={i}>
+                                        <CardHeader title={p.key} titleStyle={{ fontSize: '13px', paddingRight: 0 }} actAsExpander={true} showExpandableButton={true}/>
+                                        <CardText key={i} expandable={true}>
+                                            <Row>
+                                                <label style={{ margin: '0px 15px' }}>{Object.keys(p)[i]}</label>
+                                                <label>{p.Description}</label>
+                                            </Row>
+                                        </CardText>
+                                      </Card>
+
+                                    )
+                                })
+                              }
+                          </Tab>
+                      :
+                          <Tab label='Parameters'>
+                            <p style={{flex: 1, textAlign: 'center', marginTop: 5}}>None</p>
+                          </Tab>
+                      }
+                  </Tabs>
               </Card>
-            </div>
+          </div>
         )
     }
 

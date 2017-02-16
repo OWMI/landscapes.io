@@ -9,8 +9,10 @@ const loggerMiddleware = createLogger({ level: 'info', collapsed: true })
 
 // createStore : enhancer
 const enhancer = compose(
-    applyMiddleware(thunkMiddleware, apolloClient.middleware(), // apollo middleware
-    loggerMiddleware) // logger after thunk to avoid undefined actions
+    applyMiddleware(
+        thunkMiddleware,
+        apolloClient.middleware() // apollo middleware
+    ) // logger after thunk to avoid undefined actions
 )
 
 // combine reducers
