@@ -91,10 +91,6 @@ class CreateDeployment extends Component {
         const { isGlobalAdmin, isGroupAdmin } = auth.getUserInfo()
         const { animated, viewEntersAnim, templateParameters, templateDescription, secretAccessKey, signatureBlock, landscapeAccounts, userRole } = this.state
 
-        // dervice user permissions
-        console.log('%c isGlobalAdmin ', 'background: #1c1c1c; color: deeppink', isGlobalAdmin)
-        console.log('%c isGroupAdmin ', 'background: #1c1c1c; color: limegreen', isGroupAdmin)
-
         const menuItems = [
             { text: 'Gov Cloud', value: 'us-gov-west-1' },
             { text: 'US East (Northern Virginia) Region', value: 'us-east-1' },
