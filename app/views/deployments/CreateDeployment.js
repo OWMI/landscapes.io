@@ -143,7 +143,7 @@ class CreateDeployment extends Component {
                                   {
                                       landscapeAccounts.map((acc, index) => {
                                           return (
-                                              <MenuItem key={acc._id} value={acc._id} primaryText={acc.name}/>
+                                              <MenuItem key={acc._id} value={acc.name} primaryText={acc.name}/>
                                           )
                                       })
                                   }
