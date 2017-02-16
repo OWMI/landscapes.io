@@ -133,46 +133,49 @@ export const auth = {
 
     setUserPermissions(user, groups, accounts) {
         user.permissions = {}
-        user.isGroupAdmin = false;
+        user.isGroupAdmin = false
         user.accounts = {}
-        if (user.role !== 'admin') {
-            if (groups) {
-                groups.forEach(group => {
-                    group.users.forEach(groupUser => {
-                        if (groupUser.userId === user._id) {
-                            // groups
-                              if(groupUser.isAdmin){
-                                user.isGroupAdmin = true;
-                              }
-                              user.groups.push({
-                                  groupId: group._id,
-                                  isAdmin: groupUser.isAdmin
-                              })
-                            group.landscapes.forEach(landscape => {
-                                // permissions
-                                  user.permissions[landscape] = group.permissions
-                                //accounts
-                                if(!user.accounts[landscape]){
-                                  user.accounts[landscape] = [];
-                                }
-                                var _account = {};
-                                if(group.accounts){
-                                  group.accounts.forEach(groupAccount => {
-                                    accounts.forEach(account => {
-                                      if (groupAccount === account._id) {
-                                          _account[account._id] = account.name
-                                          user.accounts[landscape].push(_account)
-                                          _account = {}
-                                      }
-                                    })
-                                  })
-                                }
-                            })
+
+        // base case
+        if (user.role === 'admin') {
+            user.isGlobalAdmin = true
+            return user
+        }
+
+        if (groups) {
+            groups.forEach(group => {
+                group.users.forEach(groupUser => {
+                    if (groupUser.userId === user._id) {
+                        // groups
+                        if (groupUser.isAdmin) {
+                            user.isGroupAdmin = true
                         }
-                    })
+                        user.groups.push({groupId: group._id, isAdmin: groupUser.isAdmin})
+                        group.landscapes.forEach(landscape => {
+                            // permissions
+                            user.permissions[landscape] = group.permissions
+                            //accounts
+                            if (!user.accounts[landscape]) {
+                                user.accounts[landscape] = []
+                            }
+                            var _account = {}
+                            if (group.accounts) {
+                                group.accounts.forEach(groupAccount => {
+                                    accounts.forEach(account => {
+                                        if (groupAccount === account._id) {
+                                            _account[account._id] = account.name
+                                            user.accounts[landscape].push(_account)
+                                            _account = {}
+                                        }
+                                    })
+                                })
+                            }
+                        })
+                    }
                 })
-            }
-          }
+            })
+        }
+
         return user
     },
 

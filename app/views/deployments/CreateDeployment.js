@@ -27,55 +27,57 @@ class CreateDeployment extends Component {
     }
 
     componentWillMount() {
-      const { landscapes, accounts, params } = this.props
-      let _landscapes = landscapes || []
-      const currentLandscape = _landscapes.find(ls => { return ls._id === params.landscapeId })
-      if(currentLandscape){
-        const template = JSON.parse(currentLandscape.cloudFormationTemplate)
-        var landscapeAccounts = [];
-        var userRole = 'user';
-        if(auth.getUserInfo().role  === 'admin'){
-          landscapeAccounts = accounts || []
-          userRole = 'admin'
+        const { landscapes, accounts, params } = this.props
+        let _landscapes = landscapes || []
+        const currentLandscape = _landscapes.find(ls => { return ls._id === params.landscapeId })
+        let landscapeAccounts = []
+
+        if (currentLandscape) {
+            const template = JSON.parse(currentLandscape.cloudFormationTemplate)
+            let userRole = 'user'
+            if (auth.getUserInfo().role === 'admin') {
+                landscapeAccounts = accounts || []
+                userRole = 'admin'
+            } else {
+                landscapeAccounts = auth.getUserInfo().accounts[params.landscapeId] || []
+                userRole = 'user'
+            }
+
+            this.setState({
+                templateDescription: template.Description,
+                templateParameters: template.Parameters,
+                currentLandscape,
+                landscapeAccounts,
+                userRole
+            })
         }
-        else{
-          landscapeAccounts = auth.getUserInfo().accounts[params.landscapeId] || []
-          userRole = 'user'
-        }
-        this.setState({
-          templateDescription: template.Description,
-          templateParameters: template.Parameters,
-          currentLandscape,
-          landscapeAccounts,
-          userRole
-        })
-      }
     }
 
     componentWillReceiveProps(nextProps) {
-      const { landscapes, accounts, params } = nextProps;
-      let _landscapes = landscapes || [];
-      const currentLandscape = _landscapes.find(ls => { return ls._id === params.landscapeId })
-      if(currentLandscape){
-        const template = JSON.parse(currentLandscape.cloudFormationTemplate)
-        var landscapeAccounts = [];
-        var userRole = 'user';
-        if(auth.getUserInfo().role  === 'admin'){
-          landscapeAccounts = accounts || []
-          userRole = 'admin'
+        const { landscapes, accounts, params } = nextProps
+        let _landscapes = landscapes || []
+        const currentLandscape = _landscapes.find(ls => { return ls._id === params.landscapeId })
+        let landscapeAccounts = []
+
+        if (currentLandscape) {
+            const template = JSON.parse(currentLandscape.cloudFormationTemplate)
+            let userRole = 'user'
+            if (auth.getUserInfo().role === 'admin') {
+                landscapeAccounts = accounts || []
+                userRole = 'admin'
+            } else {
+                landscapeAccounts = auth.getUserInfo().accounts[params.landscapeId] || []
+                userRole = 'user'
+            }
+
+            this.setState({
+                templateDescription: template.Description,
+                templateParameters: template.Parameters,
+                currentLandscape,
+                landscapeAccounts,
+                userRole
+            })
         }
-        else{
-          landscapeAccounts = auth.getUserInfo().accounts[params.landscapeId] || []
-          userRole = 'user'
-        }
-        this.setState({
-          templateDescription: template.Description,
-          templateParameters: template.Parameters,
-          currentLandscape,
-          landscapeAccounts,
-          userRole
-        })
-      }
     }
 
     componentWillUnmount() {
@@ -86,7 +88,12 @@ class CreateDeployment extends Component {
     render() {
 
         const { loading, accounts } = this.props
+        const { isGlobalAdmin, isGroupAdmin } = auth.getUserInfo()
         const { animated, viewEntersAnim, templateParameters, templateDescription, secretAccessKey, signatureBlock, landscapeAccounts, userRole } = this.state
+
+        // dervice user permissions
+        console.log('%c isGlobalAdmin ', 'background: #1c1c1c; color: deeppink', isGlobalAdmin)
+        console.log('%c isGroupAdmin ', 'background: #1c1c1c; color: limegreen', isGroupAdmin)
 
         const menuItems = [
             { text: 'Gov Cloud', value: 'us-gov-west-1' },
@@ -130,11 +137,15 @@ class CreateDeployment extends Component {
                               <SelectField id='accountName' floatingLabelText='Account Name' value={this.state.accountName} onChange={this.handlesAccountChange}
                                   floatingLabelStyle={{ left: '0px' }} className={cx( { 'two-field-row': true } )}>
                                   {
-                                      landscapeAccounts.map((acc, index) => {
-                                          return (
-                                              <MenuItem key={Object.keys(acc)[0]} value={acc[Object.keys(acc)[0]]} primaryText={acc[Object.keys(acc)[0]]}/>
-                                          )
-                                      })
+                                      landscapeAccounts && landscapeAccounts.length
+                                        ?
+                                            landscapeAccounts.map((acc, index) => {
+                                                return (
+                                                    <MenuItem key={Object.keys(acc)[0]} value={acc[Object.keys(acc)[0]]} primaryText={acc[Object.keys(acc)[0]]}/>
+                                                )
+                                            })
+                                        :
+                                            null
                                   }
                               </SelectField>
                               :
@@ -165,8 +176,25 @@ class CreateDeployment extends Component {
 
                             <TextField id='accessKeyId' ref='accessKeyId' value={this.state.accessKeyId} floatingLabelText='Access Key ID' fullWidth={true}/>
 
-                            <TextField id='secretAccessKey' ref='secretAccessKey' defaultValue={ secretAccessKey ? secretAccessKey.substring(0, 255) : '' } multiLine={true} rows={4}
-                                maxLength={255} floatingLabelStyle={{ left: '0px' }} floatingLabelText='Secret Access Key' fullWidth={true}/>
+                            {
+                                isGlobalAdmin || isGroupAdmin
+                                ?
+                                    secretAccessKey
+                                    ?
+                                        <TextField id='secretAccessKey' ref='secretAccessKey' value={secretAccessKey.substring(0, 255)} multiLine={true} rows={4}
+                                            maxLength={255} floatingLabelStyle={{ left: '0px' }} floatingLabelText='Secret Access Key' fullWidth={true}/>
+                                    :
+                                        <TextField id='secretAccessKey' ref='secretAccessKey' multiLine={true} rows={4}
+                                            maxLength={255} floatingLabelStyle={{ left: '0px' }} floatingLabelText='Secret Access Key' fullWidth={true}/>
+                                :
+                                    secretAccessKey
+                                        ?
+                                            <TextField id='secretAccessKey' ref='secretAccessKey' value={secretAccessKey.replace(/./g, '*')} multiLine={true} rows={4}
+                                                maxLength={255} floatingLabelStyle={{ left: '0px' }} floatingLabelText='Secret Access Key' fullWidth={true}/>
+                                        :
+                                            <TextField id='secretAccessKey' ref='secretAccessKey' multiLine={true} rows={4}
+                                                maxLength={255} floatingLabelStyle={{ left: '0px' }} floatingLabelText='Secret Access Key' fullWidth={true}/>
+                            }
 
                             <CardHeader title='Advanced' titleStyle={{ fontSize: '13px', paddingRight: 0 }} actAsExpander={true} showExpandableButton={true}/>
 
@@ -272,7 +300,7 @@ class CreateDeployment extends Component {
         }
 
         // attach derived fields
-        deploymentToCreate.tags = JSON.stringify({});
+        deploymentToCreate.tags = JSON.stringify({})
         deploymentToCreate.location = this.state.location
         deploymentToCreate.accountName = this.state.accountName
         deploymentToCreate.landscapeId = params.landscapeId

@@ -290,7 +290,7 @@ class LandscapeDetails extends Component {
                         </CardHeader>
                         {
                             sortedCurrentDeployments.map((deployment, index) => {
-
+                                console.log('%c deployment ', 'background: #1c1c1c; color: deepskyblue', deployment)
                                 let _stackStatus = {}
 
                                 if ((deployment && deployment.stackStatus === 'ROLLBACK_COMPLETE') || (deployment && deployment.awsErrors)) {

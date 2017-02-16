@@ -113,7 +113,7 @@ class Landscapes extends Component {
                 // flatten deployments in landscapesStatus
                 landscapesStatus = landscapesStatus.map(stack => {
                     return compact(stack.map(dep => {
-                        return (dep && dep.Stacks) ? dep.Stacks[0] : {}
+                        return (dep && dep.Stacks) ? dep.Stacks[0] : null
                     }))
                 })
 
