@@ -128,7 +128,7 @@ class CreateDeployment extends Component {
                             <TextField id='stackName' ref='stackName' floatingLabelText='Stack Name' className={cx( { 'two-field-row': true } )}/>
 
                             {
-                              isGlobalAdmin
+                              !isGlobalAdmin
                               ?
                                   <SelectField id='accountName' floatingLabelText='Account Name' value={this.state.accountName} onChange={this.handlesAccountChange}
                                       floatingLabelStyle={{ left: '0px' }} className={cx( { 'two-field-row': true } )}>
