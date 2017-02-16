@@ -30,6 +30,12 @@ class DocumentTypes extends Component {
         const { leaveLandscapes } = this.props
         leaveLandscapes()
     }
+    componentWillMount(){
+      this.setState({activeDocumentType: {}})
+    }
+    componentWillReceiveProps(){
+      this.setState({activeDocumentType: {}})
+    }
 
     render() {
         const { animated, viewEntersAnim } = this.state
@@ -74,16 +80,16 @@ class DocumentTypes extends Component {
                                             <FlatButton onTouchTap={this.handlesEditAccountClick.bind(this, type)}>
                                                 <IoEdit/> Edit
                                             </FlatButton>
-                                            <FlatButton onTouchTap={this.handlesDialogToggle}>
+                                            <FlatButton onTouchTap={this.handlesDialogToggle.bind(this, type)}>
                                                 <IoAndroidClose/> Delete
                                             </FlatButton>
                                             <Dialog title='Delete Document Type' modal={false} open={this.state.showDialog}
                                                 onRequestClose={this.handlesDialogToggle}
                                                 actions={[
                                                     <FlatButton label='Cancel' primary={true} onTouchTap={this.handlesDialogToggle}/>,
-                                                    <FlatButton label='Delete' primary={true} onTouchTap={this.handlesDeleteAccountClick.bind(this, type)}/>
+                                                    <FlatButton label='Delete' primary={true} onTouchTap={this.handlesDeleteAccountClick}/>
                                                 ]}>
-                                                Are you sure you want to delete {type.name}?
+                                                Are you sure you want to delete {this.state.activeDocumentType.name}?
                                             </Dialog>
                                         </TableRowColumn>
                                     </TableRow>
@@ -96,10 +102,11 @@ class DocumentTypes extends Component {
         )
     }
 
-    handlesDialogToggle = event => {
-        this.setState({
-            showDialog: !this.state.showDialog
-        })
+    handlesDialogToggle = (documentType, event) => {
+      this.setState({
+          showDialog: !this.state.showDialog,
+          activeDocumentType: documentType
+      })
     }
 
     handlesCreateAccountClick = event => {
@@ -112,16 +119,16 @@ class DocumentTypes extends Component {
         router.push({ pathname: '/documentTypes/update/' + documentType._id })
     }
 
-    handlesDeleteAccountClick = (documentTypeToDelete, event) => {
+    handlesDeleteAccountClick = (event) => {
         event.preventDefault()
-
+        console.log(this.state.activeDocumentType)
         const { mutate } = this.props
         const { router } = this.context
 
         this.handlesDialogToggle()
-        delete documentTypeToDelete.__typename
+        delete this.state.activeDocumentType.__typename
         mutate({
-            variables: { documentType: documentTypeToDelete }
+            variables: { documentType: this.state.activeDocumentType }
          }).then(({ data }) => {
            this.props.refetchDocumentTypes({}).then(({ data }) =>{
              this.setState({
