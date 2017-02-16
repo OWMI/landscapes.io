@@ -27,55 +27,53 @@ class CreateDeployment extends Component {
     }
 
     componentWillMount() {
+        const { isGlobalAdmin } = auth.getUserInfo()
         const { landscapes, accounts, params } = this.props
         let _landscapes = landscapes || []
-        const currentLandscape = _landscapes.find(ls => { return ls._id === params.landscapeId })
         let landscapeAccounts = []
+
+        const currentLandscape = _landscapes.find(ls => { return ls._id === params.landscapeId })
 
         if (currentLandscape) {
             const template = JSON.parse(currentLandscape.cloudFormationTemplate)
-            let userRole = 'user'
-            if (auth.getUserInfo().role === 'admin') {
+
+            if (isGlobalAdmin) {
                 landscapeAccounts = accounts || []
-                userRole = 'admin'
             } else {
                 landscapeAccounts = auth.getUserInfo().accounts[params.landscapeId] || []
-                userRole = 'user'
             }
 
             this.setState({
                 templateDescription: template.Description,
                 templateParameters: template.Parameters,
                 currentLandscape,
-                landscapeAccounts,
-                userRole
+                landscapeAccounts
             })
         }
     }
 
     componentWillReceiveProps(nextProps) {
+        const { isGlobalAdmin } = auth.getUserInfo()
         const { landscapes, accounts, params } = nextProps
         let _landscapes = landscapes || []
-        const currentLandscape = _landscapes.find(ls => { return ls._id === params.landscapeId })
         let landscapeAccounts = []
+
+        const currentLandscape = _landscapes.find(ls => { return ls._id === params.landscapeId })
 
         if (currentLandscape) {
             const template = JSON.parse(currentLandscape.cloudFormationTemplate)
-            let userRole = 'user'
-            if (auth.getUserInfo().role === 'admin') {
+
+            if (isGlobalAdmin) {
                 landscapeAccounts = accounts || []
-                userRole = 'admin'
             } else {
                 landscapeAccounts = auth.getUserInfo().accounts[params.landscapeId] || []
-                userRole = 'user'
             }
 
             this.setState({
                 templateDescription: template.Description,
                 templateParameters: template.Parameters,
                 currentLandscape,
-                landscapeAccounts,
-                userRole
+                landscapeAccounts
             })
         }
     }
@@ -89,7 +87,8 @@ class CreateDeployment extends Component {
 
         const { loading, accounts } = this.props
         const { isGlobalAdmin, isGroupAdmin } = auth.getUserInfo()
-        const { animated, viewEntersAnim, templateParameters, templateDescription, secretAccessKey, signatureBlock, landscapeAccounts, userRole } = this.state
+        const { animated, viewEntersAnim, templateParameters, templateDescription,
+                secretAccessKey, signatureBlock, landscapeAccounts } = this.state
 
         const menuItems = [
             { text: 'Gov Cloud', value: 'us-gov-west-1' },
@@ -127,35 +126,37 @@ class CreateDeployment extends Component {
                         </Row>
                         <Card>
                             <TextField id='stackName' ref='stackName' floatingLabelText='Stack Name' className={cx( { 'two-field-row': true } )}/>
+
                             {
-                              userRole !== 'admin'
+                              isGlobalAdmin
                               ?
-                              <SelectField id='accountName' floatingLabelText='Account Name' value={this.state.accountName} onChange={this.handlesAccountChange}
-                                  floatingLabelStyle={{ left: '0px' }} className={cx( { 'two-field-row': true } )}>
-                                  {
-                                      landscapeAccounts && landscapeAccounts.length
-                                        ?
-                                            landscapeAccounts.map((acc, index) => {
-                                                return (
-                                                    <MenuItem key={Object.keys(acc)[0]} value={acc[Object.keys(acc)[0]]} primaryText={acc[Object.keys(acc)[0]]}/>
-                                                )
-                                            })
-                                        :
-                                            null
-                                  }
-                              </SelectField>
+                                  <SelectField id='accountName' floatingLabelText='Account Name' value={this.state.accountName} onChange={this.handlesAccountChange}
+                                      floatingLabelStyle={{ left: '0px' }} className={cx( { 'two-field-row': true } )}>
+                                      {
+                                          landscapeAccounts && landscapeAccounts.length
+                                            ?
+                                                landscapeAccounts.map((acc, index) => {
+                                                    return (
+                                                        <MenuItem key={Object.keys(acc)[0]} value={acc[Object.keys(acc)[0]]} primaryText={acc[Object.keys(acc)[0]]}/>
+                                                    )
+                                                })
+                                            :
+                                                null
+                                      }
+                                  </SelectField>
                               :
-                              <SelectField id='accountName' floatingLabelText='Account Name' value={this.state.accountName} onChange={this.handlesAccountChange}
-                                  floatingLabelStyle={{ left: '0px' }} className={cx( { 'two-field-row': true } )}>
-                                  {
-                                      landscapeAccounts.map((acc, index) => {
-                                          return (
-                                              <MenuItem key={acc._id} value={acc.name} primaryText={acc.name}/>
-                                          )
-                                      })
-                                  }
-                              </SelectField>
+                                  <SelectField id='accountName' floatingLabelText='Account Name' value={this.state.accountName} onChange={this.handlesAccountChange}
+                                      floatingLabelStyle={{ left: '0px' }} className={cx( { 'two-field-row': true } )}>
+                                      {
+                                          landscapeAccounts.map((acc, index) => {
+                                              return (
+                                                  <MenuItem key={acc._id} value={acc.name} primaryText={acc.name}/>
+                                              )
+                                          })
+                                      }
+                                  </SelectField>
                             }
+
                             <SelectField id='location' floatingLabelText='Region' value={this.state.location} onChange={this.handlesRegionChange}
                                 floatingLabelStyle={{ left: '0px' }} className={cx( { 'two-field-row': true } )}>
                                 {
