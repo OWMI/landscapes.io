@@ -160,58 +160,96 @@ class CreateGroup extends Component {
               <Row center='xs' middle='xs' className={cx({'animatedViews': animated, 'view-enter': viewEntersAnim})}>
                   <Snackbar open={this.state.successOpen} message="Group successfully updated." autoHideDuration={3000} onRequestClose={this.handleRequestClose}/>
                   <Snackbar open={this.state.failOpen} message="Error updating group" autoHideDuration={3000} onRequestClose={this.handleRequestClose}/>
-                  <Tabs>
-                      <Tab label="Group" key="1">
-                          <div style={styles.root}>
+                    <div style={styles.root}>
 
-                              <GridList cols={1} cellHeight='auto' style={styles.gridList}>
-                                  <GridTile key='name'>
+                        <Col >
+                            <Row key='name'>
 
-                                      <TextField style={{
-                                          width: 450
-                                      }} id="username" floatingLabelText="Name" onChange={this.handlesOnNameChange}/>
-                                  </GridTile>
-                                  <GridTile key='description'>
-                                      <TextField id="description" style={{
-                                          width: 450
-                                      }} multiLine={true} rows={2} rowsMax={4} floatingLabelText="Description" onChange={this.handlesOnDescriptionChange}  hintText='Description'/>
-                                  </GridTile>
-                                  <GridTile key='firstName'>
-                                      <div style={{
-                                          borderBottom: '1px solid #E9E9E9',
-                                          width: 450
-                                      }}>
-                                          <Checkbox style={{
-                                              margin: 5
-                                          }} label="Check All Permissions" onCheck={this.handlesOnCheck} checked={this.state.checkAll}/>
-                                      </div>
-                                      <br/>
-                                      <Checkbox label="Create" checked={this.state.permissionC} onCheck={this.handlesPermissionClickC}/>
-                                      <Checkbox label="Read" disabled={true} checked={true}/>
-                                      <Checkbox label="Update" checked={this.state.permissionU} onCheck={this.handlesPermissionClickU}/>
-                                      <Checkbox label="Delete" checked={this.state.permissionD} onCheck={this.handlesPermissionClickD}/>
-                                      <Checkbox label="Execute" checked={this.state.permissionX} onCheck={this.handlesPermissionClickX}/>
-                                  </GridTile>
-                                  <GridTile key='image'>
-                                    <Dropzone id='imageUri' onDrop={this.handlesImageUpload} multiple={false} accept='image/*' style={{
-                                        marginLeft: '10px',
-                                        maxWidth: '100px',
-                                        padding: '15px 0px'
-                                    }}>
-                                        <div className="avatar-photo">
-                                            <div className="avatar-edit">
-                                                <span>Click to Choose Image</span>
-                                                <i className="fa fa-camera" style={{fontSize: 30}}></i>
-                                            </div>
-                                            <img src={this.state.croppedImg || this.state.imageUri || defaultImage} />
+                                <TextField style={{
+                                    width: 450
+                                }} id="username" floatingLabelText="Name" onChange={this.handlesOnNameChange}/>
+                            </Row>
+                            <Row key='description'>
+                                <TextField id="description" style={{
+                                    width: 450
+                                }} multiLine={true} rows={2} rowsMax={4} floatingLabelText="Description" onChange={this.handlesOnDescriptionChange} hintText='Description'/>
+                            </Row>
+                            <Row key='permissions'>
+                                <div style={{
+                                    borderBottom: '1px solid #E9E9E9',
+                                    width: 450
+                                }}>
+                                    <Checkbox style={{
+                                        margin: 5
+                                    }} label="Check All Permissions" onCheck={this.handlesOnCheck} checked={this.state.checkAll}/>
+                                </div>
+                                <br/>
+                                </Row>
+
+                                <Row>
+                                  <Col>
+                                    <Checkbox label="Create" checked={this.state.permissionC} onCheck={this.handlesPermissionClickC}/>
+                                    <Checkbox label="Read" disabled={true} checked={true}/>
+                                    <Checkbox label="Update" checked={this.state.permissionU} onCheck={this.handlesPermissionClickU}/>
+                                    <Checkbox label="Delete" checked={this.state.permissionD} onCheck={this.handlesPermissionClickD}/>
+                                    <Checkbox label="Execute" checked={this.state.permissionX} onCheck={this.handlesPermissionClickX}/>
+                                  </Col>
+                                </Row>
+                            <Row key='image'>
+                                <Dropzone id='imageUri' onDrop={this.handlesImageUpload} multiple={false} accept='image/*' style={{
+                                    marginLeft: '10px',
+                                    width: '180px',
+                                    padding: '15px 0px'
+                                }}>
+                                    <div className="avatar-photo">
+                                        <div className="avatar-edit">
+                                            <span>Click to Choose Image</span>
+                                            <i className="fa fa-camera"></i>
                                         </div>
-                                        {this.state.cropperOpen &&
-                                          <AvatarCropper onRequestHide={this.handleRequestHide} cropperOpen={this.state.cropperOpen} onCrop={this.handleCrop} image={this.state.img} width={400} height={400}/>
-                                        }
-                                    </Dropzone>
-                                  </GridTile>
-                              </GridList>
-                          </div>
+                                        <img src={this.state.croppedImg || this.state.imageUri} style={{
+                                            width: 200
+                                        }}/>
+                                    </div>
+                                    {this.state.cropperOpen &&
+                                      <AvatarCropper onRequestHide={this.handleRequestHide} cropperOpen={this.state.cropperOpen} onCrop={this.handleCrop} image={this.state.img} width={400} height={400}/>
+                                    }
+                                </Dropzone>
+                            </Row>
+                        </Col>
+                    </div>
+                  <Tabs>
+                      <Tab label="Landscapes" key="3">
+                        <div style={styles.wrapper}>
+                            {
+                              this.state.selectedLandscapeRows.map((row, index) => (
+                                <Chip style = {styles.chip} key={index} >
+                                  <Avatar src={this.state.stateLandscapes[row].imageUri}/>
+                                   {this.state.stateLandscapes[row].name}
+                                </Chip>
+                            ))
+                          }
+                        </div>
+                        <Table height={this.state.height} fixedHeader={this.state.fixedHeader} fixedFooter={this.state.fixedFooter} selectable={this.state.selectable} multiSelectable={this.state.multiSelectable} onRowSelection={this.handleOnRowSelectionLandscapes}>
+                            <TableHeader displaySelectAll={this.state.showCheckboxes} adjustForCheckbox={this.state.showCheckboxes} enableSelectAll={this.state.enableSelectAll}>
+                                <TableRow>
+                                    <TableHeaderColumn tooltip="Image"></TableHeaderColumn>
+                                    <TableHeaderColumn tooltip="Name">Name</TableHeaderColumn>
+                                    <TableHeaderColumn tooltip="Description">Description</TableHeaderColumn>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody displayRowCheckbox={this.state.showCheckboxes} deselectOnClickaway={false} showRowHover={this.state.showRowHover} stripedRows={false}>
+                                {this.state.stateLandscapes.map((row, index) => (
+                                    <TableRow key={row._id} selected={row.selected}>
+                                        <TableRowColumn><img src={row.imageUri} style={{
+                                        width: 50
+                                    }}/></TableRowColumn>
+                                        <TableRowColumn>{row.name}</TableRowColumn>
+                                        <TableRowColumn>{row.description}</TableRowColumn>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                            <TableFooter adjustForCheckbox={this.state.showCheckboxes}></TableFooter>
+                        </Table>
                       </Tab>
                       <Tab label="Users" key="2">
                         <div style={styles.wrapper}>
@@ -265,39 +303,6 @@ class CreateGroup extends Component {
                               <TableFooter adjustForCheckbox={this.state.showCheckboxes}></TableFooter>
                           </Table>
 
-                      </Tab>
-                      <Tab label="Landscapes" key="3">
-                        <div style={styles.wrapper}>
-                            {
-                              this.state.selectedLandscapeRows.map((row, index) => (
-                                <Chip style = {styles.chip} key={index} >
-                                  <Avatar src={this.state.stateLandscapes[row].imageUri}/>
-                                   {this.state.stateLandscapes[row].name}
-                                </Chip>
-                            ))
-                          }
-                        </div>
-                        <Table height={this.state.height} fixedHeader={this.state.fixedHeader} fixedFooter={this.state.fixedFooter} selectable={this.state.selectable} multiSelectable={this.state.multiSelectable} onRowSelection={this.handleOnRowSelectionLandscapes}>
-                            <TableHeader displaySelectAll={this.state.showCheckboxes} adjustForCheckbox={this.state.showCheckboxes} enableSelectAll={this.state.enableSelectAll}>
-                                <TableRow>
-                                    <TableHeaderColumn tooltip="Image"></TableHeaderColumn>
-                                    <TableHeaderColumn tooltip="Name">Name</TableHeaderColumn>
-                                    <TableHeaderColumn tooltip="Description">Description</TableHeaderColumn>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody displayRowCheckbox={this.state.showCheckboxes} deselectOnClickaway={false} showRowHover={this.state.showRowHover} stripedRows={false}>
-                                {this.state.stateLandscapes.map((row, index) => (
-                                    <TableRow key={row._id} selected={row.selected}>
-                                        <TableRowColumn><img src={row.imageUri} style={{
-                                        width: 50
-                                    }}/></TableRowColumn>
-                                        <TableRowColumn>{row.name}</TableRowColumn>
-                                        <TableRowColumn>{row.description}</TableRowColumn>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                            <TableFooter adjustForCheckbox={this.state.showCheckboxes}></TableFooter>
-                        </Table>
                       </Tab>
                       <Tab label="Accounts" key="4">
                           <Table key="accountsTable" height={this.state.height} fixedHeader={this.state.fixedHeader} fixedFooter={this.state.fixedFooter} selectable={this.state.selectable} multiSelectable={this.state.multiSelectable} onRowSelection={this.handleOnRowSelectionAccounts}>

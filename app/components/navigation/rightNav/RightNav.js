@@ -29,6 +29,12 @@ class RightNav extends Component {
       else{
         this.setState({userIsAdmin: false})
       }
+      if(auth.getUserInfo() && auth.getUserInfo().isGroupAdmin){
+        this.setState({isGroupAdmin: true})
+      }
+      else{
+        this.setState({isGroupAdmin: false})
+      }
     }
 
     render() {
@@ -47,26 +53,40 @@ class RightNav extends Component {
                         })
                     :
                     <div>{
-                        (userIsAuthenticated && this.state.userIsAuthenticated && !this.state.userIsAdmin)
+                        (userIsAuthenticated && this.state.userIsAuthenticated && !this.state.userIsAdmin && this.state.isGroupAdmin)
                         ?
-                            rightLinks.filter(btnLink => ((btnLink.showWhenUserAuth === true) && (btnLink.showOnUserDropdown === false) && (btnLink.showAdminOnly === false))).map((aLinkBtn, index) => {
+                        rightLinks.filter(btnLink => ((btnLink.showWhenUserAuth === true) && (btnLink.showOnUserDropdown === false) && (btnLink.showOnSettingsDropdown !== true) && (btnLink.showOnlyGlobalAdmin !== true))).map((aLinkBtn, index) => {
                                 return (
                                     <RightNavButton key={index} link={aLinkBtn.link} label={aLinkBtn.label}
                                         viewName={aLinkBtn.view} onClick={onRightNavButtonClick}/>
                                 )
                             })
                         :
+                        <div>
+                          {
+                            (userIsAuthenticated && this.state.userIsAuthenticated && !this.state.userIsAdmin && !this.state.isGroupAdmin)
+                            ?
+                                rightLinks.filter(btnLink => ((btnLink.showWhenUserAuth === true) && (btnLink.showOnUserDropdown === false) && (btnLink.showAdminOnly === false))).map((aLinkBtn, index) => {
+                                    return (
+                                        <RightNavButton key={index} link={aLinkBtn.link} label={aLinkBtn.label}
+                                            viewName={aLinkBtn.view} onClick={onRightNavButtonClick}/>
+                                    )
+                                })
+                            :
                             rightLinks.filter(btnLink => ((btnLink.showWhenUserAuth === false) || (btnLink.alwaysShows === true))).map((aLinkBtn, index) => {
                                 return (
                                     <RightNavButton key={index} link={aLinkBtn.link} label={aLinkBtn.label}
                                         viewName={aLinkBtn.view} onClick={onRightNavButtonClick}/>
                                     )
                             })
+                          }
+                        </div>
+
                     }
                     </div>
                 }
                 {
-                    (userIsAuthenticated && this.state.userIsAuthenticated)
+                    (userIsAuthenticated && this.state.userIsAuthenticated && (this.state.isGroupAdmin || this.state.userIsAdmin))
                     ?
                     <div>
                     <FlatButton onTouchTap={this.handleSettingsClick}

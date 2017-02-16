@@ -40,7 +40,9 @@
         "showAdminOnly": true,
         "showWhenUserAuth": true,
         "showOnUserDropdown": false,
-        "hideWhenUserAuth": false
+        "hideWhenUserAuth": false,
+        "showOnlyGlobalAdmin": true
+
     }, {
         "label": "Accounts",
         "link": "/accounts",

@@ -13,7 +13,8 @@ class Login extends Component {
 
     state = {
         animated: true,
-        viewEntersAnim: true
+        viewEntersAnim: true,
+        showError: false
     }
 
     componentDidMount() {
@@ -31,14 +32,20 @@ class Login extends Component {
     }
 
     render() {
-        const { animated, viewEntersAnim } = this.state
+        const { animated, viewEntersAnim, showError } = this.state
         const { loading } = this.props
 
         return (
             <Row center='xs' middle='xs' className={cx({ 'screen-height': true, 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
                 <Col xs={6} lg={4} className={cx( { 'login-page': true } )}>
                     <Paper zDepth={1} rounded={false}>
-
+                        {
+                          showError
+                          ?
+                          <p style={{color:'red'}}>Incorrect Username/Password Combination</p>
+                          :
+                          <p></p>
+                        }
                         <TextField id='username' ref='username' floatingLabelText='Username' fullWidth={true}/>
                         <TextField id='password' ref='password' floatingLabelText='Password' fullWidth={true} type='password'/>
 
@@ -68,6 +75,7 @@ class Login extends Component {
 
         username = username.getValue()
         password = password.getValue()
+        this.setState({showError: false})
 
         // user login & auth token generation
         axios({
@@ -96,6 +104,8 @@ class Login extends Component {
 
         }).then(res => {
             router.push({ pathname: '/landscapes' })
+        }).catch(err =>{
+            this.setState({showError: true})
         })
     }
 

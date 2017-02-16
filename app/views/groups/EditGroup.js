@@ -377,7 +377,7 @@ class EditGroup extends Component {
                     <Col xs={2} style={{ textAlign: 'left', marginBottom:30 }}>
                       <Row><h4><strong>Edit Group</strong></h4></Row>
                     </Col>
-                    <Col xs={9}>
+                    <Col xs={8}>
                       <RaisedButton label="Save" labelStyle={{ fontSize: '11px' }} style={{ float: 'right', marginBottom: '30px' }} onClick={this.handlesCreateClick}/>
                     </Col>
                     <Col xs={1}>
@@ -399,6 +399,12 @@ class EditGroup extends Component {
                           <div style={{ float: 'right', marginBottom: '30px' }}></div>
                       }
                     </Col>
+                    <Col xs={1}>
+                      <RaisedButton label="Cancel" labelStyle={{ fontSize: '11px' }} style={{ float: 'right', marginBottom: '30px' }} onClick={() => {
+                          const {router} = this.context
+                          router.push(`/groups/${params.id}`)
+                      }}/>
+                    </Col>
                 </Row>
                 <div style={styles.root}>
 
@@ -406,60 +412,96 @@ class EditGroup extends Component {
                     <Row center='xs' middle='xs' className={cx({'animatedViews': animated, 'view-enter': viewEntersAnim})}>
                     <Snackbar open={this.state.successOpen} message="Group successfully updated." autoHideDuration={3000} onRequestClose={this.handleRequestClose}/>
                     <Snackbar open={this.state.failOpen} message="Error updating group" autoHideDuration={3000} onRequestClose={this.handleRequestClose}/>
+                          <div style={styles.root}>
+
+                              <Col >
+                                  <Row key='name'>
+
+                                      <TextField style={{
+                                          width: 450
+                                      }} id="username" floatingLabelText="Name" value={this.state.name} onChange={this.handlesOnNameChange} placeholder='Username'/>
+                                  </Row>
+                                  <Row key='description'>
+                                      <TextField id="description" style={{
+                                          width: 450
+                                      }} multiLine={true} rows={2} rowsMax={4} floatingLabelText="Description" onChange={this.handlesOnDescriptionChange} value={this.state.description} hintText='Description'/>
+                                  </Row>
+                                  <Row key='permissions'>
+                                      <div style={{
+                                          borderBottom: '1px solid #E9E9E9',
+                                          width: 450
+                                      }}>
+                                          <Checkbox style={{
+                                              margin: 5
+                                          }} label="Check All Permissions" onCheck={this.handlesOnCheck} checked={this.state.checkAll}/>
+                                      </div>
+                                      <br/>
+                                      </Row>
+
+                                      <Row>
+                                        <Col>
+                                          <Checkbox label="Create" checked={this.state.permissionC} onCheck={this.handlesPermissionClickC}/>
+                                          <Checkbox label="Read" disabled={true} checked={true}/>
+                                          <Checkbox label="Update" checked={this.state.permissionU} onCheck={this.handlesPermissionClickU}/>
+                                          <Checkbox label="Delete" checked={this.state.permissionD} onCheck={this.handlesPermissionClickD}/>
+                                          <Checkbox label="Execute" checked={this.state.permissionX} onCheck={this.handlesPermissionClickX}/>
+                                        </Col>
+                                      </Row>
+                                  <Row key='image'>
+                                      <Dropzone id='imageUri' onDrop={this.handlesImageUpload} multiple={false} accept='image/*' style={{
+                                          marginLeft: '10px',
+                                          width: '180px',
+                                          padding: '15px 0px'
+                                      }}>
+                                          <div className="avatar-photo">
+                                              <div className="avatar-edit">
+                                                  <span>Click to Choose Image</span>
+                                                  <i className="fa fa-camera"></i>
+                                              </div>
+                                              <img src={this.state.croppedImg || this.state.imageUri} style={{
+                                                  width: 200
+                                              }}/>
+                                          </div>
+                                          {this.state.cropperOpen &&
+                                            <AvatarCropper onRequestHide={this.handleRequestHide} cropperOpen={this.state.cropperOpen} onCrop={this.handleCrop} image={this.state.img} width={400} height={400}/>
+                                          }
+                                      </Dropzone>
+                                  </Row>
+                              </Col>
+                          </div>
                     <Tabs tabItemContainerStyle={{backgroundColor: materialTheme.palette.primary3Color}}>
-                        <Tab label="Group" key="1">
-                            <div style={styles.root}>
-
-                                <GridList cols={1} cellHeight='auto' style={styles.gridList}>
-                                    <GridTile key='name'>
-
-                                        <TextField style={{
-                                            width: 450
-                                        }} id="username" floatingLabelText="Name" value={this.state.name} onChange={this.handlesOnNameChange} placeholder='Username'/>
-                                    </GridTile>
-                                    <GridTile key='description'>
-                                        <TextField id="description" style={{
-                                            width: 450
-                                        }} multiLine={true} rows={2} rowsMax={4} floatingLabelText="Description" onChange={this.handlesOnDescriptionChange} value={this.state.description} hintText='Description'/>
-                                    </GridTile>
-                                    <GridTile key='firstName'>
-                                        <div style={{
-                                            borderBottom: '1px solid #E9E9E9',
-                                            width: 450
-                                        }}>
-                                            <Checkbox style={{
-                                                margin: 5
-                                            }} label="Check All Permissions" onCheck={this.handlesOnCheck} checked={this.state.checkAll}/>
-                                        </div>
-                                        <br/>
-                                        <Checkbox label="Create" checked={this.state.permissionC} onCheck={this.handlesPermissionClickC}/>
-                                        <Checkbox label="Read" disabled={true} checked={true}/>
-                                        <Checkbox label="Update" checked={this.state.permissionU} onCheck={this.handlesPermissionClickU}/>
-                                        <Checkbox label="Delete" checked={this.state.permissionD} onCheck={this.handlesPermissionClickD}/>
-                                        <Checkbox label="Execute" checked={this.state.permissionX} onCheck={this.handlesPermissionClickX}/>
-                                    </GridTile>
-                                    <GridTile key='image'>
-                                        <Dropzone id='imageUri' onDrop={this.handlesImageUpload} multiple={false} accept='image/*' style={{
-                                            marginLeft: '10px',
-                                            width: '180px',
-                                            padding: '15px 0px'
-                                        }}>
-                                            <div className="avatar-photo">
-                                                <div className="avatar-edit">
-                                                    <span>Click to Choose Image</span>
-                                                    <i className="fa fa-camera"></i>
-                                                </div>
-                                                <img src={this.state.croppedImg || this.state.imageUri} style={{
-                                                    width: 200
-                                                }}/>
-                                            </div>
-                                            {this.state.cropperOpen &&
-                                              <AvatarCropper onRequestHide={this.handleRequestHide} cropperOpen={this.state.cropperOpen} onCrop={this.handleCrop} image={this.state.img} width={400} height={400}/>
-                                            }
-                                        </Dropzone>
-                                    </GridTile>
-                                </GridList>
-                            </div>
+                        <Tab label="Landscapes" key="3">
+                          <div style={styles.wrapper}>
+                              {
+                                this.state.selectedLandscapeRows.map((row, index) => (
+                                  <Chip style = {styles.chip} key={index} >
+                                    <Avatar src={this.state.stateLandscapes[row].imageUri}/>
+                                     {this.state.stateLandscapes[row].name}
+                                  </Chip>
+                              ))
+                            }
+                          </div>
+                            <Table key="landscapeTable" height={this.state.height} fixedHeader={this.state.fixedHeader} fixedFooter={this.state.fixedFooter} selectable={this.state.selectable} multiSelectable={this.state.multiSelectable} onRowSelection={this.handleOnRowSelectionLandscapes}>
+                                <TableHeader displaySelectAll={this.state.showCheckboxes} adjustForCheckbox={this.state.showCheckboxes} enableSelectAll={this.state.enableSelectAll}>
+                                    <TableRow>
+                                        <TableHeaderColumn tooltip="Image"></TableHeaderColumn>
+                                        <TableHeaderColumn tooltip="Name">Name</TableHeaderColumn>
+                                        <TableHeaderColumn tooltip="Description">Description</TableHeaderColumn>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody displayRowCheckbox={this.state.showCheckboxes} deselectOnClickaway={false} showRowHover={this.state.showRowHover} stripedRows={false}>
+                                    {this.state.stateLandscapes.map((row, index) => (
+                                        <TableRow key={row._id} selected={this.state.selectedLandscapeRows.indexOf(index) !== -1}>
+                                            <TableRowColumn><img src={row.imageUri} style={{
+                                            width: 50
+                                        }}/></TableRowColumn>
+                                            <TableRowColumn>{row.name}</TableRowColumn>
+                                            <TableRowColumn>{row.description}</TableRowColumn>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                                <TableFooter adjustForCheckbox={this.state.showCheckboxes}></TableFooter>
+                            </Table>
                         </Tab>
                         <Tab label="Users" key="2">
                             <div style={styles.wrapper}>
@@ -501,39 +543,6 @@ class EditGroup extends Component {
                                 <TableFooter adjustForCheckbox={this.state.showCheckboxes}></TableFooter>
                             </Table>
 
-                        </Tab>
-                        <Tab label="Landscapes" key="3">
-                          <div style={styles.wrapper}>
-                              {
-                                this.state.selectedLandscapeRows.map((row, index) => (
-                                  <Chip style = {styles.chip} key={index} >
-                                    <Avatar src={this.state.stateLandscapes[row].imageUri}/>
-                                     {this.state.stateLandscapes[row].name}
-                                  </Chip>
-                              ))
-                            }
-                          </div>
-                            <Table key="landscapeTable" height={this.state.height} fixedHeader={this.state.fixedHeader} fixedFooter={this.state.fixedFooter} selectable={this.state.selectable} multiSelectable={this.state.multiSelectable} onRowSelection={this.handleOnRowSelectionLandscapes}>
-                                <TableHeader displaySelectAll={this.state.showCheckboxes} adjustForCheckbox={this.state.showCheckboxes} enableSelectAll={this.state.enableSelectAll}>
-                                    <TableRow>
-                                        <TableHeaderColumn tooltip="Image"></TableHeaderColumn>
-                                        <TableHeaderColumn tooltip="Name">Name</TableHeaderColumn>
-                                        <TableHeaderColumn tooltip="Description">Description</TableHeaderColumn>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody displayRowCheckbox={this.state.showCheckboxes} deselectOnClickaway={false} showRowHover={this.state.showRowHover} stripedRows={false}>
-                                    {this.state.stateLandscapes.map((row, index) => (
-                                        <TableRow key={row._id} selected={this.state.selectedLandscapeRows.indexOf(index) !== -1}>
-                                            <TableRowColumn><img src={row.imageUri} style={{
-                                            width: 50
-                                        }}/></TableRowColumn>
-                                            <TableRowColumn>{row.name}</TableRowColumn>
-                                            <TableRowColumn>{row.description}</TableRowColumn>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                                <TableFooter adjustForCheckbox={this.state.showCheckboxes}></TableFooter>
-                            </Table>
                         </Tab>
                         <Tab label="Accounts" key="4">
                             <Table key="accountsTable" height={this.state.height} fixedHeader={this.state.fixedHeader} fixedFooter={this.state.fixedFooter} selectable={this.state.selectable} multiSelectable={this.state.multiSelectable} onRowSelection={this.handleOnRowSelectionAccounts}>
@@ -756,9 +765,9 @@ class EditGroup extends Component {
               this.props.refetchGroups({}).then(({data}) => {
                   console.log('refetched groups')
                   this.setState({successOpen: true})
-                  this.setState({loading: false})
                   this.props.refetchLandscapes({}).then(({data}) => {
-                    
+                    this.setState({loading: false})
+
                     router.push({pathname: '/groups'})
                   })
               }).catch((error) => {

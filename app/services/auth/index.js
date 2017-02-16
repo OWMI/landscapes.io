@@ -133,23 +133,24 @@ export const auth = {
 
     setUserPermissions(user, groups, accounts) {
         user.permissions = {}
+        user.isGroupAdmin = false;
         user.accounts = {}
+        if (user.role !== 'admin') {
             if (groups) {
                 groups.forEach(group => {
                     group.users.forEach(groupUser => {
                         if (groupUser.userId === user._id) {
                             // groups
-                            if (user.role !== 'admin') {
+                              if(groupUser.isAdmin){
+                                user.isGroupAdmin = true;
+                              }
                               user.groups.push({
                                   groupId: group._id,
                                   isAdmin: groupUser.isAdmin
                               })
-                            }
                             group.landscapes.forEach(landscape => {
                                 // permissions
-                                if (user.role !== 'admin') {
                                   user.permissions[landscape] = group.permissions
-                                }
                                 //accounts
                                 if(!user.accounts[landscape]){
                                   user.accounts[landscape] = [];
@@ -171,6 +172,7 @@ export const auth = {
                     })
                 })
             }
+          }
         return user
     },
 

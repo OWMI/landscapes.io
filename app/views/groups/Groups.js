@@ -63,7 +63,7 @@ class Groups extends Component {
                             {/* header */}
                             <Row start='xs' middle='xs' style={{ padding: '20px 0px' }}>
                                 <Col xs={8}>
-                                    <img id='landscapeIcon' src={group.imageUri} style={{width:85}}/>
+                                    <img id='landscapeIcon' src={group.imageUri || defaultImage} style={{width:85}}/>
                                 </Col>
                                 <Col xs={4}>
                                     <FlatButton id='landscape-edit' onTouchTap={this.handlesEditGroupClick.bind(this, group)}
