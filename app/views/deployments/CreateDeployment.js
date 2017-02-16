@@ -51,6 +51,7 @@ class CreateDeployment extends Component {
         })
       }
     }
+
     componentWillReceiveProps(nextProps) {
       const { landscapes, accounts, params } = nextProps;
       let _landscapes = landscapes || [];
@@ -123,8 +124,6 @@ class CreateDeployment extends Component {
                         </Row>
                         <Card>
                             <TextField id='stackName' ref='stackName' floatingLabelText='Stack Name' className={cx( { 'two-field-row': true } )}/>
-                            {console.log(landscapeAccounts)}
-                            {console.log(userRole)}
                             {
                               userRole !== 'admin'
                               ?
@@ -150,7 +149,6 @@ class CreateDeployment extends Component {
                                   }
                               </SelectField>
                             }
-
                             <SelectField id='location' floatingLabelText='Region' value={this.state.location} onChange={this.handlesRegionChange}
                                 floatingLabelStyle={{ left: '0px' }} className={cx( { 'two-field-row': true } )}>
                                 {
@@ -167,7 +165,7 @@ class CreateDeployment extends Component {
 
                             <TextField id='accessKeyId' ref='accessKeyId' value={this.state.accessKeyId} floatingLabelText='Access Key ID' fullWidth={true}/>
 
-                            <TextField id='secretAccessKey' ref='secretAccessKey' value={ secretAccessKey ? secretAccessKey.substring(0, 255) : '' } multiLine={true} rows={4}
+                            <TextField id='secretAccessKey' ref='secretAccessKey' defaultValue={ secretAccessKey ? secretAccessKey.substring(0, 255) : '' } multiLine={true} rows={4}
                                 maxLength={255} floatingLabelStyle={{ left: '0px' }} floatingLabelText='Secret Access Key' fullWidth={true}/>
 
                             <CardHeader title='Advanced' titleStyle={{ fontSize: '13px', paddingRight: 0 }} actAsExpander={true} showExpandableButton={true}/>
@@ -286,7 +284,7 @@ class CreateDeployment extends Component {
             variables: { deployment: deploymentToCreate }
          }).then(({ data }) => {
             router.push({ pathname: `/landscape/${this.state.currentLandscape._id}` })
-        }).catch(error => console.log(err))
+        }).catch(error => console.log(error))
     }
 }
 
