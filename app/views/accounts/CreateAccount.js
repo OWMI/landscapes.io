@@ -2,17 +2,23 @@ import cx from 'classnames'
 import React, { Component, PropTypes } from 'react'
 import shallowCompare from 'react-addons-shallow-compare'
 import { Row, Col } from 'react-flexbox-grid'
-import { Card, CardHeader, CardText, MenuItem, RaisedButton, SelectField, TextField, Toggle } from 'material-ui'
+import lodash from 'lodash'
+import { Card, CardHeader, CardText, MenuItem, RaisedButton, SelectField, TextField, Toggle, FlatButton } from 'material-ui'
+import {Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table';
 
 import './accounts.style.scss'
 import { Loader } from '../../components'
+import { auth } from '../../services/auth'
 
 class CreateAccount extends Component {
 
     state = {
         animated: true,
         viewEntersAnim: true,
-        loading: false
+        loading: false,
+        errorMessage: false,
+        message: '',
+        selectedGroupRows: []
     }
 
     componentDidMount() {
@@ -29,9 +35,57 @@ class CreateAccount extends Component {
         leaveLandscapes()
     }
 
+    componentWillMount() {
+      const { groupsByUser } = this.props
+      let userGroups = [];
+      let isGroupAdmin = false;
+      if(auth.getUserInfo().isGroupAdmin){
+        isGroupAdmin = true;
+      }
+      if(auth.getUserInfo().groups){
+        userGroups = lodash.filter(auth.getUserInfo().groups, (group) =>{
+          return group.isAdmin === true
+        })
+      }
+      var index = null;
+      var userAdminGroups = [];
+      if(groupsByUser){
+        userGroups.forEach(group =>{
+          console.log('userGroups', userGroups)
+           index = groupsByUser.map(function(o) { return o._id; }).indexOf(group.groupId);
+           userAdminGroups.push(groupsByUser[index])
+        })
+      }
+      this.setState({userAdminGroups, isGroupAdmin})
+    }
+    componentWillReceiveProps(nextProps){
+      const { groupsByUser } = nextProps
+      let userGroups = [];
+      let isGroupAdmin = false;
+      if(auth.getUserInfo().isGroupAdmin){
+        isGroupAdmin = true;
+      }
+      if(auth.getUserInfo().groups){
+        userGroups = lodash.filter(auth.getUserInfo().groups, (group) =>{
+          return group.isAdmin === true
+        })
+      }
+      var index = null;
+      var userAdminGroups = [];
+      if(groupsByUser){
+        userGroups.forEach(group =>{
+          console.log('userGroups', userGroups)
+           index = groupsByUser.map(function(o) { return o._id; }).indexOf(group.groupId);
+           userAdminGroups.push(groupsByUser[index])
+        })
+      }
+      this.setState({userAdminGroups, isGroupAdmin})
+
+    }
+
     render() {
 
-        const { animated, viewEntersAnim } = this.state
+        const { animated, viewEntersAnim, userAdminGroups, isGroupAdmin } = this.state
         const { loading, accounts } = this.props
 
         const menuItems = [
@@ -45,7 +99,7 @@ class CreateAccount extends Component {
             { text: 'Asia Pacific (Tokyo) Region', value: 'ap-northeast-1' },
             { text: 'South America (Sao Paulo) Region', value: 'sa-east-1' }
         ]
-
+        console.log('USER ADMIN GROUPS', userAdminGroups)
         if (loading || this.state.loading) {
             return (
                 <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
@@ -69,6 +123,13 @@ class CreateAccount extends Component {
                             </Col>
                         </Row>
                         <Card>
+                            {
+                              this.state.errorMessage
+                              ?
+                              <p style={{color: 'red'}}>{this.state.message}</p>
+                              :
+                              null
+                            }
                             <TextField id='name' ref='name' floatingLabelText='Name' className={cx( { 'two-field-row': true } )}/>
 
                             <SelectField id='region' floatingLabelText='Region' value={this.state.region} onChange={this.handlesRegionChange}
@@ -86,6 +147,42 @@ class CreateAccount extends Component {
 
                             <TextField id='secretAccessKey' ref='secretAccessKey' multiLine={true} rows={4} floatingLabelText='Secret Access Key' fullWidth={true}
                                 floatingLabelStyle={{ left: '0px' }}/>
+                              {
+                                isGroupAdmin
+                                ?
+                                <div>
+                                  <h5 > Adding to a group is REQUIRED for group admins </h5>
+                                    <Table height={this.state.height} fixedHeader={this.state.fixedHeader} fixedFooter={this.state.fixedFooter}
+                                        selectable={true} multiSelectable={true}
+                                        onRowSelection={this.handleOnRowSelection}>
+                                          <TableHeader displaySelectAll={true} adjustForCheckbox={true}
+                                            enableSelectAll={true} >
+                                            <TableRow>
+                                              <TableHeaderColumn tooltip="Image"></TableHeaderColumn>
+                                              <TableHeaderColumn tooltip="Name">Name</TableHeaderColumn>
+                                              <TableHeaderColumn tooltip="Description">Description</TableHeaderColumn>
+                                            </TableRow>
+                                          </TableHeader>
+                                          <TableBody displayRowCheckbox={true}
+                                            showRowHover={true} stripedRows={false}
+                                            deselectOnClickaway={false}>
+                                            {userAdminGroups.map( (row, index) => (
+                                              <TableRow key={row._id} onClick={this.handleOnClick}>
+                                              <TableRowColumn><img src={row.imageUri} style={{width: 40, borderRadius: 50}} /></TableRowColumn>
+                                                <TableRowColumn>{row.name}</TableRowColumn>
+                                                <TableRowColumn>{row.description}</TableRowColumn>
+                                              </TableRow>
+                                              ))}
+                                          </TableBody>
+                                          <TableFooter
+                                            adjustForCheckbox={false}
+                                          >
+                                          </TableFooter>
+                                        </Table>
+                                </div>
+                                    :
+                                    null
+                              }
 
                             <CardHeader title='Advanced' titleStyle={{ fontSize: '13px', paddingRight: 0 }} actAsExpander={true} showExpandableButton={true}/>
 
@@ -113,11 +210,24 @@ class CreateAccount extends Component {
         })
     }
 
-    handlesCreateClick = event => {
-        this.setState({loading: true})
+    handleOnRowSelection = selectedRows => {
+      if(selectedRows === 'all'){
+        selectedRows = []
+        this.state.userAdminGroups.forEach((group, index) =>{
+          selectedRows.push(index)
+        })
+      }
+      console.log('SELECTED ROWS', selectedRows )
+      this.setState({
+        selectedRows
+      })
+    }
 
+
+    handlesCreateClick = event => {
         event.preventDefault()
         const { mutate } = this.props
+        const { userAdminGroups, selectedRows } = this.state
         const { router } = this.context
 
         let accountToCreate = {}
@@ -130,24 +240,72 @@ class CreateAccount extends Component {
                 accountToCreate[key] = this.refs[key].getValue()
             }
         }
-
         // attach derived fields
         accountToCreate.region = this.state.region
 
-        mutate({
-            variables: { account: accountToCreate }
-         }).then(({ data }) => {
-           this.props.refetchAccounts({}).then(({ data }) =>{
-             this.setState({
-               successOpen: true,
-               loading: false
+        if(!accountToCreate.name){
+          this.setState({errorMessage: true, message: 'Name is required.'})
+          return
+        }
+        else if(!accountToCreate.region){
+          this.setState({errorMessage: true, message: 'Region is required.'})
+          return
+        }
+        else if(!accountToCreate.accessKeyId){
+          this.setState({errorMessage: true, message: 'Access Key is required.'})
+          return
+        }
+        else if(!accountToCreate.secretAccessKey){
+          this.setState({errorMessage: true, message: 'Secret Key is required.'})
+          return
+        }
+        else if(this.state.isGroupAdmin && !this.state.selectedGroupRows){
+          this.setState({errorMessage: true, message: 'Attaching to group is required for group admins.'})
+          return
+        }
+        else{
+          this.setState({loading: true})
+
+          mutate({
+              variables: { account: accountToCreate }
+           }).then(({ data }) => {
+             console.log('DATA', data)
+             if (this.state.selectedRows) {
+               console.log('userAdminGroups', userAdminGroups)
+                 console.log('selectedRows', selectedRows)
+                   for (var i = 0; i < selectedRows.length; i++) {
+                     if(!userAdminGroups[selectedRows[i]].accounts){
+                       userAdminGroups[selectedRows[i]].accounts = []
+                     }
+                       userAdminGroups[selectedRows[i]].accounts.push(data.createAccount._id);
+                       delete userAdminGroups[selectedRows[i]].__typename
+                       userAdminGroups[selectedRows[i]].users.forEach(user =>{
+                         delete user.__typename
+                       })
+                       this.props.UpdateGroupWithMutation(
+                         {variables: { group: userAdminGroups[selectedRows[i]] }})
+
+                   }
+             }
+             this.props.refetchAccounts({}).then(({ data }) =>{
+               this.props.refetchGroups({}).then( ()=>{
+                 this.setState({
+                   successOpen: true,
+                   loading: false
+                 })
+                 if(this.state.isGroupAdmin){
+                   router.push({ pathname: '/groups' })
+                 }
+                 else{
+                   router.push({ pathname: '/accounts' })
+                 }
+               })
+             }).catch((error) => {
+               this.setState({loading: false})
              })
-             router.push({ pathname: '/accounts' })
-           }).catch((error) => {
-             this.setState({loading: false})
-           })
-        }).catch(error => {
-        })
+          }).catch(error => {
+          })
+        }
     }
 }
 
@@ -155,7 +313,11 @@ CreateAccount.propTypes = {
     currentView: PropTypes.string.isRequired,
     enterLandscapes: PropTypes.func.isRequired,
     leaveLandscapes: PropTypes.func.isRequired,
-    refetchAccounts: PropTypes.func
+    refetchAccounts: PropTypes.func,
+    mutate: PropTypes.func.isRequired,
+    refetchGroups: PropTypes.func.isRequired,
+    UpdateGroupWithMutation: PropTypes.func.isRequired
+
 }
 
 CreateAccount.contextTypes = {

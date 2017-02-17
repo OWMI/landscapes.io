@@ -26,6 +26,15 @@ class Landscapes extends Component {
         enterLandscapes()
     }
 
+    componentWillMount() {
+      const { currentUser } = this.props
+      if(auth.getUserInfo().isGroupAdmin){
+        currentUser.isGroupAdmin = true
+      }
+      this.setState({currentUser})
+
+    }
+
     componentWillReceiveProps(nextProps) {
         const self = this
         const { currentUser, deploymentsByLandscapeId, deploymentStatus, hasPendingDeployments, landscapes,
@@ -47,6 +56,10 @@ class Landscapes extends Component {
             this.failed = 0
             this.deleted = 0
         }
+        if(auth.getUserInfo().isGroupAdmin){
+          currentUser.isGroupAdmin = true
+        }
+        this.setState({currentUser})
 
         if (_viewLandscapes.length) {
 
@@ -169,8 +182,10 @@ class Landscapes extends Component {
 
     render() {
 
-        const { currentUser, loading, landscapes, users, groups, userAccess } = this.props
-        const { animated, viewEntersAnim, viewLandscapes } = this.state
+        const { loading, landscapes, users, groups, userAccess } = this.props
+        const { animated, viewEntersAnim, viewLandscapes, currentUser } = this.state
+
+        console.log(currentUser)
 
         if (loading) {
             return (
@@ -184,7 +199,7 @@ class Landscapes extends Component {
             <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
 
                 {
-                    currentUser.isGlobalAdmin || userAccess && userAccess.canCreate
+                    currentUser.isGlobalAdmin || userAccess && userAccess.canCreate || currentUser.isGroupAdmin
                     ?
                         <a onClick={this.handlesCreateLandscapeClick}>
                             <p style={{ fontSize: '20px', cursor: 'pointer' }}><IoIosPlusEmpty size={30}/>Add Landscape</p>

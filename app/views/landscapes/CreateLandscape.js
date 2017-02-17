@@ -14,7 +14,9 @@ import AvatarCropper from "react-avatar-cropper";
 import defaultLandscapeImage from '../../style/AWS.png';
 import MenuItem from 'material-ui/MenuItem';
 import SelectField from 'material-ui/SelectField';
-import {Table, TableRow, TableBody, TableRowColumn, TableHeader, TableHeaderColumn} from 'material-ui';
+import {Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table';
+import lodash from 'lodash'
+import { auth } from '../../services/auth'
 
 
 import './landscapes.style.scss'
@@ -27,13 +29,7 @@ class CreateLandscape extends Component {
         viewEntersAnim: true,
         successOpen: false,
         failOpen: false,
-
-        typeOptions: [
-          "Wiki",
-          "Other",
-          "Test",
-          "Link"
-        ],
+        errorMessage: false,
         addedDocuments: [
 
         ],
@@ -43,6 +39,50 @@ class CreateLandscape extends Component {
     componentDidMount() {
         const { enterLandscapes } = this.props
         enterLandscapes()
+    }
+    componentWillReceiveProps(nextProps) {
+      const { groupsByUser } = nextProps
+      let userGroups = [];
+      let isGroupAdmin = false;
+      if(auth.getUserInfo().isGroupAdmin){
+        isGroupAdmin = true;
+      }
+      if(auth.getUserInfo().groups){
+        userGroups = lodash.filter(auth.getUserInfo().groups, (group) =>{
+          return group.isAdmin === true
+        })
+      }
+      var index = null;
+      var userAdminGroups = [];
+      if(groupsByUser){
+        userGroups.forEach(group =>{
+           index = groupsByUser.map(function(o) { return o._id; }).indexOf(group.groupId);
+           userAdminGroups.push(groupsByUser[index])
+        })
+      }
+      this.setState({userAdminGroups, isGroupAdmin})
+    }
+    componentWillMount() {
+      const { groupsByUser } = this.props
+      let userGroups = [];
+      let isGroupAdmin = false;
+      if(auth.getUserInfo().isGroupAdmin){
+        isGroupAdmin = true;
+      }
+      if(auth.getUserInfo().groups){
+        userGroups = lodash.filter(auth.getUserInfo().groups, (group) =>{
+          return group.isAdmin === true
+        })
+      }
+      var index = null;
+      var userAdminGroups = [];
+      if(groupsByUser){
+        userGroups.forEach(group =>{
+           index = groupsByUser.map(function(o) { return o._id; }).indexOf(group.groupId);
+           userAdminGroups.push(groupsByUser[index])
+        })
+      }
+      this.setState({userAdminGroups, isGroupAdmin})
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -56,7 +96,7 @@ class CreateLandscape extends Component {
 
     render() {
 
-        const { animated, viewEntersAnim } = this.state
+        const { animated, viewEntersAnim, isGroupAdmin, userAdminGroups } = this.state
         const { loading, landscapes, documentTypes } = this.props
 
         if (loading) {
@@ -93,6 +133,13 @@ class CreateLandscape extends Component {
                         </Col>
                     </Row>
                     <Paper zDepth={1} rounded={false}>
+                      {
+                        this.state.errorMessage
+                        ?
+                        <p style={{color: 'red'}}>{this.state.message}</p>
+                        :
+                        null
+                      }
 
                         <TextField id='name' ref='name' floatingLabelText='Name' maxLength={64} className={cx( { 'two-field-row': true } )}/>
                         <TextField id='version' ref='version' floatingLabelText='Version' className={cx( { 'two-field-row': true } )}/>
@@ -195,7 +242,42 @@ class CreateLandscape extends Component {
                               :
                               <div></div>
                           }
-
+                          {
+                            isGroupAdmin
+                            ?
+                            <div>
+                              <h5 > Adding to a group is REQUIRED for group admins </h5>
+                                <Table height={this.state.height} fixedHeader={this.state.fixedHeader} fixedFooter={this.state.fixedFooter}
+                                    selectable={true} multiSelectable={true}
+                                    onRowSelection={this.handleOnRowSelection}>
+                                      <TableHeader displaySelectAll={true} adjustForCheckbox={true}
+                                        enableSelectAll={true} >
+                                        <TableRow>
+                                          <TableHeaderColumn tooltip="Image"></TableHeaderColumn>
+                                          <TableHeaderColumn tooltip="Name">Name</TableHeaderColumn>
+                                          <TableHeaderColumn tooltip="Description">Description</TableHeaderColumn>
+                                        </TableRow>
+                                      </TableHeader>
+                                      <TableBody displayRowCheckbox={true}
+                                        showRowHover={true} stripedRows={false}
+                                        deselectOnClickaway={false}>
+                                        {userAdminGroups.map( (row, index) => (
+                                          <TableRow key={row._id} onClick={this.handleOnClick}>
+                                          <TableRowColumn><img src={row.imageUri} style={{width: 40, borderRadius: 50}} /></TableRowColumn>
+                                            <TableRowColumn>{row.name}</TableRowColumn>
+                                            <TableRowColumn>{row.description}</TableRowColumn>
+                                          </TableRow>
+                                          ))}
+                                      </TableBody>
+                                      <TableFooter
+                                        adjustForCheckbox={false}
+                                      >
+                                      </TableFooter>
+                                    </Table>
+                            </div>
+                                :
+                                null
+                          }
                           <Dropzone id='imageUri' onDrop={this.handlesImageUpload} multiple={false} accept='image/*' style={{
                               marginLeft: '10px',
                               maxWidth: '100px',
@@ -297,6 +379,19 @@ class CreateLandscape extends Component {
 
     }
 
+    handleOnRowSelection = selectedRows => {
+      if(selectedRows === 'all'){
+        selectedRows = []
+        this.state.userAdminGroups.forEach((group, index) =>{
+          selectedRows.push(index)
+        })
+      }
+      this.setState({
+        selectedRows
+      })
+    }
+
+
     handlesCreateDocumentClick = () => {
       var data = {
         url: this.state.docUrl,
@@ -331,7 +426,8 @@ class CreateLandscape extends Component {
 
     handlesCreateClick = event => {
         event.preventDefault()
-        const { mutate } = this.props
+        const { mutate, accounts } = this.props
+        const { userAdminGroups, selectedRows  } = this.state
         const { router } = this.context
 
         let landscapeToCreate = {}
@@ -346,10 +442,40 @@ class CreateLandscape extends Component {
           landscapeToCreate.version = '1.0'
         }
         landscapeToCreate.documents = this.state.addedDocuments;
-
+        if(!landscapeToCreate.name){
+          this.setState({errorMessage: true, message: 'Name is required.'})
+          return
+        }
+        else if(!landscapeToCreate.description){
+          this.setState({errorMessage: true, message: 'Description is required.'})
+          return
+        }
+        else if(!landscapeToCreate.cloudFormationTemplate){
+          this.setState({errorMessage: true, message: 'Template is required.'})
+          return
+        }
+        else{
         mutate({
             variables: { landscape: landscapeToCreate }
          }).then(({ data }) => {
+           if (selectedRows) {
+             for (var i = 0; i < selectedRows.length; i++) {
+               if(!userAdminGroups[selectedRows[i]].accounts){
+                 userAdminGroups[selectedRows[i]].accounts = []
+               }
+                 userAdminGroups[selectedRows[i]].landscapes.push(data.createLandscape._id);
+                 delete userAdminGroups[selectedRows[i]].__typename
+                 userAdminGroups[selectedRows[i]].users.forEach(user =>{
+                   delete user.__typename
+                 })
+                 this.props.UpdateGroupWithMutation(
+                   {variables: { group: userAdminGroups[selectedRows[i]] }}).then(() =>{
+                    //  let userWithPermissions = auth.setUserPermissions(auth.getUserInfo(), userAdminGroups, accounts)
+                    //  auth.setUserInfo(1, 'localStorage', userWithPermissions)
+                   })
+
+             }
+           }
             this.props.refetchLandscapes({}).then(({ data }) =>{
               this.setState({
                 successOpen: true
@@ -360,6 +486,7 @@ class CreateLandscape extends Component {
             })
         }).catch((error) => {
         })
+      }
     }
 
     closeError = (event) => {
@@ -373,7 +500,9 @@ CreateLandscape.propTypes = {
     currentView: PropTypes.string.isRequired,
     enterLandscapes: PropTypes.func.isRequired,
     leaveLandscapes: PropTypes.func.isRequired,
-    refetchLandscapes: PropTypes.func
+    refetchLandscapes: PropTypes.func,
+    UpdateGroupWithMutation: PropTypes.func,
+    mutate: PropTypes.func
 }
 
 CreateLandscape.contextTypes = {
