@@ -108,3 +108,16 @@
         height: 31px;
     }
 }
+
+#stack-error {
+    border: 1px solid rgb(255, 195, 195);
+    background: rgba(255, 195, 195, 0.35);
+    padding: 10px;
+    margin: 15px 0px;
+
+    #error-label {
+        font-weight: bold;
+        color: rgb(228, 133, 133);
+        margin-right: 20px;
+    }
+}

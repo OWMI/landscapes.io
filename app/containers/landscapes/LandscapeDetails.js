@@ -4,6 +4,7 @@ import { compose, graphql } from 'react-apollo'
 import { bindActionCreators } from 'redux'
 import { LandscapeDetails } from '../../views'
 import * as viewsActions from '../../redux/modules/views'
+import * as landscapesActions from '../../redux/modules/landscapes'
 
 /* -----------------------------------------
   GraphQL - Apollo client
@@ -104,14 +105,17 @@ const composedRequest = compose(
 const mapStateToProps = state => {
     return {
         currentView: state.views.currentView,
-        activeLandscape: state.landscapes.activeLandscape
+        activeLandscape: state.landscapes.activeLandscape,
+        pendingDeployments: state.landscapes.pendingDeployments,
+        hasPendingDeployments: state.landscapes.hasPendingDeployments
     }
 }
 
 const mapDispatchToProps = dispatch => {
     return bindActionCreators({
         enterLandscapes: viewsActions.enterLandscapes,
-        leaveLandscapes: viewsActions.leaveLandscapes
+        leaveLandscapes: viewsActions.leaveLandscapes,
+        setPendingDeployments: landscapesActions.setPendingDeployments
     }, dispatch)
 }
 

@@ -6,7 +6,6 @@ import async from 'async'
 import https from 'https'
 import AWS from 'aws-sdk'
 import { find, filter } from 'lodash'
-import lodash from 'lodash'
 import { pubsub } from './subscriptions'
 
 const Landscape = require('./models/landscape')
@@ -50,27 +49,6 @@ const resolveFunctions = {
                 if (err) return err
                 return groups
             })
-        },
-        groupsByUser(root, args, context) {
-            return new Promise((resolve, reject) => {
-              return Group.find().sort('-created').populate('user', 'displayName').exec((err, groups) => {
-                  if (err) return reject(err)
-                  return User.findById(args.id).exec((err, user) =>{
-                    if (user && user.role === 'admin') {
-                      return resolve(groups)
-                    }
-                    else {
-                      return resolve(lodash.filter(groups, lodash.flow(lodash.property('users'), lodash.partialRight(lodash.some, { userId: args.id }))));
-                    }
-                  })
-              })
-            })
-        },
-        groupById(root, args, context) {
-            return Group.findById(args.id).exec((err, group) =>{
-                if (err) return err
-                return group
-          })
         },
         documentTypes(root, args, context) {
             return TypeDocument.find().sort('-created').exec((err, documentTypes) => {
@@ -328,7 +306,7 @@ const resolveFunctions = {
                     })
 
                     if (account && account.accessKeyId && account.secretAccessKey) {
-                        console.log('---> setting AWS security credentials');
+                        console.log('---> setting AWS security credentials')
 
                         cloudformation.config.update({
                             accessKeyId: account.accessKeyId,
@@ -336,7 +314,7 @@ const resolveFunctions = {
                         })
 
                     } else {
-                        console.log(' ---> No AWS security credentials set - assuming Server IAM Role');
+                        console.log(' ---> No AWS security credentials set - assuming Server IAM Role')
                     }
 
                     resolve(deployment.accountName)
@@ -374,8 +352,6 @@ const resolveFunctions = {
             console.log(' ---> creating Deployment')
 
             let _cloudFormationParameters = JSON.parse(deployment.cloudFormationParameters)
-
-            console.log('_cloudFormationParameters', _cloudFormationParameters)
 
             function _setCABundle(pathToCertDotPemFile, rejectUnauthorized) {
                 let filePath = path.join(process.cwd(), pathToCertDotPemFile)
@@ -456,7 +432,7 @@ const resolveFunctions = {
             }
 
             async.series({
-                saveDeploymentData: function(callback) {
+                saveDeploymentData: callback => {
                     console.log('---> async.series >> saving deployment deployment...')
                     try {
                         newDeployment = new Deployment(deployment)
@@ -488,7 +464,7 @@ const resolveFunctions = {
 
                         console.log('newDeployment.cloudFormationParameters', newDeployment.cloudFormationParameters)
 
-                        newDeployment.save(function(err, deployment) {
+                        newDeployment.save((err, deployment) => {
                             if (err) {
                                 callback(err)
                             } else {
@@ -505,11 +481,11 @@ const resolveFunctions = {
                         callback(err)
                     }
                 },
-                setStackParameters: function(callback) {
+                setStackParameters: callback => {
                     console.log('---> async.series >> setting stack parameters...')
                     Landscape.findOne({
                         _id: newDeployment.landscapeId
-                    }, function(err, landscape) {
+                    }, (err, landscape) => {
                         if (err) {
                             callback(err)
                         } else {
@@ -539,9 +515,9 @@ const resolveFunctions = {
                         }
                     })
                 },
-                verifyStackNameAvailability: function(callback) {
+                verifyStackNameAvailability: callback => {
                     console.log('---> async.series >> verifying availability of stack name...')
-                    cloudFormation.describeStacks(params, function(err, deployment) {
+                    cloudFormation.describeStacks(params, (err, deployment) => {
                         if (err) {
                             if (err.message.indexOf('does not exist') !== -1) {
                                 console.log('---> async.series >> stack name "' + stackName + '" available!')
@@ -560,13 +536,13 @@ const resolveFunctions = {
                         }
                     })
                 },
-                createStack: function(callback) {
+                createStack: callback => {
                     console.log('---> async.series >> creating stack...')
 
                     // fix single quote issue...
                     let cleanStackParams = JSON.parse(JSON.stringify(stackParams))
                     console.log('cleanStackParams', cleanStackParams)
-                    let awsRequest = cloudFormation.createStack(cleanStackParams, function(err, deployment) {
+                    let awsRequest = cloudFormation.createStack(cleanStackParams, (err, deployment) => {
                         if (err) {
                             callback(err)
 
@@ -574,7 +550,7 @@ const resolveFunctions = {
                             console.log('---> async.series >> stack created!')
 
                             newDeployment.stackId = deployment.StackId
-                            newDeployment.save(function(err) {
+                            newDeployment.save(err => {
                                 if (err) {
                                     callback(err)
                                 }
@@ -586,14 +562,14 @@ const resolveFunctions = {
             }, (err, results) => {
                 if (err) {
                     console.log('---> async.series >> final callback: ERR')
-                    console.log('Error --->',err);
+                    console.log('Error --->', err)
 
                     newDeployment.awsErrors = err.message || err
                     newDeployment.save(err => {
                         if (err) {
-                            console.log('Error --->', err);
+                            console.log('Error --->', err)
+                            return err
                         }
-                        return err
                     })
                 } else {
                     console.log('---> async.series >> final callback: SUCCESS')
@@ -638,7 +614,7 @@ const resolveFunctions = {
                         })
 
                         if (account && account.accessKeyId && account.secretAccessKey) {
-                            console.log('---> setting AWS security credentials');
+                            console.log('---> setting AWS security credentials')
 
                             cloudformation.config.update({
                                 accessKeyId: account.accessKeyId,
@@ -646,7 +622,7 @@ const resolveFunctions = {
                             })
 
                         } else {
-                            console.log(' ---> No AWS security credentials set - assuming Server IAM Role');
+                            console.log(' ---> No AWS security credentials set - assuming Server IAM Role')
                         }
 
                         resolve(deployment.accountName)

@@ -307,8 +307,9 @@ class CreateDeployment extends Component {
 
         mutate({
             variables: { deployment: deploymentToCreate }
-         }).then(({ data }) => {
-            router.push({ pathname: `/landscape/${this.state.currentLandscape._id}` })
+        }).then(({ data }) => {
+            // TODO: add check to get status of deployment
+            setTimeout(() => router.push({ pathname: `/landscape/${this.state.currentLandscape._id}` }), 1500)
         }).catch(error => console.log(error))
     }
 }
