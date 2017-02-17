@@ -4,7 +4,7 @@ import shallowCompare from 'react-addons-shallow-compare'
 import Dropzone from 'react-dropzone'
 import { Row, Col } from 'react-flexbox-grid'
 
-import { Checkbox, RaisedButton} from 'material-ui'
+import { Checkbox, RaisedButton, Dialog} from 'material-ui'
 import {GridList, GridTile} from 'material-ui/GridList';
 import Subheader from 'material-ui/Subheader';
 import StarBorder from 'material-ui/svg-icons/toggle/star-border';
@@ -66,7 +66,8 @@ class EditUser extends Component {
           enableSelectAll: true,
           deselectOnClickaway: true,
           showCheckboxes: true,
-          height:'300'
+          height:'300',
+          showDeleteDialog: false
     }
 
     componentDidMount() {
@@ -79,11 +80,12 @@ class EditUser extends Component {
       const { loading, groups, landscapes, users, params } = nextProps
 
       let currentUser = {}
+      this.setState({currentUser})
       if(users){
         let currentUser = users.find(ls => { return ls._id === params.id })
         this.setState({ _id:currentUser._id, password: currentUser.password, username: currentUser.username, role: currentUser.role, email: currentUser.email, firstName: currentUser.firstName, lastName: currentUser.lastName})
+        this.setState({currentUser})
       }
-      this.setState({currentUser})
     }
 
     // Necessary for case: routes from another state
@@ -91,11 +93,12 @@ class EditUser extends Component {
       const { loading, groups, landscapes, users, params } = this.props
 
       let currentUser = {}
+      this.setState({currentUser})
       if(users){
         currentUser = users.find(ls => { return ls._id === params.id })
-        this.setState({ _id:currentUser._id, password: currentUser.password, username: currentUser.username, role: currentUser.role, email: currentUser.email, firstName: currentUser.firstName, lastName: currentUser.lastName})
+        this.setState({ _id: currentUser._id, password: currentUser.password, username: currentUser.username, role: currentUser.role, email: currentUser.email, firstName: currentUser.firstName, lastName: currentUser.lastName})
+        this.setState({currentUser})
       }
-      this.setState({currentUser})
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -110,7 +113,7 @@ class EditUser extends Component {
     render() {
 
         let self = this
-        const { animated, viewEntersAnim } = this.state
+        const { animated, viewEntersAnim, showDeleteDialog, currentUser } = this.state
         const { loading, groups, landscapes, users, params } = this.props
 
         const formItemLayout = {
@@ -146,12 +149,25 @@ class EditUser extends Component {
                 <Col xs={4} style={{ textAlign: 'left' }}>
                     <h4><strong>Edit User:</strong> {this.state.firstName} {this.state.lastName}</h4>
                 </Col>
-                <Col xs={8}>
+                <Col xs={5}>
                     <RaisedButton label='Save' onClick={this.handlesCreateClick}
                         style={{ float: 'right', margin: '30px 0px' }}
                         labelStyle={{ fontSize: '11px' }}/>
                 </Col>
+                <Col xs={3}>
+                  <RaisedButton label='Delete' onTouchTap={() => { this.setState({ showDeleteDialog: !showDeleteDialog }) }}
+                      style={{ float: 'right', margin: '30px 0px' }}
+                      labelStyle={{ fontSize: '11px' }}/>
+                    <Dialog title='Delete User' modal={false} open={showDeleteDialog}
+                          onRequestClose={() => { this.setState({ showDeleteDialog: !showDeleteDialog }) }}
+                          actions={[
+                              <FlatButton label='Cancel' primary={true} onTouchTap={() => { this.setState({ showDeleteDialog: !showDeleteDialog }) }}/>,
+                              <FlatButton label='Delete' primary={true} onTouchTap={this.handlesDeleteUserClick.bind(this, currentUser)}/>
+                          ]}>
+                          Are you sure you want to delete {this.state.firstName} {this.state.lastName}?
+                      </Dialog>
 
+                </Col>
             </Row>
                   <Card style={{padding:20}}>
                   <GridList
@@ -163,27 +179,27 @@ class EditUser extends Component {
                         key='username'
                       >
 
-                      <TextField style={{width:450}} id="username" floatingLabelText="Username" value={this.state.username} onChange={this.handlesOnUsernameChange}  placeholder='Username' />
+                      <TextField style={{width:'100%'}} id="username" floatingLabelText="Username" value={this.state.username} onChange={this.handlesOnUsernameChange}  placeholder='Username' />
                       </GridTile>
                       <GridTile
                         key='email'
                       >
-                      <TextField style={{width:450}} id="email" floatingLabelText="Email" value={this.state.email} onChange={this.handlesOnEmailChange}  placeholder='user@email.com' />
+                      <TextField style={{width:'100%'}} id="email" floatingLabelText="Email" value={this.state.email} onChange={this.handlesOnEmailChange}  placeholder='user@email.com' />
                       </GridTile>
                       <GridTile
                         key='firstName'
                       >
-                      <TextField style={{width:450}} id="firstName" floatingLabelText="First Name" value={this.state.firstName} onChange={this.handlesOnFirstNameChange} placeholder='First Name' />
+                      <TextField style={{width:'100%'}} id="firstName" floatingLabelText="First Name" value={this.state.firstName} onChange={this.handlesOnFirstNameChange} placeholder='First Name' />
                       </GridTile>
                       <GridTile
                         key='lastName'
                       >
-                      <TextField style={{width:450}} id="lastName" floatingLabelText="Last Name" value={this.state.lastName} onChange={this.handlesOnLastNameChange} placeholder='Last Name' />
+                      <TextField style={{width:'100%'}} id="lastName" floatingLabelText="Last Name" value={this.state.lastName} onChange={this.handlesOnLastNameChange} placeholder='Last Name' />
                       </GridTile>
                       <GridTile
                         key='role'
                       >
-                      <RadioButtonGroup style={{width:200, margin: 5}} name="role" id="role" valueSelected={this.state.role} onChange={this.handleRoleChange}>
+                      <RadioButtonGroup style={{width:'100%', margin: 5}} name="role" id="role" valueSelected={this.state.role} onChange={this.handleRoleChange}>
                             <RadioButton
                               value="admin"
                               label="Global Admin"
@@ -345,16 +361,19 @@ class EditUser extends Component {
     handlesDeleteUserClick = (user, event) => {
         event.preventDefault()
         const { router } = this.context
-        const { deleteUser, refetch } = this.props
-        const { showDeleteDialog } = this.state
+        const { DeleteUserMutation, refetchUsers } = this.props
+        const { showDeleteDialog, currentUser } = this.state
 
         this.setState({ showDeleteDialog: !showDeleteDialog })
-
-        deleteUser({
-            variables: { user }
+        console.log('currentUser', currentUser)
+        delete currentUser.__typename
+        DeleteUserMutation({
+            variables: { user: currentUser }
         }).then(({ data }) => {
-            router.push({ pathname: `/users` })
-            return refetch()
+            refetchUsers({}).then(()=>{
+              router.push({ pathname: `/users` })
+
+            })
         }).catch((error) => {
             console.error('graphql error', error)
         })
@@ -371,7 +390,8 @@ EditUser.propTypes = {
     currentView: PropTypes.string.isRequired,
     enterUsers: PropTypes.func.isRequired,
     leaveUsers: PropTypes.func.isRequired,
-    refetchUsers: PropTypes.func
+    refetchUsers: PropTypes.func,
+    DeleteUserMutation: PropTypes.func
 }
 
 EditUser.contextTypes = {

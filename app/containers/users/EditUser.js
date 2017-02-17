@@ -63,6 +63,13 @@ import * as viewsActions from '../../redux/modules/views'
        }
      }
   `
+  const DeleteUserMutation = gql `
+      mutation deleteUserMutation($user: UserInput!) {
+          deleteUser(user: $user) {
+              _id
+          }
+      }
+  `
  // 1- add queries:
  const UsersWithQuery = graphql(GroupQuery, {
      props: ({ data: { loading, groups } }) => ({
@@ -87,7 +94,9 @@ import * as viewsActions from '../../redux/modules/views'
  )
  (
    graphql(editUserMutation, {name: 'EditUserWithMutation'})
- (EditUser))))
+ (
+   graphql(DeleteUserMutation, {name: 'DeleteUserMutation'})
+ (EditUser)))))
 
 /* -----------------------------------------
   Redux
