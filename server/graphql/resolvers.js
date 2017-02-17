@@ -7,6 +7,7 @@ import https from 'https'
 import AWS from 'aws-sdk'
 import { find, filter } from 'lodash'
 import { pubsub } from './subscriptions'
+import lodash from 'lodash'
 
 const Landscape = require('./models/landscape')
 const Deployment = require('./models/deployment')
@@ -67,7 +68,7 @@ const resolveFunctions = {
         },
         groupById(root, args, context) {
             return Group.findById(args.id).exec((err, group) =>{
-                if (err) return err		
+                if (err) return err
                 return group
           })
         },
