@@ -332,13 +332,31 @@ class CreateGroup extends Component {
     }
 
     handleOnRowSelectionUsers = selectedRows => {
+      if(selectedRows === 'all'){
+        selectedRows = []
+        this.state.stateUsers.forEach((account, index) => {
+          selectedRows.push(index)
+        })
+      }
         this.setState({selectedUserRows: selectedRows})
     }
 
     handleOnRowSelectionLandscapes = selectedRows => {
+      if(selectedRows === 'all'){
+        selectedRows = []
+        this.state.stateLandscapes.forEach((account, index) => {
+          selectedRows.push(index)
+        })
+      }
         this.setState({selectedLandscapeRows: selectedRows})
     }
     handleOnRowSelectionAccounts = selectedRows => {
+        if(selectedRows === 'all'){
+          selectedRows = []
+          this.state.stateAccounts.forEach((account, index) => {
+            selectedRows.push(index)
+          })
+        }
         this.setState({selectedAccountRows: selectedRows})
     }
 
@@ -496,10 +514,6 @@ class CreateGroup extends Component {
         }
         if (this.state.selectedUserRows) {
             for (var i = 0; i < this.state.selectedUserRows.length; i++) {
-              console.log('this.state.selectedUserRows',this.state.selectedUserRows)
-              console.log('this.state.selectedUserRows[i]',this.state.selectedUserRows[i])
-              console.log('this.state.stateUsers', this.state.stateUsers)
-              console.log('this.state.stateUsers[this.state.selectedUserRows[i]]', this.state.stateUsers[this.state.selectedUserRows[i]])
                 if(this.state.stateUsers[this.state.selectedUserRows[i]].role === 'admin'){
                   this.state.stateUsers[this.state.selectedUserRows[i]].isAdmin = true;
                 }
