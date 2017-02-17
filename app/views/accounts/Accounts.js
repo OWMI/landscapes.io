@@ -30,6 +30,12 @@ class Accounts extends Component {
         const { leaveLandscapes } = this.props
         leaveLandscapes()
     }
+    componentWillMount(){
+      this.setState({activeAccount: {}})
+    }
+    componentWillReceiveProps(){
+      this.setState({activeAccount: {}})
+    }
 
     render() {
         const { animated, viewEntersAnim } = this.state
@@ -40,7 +46,7 @@ class Accounts extends Component {
             <FlatButton label='Delete' primary={true} onTouchTap={this.handlesDeleteAccountClick}/>
         ]
 
-        if (loading) {
+        if (loading || this.state.loading) {
             return (
                 <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
                     <Loader/>
@@ -76,16 +82,16 @@ class Accounts extends Component {
                                             <FlatButton onTouchTap={this.handlesEditAccountClick.bind(this, account)}>
                                                 <IoEdit/>
                                             </FlatButton>
-                                            <FlatButton onTouchTap={this.handlesDialogToggle}>
+                                            <FlatButton onTouchTap={this.handlesDialogToggle.bind(this, account)}>
                                                 <IoAndroidClose/>
                                             </FlatButton>
                                             <Dialog title='Delete Account' modal={false} open={this.state.showDialog}
                                                 onRequestClose={this.handlesDialogToggle}
                                                 actions={[
                                                     <FlatButton label='Cancel' primary={true} onTouchTap={this.handlesDialogToggle}/>,
-                                                    <FlatButton label='Delete' primary={true} onTouchTap={this.handlesDeleteAccountClick.bind(this, account)}/>
+                                                    <FlatButton label='Delete' primary={true} onTouchTap={this.handlesDeleteAccountClick}/>
                                                 ]}>
-                                                Are you sure you want to delete {account.name}?
+                                                Are you sure you want to delete {this.state.activeAccount.name}?
                                             </Dialog>
                                         </TableRowColumn>
                                     </TableRow>
@@ -98,9 +104,10 @@ class Accounts extends Component {
         )
     }
 
-    handlesDialogToggle = event => {
+    handlesDialogToggle =  (account, event) => {
         this.setState({
-            showDialog: !this.state.showDialog
+            showDialog: !this.state.showDialog,
+            activeAccount: account
         })
     }
 
@@ -114,18 +121,29 @@ class Accounts extends Component {
         router.push({ pathname: '/accounts/update/' + account._id })
     }
 
-    handlesDeleteAccountClick = (accountToDelete, event) => {
+    handlesDeleteAccountClick = (event) => {
         event.preventDefault()
-
+        this.setState({
+          loading: true
+        })
         const { mutate } = this.props
         const { router } = this.context
 
         this.handlesDialogToggle()
 
         mutate({
-            variables: { account: accountToDelete }
+            variables: { account: this.state.activeAccount }
          }).then(({ data }) => {
-            router.push({ pathname: '/accounts' })
+           this.props.refetchAccounts({}).then(({ data }) =>{
+             this.setState({
+               successOpen: true,
+               loading: false
+             })
+             router.push({ pathname: '/accounts' })
+           })
+           .catch((error) => {
+             this.setState({loading: false})
+           })
         }).catch((error) => {
         })
     }

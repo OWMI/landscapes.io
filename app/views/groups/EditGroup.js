@@ -101,6 +101,14 @@ class EditGroup extends Component {
         if(currentUser.role === 'admin'){
             isAdmin = true
         }
+        var isGroupAdmin = false;
+        if(auth.getUserInfo() && auth.getUserInfo().groups){
+          var group = auth.getUserInfo().groups.forEach(group =>{
+            if(group.groupId === params.id && group.isAdmin){
+              isGroupAdmin = true
+            }
+          })
+        }
 
         let currentGroup = {};
         if (groupById && (groupById._id === params.id)) {
@@ -210,7 +218,7 @@ class EditGroup extends Component {
                 }
             })
         }
-        this.setState({stateLandscapes: landscapesSorted, stateUsers, stateAccounts: accountsSorted})
+        this.setState({stateLandscapes: landscapesSorted, stateUsers, stateAccounts: accountsSorted, isGroupAdmin})
 
     }
 
@@ -223,6 +231,14 @@ class EditGroup extends Component {
         let isAdmin = false
         if(currentUser.role === 'admin'){
           isAdmin = true
+        }
+        var isGroupAdmin = false;
+        if(auth.getUserInfo() && auth.getUserInfo().groups){
+          var group = auth.getUserInfo().groups.forEach(group =>{
+            if(group.groupId === params.id && group.isAdmin){
+              isGroupAdmin = true
+            }
+          })
         }
         let currentGroup = {};
         if (groupById && (groupById._id === params.id)) {
@@ -333,7 +349,7 @@ class EditGroup extends Component {
                 }
             })
         }
-        this.setState({stateLandscapes: landscapesSorted, stateUsers, stateAccounts: accountsSorted, selectedAccountRows})
+        this.setState({stateLandscapes: landscapesSorted, stateUsers, stateAccounts: accountsSorted, selectedAccountRows, isGroupAdmin})
     }
 
     componentDidMount() {
@@ -353,7 +369,7 @@ class EditGroup extends Component {
     render() {
 
         let self = this
-        const {animated, viewEntersAnim} = this.state
+        const {animated, viewEntersAnim, isGroupAdmin} = this.state
         const {loading, groupById, landscapes, users, accounts, params} = this.props
         let stateCurrentGroup = this.state.currentGroup || {
             name: '',
@@ -382,7 +398,7 @@ class EditGroup extends Component {
                     </Col>
                     <Col xs={1}>
                       {
-                        this.state.isAdmin
+                        this.state.isAdmin || isGroupAdmin
                           ?
                           <div>
                             <RaisedButton label="Delete" labelStyle={{ fontSize: '11px' }} style={{ float: 'right', marginBottom: '30px' }} onClick={this.handlesDialogToggle} />
@@ -641,10 +657,6 @@ class EditGroup extends Component {
         }
     }
 
-    handlesGroupClick = event => {
-        const {router} = this.context
-        router.push({pathname: '/protected'})
-    }
     handlesPermissionClickC = event => {
         this.setState({
             permissionC: !this.state.permissionC

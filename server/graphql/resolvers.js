@@ -74,6 +74,7 @@ const resolveFunctions = {
             console.log('login resolver')
         },
         createLandscape(_, { landscape }) {
+          return new Promise((resolve, reject) => {
 
             console.log(' ---> creating Landscape')
             let newLandscape = new Landscape(landscape)
@@ -81,12 +82,13 @@ const resolveFunctions = {
             newLandscape.save(err => {
                 if (err) {
                     console.log(err)
-                    return err
+                    return reject(err)
                 } else {
                     console.log(' ---> created: ', newLandscape._id)
-                    return newLandscape
+                    return resolve(newLandscape)
                 }
             })
+          })
         },
         createUser(_, { user }) {
 
@@ -200,6 +202,7 @@ const resolveFunctions = {
             })
         },
         createAccount(_, { account }) {
+          return new Promise((resolve, reject) => {
 
             console.log(' ---> creating Account')
             let newAccount = new Account(account)
@@ -207,26 +210,29 @@ const resolveFunctions = {
             newAccount.save(err => {
                 if (err) {
                     console.log(err)
-                    return err
+                    return reject(err)
                 } else {
                     console.log(' ---> created: ', newAccount._id)
-                    return newAccount
+                    return resolve(newAccount)
                 }
             })
+          })
         },
         updateAccount(_, { account }) {
+          return new Promise((resolve, reject) => {
 
             console.log(' ---> updating Account')
 
             Account.findOneAndUpdate({ _id: account._id }, account, { new: true }, (err, doc) => {
                 if (err) {
                     console.log(err)
-                    return err
+                    return reject(err)
                 } else {
                     console.log(' ---> updated: ', doc)
-                    return doc
+                    return resolve(doc)
                 }
             })
+          })
         },
         deleteAccount(_, { account }) {
 
@@ -243,7 +249,7 @@ const resolveFunctions = {
             })
         },
         createGroup(_, { group }) {
-            console.log('inside resolver to create group', group)
+          return new Promise((resolve, reject) => {
 
             console.log(' ---> creating group')
 
@@ -252,15 +258,16 @@ const resolveFunctions = {
             newGroup.save(err => {
                 if (err) {
                     console.log(err)
-                    return err
+                    return reject(err)
                 } else {
                     console.log(' ---> created: ' + newGroup._id)
-                    return Group.find(newGroup._id).sort('-created').populate('user', 'displayName').exec((err, landscapes) => {
+                    return Group.find(newGroup._id).sort('-created').populate('user', 'displayName').exec((err, groups) => {
                         if (err) return err
-                        return landscapes
+                        return resolve(groups)
                     })
                 }
             })
+          })
         },
         updateGroup(_, { group }) {
           console.log(' ---> updating group')

@@ -13,7 +13,7 @@ import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'mat
 import {Tabs, Tab} from 'material-ui/Tabs';
 import TextField from 'material-ui/TextField';
 import Chip from 'material-ui/Chip';
-import { IoEdit, IoAndroidClose, IoIosCloudUploadOutline } from 'react-icons/lib/io'
+import { IoEdit, IoPlus, IoAndroidClose, IoIosCloudUploadOutline } from 'react-icons/lib/io'
 
 import Slider from 'material-ui/Slider';
 import {Row, Col} from 'react-flexbox-grid'
@@ -25,6 +25,7 @@ import defaultUserImage from '../../style/empty.png'
 
 import { Loader } from '../../components'
 import materialTheme from '../../style/custom-theme.js';
+import { auth } from '../../services/auth'
 
 const CheckboxGroup = Checkbox.Group;
 
@@ -90,6 +91,18 @@ class GroupDetails extends Component {
     componentWillMount(){
       const { enterGroupDetails, groupById, users, landscapes, accounts, params } = this.props
       let currentGroup = {};
+      var userRole = 'user';
+      var isGroupAdmin = false;
+      if(auth.getUserInfo() && auth.getUserInfo().role === 'admin'){
+        userRole = 'admin';
+      }
+      if(auth.getUserInfo() && auth.getUserInfo().groups){
+        var group = auth.getUserInfo().groups.forEach(group =>{
+          if(group.groupId === params.id && group.isAdmin){
+            isGroupAdmin = 'Admin'
+          }
+        })
+      }
       if(groupById && (groupById._id === params.id)){
         currentGroup = groupById
         var readablePermissions = []
@@ -130,7 +143,7 @@ class GroupDetails extends Component {
           }
       }
         if(currentGroup.accounts && accounts){
-          for(var i = 0; i< currentGroup.landscapes.length; i++){
+          for(var i = 0; i< currentGroup.accounts.length; i++){
             accounts.find(ls => {
               if(currentGroup.accounts[i] === ls._id){
                 ls.selected = true;
@@ -139,7 +152,7 @@ class GroupDetails extends Component {
             })
           }
       }
-      this.setState({groupLandscapes: groupLandscapes, groupAccounts})
+      this.setState({groupLandscapes: groupLandscapes, groupAccounts, userRole, isGroupAdmin})
 
         if(currentGroup.users && users){
           for(var i = 0; i< currentGroup.users.length; i++){
@@ -167,6 +180,18 @@ class GroupDetails extends Component {
       // use the name from nextProps to get the profile
       const { enterGroupDetails, groups, groupById, users, landscapes, accounts, params } = nextProps
       let currentGroup = {};
+      var userRole = 'user';
+      var isGroupAdmin = false;
+      if(auth.getUserInfo() && auth.getUserInfo().role === 'admin'){
+        userRole = 'admin';
+      }
+      if(auth.getUserInfo() && auth.getUserInfo().groups){
+        var group = auth.getUserInfo().groups.forEach(group =>{
+          if(group.groupId === params.id && group.isAdmin){
+            isGroupAdmin = 'Admin'
+          }
+        })
+      }
       if(groupById && (groupById._id === params.id)){
         currentGroup = groupById
         var readablePermissions = []
@@ -207,7 +232,7 @@ class GroupDetails extends Component {
           }
       }
         if(currentGroup.accounts && accounts){
-          for(var i = 0; i< currentGroup.landscapes.length; i++){
+          for(var i = 0; i< currentGroup.accounts.length; i++){
             accounts.find(ls => {
               if(currentGroup.accounts[i] === ls._id){
                 ls.selected = true;
@@ -216,7 +241,7 @@ class GroupDetails extends Component {
             })
           }
       }
-      this.setState({groupLandscapes: groupLandscapes, groupAccounts})
+      this.setState({groupLandscapes: groupLandscapes, groupAccounts, userRole, isGroupAdmin})
 
         if(currentGroup.users && users){
           for(var i = 0; i< currentGroup.users.length; i++){
@@ -252,7 +277,7 @@ class GroupDetails extends Component {
     render() {
 
         let self = this
-        const { animated, viewEntersAnim } = this.state
+        const { animated, viewEntersAnim, userRole, isGroupAdmin } = this.state
         const { loading, groupById, landscapes, users, params } = this.props
 
         console.log(this.props)
@@ -271,10 +296,31 @@ class GroupDetails extends Component {
                       <Col xs={2} style={{ textAlign: 'left', marginBottom:30 }}>
                         <Row><h4><strong>Group</strong></h4></Row>
                       </Col>
-                      <Col xs={10}>
+                      <Col xs={8}>
+
+                      {
+                        userRole === 'admin' || isGroupAdmin === 'Admin'
+                        ?
+                            <RaisedButton label='Create New Account' onClick={() => {
+                                const {router} = this.context
+                                router.push('/accounts/create');
+                              }}
+                                style={{ float: 'right', marginBottom: '30px' }}
+                                labelStyle={{ fontSize: '11px' }} icon={<IoPlus/>}/>
+                        :
+                        null
+                      }
+                    </Col>
+                      <Col xs={2}>
+                        {
+                          userRole === 'admin' || isGroupAdmin === 'Admin'
+                          ?
                           <RaisedButton label='Edit' onClick={this.handlesEditGroupClick}
                               style={{ float: 'right', marginBottom: '30px' }}
                               labelStyle={{ fontSize: '11px' }} icon={<IoEdit/>}/>
+                          :
+                          null
+                        }
                       </Col>
                   </Row>
                   <div style={styles.root}>

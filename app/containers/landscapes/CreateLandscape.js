@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import { graphql } from 'react-apollo'
 import { bindActionCreators } from 'redux'
 import * as viewsActions from '../../redux/modules/views'
+import { auth } from '../../services/auth'
 
 /* -----------------------------------------
   GraphQL - Apollo client
@@ -12,11 +13,18 @@ import * as viewsActions from '../../redux/modules/views'
 const createLandscapeMutation = gql `
     mutation createLandscape($landscape: LandscapeInput!) {
         createLandscape(landscape: $landscape) {
+            _id
+        }
+    }
+`
+const updateGroupMutation = gql `
+    mutation updateGroup($group: GroupInput!) {
+        updateGroup(group: $group) {
             name
         }
     }
 `
-const AccountsQuery = gql `
+const DocumentTypesQuery = gql `
     query getDocumentTypes {
         documentTypes {
             _id,
@@ -25,6 +33,23 @@ const AccountsQuery = gql `
         }
     }
  `
+ const AccountsQuery = gql `
+     query getAccounts {
+         accounts {
+             _id,
+             name,
+             region,
+             createdAt,
+             endpoint,
+             caBundlePath,
+             rejectUnauthorizedSsl,
+             signatureBlock,
+             isOtherRegion,
+             accessKeyId,
+             secretAccessKey
+         }
+     }
+  `
 const LandscapeQuery = gql `
     query getLandscapes {
         landscapes {
@@ -40,6 +65,26 @@ const LandscapeQuery = gql `
         }
     }
  `
+ var user = auth.getUserInfo() || {}
+ console.log('user', user)
+ const GroupQuery = gql `
+     query getGroupsByUser($userId: String, $isGlobalAdmin: Boolean) {
+         groupsByUser(id: $userId, isGlobalAdmin: $isGlobalAdmin ) {
+             _id,
+             name,
+             users{
+               isAdmin,
+               userId
+             },
+             accounts,
+             imageUri,
+             description,
+             landscapes,
+             permissions
+         }
+     }
+
+`
 
 const CreateLandscapeWithMutation = graphql(createLandscapeMutation)(
   graphql(LandscapeQuery, {
@@ -48,12 +93,26 @@ const CreateLandscapeWithMutation = graphql(createLandscapeMutation)(
         loading,
         refetchLandscapes: refetch
     })
-})(graphql(AccountsQuery, {
+})(graphql(GroupQuery, {
+     options: { variables: { userId: user._id || '', isGlobalAdmin: (user.role === 'admin') || false } },
+    props: ({ data: { loading, groupsByUser, refetch } }) => ({
+        groupsByUser,
+        loading,
+        refetchGroups: refetch
+    })
+})(graphql(DocumentTypesQuery, {
     props: ({ data: { loading, documentTypes } }) => ({
         documentTypes,
         loading
     })})
-  (CreateLandscape)))
+    (graphql(AccountsQuery, {
+        props: ({ data: { loading, accounts, refetch } }) => ({
+            accounts,
+            loading,
+            refetchAccounts:refetch
+        })
+    })(graphql(updateGroupMutation, {name: 'UpdateGroupWithMutation'})
+  (CreateLandscape))))))
 
 /* -----------------------------------------
   Redux
