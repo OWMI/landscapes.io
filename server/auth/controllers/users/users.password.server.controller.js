@@ -202,6 +202,63 @@ exports.reset = function (req, res, next) {
 };
 
 /**
+ * Admin Change Password
+ */
+exports.adminChangePassword = function (req, res, next) {
+  // Init Variables
+  var passwordDetails = req.body.passwordDetails;
+
+  if (req.body.user) {
+    if (passwordDetails.newPassword) {
+      User.findById(req.body.user._id, function (err, user) {
+
+        if (!err && user) {
+            if (passwordDetails.newPassword === passwordDetails.verifyPassword) {
+              user.password = passwordDetails.newPassword;
+
+              user.save(function (err) {
+                winston.log('save err--', err)
+                if (err) {
+                  return res.status(400).send({
+                    // message: errorHandler.getErrorMessage(err)
+                    message: err.ValidationError
+                  });
+                } else {
+                  req.login(user, function (err) {
+                    if (err) {
+                      res.status(400).send(err);
+                    } else {
+                      res.send({
+                        message: 'Password changed successfully'
+                      });
+                    }
+                  });
+                }
+              });
+            } else {
+              res.status(400).send({
+                message: 'Passwords do not match'
+              });
+            }
+        } else {
+          res.status(400).send({
+            message: 'User is not found'
+          });
+        }
+      });
+    } else {
+      res.status(400).send({
+        message: 'Please provide a new password'
+      });
+    }
+  } else {
+    res.status(400).send({
+      message: 'User is not signed in'
+    });
+  }
+};
+
+/**
  * Change Password
  */
 exports.changePassword = function (req, res, next) {

@@ -3,6 +3,7 @@ import React, { Component, PropTypes } from 'react'
 import shallowCompare from 'react-addons-shallow-compare'
 import Dropzone from 'react-dropzone'
 import { Row, Col } from 'react-flexbox-grid'
+import axios from 'axios'
 
 import { Checkbox, RaisedButton, Dialog} from 'material-ui'
 import {GridList, GridTile} from 'material-ui/GridList';
@@ -197,6 +198,16 @@ class EditUser extends Component {
                       <TextField style={{width:'100%'}} id="lastName" floatingLabelText="Last Name" value={this.state.lastName} onChange={this.handlesOnLastNameChange} placeholder='Last Name' />
                       </GridTile>
                       <GridTile
+                        key='newPassword'
+                      >
+                      <TextField style={{width:'100%'}} id="newPassword" floatingLabelText="New Password" value={this.state.newPassword} onChange={this.handlesOnNewPasswordChange} />
+                      </GridTile>
+                      <GridTile
+                        key='verifyPassword'
+                      >
+                      <TextField style={{width:'100%'}} id="verifyPassword" floatingLabelText="Verify Password" value={this.state.verifyPassword} onChange={this.handlesOnVerifyPasswordChange}/>
+                      </GridTile>
+                      <GridTile
                         key='role'
                       >
                       <RadioButtonGroup style={{width:'100%', margin: 5}} name="role" id="role" valueSelected={this.state.role} onChange={this.handleRoleChange}>
@@ -319,9 +330,20 @@ class EditUser extends Component {
         // should add some validator before setState in real use cases
         this.setState({ lastName: event.target.value })
     }
+    handlesOnNewPasswordChange = event => {
+        event.preventDefault()
+        // should add some validator before setState in real use cases
+        this.setState({ newPassword: event.target.value })
+    }
+    handlesOnVerifyPasswordChange = event => {
+        event.preventDefault()
+        // should add some validator before setState in real use cases
+        this.setState({ verifyPassword: event.target.value })
+    }
 
     handlesCreateClick = event => {
         const { router } = this.context
+        const { currentUser, newPassword, verifyPassword } = this.state
 
         event.preventDefault()
         this.setState({loading: true})
@@ -334,6 +356,24 @@ class EditUser extends Component {
           firstName: this.state.firstName,
           lastName: this.state.lastName
         };
+        if(newPassword && verifyPassword){
+          axios({
+              method: 'post',
+              url: `${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/users/adminPassword`,
+              data: {
+                  passwordDetails:{
+                    newPassword: newPassword,
+                    verifyPassword: verifyPassword
+                  },
+                  user: currentUser
+              },
+        }).then(res => {
+          console.log('changed', res)
+        }).catch(err => {
+            console.log('err',err)
+            this.setState({ passwordSubmitError: true })
+        })
+      }
 
         this.props.EditUserWithMutation({
             variables: { user: userToEdit }
