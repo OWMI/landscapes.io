@@ -151,6 +151,21 @@ class EditUser extends Component {
                         style={{ float: 'right', margin: '30px 0px' }}
                         labelStyle={{ fontSize: '11px' }}/>
                 </Col>
+                <Col xs={1}>
+                  <RaisedButton label='Delete' onTouchTap={() => { this.setState({ showDeleteDialog: !showDeleteDialog }) }}
+                      disabled={disableDelete}
+                      style={{ float: 'right', margin: '30px 0px' }}
+                      labelStyle={{ fontSize: '11px' }}/>
+                    <Dialog title='Delete User' modal={false} open={showDeleteDialog}
+                          onRequestClose={() => { this.setState({ showDeleteDialog: !showDeleteDialog }) }}
+                          actions={[
+                              <FlatButton label='Cancel' primary={true} onTouchTap={() => { this.setState({ showDeleteDialog: !showDeleteDialog }) }}/>,
+                              <FlatButton label='Delete' primary={true} onTouchTap={this.handlesDeleteUserClick.bind(this, currentLandscape)}/>
+                          ]}>
+                          Are you sure you want to delete {this.state.firstName} {this.state.lastName}?
+                      </Dialog>
+
+                </Col>
             </Row>
                   <Card style={{padding:20}}>
                   <GridList
@@ -340,6 +355,23 @@ class EditUser extends Component {
             console.error('graphql error', error)
         })
 
+    }
+    handlesDeleteUserClick = (user, event) => {
+        event.preventDefault()
+        const { router } = this.context
+        const { deleteUser, refetch } = this.props
+        const { showDeleteDialog } = this.state
+
+        this.setState({ showDeleteDialog: !showDeleteDialog })
+
+        deleteUser({
+            variables: { user }
+        }).then(({ data }) => {
+            router.push({ pathname: `/users` })
+            return refetch()
+        }).catch((error) => {
+            console.error('graphql error', error)
+        })
     }
 
     closeError = (event) => {

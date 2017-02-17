@@ -40,7 +40,7 @@ class Groups extends Component {
         const { loading, groupsByUser } = this.props
         let stateGroups = groupsByUser || []
         const user = auth.getUserInfo();
-
+        console.log('stateGroups', stateGroups)
         if (loading) {
             return (
                 <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
