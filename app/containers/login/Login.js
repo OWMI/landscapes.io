@@ -34,7 +34,7 @@ const GroupsWithQuery = graphql(GroupQuery, {
     props: ({ data: { loading, groups, refetch } }) => ({
         groups,
         loading,
-        refetch
+        refetchGroups: refetch
     })
 })
 

@@ -69,7 +69,7 @@ class Login extends Component {
 
     handlesOnLogin = event => {
         event.preventDefault()
-        const { loginUser, groups, accounts } = this.props
+        const { loginUser, groups, accounts, refetchGroups } = this.props
         const { router } = this.context
         let { username, password } = this.refs
 
@@ -93,13 +93,16 @@ class Login extends Component {
                 data: userWithPermissions
             })
         }).then(res => {
-            const { user, token } = res.data
-            loginUser(token, user, groups)
+            return refetchGroups({}).then(groups =>{
+              console.log('groups', this.props.groups)
+              const { user, token } = res.data
+              loginUser(token, user, this.props.groups)
 
-            return axios({
-                method: 'get',
-                url: `${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/verifyToken`,
-                headers: { 'x-access-token': token }
+              return axios({
+                  method: 'get',
+                  url: `${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/verifyToken`,
+                  headers: { 'x-access-token': token }
+              })
             })
 
         }).then(res => {
