@@ -24,6 +24,7 @@ const deploymentSchema = new Schema({
 
     stackId: String,
     stackStatus: String,
+    stackStatusReason: String,
     stackLastUpdate: Date,
     awsErrors: String
 })

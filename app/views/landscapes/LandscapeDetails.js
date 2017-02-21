@@ -138,7 +138,7 @@ class LandscapeDetails extends Component {
                         <CardHeader style={{ background: '#e6e6e6', padding: '0 25px' }}>
                             <Row between='xs' style={{ marginTop: '-10px' }}>
                                 <Col xs={2}><label>Deployment Name</label></Col>
-                                <Col xs={2}><label>Region</label></Col>
+                                <Col xs={2}><label>Deployed By</label></Col>
                                 <Col xs={2}><label>Date Created</label></Col>
                                 <Col xs={4}><label>Status</label></Col>
                                 <Col xs={2}></Col>
@@ -181,10 +181,10 @@ class LandscapeDetails extends Component {
 
                                 return (
                                     <Card key={index} style={{ padding: '5px 15px' }}>
-                                        <CardHeader actAsExpander={true} showExpandableButton={true} style={{ padding: '0px 15px' }}>
+                                        <CardHeader showExpandableButton={true} style={{ padding: '0px 15px' }}>
                                             <Row middle='xs' between='xs' style={{ marginTop: '-15px' }}>
                                                 <Col xs={2}>{deployment.stackName || ''}</Col>
-                                                <Col xs={2}>{deployment.location}</Col>
+                                                <Col xs={2}>{deployment.createdBy}</Col>
                                                 <Col xs={2}>{moment(deployment.createdAt).format('MMM DD YYYY')}</Col>
                                                 <Col xs={4} style={{ color: _stackStatus.color }}>
                                                     {_stackStatus.status}
@@ -196,7 +196,6 @@ class LandscapeDetails extends Component {
                                             </Row>
                                         </CardHeader>
                                         <CardText key={index} expandable={true}>
-
                                             {
                                                 _stackStatus.error
                                                 ?
@@ -392,13 +391,12 @@ class LandscapeDetails extends Component {
             return Promise.all(data.deploymentsByLandscapeId.map(deployment => {
 
                 cloudFormationParameters[deployment._id] = deployment.cloudFormationParameters
+
                 self.setState({ cloudFormationParameters })
 
                 if (deployment.isDeleted || deployment.awsErrors) {
                     return {
-                        data: {
-                            deploymentStatus: deployment
-                        }
+                        data: { deploymentStatus: deployment }
                     }
                 }
 
@@ -475,6 +473,9 @@ class LandscapeDetails extends Component {
 
                 // poll until all statuses are resolved as CREATE_COMPLETE
                 if (statuses.indexOf('CREATE_COMPLETE') > -1) {
+                    clearTimeout(self.timeout)
+                    setPendingDeployments(pendingDeployments)
+                } else if (statuses.indexOf('ROLLBACK_COMPLETE') > -1) {
                     clearTimeout(self.timeout)
                     setPendingDeployments(pendingDeployments)
                 } else {

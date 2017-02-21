@@ -27,7 +27,7 @@ exports.describe = (req, res) => {
 
     winston.info('---> Describing Deployment')
 
-    let cloudformation = new AWS.CloudFormation()
+    let cloudformation = new AWS.CloudFormation({ apiVersion: '2010-05-15' })
 
     return new Promise((resolve, reject) => {
         Account.findOne({ name: req.params.accountName }, (err, account) => {
@@ -36,9 +36,8 @@ exports.describe = (req, res) => {
                 reject(err)
             }
 
-            cloudformation.config.update({
-                region: req.params.region
-            })
+            console.log('---> setting AWS region')
+            AWS.config.region = req.params.region
 
             if (account && account.accessKeyId && account.secretAccessKey) {
                 winston.info('---> setting AWS security credentials');

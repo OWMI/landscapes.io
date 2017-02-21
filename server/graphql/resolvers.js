@@ -370,7 +370,7 @@ const resolveFunctions = {
 
             console.log('---> Describing Deployment')
 
-            let cloudformation = new AWS.CloudFormation()
+            let cloudformation = new AWS.CloudFormation({ apiVersion: '2010-05-15' })
 
             return new Promise((resolve, reject) => {
                 Account.findOne({ name: deployment.accountName }, (err, account) => {
@@ -379,12 +379,11 @@ const resolveFunctions = {
                         reject(err)
                     }
 
-                    cloudformation.config.update({
-                        region: deployment.location
-                    })
+                    console.log('---> setting AWS region')
+                    AWS.config.region = deployment.location
 
                     if (account && account.accessKeyId && account.secretAccessKey) {
-                        console.log('---> setting AWS security credentials')
+                        console.log('---> setting AWS security credentials.')
 
                         cloudformation.config.update({
                             accessKeyId: account.accessKeyId,
@@ -404,13 +403,17 @@ const resolveFunctions = {
                 }
 
                 return new Promise((resolve, reject) => {
-                    // console.log('cloudformation', cloudformation)
+
                     cloudformation.describeStacks(params, (err, data) => {
                         if (err) {
                             console.log(err, err.stack)
                             reject(err)
                         }
-                        console.log(data)
+
+                        if (data.Stacks[0].StackStatus === 'ROLLBACK_IN_PROGRESS' && data.Stacks[0].StackStatusReason) {
+                            deployment.awsErrors = data.Stacks[0].StackStatusReason
+                        }
+
                         deployment.stackStatus = data.Stacks[0].StackStatus
                         resolve(deployment)
                     })
@@ -505,9 +508,7 @@ const resolveFunctions = {
                 console.log('##            AWS Region -->', deployment.location)
                 AWS.config.region = deployment.location
 
-                cloudFormation = new AWS.CloudFormation({apiVersion: '2010-05-15'})
-
-                console.log(AWS.config)
+                cloudFormation = new AWS.CloudFormation({ apiVersion: '2010-05-15' })
             }
 
             async.series({
@@ -515,8 +516,6 @@ const resolveFunctions = {
                     console.log('---> async.series >> saving deployment deployment...')
                     try {
                         newDeployment = new Deployment(deployment)
-                        // TODO: update with username
-                        newDeployment.createdBy = 'tempAdmin'
 
                         let tags = Object.keys(_tags)
                         // let tags = Object.keys(deployment.tags)
@@ -548,7 +547,7 @@ const resolveFunctions = {
                                 callback(err)
                             } else {
                                 console.log('---> async.series >> deployment deployment saved!')
-                                //What are the next three lines for - AH ?
+
                                 stackName = newDeployment.stackName
                                 params = {
                                     StackName: stackName

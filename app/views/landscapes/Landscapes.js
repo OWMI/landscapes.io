@@ -31,7 +31,7 @@ class Landscapes extends Component {
       if(auth.getUserInfo().isGroupAdmin){
         currentUser.isGroupAdmin = true
       }
-      this.setState({currentUser})
+      this.setState({ currentUser })
 
     }
 
@@ -59,7 +59,7 @@ class Landscapes extends Component {
         if(auth.getUserInfo().isGroupAdmin){
           currentUser.isGroupAdmin = true
         }
-        this.setState({currentUser})
+        this.setState({ currentUser })
 
         if (_viewLandscapes.length) {
 
@@ -184,8 +184,6 @@ class Landscapes extends Component {
 
         const { loading, landscapes, users, groups, userAccess } = this.props
         const { animated, viewEntersAnim, viewLandscapes, currentUser } = this.state
-
-        console.log(currentUser)
 
         if (loading) {
             return (
