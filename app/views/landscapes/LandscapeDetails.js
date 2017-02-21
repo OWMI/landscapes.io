@@ -52,7 +52,7 @@ class LandscapeDetails extends Component {
         const { activeLandscape, loading, landscapes, params } = this.props
 
         const { animated, viewEntersAnim, currentDeployment, currentDeployments, deleteType,
-                refetchedLandscapes, cloudFormationParameters, currentLandscape, paramDetails } = this.state
+                refetchedLandscapes, cloudFormationParameters, tags, currentLandscape, paramDetails } = this.state
 
         let _landscapes = landscapes || []
 
@@ -232,9 +232,9 @@ class LandscapeDetails extends Component {
                                             }
                                             <h5>Tags</h5>
                                             {
-                                                deployment && deployment['tags'].length > 0
+                                                this.state.tags[deployment._id] && this.state.tags[deployment._id].length
                                                 ?
-                                                    deployment['tags'].map((tag, index) => {
+                                                    this.state.tags[deployment._id].map((tag, index) => {
                                                         return (
                                                             <div key={index}>
                                                                 {
@@ -377,6 +377,7 @@ class LandscapeDetails extends Component {
         let _landscapes = landscapes || []
         let currentLandscape = activeLandscape
         let cloudFormationParameters = {}
+        let tags = {}
 
         if (!currentLandscape) {
             currentLandscape = _landscapes.find(ls => { return ls._id === params.id })
@@ -395,10 +396,10 @@ class LandscapeDetails extends Component {
             variables: { landscapeId: params.id }
         }).then(({ data }) => {
             return Promise.all(data.deploymentsByLandscapeId.map(deployment => {
-
                 cloudFormationParameters[deployment._id] = deployment.cloudFormationParameters
+                tags[deployment._id] = deployment.tags
 
-                self.setState({ cloudFormationParameters })
+                self.setState({ cloudFormationParameters, tags })
 
                 if (deployment.isDeleted || deployment.awsErrors) {
                     return {
