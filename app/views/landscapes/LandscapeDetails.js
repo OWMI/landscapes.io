@@ -61,7 +61,6 @@ class LandscapeDetails extends Component {
         // if (activeLandscape && activeLandscape._id !== params.id)
 
         const parsedCFTemplate = JSON.parse(currentLandscape.cloudFormationTemplate)
-        console.log('currentLandscape', currentLandscape)
         function getDeploymentInfo(deployment) {
             var self = this;
             let deploymentInfo = []
