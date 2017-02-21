@@ -151,11 +151,6 @@ class EditUser extends Component {
                     <h4><strong>Edit User:</strong> {this.state.firstName} {this.state.lastName}</h4>
                 </Col>
                 <Col xs={5}>
-                    <RaisedButton label='Save' onClick={this.handlesCreateClick}
-                        style={{ float: 'right', margin: '30px 0px' }}
-                        labelStyle={{ fontSize: '11px' }}/>
-                </Col>
-                <Col xs={3}>
                   <RaisedButton label='Delete' onTouchTap={() => { this.setState({ showDeleteDialog: !showDeleteDialog }) }}
                       style={{ float: 'right', margin: '30px 0px' }}
                       labelStyle={{ fontSize: '11px' }}/>
@@ -168,6 +163,11 @@ class EditUser extends Component {
                           Are you sure you want to delete {this.state.firstName} {this.state.lastName}?
                       </Dialog>
 
+                </Col>
+                <Col xs={3}>
+                    <RaisedButton label='Save' onClick={this.handlesCreateClick}
+                        style={{ float: 'right', margin: '30px 0px' }}
+                        labelStyle={{ fontSize: '11px' }}/>
                 </Col>
             </Row>
                   <Card style={{padding:20}}>
