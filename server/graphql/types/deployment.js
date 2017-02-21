@@ -5,7 +5,7 @@ const Deployment = `
     type Deployment {
         _id: String!
         createdAt: String
-        createdBy: User
+        createdBy: String
         stackName: String
         accountName: String
         landscapeId: String

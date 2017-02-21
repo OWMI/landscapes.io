@@ -1,4 +1,5 @@
 import cx from 'classnames'
+import moment from 'moment'
 import React, { Component, PropTypes } from 'react'
 import shallowCompare from 'react-addons-shallow-compare'
 import { Row, Col } from 'react-flexbox-grid'
@@ -280,6 +281,7 @@ class CreateDeployment extends Component {
         event.preventDefault()
         const { mutate, landscapes, params } = this.props
         const { router } = this.context
+        const { username } = auth.getUserInfo()
 
         let deploymentToCreate = {
             cloudFormationParameters: {}
@@ -298,6 +300,8 @@ class CreateDeployment extends Component {
 
         // attach derived fields
         deploymentToCreate.tags = JSON.stringify({})
+        deploymentToCreate.createdAt = moment()
+        deploymentToCreate.createdBy = username
         deploymentToCreate.location = this.state.location
         deploymentToCreate.accountName = this.state.accountName
         deploymentToCreate.landscapeId = params.landscapeId

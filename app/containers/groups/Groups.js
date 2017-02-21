@@ -11,7 +11,7 @@ import { auth } from '../../services/auth'
  ------------------------------------------*/
 
  var user = auth.getUserInfo() || {}
- console.log('user', user)
+
  const GroupQuery = gql `
      query getGroupsByUser($userId: String, $isGlobalAdmin: Boolean) {
          groupsByUser(id: $userId, isGlobalAdmin: $isGlobalAdmin ) {

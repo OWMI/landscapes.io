@@ -57,6 +57,7 @@ const DeploymentStatusMutation = gql `
             stackName,
             location,
             createdAt,
+            createdBy,
             isDeleted,
             awsErrors
         }
@@ -68,6 +69,7 @@ const DeploymentByLandscapeIdMutation = gql `
         deploymentsByLandscapeId(landscapeId: $landscapeId) {
             _id,
             createdAt,
+            createdBy,
             stackName,
             accountName,
             landscapeId,
@@ -77,9 +79,9 @@ const DeploymentByLandscapeIdMutation = gql `
             billingCode,
             flavor,
             cloudFormationTemplate,
-            cloudFormationParameters{
-              ParameterKey,
-              ParameterValue
+            cloudFormationParameters {
+                ParameterKey,
+                ParameterValue
             },
             tags,
             notes,
