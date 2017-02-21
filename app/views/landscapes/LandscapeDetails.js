@@ -232,11 +232,11 @@ class LandscapeDetails extends Component {
                                             }
                                             <h5>Tags</h5>
                                             {
-                                                deployment && deployment.tags.length > 0
+                                                deployment && deployment['tags'].length > 0
                                                 ?
-                                                    deployment.tags.map((tag, index) => {
+                                                    deployment['tags'].map((tag, index) => {
                                                         return (
-                                                            <div>
+                                                            <div key={index}>
                                                                 {
                                                                     tag
                                                                     ?
@@ -380,7 +380,9 @@ class LandscapeDetails extends Component {
 
         if (!currentLandscape) {
             currentLandscape = _landscapes.find(ls => { return ls._id === params.id })
-            currentLandscape = { cloudFormationTemplate: '{}' }
+            if(!currentLandscape){
+              currentLandscape = { cloudFormationTemplate: '{}' }
+            }
         }
 
         if (currentLandscape && currentLandscape.documents) {
