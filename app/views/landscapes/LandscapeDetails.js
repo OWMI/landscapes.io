@@ -62,7 +62,6 @@ class LandscapeDetails extends Component {
         const parsedCFTemplate = JSON.parse(currentLandscape.cloudFormationTemplate)
 
         function getDeploymentInfo(deployment) {
-            var self = this;
             let deploymentInfo = []
             for (let key in deployment) {
                 switch (key) {
@@ -158,11 +157,10 @@ class LandscapeDetails extends Component {
                                 deployment.tags = deployment.tags || []
 
                                 if ((deployment && deployment.stackStatus === 'ROLLBACK_COMPLETE') || (deployment && deployment.awsErrors)) {
-                                    this.handlesFetchingStackEvents(deployment)
                                     _stackStatus = {
                                         status: deployment.stackStatus || 'FAILED',
                                         color: 'rgb(236, 11, 67)',
-                                        error: (deployment && deployment.awsErrors) ? deployment.awsErrors : 'Something went wrong with this deployment'
+                                        error: (deployment && deployment.awsErrors) ? deployment.awsErrors : 'Check CloudFormation for details'
                                     }
                                 } else if (deployment && deployment.isDeleted) {
                                     _stackStatus = {
@@ -363,10 +361,6 @@ class LandscapeDetails extends Component {
         )
     }
 
-    handlesFetchingStackEvents = deployment => {
-        // console.log('%c deployment ', 'background: #1c1c1c; color: deepskyblue', deployment)
-    }
-
     handlesFetchingDeploymentStatus = props => {
 
         const self = this
@@ -531,8 +525,7 @@ class LandscapeDetails extends Component {
                 currentDeployments: data.deploymentsByLandscapeId.filter(d => { return d.landscapeId === params.id })
             })
             router.push({ pathname: `/landscape/${params.id}` })
-        }).catch(error => {
-        })
+        }).catch(error => console.log(error))
     }
 
     handlesDeployClick = event => {

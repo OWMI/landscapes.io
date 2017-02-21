@@ -410,12 +410,18 @@ const resolveFunctions = {
                             reject(err)
                         }
 
-                        if (data.Stacks[0].StackStatus === 'ROLLBACK_IN_PROGRESS' && data.Stacks[0].StackStatusReason) {
-                            deployment.awsErrors = data.Stacks[0].StackStatusReason
+                        // fetch status reason if deployment rolls back
+                        if (data.Stacks[0].StackStatus === 'ROLLBACK_COMPLETE') {
+                            cloudformation.describeStackEvents(params, (err, data) => {
+                                let _status = find(data.StackEvents, { ResourceStatus: 'ROLLBACK_IN_PROGRESS' })
+                                deployment.awsErrors = _status.ResourceStatusReason
+                                deployment.stackStatus = 'ROLLBACK_COMPLETE'
+                                resolve(deployment)
+                            })
+                        } else {
+                            deployment.stackStatus = data.Stacks[0].StackStatus
+                            resolve(deployment)
                         }
-
-                        deployment.stackStatus = data.Stacks[0].StackStatus
-                        resolve(deployment)
                     })
                 })
             }).catch(err => {

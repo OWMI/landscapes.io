@@ -3,7 +3,7 @@
 /**
  * Module dependencies.
  */
-var _ = require('lodash'),
+let _ = require('lodash'),
     chalk = require('chalk'),
     glob = require('glob'),
     fs = require('fs'),
@@ -13,27 +13,27 @@ var _ = require('lodash'),
 /**
  * Get files by glob patterns
  */
-var getGlobbedPaths = function(globPatterns, excludes) {
+let getGlobbedPaths = (globPatterns, excludes) => {
     // URL paths regex
-    var urlRegex = new RegExp('^(?:[a-z]+:)?\/\/', 'i')
+    let urlRegex = new RegExp('^(?:[a-z]+:)?\/\/', 'i')
 
     // The output array
-    var output = []
+    let output = []
 
     // If glob pattern is array then we use each pattern in a recursive way, otherwise we use glob
     if (_.isArray(globPatterns)) {
-        globPatterns.forEach(function(globPattern) {
+        globPatterns.forEach(globPattern => {
             output = _.union(output, getGlobbedPaths(globPattern, excludes))
         })
     } else if (_.isString(globPatterns)) {
         if (urlRegex.test(globPatterns)) {
             output.push(globPatterns)
         } else {
-            var files = glob.sync(globPatterns)
+            let files = glob.sync(globPatterns)
             if (excludes) {
-                files = files.map(function(file) {
+                files = files.map(file => {
                     if (_.isArray(excludes)) {
-                        for (var i in excludes) {
+                        for (let i in excludes) {
                             if (excludes.hasOwnProperty(i)) {
                                 file = file.replace(excludes[i], '')
                             }
@@ -54,8 +54,8 @@ var getGlobbedPaths = function(globPatterns, excludes) {
 /**
  * Validate NODE_ENV existence
  */
-var validateEnvironmentVariable = function() {
-    var environmentFiles = glob.sync('./server/config/env/' + process.env.NODE_ENV + '.js')
+let validateEnvironmentVariable = () => {
+    let environmentFiles = glob.sync('./server/config/env/' + process.env.NODE_ENV + '.js')
 
     if (!environmentFiles.length) {
         if (process.env.NODE_ENV) {
@@ -69,7 +69,7 @@ var validateEnvironmentVariable = function() {
 
 /** Validate config.domain is set
  */
-var validateDomainIsSet = function(config) {
+let validateDomainIsSet = config => {
     if (!config.app.domain) {
         // winston.info('+ Warning: config.domain is empty and should be set to the fully qualified domain of the app.\n')
     }
@@ -79,14 +79,14 @@ var validateDomainIsSet = function(config) {
  * Validate Secure=true parameter can actually be turned on
  * because it requires certs and key files to be available
  */
-var validateSecureMode = function(config) {
+let validateSecureMode = config => {
 
     if (!config.secure || config.secure.ssl !== true) {
         return true
     }
 
-    var privateKey = fs.existsSync(path.resolve(config.secure.privateKey))
-    var certificate = fs.existsSync(path.resolve(config.secure.certificate))
+    let privateKey = fs.existsSync(path.resolve(config.secure.privateKey))
+    let certificate = fs.existsSync(path.resolve(config.secure.certificate))
 
     if (!privateKey || !certificate) {
         winston.info('+ Error: Certificate file or key file is missing, falling back to non-SSL mode')
@@ -98,7 +98,7 @@ var validateSecureMode = function(config) {
 /**
  * Validate Session Secret parameter is not set to default in production
  */
-var validateSessionSecret = function(config, testing) {
+let validateSessionSecret = (config, testing) => {
 
     if (process.env.NODE_ENV !== 'production') {
         return true
@@ -119,7 +119,7 @@ var validateSessionSecret = function(config, testing) {
 /**
  * Initialize global configuration files
  */
-var initGlobalConfigFolders = function(config, assets) {
+let initGlobalConfigFolders = (config, assets) => {
     // Appending files
     config.folders = {
         server: {},
@@ -133,7 +133,7 @@ var initGlobalConfigFolders = function(config, assets) {
 /**
  * Initialize global configuration files
  */
-var initGlobalConfigFiles = function(config, assets) {
+let initGlobalConfigFiles = (config, assets) => {
     // Appending files
     config.files = {
         server: {},
@@ -159,30 +159,30 @@ var initGlobalConfigFiles = function(config, assets) {
 /**
  * Initialize global configuration
  */
-var initGlobalConfig = function() {
+let initGlobalConfig = () => {
     // Validate NODE_ENV existence
     validateEnvironmentVariable()
 
     // Get the default assets
-    var defaultAssets = require(path.join(process.cwd(), 'server/config/assets/default'))
+    let defaultAssets = require(path.join(process.cwd(), 'server/config/assets/default'))
 
     // Get the current assets
-    var environmentAssets = require(path.join(process.cwd(), 'server/config/assets/', process.env.NODE_ENV)) || {}
+    let environmentAssets = require(path.join(process.cwd(), 'server/config/assets/', process.env.NODE_ENV)) || {}
 
     // Merge assets
-    var assets = _.merge(defaultAssets, environmentAssets)
+    let assets = _.merge(defaultAssets, environmentAssets)
 
     // Get the default config
-    var defaultConfig = require(path.join(process.cwd(), 'server/config/env/default'))
+    let defaultConfig = require(path.join(process.cwd(), 'server/config/env/default'))
 
     // Get the current config
-    var environmentConfig = require(path.join(process.cwd(), 'server/config/env/', process.env.NODE_ENV)) || {}
+    let environmentConfig = require(path.join(process.cwd(), 'server/config/env/', process.env.NODE_ENV)) || {}
 
     // Merge config files
-    var config = _.merge(defaultConfig, environmentConfig)
+    let config = _.merge(defaultConfig, environmentConfig)
 
     // Include values from package.json
-    var pkg = require(path.resolve('./package.json'))
+    let pkg = require(path.resolve('./package.json'))
     config.landscapes = pkg
 
     // Extend the config object with the local-NODE_ENV.js custom/local environment. This will override any settings present in the local configuration.
