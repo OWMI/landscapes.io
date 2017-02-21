@@ -26,6 +26,24 @@ const LandscapeWithQuery = graphql(LandscapeQuery, {
     })
 })
 
+const TagsQuery = gql `
+    query getTags {
+        tags {
+          _id,
+          key,
+          defaultValue,
+          isGlobal,
+          isRequired
+        }
+    }
+ `
+ const TagsWithQuery = graphql(TagsQuery, {
+     props: ({ data: { loading, tags } }) => ({
+         tags,
+         loading
+     })
+ })
+
 const AccountsQuery = gql `
     query getAccounts {
         accounts {
@@ -62,6 +80,7 @@ const createDeploymentMutation = gql `
 const composedRequest = compose(
     LandscapeWithQuery,
     AccountsWithQuery,
+    TagsWithQuery,
     graphql(createDeploymentMutation)
 )(CreateDeployment)
 

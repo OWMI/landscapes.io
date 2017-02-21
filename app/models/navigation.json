@@ -53,8 +53,21 @@
         "showWhenUserAuth": true,
         "showOnUserDropdown": false,
         "showOnSettingsDropdown": true,
+        "showOnSettingsDropdownAdminOnly": false,
         "hideWhenUserAuth": false
     }, {
+        "label": "Tags",
+        "link": "/tags",
+        "view": "tags",
+        "isRouteBtn": true,
+        "alwaysShows": false,
+        "showAdminOnly": true,
+        "showWhenUserAuth": true,
+        "showOnUserDropdown": false,
+        "showOnSettingsDropdown": true,
+        "showOnSettingsDropdownAdminOnly": true,
+        "hideWhenUserAuth": false
+    },{
         "label": "Document Types",
         "link": "/documentTypes",
         "view": "documentTypes",
@@ -64,6 +77,7 @@
         "showWhenUserAuth": true,
         "showOnSettingsDropdown": true,
         "showOnUserDropdown": false,
+        "showOnSettingsDropdownAdminOnly": false,
         "hideWhenUserAuth": false
     }, {
         "label": "View Profile",

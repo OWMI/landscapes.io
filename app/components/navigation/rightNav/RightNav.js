@@ -45,7 +45,7 @@ class RightNav extends Component {
                 {
                     (userIsAuthenticated && this.state.userIsAuthenticated && this.state.userIsAdmin)
                     ?
-                        rightLinks.filter(btnLink => ((btnLink.showWhenUserAuth === true) && (btnLink.showOnUserDropdown === false) && (btnLink.showOnSettingsDropdown !== true))).map((aLinkBtn, index) => {
+                        rightLinks.filter(btnLink => ((btnLink.showWhenUserAuth === true) && (btnLink.showOnUserDropdown === false) && (btnLink.showOnSettingsDropdown !== true) && (btnLink.showOnSettingsDropdownAdminOnly !== true) )).map((aLinkBtn, index) => {
                             return (
                                 <RightNavButton key={index} link={aLinkBtn.link} label={aLinkBtn.label}
                                     viewName={aLinkBtn.view} onClick={onRightNavButtonClick}/>
@@ -93,6 +93,9 @@ class RightNav extends Component {
                         label='Settings' hoverColor={'none'}
                         labelStyle={{ fontSize: '12px', fontWeight: 'bold' }}
                     />
+                  {
+                    this.state.userIsAdmin
+                    ?
                     <IconMenu
                         open={this.state.settings}
                         iconButtonElement={<IconButton style={{ display: 'none' }}></IconButton>}
@@ -101,7 +104,7 @@ class RightNav extends Component {
                         targetOrigin={{ horizontal: 'right', vertical: 'bottom' }}
                         >
                             {
-                                rightLinks.filter(btnLink => ((btnLink.showWhenUserAuth === true) && (btnLink.showOnSettingsDropdown === true))).map((aLinkBtn, index) => {
+                                rightLinks.filter(btnLink => ((btnLink.showWhenUserAuth === true) && ((btnLink.showOnSettingsDropdown === true) || (btnLink.showOnSettingsDropdownAdminOnly === true)))).map((aLinkBtn, index) => {
                                       return (
                                           <Link key={index} to={aLinkBtn.link} onClick={this.handleRightNavItemClick}>
                                               <MenuItem primaryText={aLinkBtn.label}/>
@@ -110,6 +113,25 @@ class RightNav extends Component {
                                 })
                             }
                     </IconMenu>
+                    :
+                    <IconMenu
+                        open={this.state.settings}
+                        iconButtonElement={<IconButton style={{ display: 'none' }}></IconButton>}
+                        onRequestChange={this.handleOnRequestChange}
+                        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                        targetOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                        >
+                            {
+                                rightLinks.filter(btnLink => ((btnLink.showWhenUserAuth === true) && (btnLink.showOnSettingsDropdown === true) && (btnLink.showOnSettingsDropdownAdminOnly === false))).map((aLinkBtn, index) => {
+                                      return (
+                                          <Link key={index} to={aLinkBtn.link} onClick={this.handleRightNavItemClick}>
+                                              <MenuItem primaryText={aLinkBtn.label}/>
+                                          </Link>
+                                      )
+                                })
+                            }
+                    </IconMenu>
+                  }
                     </div>
                     :
                         null

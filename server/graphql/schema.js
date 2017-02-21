@@ -9,6 +9,7 @@ import Landscape from './types/landscape.js'
 import Deployment from './types/deployment.js'
 import Subscription from './types/subscriptions.js'
 import TypeDocument from './types/documentTypes.js'
+import Tag from './types/tag.js'
 
 const Query = `
     input userInput {
@@ -103,6 +104,14 @@ const Query = `
       description: String
     }
 
+    input TagInput {
+      _id: String
+      key: String
+      defaultValue: String
+      isGlobal: Boolean
+      isRequired: Boolean
+    }
+
     input DocumentTypeInput {
       _id: String
       name: String
@@ -116,6 +125,7 @@ const Query = `
         accounts: [Account]
         landscapes: [Landscape]
         documentTypes: [TypeDocument]
+        tags: [Tag]
         landscapeById(id: String): [Landscape]
         landscapesWithDeploymentStatus: [Landscape]
         users: [User],
@@ -129,6 +139,10 @@ const Mutation = `
         createUser ( user: UserInput! ): User
         updateUser ( user: UserInput! ): User
         deleteUser ( user: UserInput! ): User
+
+        createTag ( tag: TagInput! ): Tag
+        updateTag ( tag: TagInput! ): Tag
+        deleteTag ( tag: TagInput! ): Tag
 
         createDocumentType ( documentType: DocumentTypeInput! ): TypeDocument
         updateDocumentType ( documentType: DocumentTypeInput! ): TypeDocument
@@ -156,6 +170,6 @@ const Mutation = `
 `
 
 export default makeExecutableSchema({
-    typeDefs: [ Query, User, Group, Mutation, Landscape, Deployment, TypeDocument,  Account, Subscription ],
+    typeDefs: [ Query, User, Group, Mutation, Landscape, Deployment, TypeDocument, Tag, Account, Subscription ],
     resolvers,
 })

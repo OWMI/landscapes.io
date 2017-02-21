@@ -217,9 +217,42 @@ class LandscapeDetails extends Component {
                                                     this.state.cloudFormationParameters[deployment._id].map(parameter => {
                                                         return (
                                                             <Row key={parameter.ParameterKey}>
-                                                                <label style={{ margin: '0px 15px' }}>{parameter.ParameterKey}</label>
-                                                                <label>{parameter.ParameterValue}</label>
+                                                                <Col xs={2}>
+                                                                  <label style={{ margin: '0px 15px' }}>{parameter.ParameterKey}</label>
+                                                                </Col>
+                                                                <Col xs={2}>
+                                                                  <label>{parameter.ParameterValue}</label>
+                                                                </Col>
                                                             </Row>
+                                                        )
+                                                    })
+                                                :
+                                                    null
+                                            }
+                                            <h5>Tags</h5>
+                                            {
+                                                deployment && deployment['tags'].length > 0
+                                                ?
+                                                    deployment['tags'].map((tag, index) => {
+                                                        return (
+                                                          <div>
+                                                              {
+                                                                tag
+                                                                ?
+                                                                <Row key={index}>
+
+                                                                  <Col xs={2}>
+                                                                    <label style={{ margin: '0px 15px' }}>{tag.Key || ''}</label>
+                                                                  </Col>
+                                                                  <Col xs={2}>
+                                                                    <label>{tag.Value || ''}</label>
+                                                                  </Col>
+                                                                </Row>
+
+                                                                :
+                                                                null
+                                                              }
+                                                          </div>
                                                         )
                                                     })
                                                 :
@@ -298,9 +331,7 @@ class LandscapeDetails extends Component {
                                 </Table>
                             </Tab>
                         :
-                            <Tab label='Resources'>
-                              <p style={{ flex: 1, textAlign: 'center', marginTop: 5 }}>None</p>
-                            </Tab>
+                            null
                     }
 
                     {
@@ -325,9 +356,7 @@ class LandscapeDetails extends Component {
                               }
                           </Tab>
                       :
-                          <Tab label='Parameters'>
-                            <p style={{flex: 1, textAlign: 'center', marginTop: 5}}>None</p>
-                          </Tab>
+                          null
                       }
                   </Tabs>
               </Card>

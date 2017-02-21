@@ -15,6 +15,7 @@ const Group = require('./models/group')
 const Account = require('./models/account')
 const User = require('../auth/models/user.server.model')
 const TypeDocument = require('./models/documentTypes')
+const Tag = require('./models/tag')
 
 // FIX: Attempts to resolve 'UnknownEndpoint' error experienced on GovCloud
 // AWS.events.on('httpError', () => {
@@ -43,6 +44,12 @@ const resolveFunctions = {
             return Account.find().sort('-created').exec((err, accounts) => {
                 if (err) return err
                 return accounts
+            })
+        },
+        tags(root, args, context) {
+            return Tag.find().sort('-created').populate('user', 'displayName').exec((err, tags) => {
+                if (err) return err
+                return tags
             })
         },
         groups(root, args, context) {
@@ -127,21 +134,6 @@ const resolveFunctions = {
                 }
             })
         },
-        createDocumentType(_, { documentType }) {
-
-            console.log(' ---> creating DocumentType', TypeDocument)
-            let newDocumentType = new TypeDocument(documentType)
-
-            newDocumentType.save(err => {
-                if (err) {
-                    console.log(err)
-                    return err
-                } else {
-                    console.log(' ---> created: ', newDocumentType._id)
-                    return newDocumentType
-                }
-            })
-        },
         updateUser(_, { user }) {
 
           console.log(' ---> updating user')
@@ -166,6 +158,63 @@ const resolveFunctions = {
                 } else {
                     console.log(' ---> Account deleted: ', doc)
                     return doc
+                }
+            })
+        },
+        createTag(_, { tag }) {
+
+            console.log(' ---> creating Tag', tag)
+            let newTag = new Tag(tag)
+
+            newTag.save(err => {
+                if (err) {
+                    console.log(err)
+                    return err
+                } else {
+                    console.log(' ---> created: ', newTag._id)
+                    return newTag
+                }
+            })
+        },
+        updateTag(_, { tag }) {
+
+          console.log(' ---> updating Tag')
+
+          Tag.findOneAndUpdate({ _id: tag._id }, tag, { new: true }, (err, doc) => {
+              if (err) {
+                  console.log(err)
+                  return err
+              } else {
+                  console.log(' ---> updated: ', doc)
+                  return doc
+              }
+          })
+        },
+        deleteTag(_, { tag }) {
+            console.log(' ---> deleting Tag')
+
+            Tag.findByIdAndRemove(tag._id, (err, doc) => {
+                if (err) {
+                    console.log('error', err)
+                    return err
+                } else {
+                    console.log(' ---> Tag deleted: ', doc)
+                    return doc
+                }
+            })
+        },
+        createDocumentType(_, { documentType }) {
+
+            console.log(' ---> creating DocumentType', TypeDocument)
+            let newDocumentType = new TypeDocument(documentType)
+
+            newDocumentType.save(err => {
+                if (err) {
+                    console.log(err)
+                    return err
+                } else {
+                    console.log(' ---> created: ', newDocumentType._id)
+                    return newDocumentType
                 }
             })
         },
@@ -381,6 +430,7 @@ const resolveFunctions = {
             console.log(' ---> creating Deployment')
 
             let _cloudFormationParameters = JSON.parse(deployment.cloudFormationParameters)
+            let _tags = JSON.parse(deployment.tags)
 
             function _setCABundle(pathToCertDotPemFile, rejectUnauthorized) {
                 let filePath = path.join(process.cwd(), pathToCertDotPemFile)
@@ -468,17 +518,17 @@ const resolveFunctions = {
                         // TODO: update with username
                         newDeployment.createdBy = 'tempAdmin'
 
-                        let tags = Object.keys({})
+                        let tags = Object.keys(_tags)
                         // let tags = Object.keys(deployment.tags)
                         newDeployment.tags = []
                         for (let i = 0; i < tags.length; i++) {
                             let tag = {
-                                Key: tags[i],
-                                Value: deployment.tags[tags[i]]
+                                Key: _tags[tags[i]].Key,
+                                Value: _tags[tags[i]].Value
                             }
                             newDeployment.tags.push(tag)
                         }
-                        // console.log('## Tags:', JSON.stringify(newDeployment.tags))
+                        console.log('## Tags:', JSON.stringify(newDeployment.tags))
 
                         newDeployment.cloudFormationParameters = [] //
                         let keys = Object.keys(_cloudFormationParameters)

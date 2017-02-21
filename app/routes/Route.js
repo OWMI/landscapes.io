@@ -38,6 +38,10 @@ import {
     ConnectedEditGroup,
     ConnectedGroupDetails,
 
+    ConnectedTags,
+    ConnectedCreateTag,
+    ConnectedUpdateTag,
+
     ConnectedAccounts,
     ConnectedCreateAccount,
     ConnectedUpdateAccount,
@@ -60,6 +64,10 @@ export const Routes = () => {
                     <Route path="/" component={App}>
                         {/* non protected views */}
                         <IndexRoute component={ConnectedLandscapes} onEnter={requireAuth}/>
+                        {/* tag views */}
+                        <Route path="/tags" component={ConnectedTags} onEnter={requireAuth}/>
+                        <Route path="/tags/create" component={ConnectedCreateTag} onEnter={requireAuth}/>
+                        <Route path="/tags/update/:id" component={ConnectedUpdateTag} onEnter={requireAuth}/>
                         {/* account views */}
                         <Route path="/accounts" component={ConnectedAccounts} onEnter={requireAuth}/>
                         <Route path="/accounts/create" component={ConnectedCreateAccount} onEnter={requireAuth}/>

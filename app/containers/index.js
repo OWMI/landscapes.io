@@ -26,6 +26,10 @@ import ConnectedDocumentTypes from './documentTypes/DocumentTypes'
 import ConnectedCreateDocumentTypes from './documentTypes/CreateDocumentTypes'
 import ConnectedUpdateDocumentTypes from './documentTypes/UpdateDocumentTypes'
 
+import ConnectedTags from './tags/Tags'
+import ConnectedCreateTag from './tags/CreateTag'
+import ConnectedUpdateTag from './tags/UpdateTag'
+
 import ConnectedAccounts from './accounts/Accounts'
 import ConnectedCreateAccount from './accounts/CreateAccount'
 import ConnectedUpdateAccount from './accounts/UpdateAccount'
@@ -58,6 +62,10 @@ export {
     ConnectedDocumentTypes,
     ConnectedCreateDocumentTypes,
     ConnectedUpdateDocumentTypes,
+
+    ConnectedTags,
+    ConnectedCreateTag,
+    ConnectedUpdateTag,
 
     ConnectedAccounts,
     ConnectedCreateAccount,

@@ -85,11 +85,12 @@ class CreateDeployment extends Component {
 
     render() {
 
-        const { loading, accounts } = this.props
+        const { loading, accounts, tags } = this.props
         const { isGlobalAdmin, isGroupAdmin } = auth.getUserInfo()
         const { animated, viewEntersAnim, templateParameters, templateDescription,
                 secretAccessKey, signatureBlock, landscapeAccounts } = this.state
 
+        const _tags = tags || []
         const menuItems = [
             { text: 'Gov Cloud', value: 'us-gov-west-1' },
             { text: 'US East (Northern Virginia) Region', value: 'us-east-1' },
@@ -100,6 +101,14 @@ class CreateDeployment extends Component {
             { text: 'Asia Pacific (Sydney) Region', value: 'ap-southeast-2' },
             { text: 'Asia Pacific (Tokyo) Region', value: 'ap-northeast-1' },
             { text: 'South America (Sao Paulo) Region', value: 'sa-east-1' }
+        ]
+        const isRequired = [
+          true: {
+            description: 'Is Required'
+          },
+          false: {
+            description: ''
+          }
         ]
 
         if (loading) {
@@ -148,12 +157,16 @@ class CreateDeployment extends Component {
                                   <SelectField id='accountName' floatingLabelText='Account Name' value={this.state.accountName} onChange={this.handlesAccountChange}
                                       floatingLabelStyle={{ left: '0px' }} className={cx( { 'two-field-row': true } )}>
                                       {
-                                          landscapeAccounts.map((acc, index) => {
-                                              return (
-                                                  <MenuItem key={acc._id} value={acc.name} primaryText={acc.name}/>
-                                              )
-                                          })
-                                      }
+                                          landscapeAccounts && landscapeAccounts.length
+                                            ?
+                                                landscapeAccounts.map((acc, index) => {
+                                                    return (
+                                                        <MenuItem key={acc._id} value={acc.name} primaryText={acc.name}/>
+                                                    )
+                                                })
+                                            :
+                                            null
+                                        }
                                   </SelectField>
                             }
 
@@ -207,8 +220,10 @@ class CreateDeployment extends Component {
                                     floatingLabelText='Signature Block' floatingLabelStyle={{ left: '0px' }}/>
                             </CardText>
                         </Card>
+                        <Row>
+                          <h4 style={{ paddingTop: '30px', paddingLeft: 10}}>Parameters</h4>
+                        </Row>
                         <Col xs={12} style={{ minHeight: '200' }}>
-                            <label style={{ paddingTop: '30px', fontSize: '14px' }}>Parameters</label>
                             <Row>
                                 <Col xs={3}>
                                     {
@@ -235,14 +250,42 @@ class CreateDeployment extends Component {
                                 </Col>
                             </Row>
                         </Col>
+                        <Row>
+                          <h4 style={{ paddingTop: '30px', paddingLeft: 10}}>Tags</h4>
+                        </Row>
                             <Col xs={12} style={{ minHeight: '200' }}>
-                                <label style={{ paddingTop: '30px', fontSize: '14px' }}>Tags</label>
-                                <Row>
-                                    <Col xs={3}>
-                                    </Col>
-                                    <Col xs={6}>
-                                    </Col>
-                                </Row>
+                              <Row>
+                                  <Col xs={4}>
+                                      {
+                                          _tags.map((tag, index) => {
+                                              return (
+                                                  <Row key={index} bottom='xs' style={{ height: 72 }}>
+                                                        <label style={{ marginBottom: '12px' }}>{tag.key}</label>
+                                                  </Row>
+                                              )
+                                          })
+                                      }
+                                  </Col>
+                                 <Col xs={8}>
+                                  {
+                                          _tags.map((tag, index) => {
+                                              return (
+                                                  <Row key={index} bottom='xs' style={{ height: 72 }}>
+                                                    {
+                                                      tag.isRequired
+                                                      ?
+                                                      <TextField id={'_t'+ tag._id} ref={'_t'+tag._id} fullWidth={true} defaultValue={tag.defaultValue}
+                                                          hintText={'This is a required value.'} hintStyle={{ opacity: 1, fontSize: '10px', bottom: '-20px', textAlign: 'left' }}/>
+                                                      :
+                                                      <TextField id={'_t'+ tag._id} ref={'_t'+ tag._id} fullWidth={true} defaultValue={tag.defaultValue}
+                                                          hintStyle={{ opacity: 1, fontSize: '10px', bottom: '-20px', textAlign: 'left' }}/>
+                                                    }
+                                                  </Row>
+                                              )
+                                          })
+                                      }
+                                  </Col>
+                              </Row>
                             </Col>
                         </Col>
                 </Row>
@@ -278,29 +321,40 @@ class CreateDeployment extends Component {
     handlesDeployClick = event => {
 
         event.preventDefault()
-        const { mutate, landscapes, params } = this.props
+        const { mutate, landscapes, tags, params } = this.props
         const { router } = this.context
 
+        let currentTag = {};
+        let _id = '';
         let deploymentToCreate = {
-            cloudFormationParameters: {}
+            cloudFormationParameters: {},
+            tags: {}
         }
 
         // map all fields to deploymentToCreate
         for (let key in this.refs) {
             if (key.indexOf('_p') === 0) {
                 deploymentToCreate.cloudFormationParameters[key.replace('_p', '')] = this.refs[key].getValue()
+            }
+            else if (key.indexOf('_t') === 0) {
+                _id = key.replace('_t', '')
+                currentTag = tags.find(ac => { return ac._id === _id })
+                deploymentToCreate.tags[_id] = {}
+                deploymentToCreate.tags[_id].Key = currentTag.key
+                deploymentToCreate.tags[_id].Value = this.refs[key].getValue()
             } else if (key === 'rejectUnauthorizedSsl') {
                 deploymentToCreate[key] = this.refs[key].isToggled()
             } else {
                 deploymentToCreate[key] = this.refs[key].getValue()
             }
         }
-
         // attach derived fields
-        deploymentToCreate.tags = JSON.stringify({})
         deploymentToCreate.location = this.state.location
         deploymentToCreate.accountName = this.state.accountName
         deploymentToCreate.landscapeId = params.landscapeId
+
+        let JSONTags = JSON.stringify(deploymentToCreate.tags)
+        deploymentToCreate.tags = JSONTags
 
         let JSONString = JSON.stringify(deploymentToCreate.cloudFormationParameters)
         deploymentToCreate.cloudFormationParameters = JSONString

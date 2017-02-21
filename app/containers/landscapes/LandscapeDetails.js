@@ -81,7 +81,10 @@ const DeploymentByLandscapeIdMutation = gql `
               ParameterKey,
               ParameterValue
             },
-            tags,
+            tags{
+              Key,
+              Value
+            },
             notes,
             stackId,
             stackStatus,

@@ -23,6 +23,10 @@ import CreateGroup      from './groups/CreateGroup'
 import EditGroup        from './groups/EditGroup'
 import GroupDetails     from './groups/GroupDetails'
 
+import Tags         from './tags/Tags'
+import CreateTag    from './tags/CreateTag'
+import UpdateTag    from './tags/UpdateTag'
+
 import Accounts         from './accounts/Accounts'
 import CreateAccount    from './accounts/CreateAccount'
 import UpdateAccount    from './accounts/UpdateAccount'
@@ -58,6 +62,10 @@ export {
     CreateGroup,
     EditGroup,
     GroupDetails,
+
+    Tags,
+    CreateTag,
+    UpdateTag,
 
     Accounts,
     CreateAccount,
