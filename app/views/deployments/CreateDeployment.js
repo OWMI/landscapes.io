@@ -135,6 +135,13 @@ class CreateDeployment extends Component {
                             </Col>
                         </Row>
                         <Card>
+                          {
+                            this.state.errorMessage
+                            ?
+                            <p style={{color: 'red'}}>{this.state.message}</p>
+                            :
+                            null
+                          }
                             <TextField id='stackName' ref='stackName' floatingLabelText='Stack Name' className={cx( { 'two-field-row': true } )}/>
 
                             {
@@ -275,7 +282,7 @@ class CreateDeployment extends Component {
                                                     {
                                                       tag.isRequired
                                                       ?
-                                                      <TextField id={'_t'+ tag._id} ref={'_t'+tag._id} fullWidth={true} defaultValue={tag.defaultValue}
+                                                      <TextField id={'_t'+ tag._id} ref={'_t'+tag._id} fullWidth={true} onChange={this.handlesTagChange} defaultValue={tag.defaultValue}
                                                           hintText={'This is a required value.'} hintStyle={{ opacity: 1, fontSize: '10px', bottom: '-20px', textAlign: 'left' }}/>
                                                       :
                                                       <TextField id={'_t'+ tag._id} ref={'_t'+ tag._id} fullWidth={true} defaultValue={tag.defaultValue}
@@ -318,10 +325,14 @@ class CreateDeployment extends Component {
             location: value
         })
     }
+    handlesTagChange = (event, index, value) => {
+        this.setState({errorMessage: false})
+    }
 
     handlesDeployClick = event => {
 
         event.preventDefault()
+
         const { mutate, landscapes, tags, params } = this.props
         const { router } = this.context
         const { username } = auth.getUserInfo()
@@ -332,7 +343,6 @@ class CreateDeployment extends Component {
             cloudFormationParameters: {},
             tags: {}
         }
-
         // map all fields to deploymentToCreate
         for (let key in this.refs) {
             if (key.indexOf('_p') === 0) {
@@ -344,31 +354,36 @@ class CreateDeployment extends Component {
                 deploymentToCreate.tags[_id] = {}
                 deploymentToCreate.tags[_id].Key = currentTag.key
                 deploymentToCreate.tags[_id].Value = this.refs[key].getValue()
+                if(currentTag.isRequired && this.refs[key].getValue() === ''){
+                  return this.setState({errorMessage: true, message:'Please fill in all required tags.'})
+                }
             } else if (key === 'rejectUnauthorizedSsl') {
                 deploymentToCreate[key] = this.refs[key].isToggled()
             } else {
                 deploymentToCreate[key] = this.refs[key].getValue()
             }
         }
-        // attach derived fields
-        deploymentToCreate.createdAt = moment()
-        deploymentToCreate.createdBy = username
-        deploymentToCreate.location = this.state.location
-        deploymentToCreate.accountName = this.state.accountName
-        deploymentToCreate.landscapeId = params.landscapeId
+          // attach derived fields
+          deploymentToCreate.createdAt = moment()
+          deploymentToCreate.createdBy = username
+          deploymentToCreate.location = this.state.location
+          deploymentToCreate.accountName = this.state.accountName
+          deploymentToCreate.landscapeId = params.landscapeId
 
-        let JSONTags = JSON.stringify(deploymentToCreate.tags)
-        deploymentToCreate.tags = JSONTags
+          let JSONTags = JSON.stringify(deploymentToCreate.tags)
+          deploymentToCreate.tags = JSONTags
 
-        let JSONString = JSON.stringify(deploymentToCreate.cloudFormationParameters)
-        deploymentToCreate.cloudFormationParameters = JSONString
+          let JSONString = JSON.stringify(deploymentToCreate.cloudFormationParameters)
+          deploymentToCreate.cloudFormationParameters = JSONString
 
-        mutate({
-            variables: { deployment: deploymentToCreate }
-        }).then(({ data }) => {
-            // TODO: add check to get status of deployment
-            setTimeout(() => router.push({ pathname: `/landscape/${this.state.currentLandscape._id}` }), 1500)
-        }).catch(error => console.log(error))
+          if(!this.state.errorMessage){
+            mutate({
+                variables: { deployment: deploymentToCreate }
+            }).then(({ data }) => {
+                // TODO: add check to get status of deployment
+                setTimeout(() => router.push({ pathname: `/landscape/${this.state.currentLandscape._id}` }), 1500)
+            }).catch(error => console.log(error))
+          }
     }
 }
 
