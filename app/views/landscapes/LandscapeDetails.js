@@ -24,9 +24,8 @@ class LandscapeDetails extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-      this.handlesFetchingDeploymentStatus(nextProps)
+        this.handlesFetchingDeploymentStatus(nextProps)
     }
-
 
     componentWillMount() {
         this.handlesFetchingDeploymentStatus(this.props)
@@ -61,6 +60,7 @@ class LandscapeDetails extends Component {
         // if (activeLandscape && activeLandscape._id !== params.id)
 
         const parsedCFTemplate = JSON.parse(currentLandscape.cloudFormationTemplate)
+
         function getDeploymentInfo(deployment) {
             var self = this;
             let deploymentInfo = []
@@ -155,8 +155,10 @@ class LandscapeDetails extends Component {
                         {
                             currentDeployments.map((deployment, index) => {
                                 let _stackStatus = {}
+                                deployment.tags = deployment.tags || []
 
                                 if ((deployment && deployment.stackStatus === 'ROLLBACK_COMPLETE') || (deployment && deployment.awsErrors)) {
+                                    this.handlesFetchingStackEvents(deployment)
                                     _stackStatus = {
                                         status: deployment.stackStatus || 'FAILED',
                                         color: 'rgb(236, 11, 67)',
@@ -230,27 +232,25 @@ class LandscapeDetails extends Component {
                                             }
                                             <h5>Tags</h5>
                                             {
-                                                deployment && deployment['tags'].length > 0
+                                                deployment && deployment.tags.length > 0
                                                 ?
-                                                    deployment['tags'].map((tag, index) => {
+                                                    deployment.tags.map((tag, index) => {
                                                         return (
-                                                          <div key={index}>
-                                                              {
-                                                                tag
-                                                                ?
-                                                                <Row key={index}>
-
-                                                                  <Col xs={2}>
-                                                                    <label style={{ margin: '0px 15px' }}>{tag.Key || ''}</label>
-                                                                  </Col>
-                                                                  <Col xs={2}>
-                                                                    <label>{tag.Value || ''}</label>
-                                                                  </Col>
-                                                                </Row>
-
-                                                                :
-                                                                null
-                                                              }
+                                                            <div>
+                                                                {
+                                                                    tag
+                                                                    ?
+                                                                        <Row key={index}>
+                                                                            <Col xs={2}>
+                                                                                <label style={{ margin: '0px 15px' }}>{tag.Key || ''}</label>
+                                                                            </Col>
+                                                                            <Col xs={2}>
+                                                                                <label>{tag.Value || ''}</label>
+                                                                            </Col>
+                                                                        </Row>
+                                                                    :
+                                                                        null
+                                                                }
                                                           </div>
                                                         )
                                                     })
@@ -363,6 +363,10 @@ class LandscapeDetails extends Component {
         )
     }
 
+    handlesFetchingStackEvents = deployment => {
+        // console.log('%c deployment ', 'background: #1c1c1c; color: deepskyblue', deployment)
+    }
+
     handlesFetchingDeploymentStatus = props => {
 
         const self = this
@@ -376,9 +380,7 @@ class LandscapeDetails extends Component {
 
         if (!currentLandscape) {
             currentLandscape = _landscapes.find(ls => { return ls._id === params.id })
-            if(!currentLandscape){
-              currentLandscape = { cloudFormationTemplate: '{}' }
-            }
+            currentLandscape = { cloudFormationTemplate: '{}' }
         }
 
         if (currentLandscape && currentLandscape.documents) {
