@@ -112,7 +112,7 @@ class CreateDeployment extends Component {
           }
         ]
 
-        if (loading) {
+        if (loading || this.state.loading) {
             return (
                 <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
                     <Loader/>
@@ -333,7 +333,7 @@ class CreateDeployment extends Component {
 
         event.preventDefault()
 
-        const { mutate, landscapes, tags, params } = this.props
+        const { mutate, landscapes, tags, params, refetch } = this.props
         const { router } = this.context
         const { username } = auth.getUserInfo()
 
@@ -343,6 +343,7 @@ class CreateDeployment extends Component {
             cloudFormationParameters: {},
             tags: {}
         }
+      this.setState({loading: true})
         // map all fields to deploymentToCreate
         for (let key in this.refs) {
             if (key.indexOf('_p') === 0) {
@@ -355,7 +356,7 @@ class CreateDeployment extends Component {
                 deploymentToCreate.tags[_id].Key = currentTag.key
                 deploymentToCreate.tags[_id].Value = this.refs[key].getValue()
                 if(currentTag.isRequired && this.refs[key].getValue() === ''){
-                  return this.setState({errorMessage: true, message:'Please fill in all required tags.'})
+                  return this.setState({errorMessage: true, message:'Please fill in all required tags.', loading: false})
                 }
             } else if (key === 'rejectUnauthorizedSsl') {
                 deploymentToCreate[key] = this.refs[key].isToggled()
@@ -380,8 +381,12 @@ class CreateDeployment extends Component {
             mutate({
                 variables: { deployment: deploymentToCreate }
             }).then(({ data }) => {
-                // TODO: add check to get status of deployment
-                setTimeout(() => router.push({ pathname: `/landscape/${this.state.currentLandscape._id}` }), 1500)
+                refetch({}).then(({data}) => {
+                  // TODO: add check to get status of deployment
+                  setTimeout(() => {
+                    this.setState({loading: false})
+                    router.push({ pathname: `/landscape/${this.state.currentLandscape._id}` })}, 2000)
+                })
             }).catch(error => console.log(error))
           }
     }
@@ -390,7 +395,8 @@ class CreateDeployment extends Component {
 CreateDeployment.propTypes = {
     currentView: PropTypes.string.isRequired,
     enterLandscapes: PropTypes.func.isRequired,
-    leaveLandscapes: PropTypes.func.isRequired
+    leaveLandscapes: PropTypes.func.isRequired,
+    refetch: PropTypes.func.isRequired
 }
 
 CreateDeployment.contextTypes = {

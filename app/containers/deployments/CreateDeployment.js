@@ -20,9 +20,10 @@ const LandscapeQuery = gql `
 `
 
 const LandscapeWithQuery = graphql(LandscapeQuery, {
-    props: ({ data: { loading, landscapes } }) => ({
+    props: ({ data: { loading, landscapes, refetch } }) => ({
         landscapes,
-        loading
+        loading,
+        refetch
     })
 })
 
