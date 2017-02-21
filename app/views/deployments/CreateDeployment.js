@@ -15,7 +15,8 @@ class CreateDeployment extends Component {
 
     state = {
         animated: true,
-        viewEntersAnim: true
+        viewEntersAnim: true,
+        showAddTag: true
     }
 
     componentDidMount() {
@@ -262,7 +263,7 @@ class CreateDeployment extends Component {
                           <h4 style={{ paddingTop: '30px', paddingLeft: 10}}>Tags</h4>
                         </Row>
                             <Col xs={12} style={{ minHeight: '200' }}>
-                              <Row>
+                              <Row style={{marginBottom: 20}}>
                                   <Col xs={4}>
                                       {
                                           _tags.map((tag, index) => {
@@ -294,6 +295,47 @@ class CreateDeployment extends Component {
                                       }
                                   </Col>
                               </Row>
+                              {
+                                this.state.showAddTag
+                                ?
+                                  <div>
+                                  <Card style={{border: '1px solid lightgray'}}>
+                                    <Row style={{marginTop: 10}}>
+                                      <Col xs={4} style={{textAlign:'left', paddingLeft:15}}>
+                                        <h4 >New Tag</h4>
+                                      </Col>
+                                      <Col xs={8}>
+                                          <RaisedButton label="Add" style={{marginRight:10, float: 'right'}}
+                                            onClick={() => {
+                                                var newTag = {
+                                                  key: this.state.newKey,
+                                                  defaultValue: this.state.newValue,
+                                                  _id: Date.now().toString()
+                                                }
+                                                console.log('new tag', newTag)
+                                              _tags.push(newTag)
+                                                this.setState({showAddTag: !this.state.showAddTag, newKey: '', newValue: '', tags: _tags})
+                                              }}/>
+                                          <RaisedButton label="Cancel" style={{marginRight:10, float: 'right'}} onClick={() => {
+                                              this.setState({showAddTag: !this.state.showAddTag})
+                                            }}/>
+                                      </Col>
+                                    </Row>
+                                  <Row style={{marginLeft: 10, marginRight: 10}}>
+                                    <Col xs={4}>
+                                      <TextField id='key' onChange={this.handlesNewKeyChange} floatingLabelText='Key' style={{marginRight: 10, marginLeft: 10}} fullWidth={true}/>
+                                    </Col>
+                                    <Col xs={8}>
+                                      <TextField id='defaultValue' onChange={this.handlesNewValueChange} floatingLabelText='Value' style={{marginRight: 10, marginLeft: 10}} fullWidth={true}/>
+                                    </Col>
+                                  </Row>
+                                </Card>
+                              </div>
+
+                                :
+                                <RaisedButton label="Add Tag" onClick={() => this.setState({showAddTag: !this.state.showAddTag})} style={{marginBottom:120}}/>
+                              }
+
                             </Col>
                         </Col>
                 </Row>
@@ -320,6 +362,16 @@ class CreateDeployment extends Component {
         })
     }
 
+    handlesNewKeyChange = (event) => {
+        this.setState({
+            newKey: event.target.value
+        })
+    }
+    handlesNewValueChange = (event) => {
+        this.setState({
+            newValue: event.target.value
+        })
+    }
     handlesRegionChange = (event, index, value) => {
         this.setState({
             location: value
@@ -330,7 +382,6 @@ class CreateDeployment extends Component {
     }
 
     handlesDeployClick = event => {
-
         event.preventDefault()
 
         const { mutate, landscapes, tags, params, refetch } = this.props
@@ -343,6 +394,7 @@ class CreateDeployment extends Component {
             cloudFormationParameters: {},
             tags: {}
         }
+        console.log("this.state.tags", this.state.tags)
       this.setState({loading: true})
         // map all fields to deploymentToCreate
         for (let key in this.refs) {
@@ -352,11 +404,18 @@ class CreateDeployment extends Component {
             else if (key.indexOf('_t') === 0) {
                 _id = key.replace('_t', '')
                 currentTag = tags.find(ac => { return ac._id === _id })
+                if(!currentTag){
+                  currentTag = this.state.tags.find(ac => { return ac._id === _id })
+                }
+                console.log('currentTag', currentTag)
                 deploymentToCreate.tags[_id] = {}
                 deploymentToCreate.tags[_id].Key = currentTag.key
                 deploymentToCreate.tags[_id].Value = this.refs[key].getValue()
                 if(currentTag.isRequired && this.refs[key].getValue() === ''){
                   return this.setState({errorMessage: true, message:'Please fill in all required tags.', loading: false})
+                }
+                if(!currentTag.isRequired && this.refs[key].getValue() === ''){
+                  delete deploymentToCreate.tags[_id]
                 }
             } else if (key === 'rejectUnauthorizedSsl') {
                 deploymentToCreate[key] = this.refs[key].isToggled()
