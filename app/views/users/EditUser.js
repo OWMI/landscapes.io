@@ -170,7 +170,10 @@ class EditUser extends Component {
                         labelStyle={{ fontSize: '11px' }}/>
                 </Col>
                 <Col xs={2}>
-                    <RaisedButton label='Cancel' primary={true} onClick={this.handlesCreateClick}
+                    <RaisedButton label='Cancel' primary={true} onClick={() => {
+                        const {router} = this.context
+                        router.push(`/users/${params.id}`)
+                    }}
                         style={{ float: 'right', margin: '30px 0px' }}
                         labelStyle={{ fontSize: '11px' }}/>
                 </Col>
