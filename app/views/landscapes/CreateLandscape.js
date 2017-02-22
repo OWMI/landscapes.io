@@ -127,9 +127,24 @@ class CreateLandscape extends Component {
                             <h4>New Landscape</h4>
                         </Col>
                         <Col xs={8}>
-                            <RaisedButton label='Save' onClick={this.handlesCreateClick}
+                          <Row>
+                            <Col xs={4}>
+
+                            </Col>
+                            <Col xs={4}>
+                              <RaisedButton label='Save' onClick={this.handlesCreateClick}
+                                  style={{ float: 'right', margin: '30px 0px' }}
+                                  labelStyle={{ fontSize: '11px' }}/>
+                            </Col>
+                            <Col xs={4}>
+                              <RaisedButton label='Cancel' primary={true} onClick={() => {
+                                  const {router} = this.context
+                                  router.push(`/landscapes`)
+                              }}
                                 style={{ float: 'right', margin: '30px 0px' }}
                                 labelStyle={{ fontSize: '11px' }}/>
+                            </Col>
+                          </Row>
                         </Col>
                     </Row>
                     <Paper zDepth={1} rounded={false}>
@@ -144,7 +159,7 @@ class CreateLandscape extends Component {
                         <TextField id='name' ref='name' floatingLabelText='Name' maxLength={64} className={cx( { 'two-field-row': true } )}/>
                         <TextField id='version' ref='version' floatingLabelText='Version' className={cx( { 'two-field-row': true } )}/>
 
-                        <TextField id='description' ref='description' multiLine={true} rows={4} floatingLabelText='Description'
+                        <TextField id='description' ref='description' multiLine={true} rows={1} rowsMax={4} floatingLabelText='Description'
                             fullWidth={true} floatingLabelStyle={{ left: '0px' }} textareaStyle={{ width: '95%' }}/>
 
                           <Row center='xs' middle='xs' style={{marginBottom: 10}}>
