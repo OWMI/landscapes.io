@@ -64,9 +64,24 @@ class UpdateAccount extends Component {
                                 <h4>Edit Account</h4>
                             </Col>
                             <Col xs={8}>
-                                <RaisedButton label='Save' onClick={this.handlesCreateClick}
+                              <Row>
+                                <Col xs={4}>
+
+                                </Col>
+                                <Col xs={4}>
+                                  <RaisedButton label='Save' onClick={this.handlesCreateClick}
+                                      style={{ float: 'right', margin: '30px 0px' }}
+                                      labelStyle={{ fontSize: '11px' }}/>
+                                </Col>
+                                <Col xs={4}>
+                                  <RaisedButton label='Cancel' primary={true} onClick={() => {
+                                      const {router} = this.context
+                                      router.push(`/accounts`)
+                                  }}
                                     style={{ float: 'right', margin: '30px 0px' }}
                                     labelStyle={{ fontSize: '11px' }}/>
+                                </Col>
+                              </Row>
                             </Col>
                         </Row>
                         <Card>
