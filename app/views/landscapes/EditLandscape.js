@@ -133,6 +133,12 @@ class EditLandscape extends Component {
                             <h4>Edit Landscape</h4>
                         </Col>
                         <Col xs={8}>
+                          <RaisedButton label='Cancel' primary={true} onClick={() => {
+                              const {router} = this.context
+                              router.push(`/landscape/${params.id}`)
+                          }}
+                            style={{ float: 'right', margin: '30px 0px' }}
+                            labelStyle={{ fontSize: '11px' }}/>
                             <RaisedButton label='Save' onTouchTap={this.handlesUpdateClick}
                                 style={{ float: 'right', margin: '30px 0px' }}
                                 labelStyle={{ fontSize: '11px' }}/>
@@ -158,7 +164,7 @@ class EditLandscape extends Component {
                         <TextField id='name' ref='name' defaultValue={currentLandscape.name} maxLength={64} floatingLabelText='Name' className={cx( { 'two-field-row': true } )}/>
                         <TextField id='version' ref='version' defaultValue={currentLandscape.version} floatingLabelText='Version' className={cx( { 'two-field-row': true } )}/>
 
-                        <TextField id='description' ref='description' defaultValue={currentLandscape.description} multiLine={true} rows={4}
+                        <TextField id='description' ref='description' defaultValue={currentLandscape.description} multiLine={true} rows={1} rowsMax={4}
                             floatingLabelText='Description' fullWidth={true} floatingLabelStyle={{ left: '0px' }} textareaStyle={{ width: '95%' }}/>
 
                           <Row center='xs' middle='xs' style={{marginBottom: 10}}>
