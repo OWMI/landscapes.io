@@ -429,8 +429,8 @@ class EditGroup extends Component {
                     <Snackbar open={this.state.successOpen} message="Group successfully updated." autoHideDuration={3000} onRequestClose={this.handleRequestClose}/>
                     <Snackbar open={this.state.failOpen} message="Error updating group" autoHideDuration={3000} onRequestClose={this.handleRequestClose}/>
 
-                              <Row xs={12} style={{width: '100%'}}>
-                                <Col xs={7} style={{paddingLeft: 10, paddingRight: 10}}>
+                              <Row style={{width: '100%'}}>
+                                <Col style={{paddingLeft: 10, paddingRight: 10,  width:'65%'}}>
                                   <Row key='name'>
                                       <TextField style={{
                                         width: '100%'
@@ -456,7 +456,7 @@ class EditGroup extends Component {
                                       <br/>
                                       </Row>
 
-                                      <Row >
+                                      <Row style={{paddingTop:15, paddingBottom:15}} >
                                         <Col>
                                           <Checkbox label="Create" checked={this.state.permissionC} onCheck={this.handlesPermissionClickC}/>
                                           <Checkbox label="Read" disabled={true} checked={true}/>
@@ -466,8 +466,8 @@ class EditGroup extends Component {
                                         </Col>
                                       </Row>
                                 </Col>
-                                <Col xs={5} style={{paddingLeft: 10, paddingRight: 10}}>
-                                  <Row key='image'>
+                                <Col style={{paddingLeft: 20, paddingRight: 140, width:'35%'}}>
+                                  <Row key='image' style={{justifyContent:'space-around' }}>
                                       <Dropzone id='imageUri' onDrop={this.handlesImageUpload} multiple={false} accept='image/*' style={{
                                           marginLeft: '10px',
                                           width: '180px',
