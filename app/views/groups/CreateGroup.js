@@ -338,6 +338,9 @@ class CreateGroup extends Component {
           selectedRows.push(index)
         })
       }
+      else if(selectedRows === 'none'){
+        selectedRows = []
+      }
         this.setState({selectedUserRows: selectedRows})
     }
 
@@ -348,6 +351,9 @@ class CreateGroup extends Component {
           selectedRows.push(index)
         })
       }
+      else if(selectedRows === 'none'){
+        selectedRows = []
+      }
         this.setState({selectedLandscapeRows: selectedRows})
     }
     handleOnRowSelectionAccounts = selectedRows => {
@@ -356,6 +362,9 @@ class CreateGroup extends Component {
           this.state.stateAccounts.forEach((account, index) => {
             selectedRows.push(index)
           })
+        }
+        else if(selectedRows === 'none'){
+          selectedRows = []
         }
         this.setState({selectedAccountRows: selectedRows})
     }
