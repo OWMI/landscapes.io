@@ -323,10 +323,10 @@ class GroupDetails extends Component {
                   <Card style={{padding:20}}>
 
                     <Row middle='xs'>
-                        <Col xs={1} style={{ textAlign: 'left', minWidth:85 }}>
+                        <Col style={{ width:'10%', textAlign: 'left', minWidth:85 }}>
                             <img src={this.state.currentGroup.imageUri} style={{width: 85}} />
                         </Col>
-                        <Col xs={6} style={{ textAlign: 'left', paddingLeft:20 }}>
+                        <Col style={{ width:'55%', textAlign: 'left', paddingLeft:20 }}>
                             <Row><h4>{this.state.currentGroup.name}</h4></Row>
                             <Row style={{minWidth:300}}>
                               {
@@ -338,8 +338,8 @@ class GroupDetails extends Component {
                           }</Row>
 
                         </Col>
-                        <Col xs={2}></Col>
-                        <Col xs={2} style={{ paddingLeft:20, float:'right' }}>
+                        <Col style={{width:'10%'}}></Col>
+                        <Col style={{ width:'25%', paddingLeft:20, float:'right' }}>
 
                         {
                           userRole === 'admin' || isGroupAdmin === 'Admin'
