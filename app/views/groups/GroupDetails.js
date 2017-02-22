@@ -27,6 +27,8 @@ import { Loader } from '../../components'
 import materialTheme from '../../style/custom-theme.js';
 import { auth } from '../../services/auth'
 
+import {blue300, indigo900} from 'material-ui/styles/colors';
+
 const CheckboxGroup = Checkbox.Group;
 
 const defaultCheckedList = ['r'];
@@ -259,6 +261,14 @@ class GroupDetails extends Component {
                 }
                 groupUsers.push(user)
               }
+              else if(user.role === 'admin'){
+                user.selected = true;
+                if(!user.imageUri){
+                  user.imageUri = defaultUserImage
+                }
+                user.isGroupAdmin = 'Admin'
+                groupUsers.push(user)
+              }
             })
           }
       }
@@ -293,25 +303,10 @@ class GroupDetails extends Component {
         return (
             <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
                   <Row middle='xs'>
-                      <Col xs={2} style={{ textAlign: 'left', marginBottom:30 }}>
+                      <Col xs={4} style={{ textAlign: 'left', marginBottom:30 }}>
                         <Row><h4><strong>Group</strong></h4></Row>
                       </Col>
                       <Col xs={8}>
-
-                      {
-                        userRole === 'admin' || isGroupAdmin === 'Admin'
-                        ?
-                            <RaisedButton label='Create New Account' onClick={() => {
-                                const {router} = this.context
-                                router.push('/accounts/create');
-                              }}
-                                style={{ float: 'right', marginBottom: '30px' }}
-                                labelStyle={{ fontSize: '11px' }} icon={<IoPlus/>}/>
-                        :
-                        null
-                      }
-                    </Col>
-                      <Col xs={2}>
                         {
                           userRole === 'admin' || isGroupAdmin === 'Admin'
                           ?
@@ -328,12 +323,12 @@ class GroupDetails extends Component {
                   <Card style={{padding:20}}>
 
                     <Row middle='xs'>
-                        <Col xs={1} style={{ textAlign: 'left' }}>
+                        <Col xs={1} style={{ textAlign: 'left', minWidth:85 }}>
                             <img src={this.state.currentGroup.imageUri} style={{width: 85}} />
                         </Col>
-                        <Col xs={4} style={{ textAlign: 'left', marginLeft:20 }}>
+                        <Col xs={6} style={{ textAlign: 'left', paddingLeft:20 }}>
                             <Row><h4>{this.state.currentGroup.name}</h4></Row>
-                            <Row>
+                            <Row style={{minWidth:300}}>
                               {
                               this.state.currentGroup.readablePermissions.map((row, index) => (
                                 <Chip style = {styles.chip} key={index} >
@@ -343,8 +338,22 @@ class GroupDetails extends Component {
                           }</Row>
 
                         </Col>
-                        <Col xs={7}>
-                        </Col>
+                        <Col xs={2}></Col>
+                        <Col xs={2} style={{ paddingLeft:20, float:'right' }}>
+
+                        {
+                          userRole === 'admin' || isGroupAdmin === 'Admin'
+                          ?
+                              <RaisedButton label='Create New Account' onClick={() => {
+                                  const {router} = this.context
+                                  router.push('/accounts/create');
+                                }}
+                                  style={{ float: 'right', marginBottom: '30px', minWidth:200 }}
+                                  labelStyle={{ fontSize: '11px' }} icon={<IoPlus/>}/>
+                          :
+                          null
+                        }
+                      </Col>
                     </Row>
                     <Row middle='xs' style={{flex: 1, marginLeft: 10, marginBottom:10}}>
                         <Col style={{ textAlign: 'left', flex: 1 }}>
@@ -396,7 +405,7 @@ class GroupDetails extends Component {
                                   <TableHeaderColumn tooltip="image"></TableHeaderColumn>
                                   <TableHeaderColumn tooltip="Email">Email</TableHeaderColumn>
                                   <TableHeaderColumn tooltip="Name">Name</TableHeaderColumn>
-                                  <TableHeaderColumn tooltip="isGroupAdmin">Admin?</TableHeaderColumn>
+                                  <TableHeaderColumn tooltip="isGroupAdmin">Admin</TableHeaderColumn>
                                 </TableRow>
                               </TableHeader>
                               <TableBody displayRowCheckbox={false} deselectOnClickaway={this.state.deselectOnClickaway}
@@ -406,7 +415,18 @@ class GroupDetails extends Component {
                                   <TableRowColumn><img src={row.imageUri} style={{width: 40, borderRadius:50}} /></TableRowColumn>
                                     <TableRowColumn>{row.email}</TableRowColumn>
                                     <TableRowColumn>{row.firstName} {row.lastName}</TableRowColumn>
-                                    <TableRowColumn>{row.isGroupAdmin}</TableRowColumn>
+                                    {
+                                      row.isGroupAdmin === 'Admin'
+                                      ?
+                                      <TableRowColumn><Chip
+                                                  backgroundColor={blue300}
+                                                  style={styles.chip}
+                                                >Yes</Chip></TableRowColumn>
+                                      :
+                                      <TableRowColumn><Chip
+                                                  style={styles.chip}
+                                                >No</Chip></TableRowColumn>
+                                    }
                                   </TableRow>
                                   ))}
                               </TableBody>

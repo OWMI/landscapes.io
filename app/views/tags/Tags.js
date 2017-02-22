@@ -67,7 +67,7 @@ class Tags extends Component {
                         <TableRow>
                             <TableHeaderColumn>Tag Key</TableHeaderColumn>
                             <TableHeaderColumn>Default Value</TableHeaderColumn>
-                            <TableHeaderColumn>Required?</TableHeaderColumn>
+                            <TableHeaderColumn>Required</TableHeaderColumn>
                             <TableHeaderColumn></TableHeaderColumn>
                         </TableRow>
                     </TableHeader>
