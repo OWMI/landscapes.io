@@ -144,13 +144,13 @@ class EditUser extends Component {
               autoHideDuration={3000}
               onRequestClose={this.handleRequestClose}
             />
-            <Col xs={6} lg={9} className={cx( { 'create-landscape': true } )}>
+          <Col xs={12} lg={12} className={cx( { 'create-landscape': true } )}>
 
             <Row middle='xs'>
                 <Col xs={4} style={{ textAlign: 'left' }}>
                     <h4><strong>Edit User:</strong> {this.state.firstName} {this.state.lastName}</h4>
                 </Col>
-                <Col xs={5}>
+                <Col xs={4}>
                   <RaisedButton label='Delete' onTouchTap={() => { this.setState({ showDeleteDialog: !showDeleteDialog }) }}
                       style={{ float: 'right', margin: '30px 0px' }}
                       labelStyle={{ fontSize: '11px' }}/>
@@ -164,53 +164,42 @@ class EditUser extends Component {
                       </Dialog>
 
                 </Col>
-                <Col xs={3}>
+                <Col xs={2}>
                     <RaisedButton label='Save' onClick={this.handlesCreateClick}
                         style={{ float: 'right', margin: '30px 0px' }}
                         labelStyle={{ fontSize: '11px' }}/>
                 </Col>
+                <Col xs={2}>
+                    <RaisedButton label='Cancel' primary={true} onClick={this.handlesCreateClick}
+                        style={{ float: 'right', margin: '30px 0px' }}
+                        labelStyle={{ fontSize: '11px' }}/>
+                </Col>
             </Row>
-                  <Card style={{padding:20}}>
-                  <GridList
-                    cols={1}
-                    cellHeight='auto'
-                    style={styles.gridList}
-                  >
-                      <GridTile
-                        key='username'
-                      >
-
+              <Card style={{padding:20, width:'100%'}}>
+                  <Row style={{width:'100%'}}>
+                  <Col style={{width:'50%'}}>
+                    <Row>
                       <TextField style={{width:'100%'}} id="username" floatingLabelText="Username" value={this.state.username} onChange={this.handlesOnUsernameChange}  placeholder='Username' />
-                      </GridTile>
-                      <GridTile
-                        key='email'
-                      >
+                    </Row>
+                    <Row>
                       <TextField style={{width:'100%'}} id="email" floatingLabelText="Email" value={this.state.email} onChange={this.handlesOnEmailChange}  placeholder='user@email.com' />
-                      </GridTile>
-                      <GridTile
-                        key='firstName'
-                      >
-                      <TextField style={{width:'100%'}} id="firstName" floatingLabelText="First Name" value={this.state.firstName} onChange={this.handlesOnFirstNameChange} placeholder='First Name' />
-                      </GridTile>
-                      <GridTile
-                        key='lastName'
-                      >
-                      <TextField style={{width:'100%'}} id="lastName" floatingLabelText="Last Name" value={this.state.lastName} onChange={this.handlesOnLastNameChange} placeholder='Last Name' />
-                      </GridTile>
-                      <GridTile
-                        key='newPassword'
-                      >
+                    </Row>
+                    <Row>
+                      <Col xs={6}>
+                        <TextField style={{width:'100%'}} id="firstName" floatingLabelText="First Name" value={this.state.firstName} onChange={this.handlesOnFirstNameChange} placeholder='First Name' />
+                      </Col>
+                      <Col xs={6}>
+                        <TextField style={{width:'100%'}} id="lastName" floatingLabelText="Last Name" value={this.state.lastName} onChange={this.handlesOnLastNameChange} placeholder='Last Name' />
+                      </Col>
+                    </Row>
+                    <Row>
                       <TextField style={{width:'100%'}} id="newPassword" floatingLabelText="New Password" value={this.state.newPassword} onChange={this.handlesOnNewPasswordChange} />
-                      </GridTile>
-                      <GridTile
-                        key='verifyPassword'
-                      >
+                    </Row>
+                    <Row>
                       <TextField style={{width:'100%'}} id="verifyPassword" floatingLabelText="Verify Password" value={this.state.verifyPassword} onChange={this.handlesOnVerifyPasswordChange}/>
-                      </GridTile>
-                      <GridTile
-                        key='role'
-                      >
-                      <RadioButtonGroup style={{width:'100%', margin: 5}} name="role" id="role" valueSelected={this.state.role} onChange={this.handleRoleChange}>
+                    </Row>
+                    <Row>
+                      <RadioButtonGroup style={{marginTop: 5}} name="role" id="role" valueSelected={this.state.role} onChange={this.handleRoleChange}>
                             <RadioButton
                               value="admin"
                               label="Global Admin"
@@ -220,10 +209,10 @@ class EditUser extends Component {
                               label="User"
                             />
                           </RadioButtonGroup>
-                    </GridTile>
-                      <GridTile
-                        key='image'
-                      >
+                    </Row>
+                  </Col>
+                  <Col style={{width:'50%'}}>
+                    <Row style={{justifyContent:'space-around'}}>
                       <Dropzone id='imageUri' onDrop={this.handlesImageUpload} multiple={false} accept='image/*'
                         style={{ marginLeft: '10px', width: '180px', padding: '15px 0px' }}>
                         <div className="avatar-photo">
@@ -245,8 +234,9 @@ class EditUser extends Component {
                           />
                         }
                         </Dropzone>
-                    </GridTile>
-                  </GridList>
+                    </Row>
+                  </Col>
+                  </Row>
                   </Card>
 
                 </Col>
