@@ -145,7 +145,7 @@ class CreateAccount extends Component {
 
                             <TextField id='accessKeyId' ref='accessKeyId' floatingLabelText='Access Key ID' fullWidth={true}/>
 
-                            <TextField id='secretAccessKey' ref='secretAccessKey' multiLine={true} rows={4} floatingLabelText='Secret Access Key' fullWidth={true}
+                            <TextField id='secretAccessKey' ref='secretAccessKey' multiLine={true} multiLine={true} rows={1} rowsMax={4} floatingLabelText='Secret Access Key' fullWidth={true}
                                 floatingLabelStyle={{ left: '0px' }}/>
                               {
                                 isGroupAdmin
@@ -194,7 +194,7 @@ class CreateAccount extends Component {
                                 <Toggle id='rejectUnauthorizedSsl' ref='rejectUnauthorizedSsl' label='Reject Unauthorized SSL'
                                     style={{ marginTop: '25px' }} labelStyle={{ width: 'none' }}/>
 
-                                <TextField id='signatureBlock' ref='signatureBlock' multiLine={true} rows={4} fullWidth={true}
+                                  <TextField id='signatureBlock' ref='signatureBlock' multiLine={true} rows={1} rowsMax={4} fullWidth={true}
                                     floatingLabelText='Signature Block' floatingLabelStyle={{ left: '0px' }}/>
                             </CardText>
                         </Card>
