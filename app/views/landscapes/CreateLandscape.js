@@ -6,6 +6,7 @@ import Dropzone from 'react-dropzone'
 import { IoClose, IoCube } from 'react-icons/lib/io'
 import { MdClear } from 'react-icons/lib/md/clear'
 import FlatButton from 'material-ui/FlatButton'
+import Card from 'material-ui/Card'
 import shallowCompare from 'react-addons-shallow-compare'
 import UploadIcon from 'material-ui/svg-icons/file/file-upload'
 import { Paper, RaisedButton, TextField } from 'material-ui'
@@ -121,7 +122,7 @@ class CreateLandscape extends Component {
               autoHideDuration={3000}
               onRequestClose={this.handleRequestClose}
             />
-                <Col xs={6} lg={9} className={cx( { 'create-landscape': true } )}>
+          <Col xs={12} lg={12} className={cx( { 'create-landscape': true } )}>
                     <Row middle='xs'>
                         <Col xs={4} style={{ textAlign: 'left' }}>
                             <h4>New Landscape</h4>
@@ -155,31 +156,55 @@ class CreateLandscape extends Component {
                         :
                         null
                       }
+                      <Col>
+                        <Row style={{minHeight:350, width: '100%'}}>
+                          <Col style={{paddingLeft: 10, paddingRight: 10,  width:'65%'}}>
+                            <TextField id='name' ref='name' maxLength={64} floatingLabelText='Name' className={cx( { 'two-field-row': true } )}/>
+                            <TextField id='version' ref='version'  floatingLabelText='Version' className={cx( { 'two-field-row': true } )}/>
 
-                        <TextField id='name' ref='name' floatingLabelText='Name' maxLength={64} className={cx( { 'two-field-row': true } )}/>
-                        <TextField id='version' ref='version' floatingLabelText='Version' className={cx( { 'two-field-row': true } )}/>
-
-                        <TextField id='description' ref='description' multiLine={true} rows={1} rowsMax={4} floatingLabelText='Description'
-                            fullWidth={true} floatingLabelStyle={{ left: '0px' }} textareaStyle={{ width: '95%' }}/>
-
-                          <Row center='xs' middle='xs' style={{marginBottom: 10}}>
-                              <Col xs={2}>
-                                <h4 style={{float:'left', marginLeft: 10}}>Documents</h4>
-                              </Col>
-                              <Col xs={10}>
-                                {
-                                  this.state.showAddDocument
-                                    ?
-                                    <RaisedButton label="Cancel" style={{float: 'right', marginRight:10}} onClick={() => this.setState({showAddDocument: false})} />
-                                    :
-                                    <RaisedButton label="Add" style={{float: 'right', marginRight:10}} onClick={() => this.setState({showAddDocument: true})} />
-                                }
-                              </Col>
-                          </Row>
+                            <TextField id='description' ref='description' multiLine={true} rows={1} rowsMax={4}
+                                floatingLabelText='Description' fullWidth={true} floatingLabelStyle={{ left: '0px' }} textareaStyle={{ width: '95%' }}/>
+                          </Col>
+                          <Col style={{paddingLeft: 20, paddingRight: 200, width:'35%'}}>
+                            <Row style={{justifyContent: 'space-around'}}>
+                              <Dropzone id='imageUri' onDrop={this.handlesImageUpload} multiple={false} accept='image/*' style={{
+                                  marginLeft: '10px',
+                                  maxWidth: '100px',
+                                  padding: '15px 0px'
+                              }}>
+                                  <div className="avatar-photo">
+                                      <div className="avatar-edit">
+                                          <span>Click to Choose Image</span>
+                                          <i className="fa fa-camera" style={{fontSize: 30}}></i>
+                                      </div>
+                                      <img src={this.state.croppedImg || this.state.imageUri || defaultLandscapeImage}/>
+                                  </div>
+                                  {this.state.cropperOpen &&
+                                    <AvatarCropper onRequestHide={this.handleRequestHide} cropperOpen={this.state.cropperOpen} onCrop={this.handleCrop} image={this.state.img} width={400} height={400}/>
+                                  }
+                              </Dropzone>
+                            </Row>
+                          </Col>
+                        </Row>
+                        <Row center='xs' middle='xs' style={{marginBottom: 10}}>
+                            <Col xs={2}>
+                              <h4 style={{float:'left', marginLeft: 10}}>Documents</h4>
+                            </Col>
+                            <Col xs={10}>
+                              {
+                                this.state.showAddDocument
+                                  ?
+                                  <RaisedButton label="Cancel" style={{float: 'right', marginRight:10}} onClick={() => this.setState({showAddDocument: false})} />
+                                  :
+                                  <RaisedButton label="Add" style={{float: 'right', marginRight:15}} onClick={() => this.setState({showAddDocument: true})} />
+                              }
+                            </Col>
+                        </Row>
+                        <Row style={{width: '100%', marginBottom:25}}>
                           {
                             this.state.addedDocuments.length > 0
                             ?
-                            <Row style={{width:'95%', marginLeft: 10, borderBottom: '1px solid #DCDCDC', borderTop:  '1px solid #DCDCDC'}}>
+                            <Row style={{width:'100%', marginLeft: 10, borderBottom: '1px solid #DCDCDC', borderTop:  '1px solid #DCDCDC'}}>
                                 <Table selectable={false} fixedHeader={true}>
                                   <TableHeader adjustForCheckbox={false} displaySelectAll={false}>
                                     <TableRow>
@@ -216,15 +241,16 @@ class CreateLandscape extends Component {
                             :
                             <div></div>
                           }
-
+                        </Row>
+                        <Row style={{width:'100%', marginBottom:25}}>
                           {
                             this.state.showAddDocument
                               ?
-                              <div>
-                                <Row  middle='xs' style={{marginBottom: 10, marginLeft: 10}}>
+                              <Card style={{width:'100%', marginBottom: 10, marginLeft: 10,}}>
+                                <Row  middle='xs' style={{marginBottom: 10, marginLeft: 10, width:'100%'}}>
                                   <h4>New Document</h4>
                                 </Row>
-                                <Row middle='xs' style={{marginBottom: 10, marginLeft: 10}}>
+                                <Row middle='xs' style={{marginBottom: 10, marginLeft: 10,  width:'100%'}}>
                                   {
                                     documentTypes && documentTypes.length > 0
                                       ?
@@ -242,7 +268,6 @@ class CreateLandscape extends Component {
                                       :
                                       <p>Must have Document Types Defined</p>
                                   }
-
                                 </Row>
                                 <Row center='xs' middle='xs' style={{marginBottom: 10}}>
                                   <TextField id='docName' ref='docName' floatingLabelText='Name' onChange={this.handlesdocNameChange} maxLength={64} style={{width:'95%'}}/>
@@ -250,67 +275,16 @@ class CreateLandscape extends Component {
                                 <Row center='xs' middle='xs' style={{marginBottom: 10}}>
                                   <TextField id='url' ref='url' floatingLabelText='URL' onChange={this.handlesdocUrlChange} style={{width:'95%'}} />
                                 </Row>
-                                <Row middle='xs' style={{marginBottom: 10, marginLeft: 10, marginBottom: 20}}>
+                                <Row middle='xs' style={{marginBottom: 20, marginLeft: 10}}>
                                     <RaisedButton label="Save" onClick={this.handlesCreateDocumentClick}/>
                                 </Row>
-                              </div>
+                              </Card>
                               :
                               <div></div>
                           }
-                          {
-                            isGroupAdmin
-                            ?
-                            <div>
-                              <h5 > Adding to a group is REQUIRED for group admins </h5>
-                                <Table height={this.state.height} fixedHeader={this.state.fixedHeader} fixedFooter={this.state.fixedFooter}
-                                    selectable={true} multiSelectable={true}
-                                    onRowSelection={this.handleOnRowSelection}>
-                                      <TableHeader displaySelectAll={true} adjustForCheckbox={true}
-                                        enableSelectAll={true} >
-                                        <TableRow>
-                                          <TableHeaderColumn tooltip="Image"></TableHeaderColumn>
-                                          <TableHeaderColumn tooltip="Name">Name</TableHeaderColumn>
-                                          <TableHeaderColumn tooltip="Description">Description</TableHeaderColumn>
-                                        </TableRow>
-                                      </TableHeader>
-                                      <TableBody displayRowCheckbox={true}
-                                        showRowHover={true} stripedRows={false}
-                                        deselectOnClickaway={false}>
-                                        {userAdminGroups.map( (row, index) => (
-                                          <TableRow key={row._id} onClick={this.handleOnClick}>
-                                          <TableRowColumn><img src={row.imageUri} style={{width: 40, borderRadius: 50}} /></TableRowColumn>
-                                            <TableRowColumn>{row.name}</TableRowColumn>
-                                            <TableRowColumn>{row.description}</TableRowColumn>
-                                          </TableRow>
-                                          ))}
-                                      </TableBody>
-                                      <TableFooter
-                                        adjustForCheckbox={false}
-                                      >
-                                      </TableFooter>
-                                    </Table>
-                            </div>
-                                :
-                                null
-                          }
-                          <Dropzone id='imageUri' onDrop={this.handlesImageUpload} multiple={false} accept='image/*' style={{
-                              marginLeft: '10px',
-                              maxWidth: '100px',
-                              padding: '15px 0px',
-                              marginTop:10
-                          }}>
-                              <div className="avatar-photo" >
-                                  <div className="avatar-edit">
-                                      <span>Click to Choose Image</span>
-                                      <i className="fa fa-camera" style={{fontSize: 30}}></i>
-                                  </div>
-                                  <img src={this.state.croppedImg || this.state.imageUri || defaultLandscapeImage}/>
-                              </div>
-                              {this.state.cropperOpen &&
-                                <AvatarCropper onRequestHide={this.handleRequestHide} cropperOpen={this.state.cropperOpen} onCrop={this.handleCrop} image={this.state.img} width={400} height={400}/>
-                              }
-                          </Dropzone>
-
+                        </Row>
+                      </Col>
+                      <Row style={{borderTop: '1px solid lightgray', marginLeft:2, marginRight:2}}>
                         <Dropzone id='cloudFormationTemplate' onDrop={this.handlesTemplateClick} multiple={false}
                             style={{ width: '100%', height: 150, padding: '15px 0px' }}
                             activeStyle={{ border: 'limegreen 1px solid', width: '100%', padding: '15px 0px' }}>
@@ -330,6 +304,7 @@ class CreateLandscape extends Component {
                                     </Row>
                             }
                         </Dropzone>
+                      </Row>
                     </Paper>
                 </Col>
             </Row>

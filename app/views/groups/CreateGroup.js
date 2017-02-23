@@ -154,69 +154,91 @@ class CreateGroup extends Component {
               <Row className={cx({'screen-width': true, 'animatedViews': animated, 'view-enter': viewEntersAnim})} style={{
                   justifyContent: 'space-between'
               }}>
-                  <h4>Create Group</h4><br/>
-                  <RaisedButton primary={true} label="Save" onClick={this.handlesCreateClick}/>
+              <Row style={{flex: 1}}>
+                  <Col xs={2} style={{ textAlign: 'left', marginBottom:30 }}>
+                    <Row><h4><strong>Create Group</strong></h4></Row>
+                  </Col>
+                  <Col xs={8}>
+                  </Col>
+                  <Col xs={1}>
+                    <RaisedButton label="Save" labelStyle={{ fontSize: '11px' }} style={{ float: 'right', marginBottom: '30px' }} onClick={this.handlesCreateClick}/>
+                  </Col>
+                  <Col xs={1}>
+                    <RaisedButton label="Cancel" primary={true} labelStyle={{ fontSize: '11px' }} style={{ float: 'right', marginBottom: '30px' }} onClick={() => {
+                        const {router} = this.context
+                        router.push(`/groups`)
+                    }}/>
+                  </Col>
+              </Row>
               </Row>
               <Row center='xs' middle='xs' className={cx({'animatedViews': animated, 'view-enter': viewEntersAnim})}>
                   <Snackbar open={this.state.successOpen} message="Group successfully updated." autoHideDuration={3000} onRequestClose={this.handleRequestClose}/>
                   <Snackbar open={this.state.failOpen} message="Error updating group" autoHideDuration={3000} onRequestClose={this.handleRequestClose}/>
-                    <div style={styles.root}>
+                    <Card style={{padding:20}}>
+                        <Row center='xs' middle='xs' className={cx({'animatedViews': animated, 'view-enter': viewEntersAnim})}>
+                        <Snackbar open={this.state.successOpen} message="Group successfully updated." autoHideDuration={3000} onRequestClose={this.handleRequestClose}/>
+                        <Snackbar open={this.state.failOpen} message="Error updating group" autoHideDuration={3000} onRequestClose={this.handleRequestClose}/>
 
-                        <Col >
-                            <Row key='name'>
+                                  <Row style={{width: '100%'}}>
+                                    <Col style={{paddingLeft: 10, paddingRight: 10,  width:'65%'}}>
+                                      <Row key='name'>
+                                          <TextField style={{
+                                            width: '100%'
+                                          }} id="username" floatingLabelText="Name" onChange={this.handlesOnNameChange} hintText='Name'/>
+                                      </Row>
+                                      <Row key='description'>
+                                          <TextField id="description" style={{
+                                            width: '100%',
+                                            textAlign: 'left'
+                                          }} multiLine={true} rows={1} rowsMax={4} floatingLabelText="Description" onChange={this.handlesOnDescriptionChange} hintText='Description'/>
+                                      </Row>
+                                      <Row key='permissions' >
+                                          <div style={{
+                                              borderBottom: '1px solid #E9E9E9',
+                                              width: '100%'
+                                          }}>
+                                              <Checkbox style={{
+                                                  marginBottom: 15,
+                                                  marginTop:15,
+                                                  width:200
+                                              }} label="Check All Permissions" onCheck={this.handlesOnCheck} checked={this.state.checkAll}/>
+                                          </div>
+                                          <br/>
+                                          </Row>
 
-                                <TextField style={{
-                                    width: 450
-                                }} id="username" floatingLabelText="Name" onChange={this.handlesOnNameChange}/>
-                            </Row>
-                            <Row key='description'>
-                                <TextField id="description" style={{
-                                    width: 450
-                                }} multiLine={true} rows={2} rowsMax={4} floatingLabelText="Description" onChange={this.handlesOnDescriptionChange} hintText='Description'/>
-                            </Row>
-                            <Row key='permissions'>
-                                <div style={{
-                                    borderBottom: '1px solid #E9E9E9',
-                                    width: 450
-                                }}>
-                                    <Checkbox style={{
-                                        margin: 5
-                                    }} label="Check All Permissions" onCheck={this.handlesOnCheck} checked={this.state.checkAll}/>
-                                </div>
-                                <br/>
-                                </Row>
-
-                                <Row>
-                                  <Col>
-                                    <Checkbox label="Create" checked={this.state.permissionC} onCheck={this.handlesPermissionClickC}/>
-                                    <Checkbox label="Read" disabled={true} checked={true}/>
-                                    <Checkbox label="Update" checked={this.state.permissionU} onCheck={this.handlesPermissionClickU}/>
-                                    <Checkbox label="Delete" checked={this.state.permissionD} onCheck={this.handlesPermissionClickD}/>
-                                    <Checkbox label="Execute" checked={this.state.permissionX} onCheck={this.handlesPermissionClickX}/>
-                                  </Col>
-                                </Row>
-                            <Row key='image'>
-                                <Dropzone id='imageUri' onDrop={this.handlesImageUpload} multiple={false} accept='image/*' style={{
-                                    marginLeft: '10px',
-                                    width: '180px',
-                                    padding: '15px 0px'
-                                }}>
-                                    <div className="avatar-photo">
-                                        <div className="avatar-edit">
-                                            <span>Click to Choose Image</span>
-                                            <i className="fa fa-camera"></i>
-                                        </div>
-                                        <img src={this.state.croppedImg || this.state.imageUri} style={{
-                                            width: 200
-                                        }}/>
-                                    </div>
-                                    {this.state.cropperOpen &&
-                                      <AvatarCropper onRequestHide={this.handleRequestHide} cropperOpen={this.state.cropperOpen} onCrop={this.handleCrop} image={this.state.img} width={400} height={400}/>
-                                    }
-                                </Dropzone>
-                            </Row>
-                        </Col>
-                    </div>
+                                          <Row style={{paddingTop:15, paddingBottom:15}} >
+                                            <Col>
+                                              <Checkbox label="Create" checked={this.state.permissionC} onCheck={this.handlesPermissionClickC}/>
+                                              <Checkbox label="Read" disabled={true} checked={true}/>
+                                              <Checkbox label="Update" checked={this.state.permissionU} onCheck={this.handlesPermissionClickU}/>
+                                              <Checkbox label="Delete" checked={this.state.permissionD} onCheck={this.handlesPermissionClickD}/>
+                                              <Checkbox label="Execute" checked={this.state.permissionX} onCheck={this.handlesPermissionClickX}/>
+                                            </Col>
+                                          </Row>
+                                    </Col>
+                                    <Col style={{paddingLeft: 20, paddingRight: 140, width:'35%'}}>
+                                      <Row key='image' style={{justifyContent:'space-around' }}>
+                                          <Dropzone id='imageUri' onDrop={this.handlesImageUpload} multiple={false} accept='image/*' style={{
+                                              marginLeft: '10px',
+                                              width: '180px',
+                                              padding: '15px 0px'
+                                          }}>
+                                              <div className="avatar-photo">
+                                                  <div className="avatar-edit">
+                                                      <span>Click to Choose Image</span>
+                                                      <i className="fa fa-camera"></i>
+                                                  </div>
+                                                  <img src={this.state.croppedImg || this.state.imageUri} style={{
+                                                      width: 200
+                                                  }}/>
+                                              </div>
+                                              {this.state.cropperOpen &&
+                                                <AvatarCropper onRequestHide={this.handleRequestHide} cropperOpen={this.state.cropperOpen} onCrop={this.handleCrop} image={this.state.img} width={400} height={400}/>
+                                              }
+                                          </Dropzone>
+                                      </Row>
+                                    </Col>
+                                  </Row>
                   <Tabs>
                       <Tab label="Landscapes" key="3">
                         <div style={styles.wrapper}>
@@ -326,6 +348,8 @@ class CreateGroup extends Component {
                           </Table>
                       </Tab>
                   </Tabs>
+                </Row>
+                </Card>
               </Row>
           </div>
         )
@@ -506,6 +530,7 @@ class CreateGroup extends Component {
     handlesCreateClick = event => {
         const { router } = this.context
 
+
         event.preventDefault()
 
         let groupToCreate = {
@@ -539,7 +564,7 @@ class CreateGroup extends Component {
             }
         }
         groupToCreate.imageUri = this.state.croppedImg || this.state.imageUri
-
+        console.log('groupToCreate', groupToCreate)
         this.props.CreateGroupWithMutation({
             variables: { group: groupToCreate }
          }).then(({ data }) => {
