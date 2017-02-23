@@ -334,7 +334,7 @@ const resolveFunctions = {
                     console.log(' ---> created: ' + newGroup._id)
                     return Group.find(newGroup._id).sort('-created').populate('user', 'displayName').exec((err, groups) => {
                         if (err) return err
-                        return resolve(groups)
+                        return resolve(newGroup)
                     })
                 }
             })
