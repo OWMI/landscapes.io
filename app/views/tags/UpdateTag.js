@@ -69,7 +69,7 @@ class UpdateTag extends Component {
                     <Col xs={6} lg={9} className={cx( { 'create-tag': true } )}>
                         <Row middle='xs'>
                             <Col xs={4} style={{ textAlign: 'left' }}>
-                                <h4>Edit Tag</h4>
+                                <h4>Edit Global Tag</h4>
                             </Col>
                             <Col xs={8}>
                                 <RaisedButton label='Save' onClick={this.handlesUpdateClick}

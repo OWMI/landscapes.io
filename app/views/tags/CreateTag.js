@@ -61,7 +61,7 @@ class CreateTag extends Component {
                     <Col xs={6} lg={9} className={cx( { 'create-tag': true } )}>
                         <Row middle='xs'>
                             <Col xs={4} style={{ textAlign: 'left' }}>
-                                <h4>New Tag</h4>
+                                <h4>New Global Tag</h4>
                             </Col>
                             <Col xs={8}>
                               <Row>

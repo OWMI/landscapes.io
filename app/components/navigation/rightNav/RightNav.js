@@ -41,7 +41,7 @@ class RightNav extends Component {
         const { rightLinks, onRightNavButtonClick, user, userIsAuthenticated } = this.props
 
         return (
-            <Row between='xs'>
+            <Row between='xs' style={{marginTop: 5}}>
                 {
                     (userIsAuthenticated && this.state.userIsAuthenticated && this.state.userIsAdmin)
                     ?

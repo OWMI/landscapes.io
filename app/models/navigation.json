@@ -56,7 +56,7 @@
         "showOnSettingsDropdownAdminOnly": false,
         "hideWhenUserAuth": false
     }, {
-        "label": "Tags",
+        "label": "Global Tags",
         "link": "/tags",
         "view": "tags",
         "isRouteBtn": true,
