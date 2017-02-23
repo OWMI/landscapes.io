@@ -7,7 +7,7 @@ import { IoCube, IoClose } from 'react-icons/lib/io'
 import shallowCompare from 'react-addons-shallow-compare'
 import { Row, Col } from 'react-flexbox-grid'
 import { IoEdit, IoAndroidClose, IoIosCloudUploadOutline } from 'react-icons/lib/io'
-import { Card, CardHeader, CardText, Dialog, FlatButton, RaisedButton, Tab, Tabs, TextField } from 'material-ui'
+import { Card, CardHeader, CardText, Dialog, FlatButton, RaisedButton, Tab, Tabs, TextField, Snackbar } from 'material-ui'
 import MenuItem from 'material-ui/MenuItem';
 import SelectField from 'material-ui/SelectField';
 import { Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table'
@@ -20,7 +20,14 @@ class LandscapeDetails extends Component {
         viewEntersAnim: true,
         showDialog: false,
         currentDeployments: [],
-        addedDocuments: []
+        addedDocuments: [],
+
+        purgedDeployment: '',
+        deletedDeployment: '',
+        deleted: '',
+        deleteCancelOpen: false,
+        deleteSuccessOpen: false
+
     }
 
     componentWillReceiveProps(nextProps) {
@@ -99,6 +106,9 @@ class LandscapeDetails extends Component {
 
         return (
             <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
+              <Snackbar open={this.state.deleteSuccessOpen} message={`${this.state.deleted}  successfully ${deleteType}d`} autoHideDuration={3000} onRequestClose={this.handleRequestClose}/>
+              <Snackbar open={this.state.deleteCancelOpen} message={`${this.state.deleted} could not be ${deleteType}d.`} autoHideDuration={3000} onRequestClose={this.handleRequestClose}/>
+
                 <Row middle='xs'>
                     <Col xs={2} style={{ textAlign: 'left', marginBottom:30 }}>
                       <Row><h4><strong>Landscape</strong></h4></Row>
@@ -134,7 +144,7 @@ class LandscapeDetails extends Component {
 
                 <Tabs tabItemContainerStyle={{ backgroundColor: materialTheme.palette.primary1Color }}>
                     <Tab label='Deployments'>
-                        <CardHeader style={{ background: '#e6e6e6', padding: '0 25px' }}>
+                        <CardHeader style={{ padding: '0 25px' }}>
                             <Row between='xs' style={{ marginTop: '-10px' }}>
                                 <Col xs={2}><label>Deployment Name</label></Col>
                                 <Col xs={2}><label>Deployed By</label></Col>
@@ -509,6 +519,7 @@ class LandscapeDetails extends Component {
         let landscapes = []
 
         self.handlesDialogToggle(deployment)
+        this.setState({deleted: deployment.stackName})
 
         mutate({
             variables: { deployment }
@@ -524,6 +535,7 @@ class LandscapeDetails extends Component {
                 landscapes,
                 currentDeployments: data.deploymentsByLandscapeId.filter(d => { return d.landscapeId === params.id })
             })
+            this.setState({deleteSuccessOpen: true})
             router.push({ pathname: `/landscape/${params.id}` })
         }).catch(error => console.log(error))
     }
