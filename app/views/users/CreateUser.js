@@ -3,6 +3,7 @@ import { Loader } from '../../components'
 import React, { Component, PropTypes } from 'react'
 import shallowCompare from 'react-addons-shallow-compare'
 import Dropzone from 'react-dropzone'
+import { Row, Col } from 'react-flexbox-grid'
 
 import { Checkbox, RaisedButton} from 'material-ui'
 import {GridList, GridTile} from 'material-ui/GridList';
@@ -60,7 +61,9 @@ class CreateUser extends Component {
         enableSelectAll: true,
         deselectOnClickaway: true,
         showCheckboxes: true,
-        height:'300'
+        height:'300',
+        errorMessage: false,
+        message: ''
     }
 
     componentDidMount() {
@@ -112,75 +115,100 @@ class CreateUser extends Component {
                       autoHideDuration={3000}
                       onRequestClose={this.handleRequestClose}
                     />
-                        <h4>Create User</h4><br/>
-                          <div style={styles.root}>
-                          <GridList
-                            cols={1}
-                            cellHeight='auto'
-                            style={styles.gridList}
-                          >
-                              <GridTile
-                                key='username'
-                              >
+                    <Row middle='xs'>
+                        <Col xs={4} style={{ textAlign: 'left' }}>
+                            <h4>Create User</h4>
+                        </Col>
+                        <Col xs={4}>
 
-                              <TextField style={{width:450}} id="username" floatingLabelText="Username" value={this.state.username} onChange={this.handlesOnUsernameChange}/>
-                              </GridTile>
-                              <GridTile
-                                key='email'
-                              >
-                              <TextField style={{width:450}} id="email" floatingLabelText="Email" value={this.state.email} onChange={this.handlesOnEmailChange} />
-                              </GridTile>
-                              <GridTile
-                                key='firstName'
-                              >
-                              <TextField style={{width:450}} id="firstName" floatingLabelText="First Name" value={this.state.firstName} onChange={this.handlesOnFirstNameChange}  />
-                              </GridTile>
-                              <GridTile
-                                key='lastName'
-                              >
-                              <TextField style={{width:450}} id="lastName" floatingLabelText="Last Name" value={this.state.lastName} onChange={this.handlesOnLastNameChange}  />
-                              </GridTile>
-                              <GridTile
-                                key='password'
-                              >
-                              <TextField style={{width:450}} id="password" type="password" floatingLabelText="Password" value={this.state.password} onChange={this.handlesOnPasswordChange}  />
-                              </GridTile>
-                              <GridTile
-                                key='role'
-                              >
-                                <Dropzone id='imageUri' onDrop={this.handlesImageUpload} multiple={false} accept='image/*' style={{
-                                    marginLeft: '10px',
-                                    maxWidth: '100px',
-                                    padding: '15px 0px'
-                                }}>
-                                    <div className="avatar-photo" >
+                        </Col>
+                        <Col xs={2}>
+                            <RaisedButton label='Save' onClick={this.handlesCreateClick}
+                                style={{ float: 'right', margin: '30px 0px' }}
+                                labelStyle={{ fontSize: '11px' }}/>
+                        </Col>
+                        <Col xs={2}>
+                            <RaisedButton label='Cancel' primary={true} onClick={() => {
+                                const {router} = this.context
+                                router.push(`/users`)
+                            }}
+                                style={{ float: 'right', margin: '30px 0px' }}
+                                labelStyle={{ fontSize: '11px' }}/>
+                        </Col>
+                    </Row>
+                          <div style={styles.root}>
+                            <Card style={{padding:20, width:'100%'}}>
+                              {
+                                this.state.errorMessage
+                                ?
+                                <p style={{color: 'red'}}>{this.state.message}</p>
+                                :
+                                null
+                              }
+                                <Row style={{width:'100%'}}>
+                                <Col style={{width:'50%'}}>
+                                  <Row>
+                                    <TextField style={{width:'100%'}} id="username" floatingLabelText="Username" value={this.state.username} onChange={this.handlesOnUsernameChange}  />
+                                  </Row>
+                                  <Row>
+                                    <TextField style={{width:'100%'}} id="email" floatingLabelText="Email" value={this.state.email} onChange={this.handlesOnEmailChange} />
+                                  </Row>
+                                  <Row>
+                                    <Col xs={6}>
+                                      <TextField style={{width:'100%'}} id="firstName" floatingLabelText="First Name" value={this.state.firstName} onChange={this.handlesOnFirstNameChange}/>
+                                    </Col>
+                                    <Col xs={6}>
+                                      <TextField style={{width:'100%'}} id="lastName" floatingLabelText="Last Name" value={this.state.lastName} onChange={this.handlesOnLastNameChange} />
+                                    </Col>
+                                  </Row>
+                                  <Row>
+                                    <TextField style={{width:'100%'}} id="newPassword" floatingLabelText="New Password" value={this.state.newPassword} onChange={this.handlesOnNewPasswordChange} />
+                                  </Row>
+                                  <Row>
+                                    <TextField style={{width:'100%'}} id="verifyPassword" floatingLabelText="Verify Password" value={this.state.verifyPassword} onChange={this.handlesOnVerifyPasswordChange}/>
+                                  </Row>
+                                  <Row style={{marginTop: 5}}>
+                                    <RadioButtonGroup style={{ maxWidth:250}} name="role" id="role" valueSelected={this.state.role} onChange={this.handleRoleChange}>
+                                          <RadioButton
+                                            value="admin"
+                                            label="Global Admin"
+                                            labelStyle={{textAlign: 'left', marginLeft:0, width:100}}
+                                          />
+                                          <RadioButton
+                                            value="user"
+                                            label="User"
+                                            labelStyle={{textAlign: 'left', marginLeft:0}}
+                                          />
+                                        </RadioButtonGroup>
+                                  </Row>
+                                </Col>
+                                <Col style={{width:'50%'}}>
+                                  <Row style={{justifyContent:'space-around'}}>
+                                    <Dropzone id='imageUri' onDrop={this.handlesImageUpload} multiple={false} accept='image/*'
+                                      style={{ marginLeft: '10px', width: '180px', padding: '15px 0px' }}>
+                                      <div className="avatar-photo">
                                         <div className="avatar-edit">
-                                            <span>Click to Choose Image</span>
-                                            <i className="fa fa-camera" style={{fontSize: 30}}></i>
+                                          <span>Click to Choose Image</span>
+                                          <i className="fa fa-camera"></i>
                                         </div>
                                         <img src={this.state.croppedImg || this.state.imageUri || defaultUserImage} />
-                                    </div>
-                                    {this.state.cropperOpen &&
-                                      <AvatarCropper onRequestHide={this.handleRequestHide} cropperOpen={this.state.cropperOpen} onCrop={this.handleCrop} image={this.state.img} width={400} height={400}/>
-                                    }
-                                </Dropzone>
-                              <RadioButtonGroup style={{width:450, margin: 5}} name="role" id="role" valueSelected={this.state.role} onChange={this.handleRoleChange}>
-                                    <RadioButton
-                                      value="admin"
-                                      label="Global Admin"
-                                    />
-                                    <RadioButton
-                                      value="user"
-                                      label="User"
-                                    />
-                                  </RadioButtonGroup>
-                            </GridTile>
-                            <GridTile
-                              key='SubmitButton'
-                            >
-                            <RaisedButton style={{width:450, margin: 5}} primary={true} disabled={loading} label="Submit" onClick={this.handlesCreateClick} />
-                            </GridTile>
-                          </GridList>
+                                      </div>
+                                      {
+                                        this.state.cropperOpen &&
+                                        <AvatarCropper
+                                          onRequestHide={this.handleRequestHide}
+                                          cropperOpen={this.state.cropperOpen}
+                                          onCrop={this.handleCrop}
+                                          image={this.state.img}
+                                          width={400}
+                                          height={400}
+                                        />
+                                      }
+                                      </Dropzone>
+                                  </Row>
+                                </Col>
+                                </Row>
+                                </Card>
                           </div>
                     </div>
             )
@@ -255,10 +283,15 @@ class CreateUser extends Component {
             this.setState({ email: event.target.value })
         }
 
-        handlesOnPasswordChange = event => {
+        handlesOnNewPasswordChange = event => {
             event.preventDefault()
             // should add some validator before setState in real use cases
-            this.setState({ password: event.target.value })
+            this.setState({ newPassword: event.target.value })
+        }
+        handlesOnVerifyPasswordChange = event => {
+            event.preventDefault()
+            // should add some validator before setState in real use cases
+            this.setState({ verifyPassword: event.target.value })
         }
         handlesOnUsernameChange = event => {
             event.preventDefault()
@@ -278,14 +311,28 @@ class CreateUser extends Component {
 
         handlesCreateClick = event => {
           const { router } = this.context
-
           const { refetchUsers } = this.props
+
+          this.setState({errorMessage: false})
+          if(this.state.newPassword !== this.state.verifyPassword ){
+            this.setState({errorMessage: true, message:'Password and Verify Password must match.'})
+          }
+          else if(!this.state.username){
+            this.setState({errorMessage: true, message:'Must provide username.'})
+          }
+          else if(!this.state.email){
+            this.setState({errorMessage: true, message:'Must provide email.'})
+          }
+          else if(!this.state.firstName || !this.state.lastName){
+            this.setState({errorMessage: true, message:'Must provide first and last name.'})
+          }
+          else{
             event.preventDefault()
             let userToCreate = {
               username: this.state.username,
               email: this.state.email,
               role: this.state.role,
-              password: this.state.password,
+              password: this.state.newPassword,
               firstName: this.state.firstName,
               lastName: this.state.lastName,
               imageUri: this.state.croppedImg
@@ -306,6 +353,7 @@ class CreateUser extends Component {
                 failOpen: true
               })
             })
+          }
 
         }
 

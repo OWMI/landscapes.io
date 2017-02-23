@@ -150,32 +150,32 @@ class EditUser extends Component {
                 <Col xs={4} style={{ textAlign: 'left' }}>
                     <h4><strong>Edit User:</strong> {this.state.firstName} {this.state.lastName}</h4>
                 </Col>
-                <Col xs={4}>
-                  <RaisedButton label='Delete' onTouchTap={() => { this.setState({ showDeleteDialog: !showDeleteDialog }) }}
-                      style={{ float: 'right', margin: '30px 0px' }}
-                      labelStyle={{ fontSize: '11px' }}/>
-                    <Dialog title='Delete User' modal={false} open={showDeleteDialog}
-                          onRequestClose={() => { this.setState({ showDeleteDialog: !showDeleteDialog }) }}
-                          actions={[
-                              <FlatButton label='Cancel' primary={true} onTouchTap={() => { this.setState({ showDeleteDialog: !showDeleteDialog }) }}/>,
-                              <FlatButton label='Delete' primary={true} onTouchTap={this.handlesDeleteUserClick.bind(this, currentUser)}/>
-                          ]}>
-                          Are you sure you want to delete {this.state.firstName} {this.state.lastName}?
-                      </Dialog>
+                <Col xs={5}>
 
                 </Col>
-                <Col xs={2}>
+                <Col xs={3}>
+                  <Row style={{width:'100%', minWidth: '500px'}}>
+                    <RaisedButton label='Delete' onTouchTap={() => { this.setState({ showDeleteDialog: !showDeleteDialog }) }}
+                        style={{ float: 'right', margin: '30px 0px' }}
+                        labelStyle={{ fontSize: '11px' }}/>
+                      <Dialog title='Delete User'  modal={false} open={showDeleteDialog}
+                            onRequestClose={() => { this.setState({ showDeleteDialog: !showDeleteDialog }) }}
+                            actions={[
+                                <FlatButton label='Cancel' primary={true} onTouchTap={() => { this.setState({ showDeleteDialog: !showDeleteDialog }) }}/>,
+                                <FlatButton label='Delete' primary={true} onTouchTap={this.handlesDeleteUserClick.bind(this, currentUser)}/>
+                            ]}>
+                            Are you sure you want to delete {this.state.firstName} {this.state.lastName}?
+                        </Dialog>
                     <RaisedButton label='Save' onClick={this.handlesCreateClick}
                         style={{ float: 'right', margin: '30px 0px' }}
                         labelStyle={{ fontSize: '11px' }}/>
-                </Col>
-                <Col xs={2}>
-                    <RaisedButton label='Cancel' primary={true} onClick={() => {
-                        const {router} = this.context
-                        router.push(`/users/${params.id}`)
-                    }}
-                        style={{ float: 'right', margin: '30px 0px' }}
-                        labelStyle={{ fontSize: '11px' }}/>
+                      <RaisedButton label='Cancel' primary={true} onClick={() => {
+                          const {router} = this.context
+                          router.push(`/users/${params.id}`)
+                      }}
+                          style={{ float: 'right', margin: '30px 0px' }}
+                          labelStyle={{ fontSize: '11px' }}/>
+                  </Row>
                 </Col>
             </Row>
               <Card style={{padding:20, width:'100%'}}>
@@ -201,15 +201,17 @@ class EditUser extends Component {
                     <Row>
                       <TextField style={{width:'100%'}} id="verifyPassword" floatingLabelText="Verify Password" value={this.state.verifyPassword} onChange={this.handlesOnVerifyPasswordChange}/>
                     </Row>
-                    <Row>
-                      <RadioButtonGroup style={{marginTop: 5}} name="role" id="role" valueSelected={this.state.role} onChange={this.handleRoleChange}>
+                    <Row style={{marginTop:5}}>
+                      <RadioButtonGroup style={{ maxWidth:250}} name="role" id="role" valueSelected={this.state.role} onChange={this.handleRoleChange}>
                             <RadioButton
                               value="admin"
                               label="Global Admin"
+                              labelStyle={{textAlign: 'left', marginLeft:2, width:100}}
                             />
                             <RadioButton
                               value="user"
                               label="User"
+                              labelStyle={{textAlign: 'left', marginLeft:2}}
                             />
                           </RadioButtonGroup>
                     </Row>
@@ -223,7 +225,7 @@ class EditUser extends Component {
                             <span>Click to Choose Image</span>
                             <i className="fa fa-camera"></i>
                           </div>
-                          <img src={this.state.croppedImg || this.state.imageUri || defaultUserImage} />
+                          <img src={this.state.croppedImg || currentUser.imageUri || defaultUserImage} />
                         </div>
                         {
                           this.state.cropperOpen &&
