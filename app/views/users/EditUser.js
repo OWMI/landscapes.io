@@ -144,7 +144,7 @@ class EditUser extends Component {
               autoHideDuration={3000}
               onRequestClose={this.handleRequestClose}
             />
-          <Col xs={12} lg={12} className={cx( { 'create-landscape': true } )}>
+          <Col xs={12} lg={12} className={cx( { 'create-landscape': false } )}>
 
             <Row middle='xs'>
                 <Col xs={4} style={{ textAlign: 'left' }}>

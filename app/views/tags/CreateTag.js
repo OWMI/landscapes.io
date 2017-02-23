@@ -58,30 +58,21 @@ class CreateTag extends Component {
         return (
             <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
                 <Row center='xs' middle='xs'>
-                    <Col xs={6} lg={9} className={cx( { 'create-tag': true } )}>
+                    <Col xs={6} lg={9} className={cx( { 'create-tag': false } )}>
                         <Row middle='xs'>
                             <Col xs={4} style={{ textAlign: 'left' }}>
                                 <h4>New Global Tag</h4>
                             </Col>
                             <Col xs={8}>
-                              <Row>
-                                <Col xs={4}>
-
-                                </Col>
-                                <Col xs={4}>
-                                  <RaisedButton label='Save' onClick={this.handlesCreateClick}
+                                <RaisedButton label='Cancel' primary={true} onClick={() => {
+                                    const {router} = this.context
+                                    router.push(`/tags`)
+                                }}
+                                  style={{ float: 'right', margin: '30px 0px' }}
+                                  labelStyle={{ fontSize: '11px' }}/>
+                                  <RaisedButton label='Save' onClick={this.handlesUpdateClick}
                                       style={{ float: 'right', margin: '30px 0px' }}
                                       labelStyle={{ fontSize: '11px' }}/>
-                                </Col>
-                                <Col xs={4}>
-                                  <RaisedButton label='Cancel' primary={true} onClick={() => {
-                                      const {router} = this.context
-                                      router.push(`/tags`)
-                                  }}
-                                    style={{ float: 'right', margin: '30px 0px' }}
-                                    labelStyle={{ fontSize: '11px' }}/>
-                                </Col>
-                              </Row>
                             </Col>
                         </Row>
                         <Card>
@@ -93,9 +84,12 @@ class CreateTag extends Component {
                               null
                             }
 
-                            <TextField id='key' ref='key'  floatingLabelText='Key' style={{marginRight: 10, marginLeft: 10}} fullWidth={true}/>
-                            <TextField id='defaultValue' ref='defaultValue' floatingLabelText='Default Value' style={{marginRight: 10, marginLeft: 10}} fullWidth={true}/>
-
+                            <Row style={{marginLeft:10, marginRight:10}}>
+                              <TextField id='key' ref='key'  floatingLabelText='Key' fullWidth={true}/>
+                            </Row>
+                            <Row style={{marginLeft:10, marginRight:10}}>
+                              <TextField id='defaultValue' ref='defaultValue' floatingLabelText='Default Value' fullWidth={true}/>
+                            </Row>
                             <Checkbox id='isRequired' onCheck={this.handlesIsRequiredChange} label="Required" style={{marginBottom: 20, marginTop: 20, width: 20}} />
                             <div style={{height:20}}></div>
                         </Card>

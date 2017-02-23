@@ -16,7 +16,7 @@ class CreateDeployment extends Component {
     state = {
         animated: true,
         viewEntersAnim: true,
-        showAddTag: true
+        showAddTag: false
     }
 
     componentDidMount() {
@@ -124,7 +124,7 @@ class CreateDeployment extends Component {
         return (
             <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
                 <Row center='xs' middle='xs'>
-                    <Col xs={6} lg={9} className={cx( { 'create-deployment': true } )}>
+                    <Col xs={6} lg={9} className={cx( { 'create-deployment': false } )}>
                         <Row middle='xs'>
                             <Col xs={4} style={{ textAlign: 'left' }}>
                                 <h4>New Deployment</h4>
@@ -143,58 +143,69 @@ class CreateDeployment extends Component {
                             :
                             null
                           }
-                            <TextField id='stackName' ref='stackName' floatingLabelText='Stack Name' className={cx( { 'two-field-row': true } )}/>
-
-                            {
-                              !isGlobalAdmin
-                              ?
-                                  <SelectField id='accountName' floatingLabelText='Account Name' value={this.state.accountName} onChange={this.handlesAccountChange}
-                                      floatingLabelStyle={{ left: '0px' }} className={cx( { 'two-field-row': true } )}>
-                                      {
-                                          landscapeAccounts && landscapeAccounts.length
-                                            ?
-                                                landscapeAccounts.map((acc, index) => {
-                                                    return (
-                                                        <MenuItem key={Object.keys(acc)[0]} value={acc[Object.keys(acc)[0]]} primaryText={acc[Object.keys(acc)[0]]}/>
-                                                    )
-                                                })
-                                            :
-                                                null
-                                      }
-                                  </SelectField>
-                              :
-                                  <SelectField id='accountName' floatingLabelText='Account Name' value={this.state.accountName} onChange={this.handlesAccountChange}
-                                      floatingLabelStyle={{ left: '0px' }} className={cx( { 'two-field-row': true } )}>
-                                      {
-                                          landscapeAccounts && landscapeAccounts.length
-                                            ?
-                                                landscapeAccounts.map((acc, index) => {
-                                                    return (
-                                                        <MenuItem key={acc._id} value={acc.name} primaryText={acc.name}/>
-                                                    )
-                                                })
-                                            :
-                                            null
+                          <Row style={{marginLeft:10, marginRight:10}}>
+                            <Col xs={6}>
+                              <TextField id='stackName' ref='stackName' floatingLabelText='Stack Name' className={cx( { 'two-field-row': true } )}/>
+                            </Col>
+                            <Col xs={6}>
+                              {
+                                !isGlobalAdmin
+                                ?
+                                    <SelectField id='accountName' floatingLabelText='Account Name' value={this.state.accountName} onChange={this.handlesAccountChange}
+                                        floatingLabelStyle={{ left: '0px' }} className={cx( { 'two-field-row': true } )}>
+                                        {
+                                            landscapeAccounts && landscapeAccounts.length
+                                              ?
+                                                  landscapeAccounts.map((acc, index) => {
+                                                      return (
+                                                          <MenuItem key={Object.keys(acc)[0]} value={acc[Object.keys(acc)[0]]} primaryText={acc[Object.keys(acc)[0]]}/>
+                                                      )
+                                                  })
+                                              :
+                                                  null
                                         }
-                                  </SelectField>
-                            }
+                                    </SelectField>
+                                :
+                                    <SelectField id='accountName' floatingLabelText='Account Name' value={this.state.accountName} onChange={this.handlesAccountChange}
+                                        floatingLabelStyle={{ left: '0px' }} className={cx( { 'two-field-row': true } )}>
+                                        {
+                                            landscapeAccounts && landscapeAccounts.length
+                                              ?
+                                                  landscapeAccounts.map((acc, index) => {
+                                                      return (
+                                                          <MenuItem key={acc._id} value={acc.name} primaryText={acc.name}/>
+                                                      )
+                                                  })
+                                              :
+                                              null
+                                          }
+                                    </SelectField>
+                              }
+                            </Col>
+                          </Row>
+                          <Row style={{marginLeft:10, marginRight:10}}>
+                            <Col xs={6}>
+                              <SelectField id='location' floatingLabelText='Region' value={this.state.location} onChange={this.handlesRegionChange}
+                                  floatingLabelStyle={{ left: '0px' }} className={cx( { 'two-field-row': true } )}>
+                                  {
+                                      menuItems.map((item, index) => {
+                                          return (
+                                              <MenuItem key={index} value={item.value} primaryText={item.text}/>
+                                          )
+                                      })
+                                  }
+                              </SelectField>
+                            </Col>
+                            <Col xs={6}>
+                              <TextField id='billingCode' ref='billingCode' floatingLabelText='Billing Code' fullWidth={true}
+                                  className={cx( { 'two-field-row': true } )}/>
+                            </Col>
+                          </Row>
 
-                            <SelectField id='location' floatingLabelText='Region' value={this.state.location} onChange={this.handlesRegionChange}
-                                floatingLabelStyle={{ left: '0px' }} className={cx( { 'two-field-row': true } )}>
-                                {
-                                    menuItems.map((item, index) => {
-                                        return (
-                                            <MenuItem key={index} value={item.value} primaryText={item.text}/>
-                                        )
-                                    })
-                                }
-                            </SelectField>
-
-                            <TextField id='billingCode' ref='billingCode' floatingLabelText='Billing Code' fullWidth={true}
-                                className={cx( { 'two-field-row': true } )}/>
-
+                          <Row style={{marginLeft:10, marginRight:10}}>
                             <TextField id='accessKeyId' ref='accessKeyId' value={this.state.accessKeyId} floatingLabelText='Access Key ID' fullWidth={true}/>
-
+                          </Row>
+                          <Row style={{marginLeft:10, marginRight:10}}>
                             {
                                 isGlobalAdmin || isGroupAdmin
                                 ?
@@ -203,7 +214,7 @@ class CreateDeployment extends Component {
                                         <TextField id='secretAccessKey' ref='secretAccessKey' value={secretAccessKey.substring(0, 255)} multiLine={true} rows={4}
                                             maxLength={255} floatingLabelStyle={{ left: '0px' }} floatingLabelText='Secret Access Key' fullWidth={true}/>
                                     :
-                                        <TextField id='secretAccessKey' ref='secretAccessKey' multiLine={true} rows={4}
+                                        <TextField id='secretAccessKey' ref='secretAccessKey' multiLine={true} rows={1} rowsMax={4}
                                             maxLength={255} floatingLabelStyle={{ left: '0px' }} floatingLabelText='Secret Access Key' fullWidth={true}/>
                                 :
                                     secretAccessKey
@@ -211,10 +222,11 @@ class CreateDeployment extends Component {
                                             <TextField id='secretAccessKey' ref='secretAccessKey' value={secretAccessKey.replace(/./g, '*')} multiLine={true} rows={4}
                                                 maxLength={255} floatingLabelStyle={{ left: '0px' }} floatingLabelText='Secret Access Key' fullWidth={true}/>
                                         :
-                                            <TextField id='secretAccessKey' ref='secretAccessKey' multiLine={true} rows={4}
+                                            <TextField id='secretAccessKey' ref='secretAccessKey' multiLine={true} rows={1} rowsMax={4}
                                                 maxLength={255} floatingLabelStyle={{ left: '0px' }} floatingLabelText='Secret Access Key' fullWidth={true}/>
                             }
 
+                          </Row>
                             <CardHeader title='Advanced' titleStyle={{ fontSize: '13px', paddingRight: 0 }} actAsExpander={true} showExpandableButton={true}/>
 
                             <CardText expandable={true}>

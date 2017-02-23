@@ -85,24 +85,30 @@ class UpdateAccount extends Component {
                             </Col>
                         </Row>
                         <Card>
-
-                            <TextField id='name' ref='name' defaultValue={currentAccount.name} floatingLabelText='Name' className={cx( { 'two-field-row': true } )}/>
-
-                            <SelectField id='region' floatingLabelText='Region' value={this.state.region || currentAccount.region} onChange={this.handlesRegionChange}
-                                floatingLabelStyle={{ left: '0px' }} className={cx( { 'two-field-row': true } )}>
-                                {
-                                    menuItems.map((item, index) => {
-                                        return (
-                                            <MenuItem key={index} value={item.value} primaryText={item.text}/>
-                                        )
-                                    })
-                                }
-                            </SelectField>
-
+                          <Row>
+                            <Col xs={6} style={{paddingLeft: 10}}>
+                              <TextField id='name' ref='name' defaultValue={currentAccount.name} floatingLabelText='Name'/>
+                            </Col>
+                            <Col xs={6} style={{paddingRight: 10}}>
+                              <SelectField id='region' floatingLabelText='Region' value={this.state.region || currentAccount.region} onChange={this.handlesRegionChange}
+                                  floatingLabelStyle={{ left: '0px' }}>
+                                  {
+                                      menuItems.map((item, index) => {
+                                          return (
+                                              <MenuItem key={index} value={item.value} primaryText={item.text}/>
+                                          )
+                                      })
+                                  }
+                              </SelectField>
+                            </Col>
+                          </Row>
+                          <Row style={{marginLeft:5, marginRight:5}}>
                             <TextField id='accessKeyId' ref='accessKeyId' defaultValue={currentAccount.accessKeyId} floatingLabelText='Access Key ID' fullWidth={true}/>
-
-                            <TextField id='secretAccessKey' ref='secretAccessKey' defaultValue={currentAccount.secretAccessKey} multiLine={true} rows={4} floatingLabelText='Secret Access Key' fullWidth={true}
+                          </Row>
+                          <Row style={{marginLeft:5, marginRight:5}}>
+                            <TextField id='secretAccessKey' ref='secretAccessKey' defaultValue={currentAccount.secretAccessKey} multiLine={true} rows={1} rowsMax={4} floatingLabelText='Secret Access Key' fullWidth={true}
                                 floatingLabelStyle={{ left: '0px' }}/>
+                          </Row>
 
                             <CardHeader title='Advanced' titleStyle={{ fontSize: '13px', paddingRight: 0 }} actAsExpander={true} showExpandableButton={true}/>
 

@@ -99,7 +99,6 @@ class CreateAccount extends Component {
             { text: 'Asia Pacific (Tokyo) Region', value: 'ap-northeast-1' },
             { text: 'South America (Sao Paulo) Region', value: 'sa-east-1' }
         ]
-        console.log('USER ADMIN GROUPS', userAdminGroups)
         if (loading || this.state.loading) {
             return (
                 <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
@@ -111,7 +110,7 @@ class CreateAccount extends Component {
         return (
             <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
                 <Row center='xs' middle='xs'>
-                    <Col xs={6} lg={9} className={cx( { 'create-account': true } )}>
+                    <Col xs={6} lg={9} className={cx( { 'create-account': false } )}>
                         <Row middle='xs'>
                             <Col xs={4} style={{ textAlign: 'left' }}>
                                 <h4>New Account</h4>
@@ -145,59 +144,66 @@ class CreateAccount extends Component {
                               :
                               null
                             }
-                            <TextField id='name' ref='name' floatingLabelText='Name' className={cx( { 'two-field-row': true } )}/>
-
-                            <SelectField id='region' floatingLabelText='Region' value={this.state.region} onChange={this.handlesRegionChange}
-                                floatingLabelStyle={{ left: '0px' }} className={cx( { 'two-field-row': true } )}>
+                            <Row>
+                              <Col xs={6} style={{paddingLeft: 10}}>
+                                <TextField id='name' ref='name' floatingLabelText='Name'/>
+                              </Col>
+                              <Col xs={6} style={{paddingRight: 10}}>
+                                <SelectField id='region' floatingLabelText='Region' value={this.state.region} onChange={this.handlesRegionChange}
+                                    floatingLabelStyle={{ left: '0px' }}  selectedMenuItemStyle={{maxWidth:5}}>
+                                    {
+                                        menuItems.map((item, index) => {
+                                            return (
+                                                <MenuItem key={index} value={item.value} primaryText={item.text}/>
+                                            )
+                                        })
+                                    }
+                                </SelectField>
+                              </Col>
+                            </Row>
+                            <Row style={{marginLeft:5, marginRight:5}}>
+                              <TextField id='accessKeyId' ref='accessKeyId' floatingLabelText='Access Key ID' fullWidth={true}/>
+                            </Row>
+                            <Row style={{marginLeft:5, marginRight:5}}>
+                              <TextField id='secretAccessKey' ref='secretAccessKey' multiLine={true} multiLine={true} rows={1} rowsMax={4} floatingLabelText='Secret Access Key' fullWidth={true}
+                                  floatingLabelStyle={{ left: '0px' }}/>
                                 {
-                                    menuItems.map((item, index) => {
-                                        return (
-                                            <MenuItem key={index} value={item.value} primaryText={item.text}/>
-                                        )
-                                    })
-                                }
-                            </SelectField>
-
-                            <TextField id='accessKeyId' ref='accessKeyId' floatingLabelText='Access Key ID' fullWidth={true}/>
-
-                            <TextField id='secretAccessKey' ref='secretAccessKey' multiLine={true} multiLine={true} rows={1} rowsMax={4} floatingLabelText='Secret Access Key' fullWidth={true}
-                                floatingLabelStyle={{ left: '0px' }}/>
-                              {
-                                isGroupAdmin
-                                ?
-                                <div>
-                                  <h5 > Adding to a group is REQUIRED for group admins </h5>
-                                    <Table height={this.state.height} fixedHeader={this.state.fixedHeader} fixedFooter={this.state.fixedFooter}
-                                        selectable={true} multiSelectable={true}
-                                        onRowSelection={this.handleOnRowSelection}>
-                                          <TableHeader displaySelectAll={true} adjustForCheckbox={true}
-                                            enableSelectAll={true} >
-                                            <TableRow>
-                                              <TableHeaderColumn tooltip="Image"></TableHeaderColumn>
-                                              <TableHeaderColumn tooltip="Name">Name</TableHeaderColumn>
-                                              <TableHeaderColumn tooltip="Description">Description</TableHeaderColumn>
-                                            </TableRow>
-                                          </TableHeader>
-                                          <TableBody displayRowCheckbox={true}
-                                            showRowHover={true} stripedRows={false}
-                                            deselectOnClickaway={false}>
-                                            {userAdminGroups.map( (row, index) => (
-                                              <TableRow key={row._id} onClick={this.handleOnClick}>
-                                              <TableRowColumn><img src={row.imageUri} style={{width: 40, borderRadius: 50}} /></TableRowColumn>
-                                                <TableRowColumn>{row.name}</TableRowColumn>
-                                                <TableRowColumn>{row.description}</TableRowColumn>
+                                  isGroupAdmin
+                                  ?
+                                  <div>
+                                    <h5 > Adding to a group is REQUIRED for group admins </h5>
+                                      <Table height={this.state.height} fixedHeader={this.state.fixedHeader} fixedFooter={this.state.fixedFooter}
+                                          selectable={true} multiSelectable={true}
+                                          onRowSelection={this.handleOnRowSelection}>
+                                            <TableHeader displaySelectAll={true} adjustForCheckbox={true}
+                                              enableSelectAll={true} >
+                                              <TableRow>
+                                                <TableHeaderColumn tooltip="Image"></TableHeaderColumn>
+                                                <TableHeaderColumn tooltip="Name">Name</TableHeaderColumn>
+                                                <TableHeaderColumn tooltip="Description">Description</TableHeaderColumn>
                                               </TableRow>
-                                              ))}
-                                          </TableBody>
-                                          <TableFooter
-                                            adjustForCheckbox={false}
-                                          >
-                                          </TableFooter>
-                                        </Table>
-                                </div>
-                                    :
-                                    null
-                              }
+                                            </TableHeader>
+                                            <TableBody displayRowCheckbox={true}
+                                              showRowHover={true} stripedRows={false}
+                                              deselectOnClickaway={false}>
+                                              {userAdminGroups.map( (row, index) => (
+                                                <TableRow key={row._id} onClick={this.handleOnClick}>
+                                                <TableRowColumn><img src={row.imageUri} style={{width: 40, borderRadius: 50}} /></TableRowColumn>
+                                                  <TableRowColumn>{row.name}</TableRowColumn>
+                                                  <TableRowColumn>{row.description}</TableRowColumn>
+                                                </TableRow>
+                                                ))}
+                                            </TableBody>
+                                            <TableFooter
+                                              adjustForCheckbox={false}
+                                            >
+                                            </TableFooter>
+                                          </Table>
+                                  </div>
+                                      :
+                                      null
+                                }
+                            </Row>
 
                             <CardHeader title='Advanced' titleStyle={{ fontSize: '13px', paddingRight: 0 }} actAsExpander={true} showExpandableButton={true}/>
 
