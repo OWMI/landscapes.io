@@ -35,59 +35,6 @@ class EditLandscape extends Component {
         enterLandscapes()
     }
 
-    componentWillReceiveProps(nextProps) {
-        const { activeLandscape, loading, landscapes, documentTypes, params } = nextProps
-
-        let currentLandscape = activeLandscape
-
-          var _landscapes = landscapes || []
-
-          // for direct request
-          // if (activeLandscape && activeLandscape._id !== params.id)
-          currentLandscape = _landscapes.find(ls => { return ls._id === params.id })
-
-          if(currentLandscape && currentLandscape.documents){
-            this.setState({addedDocuments: currentLandscape.documents});
-          }
-
-          // set disableDelete value
-          if (currentLandscape && currentLandscape.status){
-            forIn(currentLandscape.status, (value, key) => {
-                if (value > 0)
-                    disableDelete = true
-            })
-          }
-
-          this.setState({currentLandscape})
-    }
-
-    componentWillMount(){
-      const { activeLandscape, loading, landscapes, params } = this.props
-      let currentLandscape = activeLandscape
-
-      var _landscapes = landscapes || []
-      // for direct request
-      // if (activeLandscape && activeLandscape._id !== params.id)
-      currentLandscape = _landscapes.find(ls => { return ls._id === params.id })
-
-      if(!currentLandscape){
-        currentLandscape = {}
-      }
-      if(currentLandscape && currentLandscape.documents){
-        this.setState({addedDocuments: currentLandscape.documents});
-      }
-
-      // set disableDelete value
-      if (currentLandscape && currentLandscape.status){
-        forIn(currentLandscape.status, (value, key) => {
-            if (value > 0)
-                disableDelete = true
-        })
-      }
-
-      this.setState({ currentLandscape })
-    }
-
     shouldComponentUpdate(nextProps, nextState) {
         return shallowCompare(this, nextProps, nextState)
     }
@@ -166,7 +113,7 @@ class EditLandscape extends Component {
                       <Col>
                         <Row style={{minHeight:350, width: '100%'}}>
                           <Col style={{paddingLeft: 10, paddingRight: 10,  width:'65%'}}>
-                            <TextField id='name' ref='name' defaultValue={currentLandscape.name} maxLength={64} floatingLabelText='Name' className={cx( { 'two-field-row': true } )}/>
+                            <TextField id='name' ref='name' defaultValue={currentLandscape.name || ''} maxLength={64} floatingLabelText='Name' className={cx( { 'two-field-row': true } )}/>
                             <TextField id='version' ref='version' defaultValue={currentLandscape.version} floatingLabelText='Version' className={cx( { 'two-field-row': true } )}/>
 
                             <TextField id='description' ref='description' defaultValue={currentLandscape.description} multiLine={true} rows={1} rowsMax={4}
@@ -450,8 +397,9 @@ class EditLandscape extends Component {
 
         this.setState({ showDeleteDialog: !showDeleteDialog })
 
+        console.log('landscape', landscape)
         deleteLandscape({
-            variables: { landscape }
+            variables: { landscapeToDelete }
         }).then(({ data }) => {
             router.push({ pathname: `/landscapes` })
             return refetch()

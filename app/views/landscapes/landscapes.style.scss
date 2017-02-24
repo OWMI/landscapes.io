@@ -33,6 +33,33 @@
     height: 0px;
 }
 
+.icon-pending {
+    background: rgb(255, 231, 77);
+    width: 100%;
+    height: 3px;
+}
+.icon-running {
+    background: rgb(107, 241, 120);
+    width: 100%;
+    height: 3px;
+}
+.icon-failed {
+    background: rgb(236, 11, 67);
+    width: 100%;
+    height: 3px;
+}
+.icon-deleted {
+    background: rgb(224, 224, 224);
+    width: 100%;
+    height: 3px;
+}
+.icon-deleted-black {
+    background: rgb(0,0,0);
+    width: 100%;
+    height: 3px;
+}
+
+
 .landscape-card {
     z-index: 1;
     width: 300px;
@@ -55,26 +82,6 @@
 
     color: rgba(255, 255, 255, 0.9) !important;
 
-    .icon-pending {
-        background: rgb(255, 231, 77);
-        width: 100%;
-        height: 3px;
-    }
-    .icon-running {
-        background: rgb(107, 241, 120);
-        width: 100%;
-        height: 3px;
-    }
-    .icon-failed {
-        background: rgb(236, 11, 67);
-        width: 100%;
-        height: 3px;
-    }
-    .icon-deleted {
-        background: rgb(224, 224, 224);
-        width: 100%;
-        height: 3px;
-    }
 
     #landscapeIcon {
         width: 75px;

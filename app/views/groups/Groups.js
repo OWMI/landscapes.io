@@ -1,9 +1,10 @@
 
 import cx from 'classnames'
-import { IoEdit, IoLoadC, IoIosPlusEmpty } from 'react-icons/lib/io'
+import { IoEdit, IoLoadC, IoIosPlusEmpty, IoSearch } from 'react-icons/lib/io'
 import getMuiTheme from 'material-ui/styles/getMuiTheme'
 import { Row, Col } from 'react-flexbox-grid'
-import { Paper , CardHeader, CardActions, CardText, FlatButton } from 'material-ui'
+import { Paper , CardHeader, CardActions, CardText, FlatButton, TextField } from 'material-ui'
+import { Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table'
 
 import { Loader } from '../../components'
 import React, { Component, PropTypes } from 'react'
@@ -18,7 +19,9 @@ class Groups extends Component {
 
     state = {
         animated: true,
-        viewEntersAnim: true
+        viewEntersAnim: true,
+        showCards: true,
+        items: []
     }
 
     componentDidMount() {
@@ -34,12 +37,56 @@ class Groups extends Component {
         const { leaveGroups } = this.props
         leaveGroups()
     }
+    componentWillReceiveProps(nextProps) {
+      const { loading, groups } = nextProps
+      let stateGroups = []
+      const user = auth.getUserInfo();
+      if(user.role !== 'admin'){
+        if(groups){
+          groups.find(group => {
+            group.users.forEach(usr => {
+              if(usr.userId === user._id){
+                stateGroups.push(group)
+              }
+            })
+          })
+        }
+      }
+      else if( user.role === 'admin'){
+        stateGroups = groups;
+      }
+
+      this.setState({items: stateGroups, groups: stateGroups})
+
+    }
+    componentWillMount() {
+      const { loading, groups } = this.props
+      let stateGroups = []
+      const user = auth.getUserInfo();
+      if(user.role !== 'admin'){
+        if(groups){
+          groups.find(group => {
+            group.users.forEach(usr => {
+              if(usr.userId === user._id){
+                stateGroups.push(group)
+              }
+            })
+          })
+        }
+      }
+      else if( user.role === 'admin'){
+        stateGroups = groups;
+      }
+
+      this.setState({items: stateGroups, groups: stateGroups})
+
+    }
+
 
     render() {
-        const { animated, viewEntersAnim } = this.state
-        const { loading, groupsByUser } = this.props
-        let stateGroups = groupsByUser || []
-        const user = auth.getUserInfo();
+        const { animated, viewEntersAnim, showCards } = this.state
+        const { loading, groupsByUser, groups } = this.props
+
         if (loading) {
             return (
                 <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
@@ -50,41 +97,97 @@ class Groups extends Component {
 
         return (
             <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
+              <Row style={{justifyContent: 'space-between', width: '100%'}}>
                 <a onClick={this.handlesCreateGroupClick}>
                     <p style={{ fontSize: '20px', cursor: 'pointer' }}><IoIosPlusEmpty size={30}/>Add Group</p>
                 </a>
+                <div className="filter-list" style={{marginTop:-5, marginBottom:10}}>
+                  <IoSearch style={{fontSize:20, color:'gray', marginRight:5}} /><TextField type="text" hintText="Search" onChange={this.filterList}/>
+                </div>
+                <FlatButton
+                  onClick={() => this.setState({showCards: !showCards})}
+                  label={showCards ? 'Show List View' : 'Show Card View'}></FlatButton>
+              </Row>
 
-                <ul>
                 {
-                    stateGroups.map((group, i) =>
+                  showCards
+                  ?
+                  <ul>
+                  {
+                      this.state.items.map((group, i) =>
 
-                    <Paper key={i} className={cx({ 'landscape-card': true })} style={{backgroundColor: materialTheme.palette.primary3Color}} zDepth={3} rounded={false} onClick={this.handlesGroupClick.bind(this, group)}>
-                            {/* header */}
-                            <Row start='xs' middle='xs' style={{ padding: '20px 0px' }}>
-                                <Col xs={8}>
-                                    <img id='landscapeIcon' src={group.imageUri || defaultImage} style={{width:85}}/>
-                                </Col>
-                                <Col xs={4}>
-                                    <FlatButton id='landscape-edit' onTouchTap={this.handlesEditGroupClick.bind(this, group)}
-                                        label='Edit' labelStyle={{ fontSize: '10px' }} icon={<IoEdit/>}/>
-                                      <div style={{height:35}}></div>
-                                </Col>
-                            </Row>
-                            <Row style={{ margin: '0px 20px', height: '95px' }}>
-                                <div id='landscape-title'>{group.name}</div>
-                                {
-                                  group.description.length > 120
-                                    ?
-                                    <div id='landscape-description'>{group.description.substr(0, 120) + '...'}</div>
-                                    :
-                                    <div id='landscape-description'>{group.description}</div>
-                                }
-                            </Row>
-                    </Paper>)
+                      <Paper key={i} className={cx({ 'landscape-card': true })} style={{backgroundColor: materialTheme.palette.primary3Color}} zDepth={3} rounded={false} onClick={this.handlesGroupClick.bind(this, group)}>
+                              {/* header */}
+                              <Row start='xs' middle='xs' style={{ padding: '20px 0px' }}>
+                                  <Col xs={8}>
+                                      <img id='landscapeIcon' src={group.imageUri || defaultImage} style={{width:85}}/>
+                                  </Col>
+                                  <Col xs={4}>
+                                      <FlatButton id='landscape-edit' onTouchTap={this.handlesEditGroupClick.bind(this, group)}
+                                          label='Edit' labelStyle={{ fontSize: '10px' }} icon={<IoEdit/>}/>
+                                        <div style={{height:35}}></div>
+                                  </Col>
+                              </Row>
+                              <Row style={{ margin: '0px 20px', height: '95px' }}>
+                                  <div id='landscape-title'>{group.name}</div>
+                                  {
+                                    group.description.length > 120
+                                      ?
+                                      <div id='landscape-description'>{group.description.substr(0, 120) + '...'}</div>
+                                      :
+                                      <div id='landscape-description'>{group.description}</div>
+                                  }
+                              </Row>
+                      </Paper>)
+                  }
+                  </ul>
+                  :
+                  <Table fixedHeader={true} fixedFooter={false} selectable={true}
+                          multiSelectable={false}>
+                    <TableHeader
+                      displaySelectAll={false}
+                      adjustForCheckbox={false}
+                      enableSelectAll={false}>
+                      <TableRow>
+                        <TableHeaderColumn></TableHeaderColumn>
+                        <TableHeaderColumn>Name</TableHeaderColumn>
+                        <TableHeaderColumn>Description</TableHeaderColumn>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody  displayRowCheckbox={false}
+                                deselectOnClickaway={false}
+                                showRowHover={true}
+                                stripedRows={false}>
+                      {
+                        stateGroups.map((group, i) =>
+                          <TableRow key={i} onTouchTap={this.handlesEditGroupClick.bind(this, group)}>
+                            <TableRowColumn><img id='landscapeIcon' src={group.imageUri || defaultImage} style={{height:35}}/> </TableRowColumn>
+                            <TableRowColumn>{group.name}</TableRowColumn>
+                            <TableRowColumn>{
+                              group.description.length > 50
+                                ?
+                                <div id='landscape-description'>{group.description.substr(0, 50) + '...'}</div>
+                                :
+                                <div id='landscape-description'>{group.description}</div>
+                            }</TableRowColumn>
+                          </TableRow>
+                        )
+                      }
+                    </TableBody>
+                  </Table>
                 }
-                </ul>
+
             </div>
         )
+    }
+    filterList = (event) =>{
+      var updatedList = this.state.groups;
+      updatedList = updatedList.filter(function(item){
+        return (item.name.toLowerCase().search(
+          event.target.value.toLowerCase()) !== -1)
+          ;
+      });
+      this.setState({items: updatedList});
     }
 
     handlesCreateGroupClick = event => {
@@ -106,7 +209,8 @@ class Groups extends Component {
 Groups.propTypes = {
     currentView: PropTypes.string.isRequired,
     enterGroups: PropTypes.func.isRequired,
-    leaveGroups: PropTypes.func.isRequired
+    leaveGroups: PropTypes.func.isRequired,
+    refetchGroupsByUser: PropTypes.func.isRequired
 }
 
 Groups.contextTypes = {

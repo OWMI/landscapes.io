@@ -93,17 +93,14 @@ class Login extends Component {
                 data: userWithPermissions
             })
         }).then(res => {
-            return refetchGroups({}).then(groups =>{
-              console.log('groups', this.props.groups)
               const { user, token } = res.data
-              loginUser(token, user, this.props.groups)
+              loginUser(token, user, groups)
 
               return axios({
                   method: 'get',
                   url: `${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/verifyToken`,
                   headers: { 'x-access-token': token }
               })
-            })
 
         }).then(res => {
             router.push({ pathname: '/landscapes' })
