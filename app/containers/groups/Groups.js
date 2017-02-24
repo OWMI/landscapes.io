@@ -11,10 +11,28 @@ import { auth } from '../../services/auth'
  ------------------------------------------*/
 
  var user = auth.getUserInfo() || {}
+ console.log('user', user);
 
  const GroupQuery = gql `
      query getGroupsByUser($userId: String, $isGlobalAdmin: Boolean) {
          groupsByUser(id: $userId, isGlobalAdmin: $isGlobalAdmin ) {
+             _id,
+             name,
+             users{
+               isAdmin,
+               userId
+             },
+             imageUri,
+             description,
+             landscapes,
+             permissions
+         }
+     }
+
+  `
+ const GroupsQuery = gql `
+     query getGroups {
+         groups {
              _id,
              name,
              users{
@@ -35,9 +53,15 @@ import { auth } from '../../services/auth'
      props: ({ data: { loading, groupsByUser, refetch } }) => ({
          groupsByUser,
          loading,
+         refetchGroupsByUser: refetch
+     })
+ })(graphql(GroupsQuery, {
+     props: ({ data: { loading, groups, refetch } }) => ({
+         groups,
+         loading,
          refetchGroups: refetch
      })
- })(Groups)
+ })(Groups))
 
 
 /* -----------------------------------------
