@@ -1,20 +1,20 @@
-'use strict';
+'use strict'
 
-var passport = require('passport'),
-  winston = require('winston'),
-  LdapStrategy = require('passport-ldapauth'),
-  User = require('mongoose').model('User'),
-  path = require('path'),
-  config = require(path.resolve('./server/config/config'));
+let passport = require('passport'),
+    winston = require('winston'),
+    LdapStrategy = require('passport-ldapauth'),
+    User = require('mongoose').model('User'),
+    path = require('path'),
+    config = require(path.resolve('./server/config/config'))
 
-var loginSuccess = function (userLdap, done) {
-  User.findOne({
-    username: userLdap.uid
-  }, function (err, user) {
-    if (err) {
-      return done(err);
-    }
-    if (!user) {
+let loginSuccess = (userLdap, done) => {
+    User.findOne({
+        username: userLdap.uid
+    }, (err, user) => {
+        if (err) {
+            return done(err)
+        }
+        if (!user) {
 
             // dn: uid=test_admin_user,ou=users,dc=landscapes,dc=io
             // uid: test_admin_user
@@ -29,52 +29,49 @@ var loginSuccess = function (userLdap, done) {
             //
             // TO DO: Map User values via UI and save to DB
 
-      winston.log('userLdap -->', userLdap)
+            winston.log('userLdap -->', userLdap)
 
-      user = new User({
-        firstName: userLdap.givenName,
-        lastName: userLdap.sn,
-        username: userLdap.uid,
-        displayName: userLdap.displayName,
-        email: userLdap.mail,
-        provider: 'ldap',
-        role: 'admin'
-      });
-      user.save(function (err) {
-        return done(err, user);
-      });
-    } else {
-      return done(err, user);
-    }
-  });
-};
+            user = new User({
+                firstName: userLdap.givenName,
+                lastName: userLdap.sn,
+                username: userLdap.uid,
+                displayName: userLdap.displayName,
+                email: userLdap.mail,
+                provider: 'ldap',
+                role: 'admin'
+            })
+            user.save(err => {
+                return done(err, user)
+            })
+        } else {
+            return done(err, user)
+        }
+    })
+}
 
-module.exports = function () {
-  passport.use(new LdapStrategy({
-    server: {
-      url: config.ldap.url,
-      bindDn: config.ldap.bindDn,
-      bindCredentials: config.ldap.bindCredentials,
-      searchBase: config.ldap.searchBase,
-      searchFilter: config.ldap.searchFilter,
+module.exports = () => {
+    passport.use(new LdapStrategy({
+        server: {
+            url: config.ldap.url,
+            bindDn: config.ldap.bindDn,
+            bindCredentials: config.ldap.bindCredentials,
+            searchBase: config.ldap.searchBase,
+            searchFilter: config.ldap.searchFilter,
             // searchAttributes: config.ldap.searchAttributes
-    },
-    usernameField: 'username',
-    passwordField: 'password'
-  }, loginSuccess
-    ));
+        },
+        usernameField: 'username',
+        passwordField: 'password'
+    }, loginSuccess))
 
-  passport.serializeUser(function (user, done) {
-    done(null, user._id);
-  });
+    passport.serializeUser((user, done) => {
+        done(null, user._id)
+    })
 
-  passport.deserializeUser(function (id, done) {
+    passport.deserializeUser((id, done) => {
 
-    User.findOne({
-      _id: id
-    }).exec(function (err, user) {
-      winston.log('passport.deserializeUser:', user)
-      done(err, user);
-    });
-  });
-};
+        User.findOne({_id: id}).exec((err, user) => {
+            winston.log('passport.deserializeUser:', user)
+            done(err, user)
+        })
+    })
+}

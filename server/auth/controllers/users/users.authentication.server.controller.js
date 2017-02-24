@@ -3,9 +3,8 @@
 let path            = require('path')
 let mongoose        = require('mongoose')
 let passport        = require('passport')
-let winston        = require('winston')
+let winston         = require('winston')
 let User            = mongoose.model('User')
-let jwt             = require('jsonwebtoken')
 let config          = require(path.resolve('./server/config/config'))
 let errorHandler    = require(path.resolve('./server/auth/controllers/errors.server.controller'))
 
@@ -71,7 +70,7 @@ exports.signin = (req, res, next) => {
     } else {
         passport.authenticate('local', (err, user, info) => {
             if (err || !user) {
-                winston.log('Error --->',err);
+                winston.log('Error --->', err)
                 res.status(400).send(info)
             } else {
                 // Remove sensitive data before login
@@ -80,12 +79,12 @@ exports.signin = (req, res, next) => {
 
                 req.login(user, err => {
                     if (err) {
-                        winston.log('Error --->',err);
+                        winston.log('Error --->', err)
                         res.status(400).send(err)
                     } else {
                         User.findOne({ '_id': user._id }, '-salt -password').exec((err, userWithRoles) => {
                             if (err) {
-                                winston.log('Error --->',err);
+                                winston.log('Error --->', err)
                                 res.status(400).send(err)
                             } else {
                                 res.json(userWithRoles)
@@ -110,9 +109,10 @@ exports.signout = (req, res) => {
  * OAuth provider call
  */
 exports.oauthCall = (strategy, scope) => {
+    console.log('oauth called')
     return (req, res, next) => {
         // Authenticate
-        passport.authenticate(strategy, scope)(req, res, next)
+        passport.authenticate('google', { scope: ['profile'] })(req, res, next)
     }
 }
 
@@ -120,25 +120,42 @@ exports.oauthCall = (strategy, scope) => {
  * OAuth callback
  */
 exports.oauthCallback = strategy => {
+    console.log('in auth callback')
     return (req, res, next) => {
 
         // info.redirect_to contains inteded redirect path
         passport.authenticate(strategy, (err, user, info) => {
 
-            if (err) {
-                return res.redirect('/authentication/signin?err=' + encodeURIComponent(errorHandler.getErrorMessage(err)))
-            }
+            console.log('err')
+            console.log(err)
 
-            if (!user) {
-                return res.redirect('/authentication/signin')
-            }
+            console.log('user')
+            console.log(user)
+
+            console.log('info >')
+
+            if (err)
+                return res.redirect('/login?err=' + encodeURIComponent(errorHandler.getErrorMessage(err)))
+
+            if (!user)
+                return
 
             req.login(user, err => {
+
                 if (err) {
-                    return res.redirect('/authentication/signin')
+                    console.log('err')
+                    console.log(err)
+                    return res.redirect('/login')
                 }
-                return res.redirect(info.redirect_to || '/')
+
+                let redirectURL = '/login?oauth=' + encodeURIComponent(JSON.stringify(user))
+                if (process.env.NODE_ENV !== 'production')
+                    redirectURL = `http://localhost:3000/login?oauth=` + encodeURIComponent(JSON.stringify(user))
+
+                console.log('redirectURL', redirectURL)
+                return res.redirect(redirectURL)
             })
+
         })(req, res, next)
     }
 }

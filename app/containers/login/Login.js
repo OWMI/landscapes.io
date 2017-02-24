@@ -12,6 +12,22 @@ import * as userAuthActions from '../../redux/modules/userAuth'
  ------------------------------------------*/
 
 // queries:
+const ConfigurationQuery = gql `
+    query getConfiguration {
+        configuration {
+            _id,
+            isFirstUser
+        }
+    }
+ `
+
+const ConfigurationWithQuery = graphql(ConfigurationQuery, {
+    props: ({ data: { loading, configuration } }) => ({
+        configuration,
+        loading
+    })
+})
+
 const GroupQuery = gql `
     query getGroups {
         groups {
@@ -57,6 +73,7 @@ const LoginWithMutation = graphql(logUser, {
         }
     })
 })
+
 const AccountsQuery = gql `
     query getAccounts {
         accounts {
@@ -74,17 +91,28 @@ const AccountsQuery = gql `
         }
     }
  `
- const AccountsWithQuery =  graphql(AccountsQuery, {
-      props: ({ data: { loading, accounts } }) => ({
-          accounts,
-          loading
-      })
+
+const AccountsWithQuery = graphql(AccountsQuery, {
+    props: ({ data: { loading, accounts } }) => ({
+        accounts,
+        loading
     })
+})
+
+const ToggleFirstUserMutation = gql `
+    mutation toggleFirstUser($configId: String!) {
+        toggleFirstUser(configId: $configId) {
+            isFirstUser
+        }
+    }
+`
 
 const composedRequest = compose(
     GroupsWithQuery,
     AccountsWithQuery,
-    LoginWithMutation
+    LoginWithMutation,
+    ConfigurationWithQuery,
+    graphql(ToggleFirstUserMutation, { name: 'toggleFirstUser' })
 )(Login)
 
 /* -----------------------------------------

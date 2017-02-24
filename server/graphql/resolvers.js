@@ -11,6 +11,7 @@ import lodash from 'lodash'
 
 const Landscape = require('./models/landscape')
 const Deployment = require('./models/deployment')
+const Configuration = require('./models/configuration')
 const Group = require('./models/group')
 const Account = require('./models/account')
 const User = require('../auth/models/user.server.model')
@@ -32,6 +33,12 @@ const resolveFunctions = {
             return Landscape.find().sort('-created').populate('user', 'displayName').exec((err, landscapes) => {
                 if (err) return err
                 return landscapes
+            })
+        },
+        configuration(root, args, context) {
+            return Configuration.find().exec((err, config) => {
+                if (err) return err
+                return config
             })
         },
         landscapeById(root, args, context) {
@@ -102,22 +109,35 @@ const resolveFunctions = {
         loginUser(_, { user }) {
             console.log('login resolver')
         },
-        createLandscape(_, { landscape }) {
-          return new Promise((resolve, reject) => {
-
-            console.log(' ---> creating Landscape')
-            let newLandscape = new Landscape(landscape)
-
-            newLandscape.save(err => {
-                if (err) {
-                    console.log(err)
-                    return reject(err)
-                } else {
-                    console.log(' ---> created: ', newLandscape._id)
-                    return resolve(newLandscape)
-                }
+        toggleFirstUser(_, { configId }) {
+            return new Promise((resolve, reject) => {
+                return Configuration.findOneAndUpdate(
+                    { _id: configId },
+                    { $set:{ isFirstUser: false } },
+                    { new: true },
+                    (err, config) => {
+                        if (err) reject(err)
+                        resolve(config)
+                    }
+                )
             })
-          })
+        },
+        createLandscape(_, { landscape }) {
+            return new Promise((resolve, reject) => {
+
+                console.log(' ---> creating Landscape')
+                let newLandscape = new Landscape(landscape)
+
+                newLandscape.save(err => {
+                    if (err) {
+                        console.log(err)
+                        return reject(err)
+                    } else {
+                        console.log(' ---> created: ', newLandscape._id)
+                        return resolve(newLandscape)
+                    }
+                })
+            })
         },
         createUser(_, { user }) {
 

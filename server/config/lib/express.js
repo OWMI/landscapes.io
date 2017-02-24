@@ -312,7 +312,7 @@ module.exports.initModulesClientRoutes = app => {
     app.use('/', express.static(path.resolve('./public')))
 
     // Globbing static routing
-    config.folders.client.forEach(function(staticPath) {
+    config.folders.client.forEach(staticPath => {
         app.use(staticPath, express.static(path.resolve('./' + staticPath)))
     })
 }
@@ -322,7 +322,7 @@ module.exports.initModulesClientRoutes = app => {
  */
 module.exports.initModulesServerPolicies = app => {
     // Globbing policy files
-    config.files.server.policies.forEach(function(policyPath) {
+    config.files.server.policies.forEach(policyPath => {
         require(path.resolve(policyPath)).invokeRolesPolicies()
     })
 }
@@ -332,7 +332,7 @@ module.exports.initModulesServerPolicies = app => {
  */
 module.exports.initModulesServerRoutes = app => {
     // Globbing routing files
-    config.files.server.routes.forEach(function(routePath) {
+    config.files.server.routes.forEach(routePath => {
         require(path.resolve(routePath))(app)
     })
 }
@@ -358,7 +358,7 @@ module.exports.initGraphQLServer = app => {
  * Configure error handling
  */
 module.exports.initErrorRoutes = app => {
-    app.use(function(err, req, res, next) {
+    app.use((err, req, res, next) => {
         // If the error object doesn't exists
         if (!err) {
             return next()

@@ -34,7 +34,7 @@ module.exports = {
     sessionKey: 'sessionId',
     sessionCollection: 'sessions',
 
-    authStrategy: 'local',
+    authStrategy: 'google',
 
     caBundlePath: '../sslcerts/cacert.pem',
 

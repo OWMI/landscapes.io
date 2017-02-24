@@ -1,6 +1,6 @@
-'use strict';
+'use strict'
 
-var fs = require('fs');
+let fs = require('fs')
 
 module.exports = {
     secure: {
@@ -82,7 +82,7 @@ module.exports = {
             seedGroup: {
                 id: 'intialGroupCRUDX',
                 provider: 'local',
-                permissions: ['c', 'r', 'u', 'd', 'x'],
+                permissions: [ 'c', 'r', 'u', 'd', 'x' ],
                 name: 'CRUDX Group',
                 landscapes: [],
                 users: [],
@@ -90,4 +90,4 @@ module.exports = {
             }
         }
     }
-};
+}
