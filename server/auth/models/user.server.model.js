@@ -49,6 +49,9 @@ var UserSchema = new Schema({
     default: '',
     validate: [validateLocalStrategyProperty, 'Please fill in your last name']
   },
+  profile: {
+    type: String
+  },
   imageUri: {
     type: String
   },
