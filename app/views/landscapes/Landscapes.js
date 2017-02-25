@@ -44,7 +44,6 @@ class Landscapes extends Component {
       }
       if(currentViewUser && currentViewUser.profile){
         var userProfile = JSON.parse(currentViewUser.profile);
-        console.log('userProfile____', userProfile)
         this.setState({showCards: userProfile.preferences.showLandscapeCards})
       }
       this.setState({currentViewUser: currentViewUser || {}})
@@ -61,11 +60,9 @@ class Landscapes extends Component {
           var currentViewUser = users.find(usr => {
             return user._id === usr._id});
         }
-        console.log('currentViewUser+++++++')
 
         if(currentViewUser && currentViewUser.profile){
           var userProfile = JSON.parse(currentViewUser.profile);
-          console.log('userProfile____', userProfile)
           self.setState({showCards: userProfile.preferences.showLandscapeCards})
         }
         self.setState({currentViewUser: currentViewUser || {}})

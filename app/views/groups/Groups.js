@@ -61,7 +61,6 @@ class Groups extends Component {
       }
       if(currentUser && currentUser.profile){
         var userProfile = JSON.parse(currentUser.profile);
-        console.log('userProfile____', userProfile)
         this.setState({showCards: userProfile.preferences.showGroupCards})
       }
 
@@ -92,7 +91,6 @@ class Groups extends Component {
       }
       if(currentUser && currentUser.profile){
         var userProfile = JSON.parse(currentUser.profile);
-        console.log('userProfile____', userProfile)
         this.setState({showCards: userProfile.preferences.showGroupCards})
       }
       this.setState({items: stateGroups, groups: stateGroups, currentUser: currentUser || {}})
@@ -133,7 +131,6 @@ class Groups extends Component {
                       userProfile['preferences'] = {}
                     }
                     userProfile['preferences']['showGroupCards'] = !showCards;
-                    console.log('showGroupCards', userProfile)
                     currentUser.profile = JSON.stringify(userProfile)
                     delete currentUser.__typename
                     this.props.EditUserWithMutation({
