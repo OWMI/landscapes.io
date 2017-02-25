@@ -47,6 +47,29 @@ import { auth } from '../../services/auth'
      }
 
   `
+  const UsersQuery = gql `
+      query getUsers {
+          users {
+            _id,
+            username,
+            profile,
+            email,
+            imageUri,
+            firstName,
+            lastName,
+            role
+          }
+      }
+
+   `
+   const editUserMutation = gql `
+       mutation updateUser($user: UserInput!) {
+           updateUser(user: $user) {
+               username
+           }
+       }
+   `
+
  // 1- add queries:
  const GroupsWithQuery = graphql(GroupQuery, {
       options: { variables: { userId: user._id || '', isGlobalAdmin: (user.role === 'admin') || false } },
@@ -61,7 +84,15 @@ import { auth } from '../../services/auth'
          loading,
          refetchGroups: refetch
      })
- })(Groups))
+ })(graphql(UsersQuery, {
+     props: ({ data: { loading, users, refetch } }) => ({
+         users,
+         loading,
+         refetchUsers: refetch
+     })
+ })(
+   graphql(editUserMutation, {name: 'EditUserWithMutation'})
+   (Groups))))
 
 
 /* -----------------------------------------

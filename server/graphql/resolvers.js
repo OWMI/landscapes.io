@@ -53,10 +53,14 @@ const resolveFunctions = {
             })
         },
         groups(root, args, context) {
+          return new Promise((resolve, reject) => {
+
             return Group.find().sort('-created').populate('user', 'displayName').exec((err, groups) => {
-                if (err) return err
-                return groups
+
+                if (err) return reject(err)
+                return resolve(groups)
             })
+          })
         },
         groupsByUser(root, args, context) {
             return new Promise((resolve, reject) => {

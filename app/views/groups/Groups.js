@@ -38,7 +38,7 @@ class Groups extends Component {
         leaveGroups()
     }
     componentWillReceiveProps(nextProps) {
-      const { loading, groups } = nextProps
+      const { loading, groups, users } = nextProps
       let stateGroups = []
       const user = auth.getUserInfo();
       if(user.role !== 'admin'){
@@ -55,12 +55,21 @@ class Groups extends Component {
       else if( user.role === 'admin'){
         stateGroups = groups;
       }
+      if(users){
+        var currentUser = users.find(usr => {
+          return user._id === usr._id});
+      }
+      if(currentUser && currentUser.profile){
+        var userProfile = JSON.parse(currentUser.profile);
+        console.log('userProfile____', userProfile)
+        this.setState({showCards: userProfile.preferences.showGroupCards})
+      }
 
-      this.setState({items: stateGroups, groups: stateGroups})
+      this.setState({items: stateGroups, groups: stateGroups, currentUser: currentUser || {}})
 
     }
     componentWillMount() {
-      const { loading, groups } = this.props
+      const { loading, groups, users } = this.props
       let stateGroups = []
       const user = auth.getUserInfo();
       if(user.role !== 'admin'){
@@ -77,8 +86,16 @@ class Groups extends Component {
       else if( user.role === 'admin'){
         stateGroups = groups;
       }
-
-      this.setState({items: stateGroups, groups: stateGroups})
+      if(users){
+        var currentUser = users.find(usr => {
+          return user._id === usr._id});
+      }
+      if(currentUser && currentUser.profile){
+        var userProfile = JSON.parse(currentUser.profile);
+        console.log('userProfile____', userProfile)
+        this.setState({showCards: userProfile.preferences.showGroupCards})
+      }
+      this.setState({items: stateGroups, groups: stateGroups, currentUser: currentUser || {}})
 
     }
 
@@ -105,7 +122,25 @@ class Groups extends Component {
                   <IoSearch style={{fontSize:20, color:'gray', marginRight:5}} /><TextField type="text" hintText="Search" onChange={this.filterList}/>
                 </div>
                 <FlatButton
-                  onClick={() => this.setState({showCards: !showCards})}
+                  onClick={(event) => {
+                    event.preventDefault()
+                    var currentUser = this.state.currentUser
+                    var userProfile = {}
+                    if(currentUser.profile){
+                      userProfile = JSON.parse(currentUser.profile);
+                    }
+                    else{
+                      userProfile['preferences'] = {}
+                    }
+                    userProfile['preferences']['showGroupCards'] = !showCards;
+                    currentUser.profile = JSON.stringify(userProfile)
+                    delete currentUser.__typename
+                    this.props.EditUserWithMutation({
+                        variables: { user: currentUser }
+                     }).then(() =>{
+                       this.setState({showCards: !showCards})
+                     })
+                  }}
                   label={showCards ? 'Show List View' : 'Show Card View'}></FlatButton>
               </Row>
 
@@ -159,7 +194,7 @@ class Groups extends Component {
                                 showRowHover={true}
                                 stripedRows={false}>
                       {
-                        stateGroups.map((group, i) =>
+                        this.state.items.map((group, i) =>
                           <TableRow key={i} onTouchTap={this.handlesEditGroupClick.bind(this, group)}>
                             <TableRowColumn><img id='landscapeIcon' src={group.imageUri || defaultImage} style={{height:35}}/> </TableRowColumn>
                             <TableRowColumn>{group.name}</TableRowColumn>
@@ -193,6 +228,10 @@ class Groups extends Component {
     handlesCreateGroupClick = event => {
         const { router } = this.context
         router.push({ pathname: '/groups/create' })
+    }
+
+    handlesListChange = event => {
+
     }
 
     handlesEditGroupClick = (group, event) => {
