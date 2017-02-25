@@ -30,19 +30,45 @@ class Landscapes extends Component {
     }
 
     componentWillMount() {
-      const { currentUser } = this.props
+      const { currentUser, users } = this.props
       if(auth.getUserInfo().isGroupAdmin){
         currentUser.isGroupAdmin = true
       }
       this.setState({ currentUser })
 
+      const user = auth.getUserInfo();
+
+      if(users){
+        var currentViewUser = users.find(usr => {
+          return user._id === usr._id});
+      }
+      if(currentViewUser && currentViewUser.profile){
+        var userProfile = JSON.parse(currentViewUser.profile);
+        console.log('userProfile____', userProfile)
+        this.setState({showCards: userProfile.preferences.showLandscapeCards})
+      }
+      this.setState({currentViewUser: currentViewUser || {}})
     }
 
     componentWillReceiveProps(nextProps) {
         const self = this
         const { currentUser, deploymentsByLandscapeId, deploymentStatus, hasPendingDeployments, landscapes,
-                pendingDeployments, userAccess, setPendingDeployments, setUserAccess } = nextProps
+                pendingDeployments, userAccess, setPendingDeployments, setUserAccess, users } = nextProps
         let _viewLandscapes = []
+        const user = auth.getUserInfo();
+
+        if(users){
+          var currentViewUser = users.find(usr => {
+            return user._id === usr._id});
+        }
+        console.log('currentViewUser+++++++')
+
+        if(currentViewUser && currentViewUser.profile){
+          var userProfile = JSON.parse(currentViewUser.profile);
+          console.log('userProfile____', userProfile)
+          self.setState({showCards: userProfile.preferences.showLandscapeCards})
+        }
+        self.setState({currentViewUser: currentViewUser || {}})
 
         // set landscapes based on permissions
         if (landscapes && landscapes.length && currentUser.isGlobalAdmin) {
@@ -212,7 +238,28 @@ class Landscapes extends Component {
                   <IoSearch style={{fontSize:20, color:'gray', marginRight:5}} /><TextField type="text" hintText="Search" onChange={this.filterList}/>
                 </div>
                 <FlatButton
-                  onClick={() => this.setState({showCards: !showCards})}
+                  onClick={(event) => {
+                    event.preventDefault()
+                    var currentViewUser = this.state.currentViewUser
+                    console.log('currentViewUser____', currentViewUser)
+
+                    var userProfile = {}
+                    if(currentViewUser.profile){
+                      userProfile = JSON.parse(currentViewUser.profile);
+                    }
+                    else{
+                      userProfile['preferences'] = {}
+                    }
+                    userProfile['preferences']['showLandscapeCards'] = !showCards;
+                    console.log('currentViewUser', currentViewUser)
+                    currentViewUser.profile = JSON.stringify(userProfile)
+                    delete currentViewUser.__typename
+                    this.props.EditUserWithMutation({
+                        variables: { user: currentViewUser }
+                     }).then(() =>{
+                       this.setState({showCards: !showCards})
+                     })
+                  }}
                   label={showCards ? 'Show List View' : 'Show Card View'}></FlatButton>
               </Row>
 

@@ -133,6 +133,7 @@ class Groups extends Component {
                       userProfile['preferences'] = {}
                     }
                     userProfile['preferences']['showGroupCards'] = !showCards;
+                    console.log('showGroupCards', userProfile)
                     currentUser.profile = JSON.stringify(userProfile)
                     delete currentUser.__typename
                     this.props.EditUserWithMutation({

@@ -12,6 +12,7 @@ import { Paper , CardHeader, CardActions, CardText, FlatButton, TextField } from
 
 import '../landscapes/landscapes.style.scss'
 import materialTheme from '../../style/custom-theme.js';
+import { auth } from '../../services/auth'
 
 
 class Users extends Component {
@@ -31,24 +32,47 @@ class Users extends Component {
 
     componentWillReceiveProps(nextProps){
       const {users} = nextProps;
+      const {currentUser} = this.state;
+      const user = auth.getUserInfo();
+
       if(users){
         for(var i = 0; i< users.length; i++){ //TODO: MUST BE REAL IMAGE
           if(!users[i].imageUri){
             users[i].imageUri = defaultImage
           }
         }
-        this.setState({users: users, items: users});
+        let currentUser = users.find(usr => {
+            return user._id === usr._id})
+
+        if(currentUser && currentUser.profile){
+          var userProfile = JSON.parse(currentUser.profile);
+          this.setState({showCards: userProfile.preferences.showUserCards})
+        }
+
+        this.setState({users: users, items: users, currentUser: currentUser || {}});
       }
     }
     componentWillMount(){
       const { users } = this.props;
+      const { currentUser } = this.state;
+      const user = auth.getUserInfo();
+
       if(users){
         for(var i = 0; i< users.length; i++){ //TODO: MUST BE REAL IMAGE
           if(!users[i].imageUri){
             users[i].imageUri = defaultImage
           }
         }
-        this.setState({users: users, items: users});
+        let currentUser = users.find(usr => {
+            return user._id === usr._id})
+            
+        if(currentUser && currentUser.profile){
+          var userProfile = JSON.parse(currentUser.profile);
+
+          this.setState({showCards: userProfile.preferences.showUserCards})
+        }
+
+        this.setState({users: users, items: users, currentUser: currentUser || {}});
       }
     }
 
@@ -84,7 +108,25 @@ class Users extends Component {
                   <IoSearch style={{fontSize:20, color:'gray', marginRight:5}} /><TextField type="text" hintText="Search" onChange={this.filterList}/>
                 </div>
                 <FlatButton
-                  onClick={() => this.setState({showCards: !showCards})}
+                  onClick={(event) => {
+                    event.preventDefault()
+                    var currentUser = this.state.currentUser
+                    var userProfile = {}
+                    if(currentUser.profile){
+                      userProfile = JSON.parse(currentUser.profile);
+                    }
+                    else{
+                      userProfile['preferences'] = {}
+                    }
+                    userProfile['preferences']['showUserCards'] = !showCards;
+                    currentUser.profile = JSON.stringify(userProfile)
+                    delete currentUser.__typename
+                    this.props.EditUserWithMutation({
+                        variables: { user: currentUser }
+                     }).then(() =>{
+                         this.setState({showCards: !showCards})
+                     })
+                  }}
                   label={showCards ? 'Show List View' : 'Show Card View'}></FlatButton>
               </Row>
               {
