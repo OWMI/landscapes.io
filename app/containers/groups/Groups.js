@@ -10,8 +10,7 @@ import { auth } from '../../services/auth'
   GraphQL - Apollo client
  ------------------------------------------*/
 
- var user = auth.getUserInfo() || {}
- console.log('user', user);
+ let user = auth.getUserInfo() || {}
 
  const GroupQuery = gql `
      query getGroupsByUser($userId: String, $isGlobalAdmin: Boolean) {

@@ -6,29 +6,29 @@ import { Row, Col } from 'react-flexbox-grid'
 import axios from 'axios'
 
 import { Checkbox, RaisedButton, Dialog} from 'material-ui'
-import {GridList, GridTile} from 'material-ui/GridList';
-import Subheader from 'material-ui/Subheader';
-import Snackbar from 'material-ui/Snackbar';
+import { GridList, GridTile} from 'material-ui/GridList'
+import Subheader from 'material-ui/Subheader'
+import Snackbar from 'material-ui/Snackbar'
 
-import {Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table';
-import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/Card';
-import {Tabs, Tab} from 'material-ui/Tabs';
-import TextField from 'material-ui/TextField';
+import { Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table'
+import { Card, CardActions, CardHeader, CardMedia, CardTitle, CardText } from 'material-ui/Card'
+import { Tabs, Tab } from 'material-ui/Tabs'
+import TextField from 'material-ui/TextField'
 
-import Slider from 'material-ui/Slider';
-import {RadioButtonGroup, RadioButton} from 'material-ui/RadioButton';
+import Slider from 'material-ui/Slider'
+import { RadioButtonGroup, RadioButton } from 'material-ui/RadioButton'
 import getMuiTheme from 'material-ui/styles/getMuiTheme'
-import FlatButton from 'material-ui/FlatButton';
-import AvatarCropper from "react-avatar-cropper";
+import FlatButton from 'material-ui/FlatButton'
+import AvatarCropper from "react-avatar-cropper"
 import defaultUserImage from '../../style/empty.png'
 
 import { Loader } from '../../components'
-import materialTheme from '../../style/custom-theme.js';
+import materialTheme from '../../style/custom-theme.js'
 
 
-const CheckboxGroup = Checkbox.Group;
+const CheckboxGroup = Checkbox.Group
 
-const TabPane = Tabs.TabPane;
+const TabPane = Tabs.TabPane
 
 const styles = {
   root: {
@@ -40,7 +40,7 @@ const styles = {
     width: 500,
     overflowY: 'auto'
   }
-};
+}
 
 class EditUser extends Component {
 
@@ -252,33 +252,33 @@ class EditUser extends Component {
           cropperOpen: false,
           img: null,
           croppedImg: defaultImage
-        };
+        }
       }
       handleFileChange = (dataURI) => {
         this.setState({
           img: dataURI,
           croppedImg: this.state.croppedImg,
           cropperOpen: true
-        });
+        })
       }
       handleCrop = (dataURI) => {
         this.setState({
           cropperOpen: false,
           img: null,
           croppedImg: dataURI
-        });
+        })
       }
       handleRequestHide = () =>{
         this.setState({
           cropperOpen: false
-        });
+        })
       }
     handleRequestDelete = () => {
-      alert('You clicked the delete button.');
+      alert('You clicked the delete button.')
     }
 
     handleTouchTap = () => {
-      alert('You clicked the Chip.');
+      alert('You clicked the Chip.')
     }
 
     handlesImageUpload = (acceptedFiles, rejectedFiles) => {
@@ -349,8 +349,9 @@ class EditUser extends Component {
           imageUri: this.state.croppedImg,
           firstName: this.state.firstName,
           lastName: this.state.lastName
-        };
-        if(newPassword && verifyPassword){
+        }
+
+        if (newPassword && verifyPassword){
           axios({
               method: 'post',
               url: `${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/users/adminPassword`,
@@ -364,7 +365,7 @@ class EditUser extends Component {
         }).then(res => {
           console.log('changed', res)
         }).catch(err => {
-            console.log('err',err)
+            console.log('err', err)
             this.setState({ passwordSubmitError: true })
         })
       }

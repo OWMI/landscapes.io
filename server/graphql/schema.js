@@ -6,6 +6,7 @@ import User from './types/user.js'
 import Group from './types/group.js'
 import Account from './types/account.js'
 import Landscape from './types/landscape.js'
+import Configuration from './types/configuration.js'
 import Deployment from './types/deployment.js'
 import Subscription from './types/subscriptions.js'
 import TypeDocument from './types/documentTypes.js'
@@ -16,6 +17,7 @@ const Query = `
         userId: String
         isAdmin: Boolean
     }
+
     input documentInput {
         type: String
         url: String
@@ -125,6 +127,7 @@ const Query = `
         groupById(id: String): Group
         accounts: [Account]
         landscapes: [Landscape]
+        configuration: [Configuration]
         documentTypes: [TypeDocument]
         tags: [Tag]
         landscapeById(id: String): [Landscape]
@@ -140,6 +143,7 @@ const Mutation = `
         createUser ( user: UserInput! ): User
         updateUser ( user: UserInput! ): User
         deleteUser ( user: UserInput! ): User
+        toggleFirstUser ( configId: String! ): Configuration
 
         createTag ( tag: TagInput! ): Tag
         updateTag ( tag: TagInput! ): Tag
@@ -171,6 +175,18 @@ const Mutation = `
 `
 
 export default makeExecutableSchema({
-    typeDefs: [ Query, User, Group, Mutation, Landscape, Deployment, TypeDocument, Tag, Account, Subscription ],
+    typeDefs: [
+        Query,
+        Account,
+        Configuration,
+        Deployment,
+        Group,
+        Landscape,
+        Mutation,
+        Subscription,
+        Tag,
+        TypeDocument,
+        User
+    ],
     resolvers,
 })

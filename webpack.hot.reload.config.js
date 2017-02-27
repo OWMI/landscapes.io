@@ -5,6 +5,7 @@ const autoprefixer = require('autoprefixer')
 
 const ROOT_PATH = path.resolve(__dirname)
 const assetsDir = path.resolve(ROOT_PATH, 'public/assets')
+const globalConfig = require(path.resolve('./server/config/config'))
 
 const config = {
     devtool: 'eval',
@@ -64,6 +65,7 @@ function getImplicitGlobals() {
 }
 
 function setNodeEnv() {
+    let MONGODB_URI = process.env.MONGOHQ_URL || process.env.MONGODB_URI || 'mongodb://' + (process.env.DB_PORT_27017 || 'localhost') + '/landscapes'
     return new webpack.DefinePlugin({
         'process.env': {
             'NODE_ENV': JSON.stringify('development')
@@ -71,6 +73,8 @@ function setNodeEnv() {
         PROTOCOL: JSON.stringify(process.env.PROTOCOL || 'http'),
         SERVER_IP: JSON.stringify(process.env.PUBLIC_IP || '0.0.0.0'),
         SERVER_PORT: JSON.stringify(process.env.PORT || '8080'),
+        MONGODB_URI: JSON.stringify(MONGODB_URI),
+        AUTH_STRATEGY: JSON.stringify(globalConfig.authStrategy)
     })
 }
 

@@ -36,6 +36,13 @@ module.exports = {
 
     authStrategy: 'local',
 
+    oauthCreds: {
+        google: {
+            clientID: 'CLIENT_ID',
+            clientSecret: 'CLIENT_SECRET'
+        }
+    },
+
     caBundlePath: '../sslcerts/cacert.pem',
 
     ldap: {

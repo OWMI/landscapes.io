@@ -3,7 +3,7 @@ import axios from 'axios'
 import React, { Component, PropTypes } from 'react'
 import shallowCompare from 'react-addons-shallow-compare'
 import { Row, Col } from 'react-flexbox-grid'
-import { Paper, RaisedButton, Checkbox, TextField } from 'material-ui'
+import { Checkbox, Paper, RaisedButton, Step, Stepper, StepLabel, TextField } from 'material-ui'
 
 import './login.style.scss'
 import { auth } from '../../services/auth'
@@ -14,7 +14,20 @@ class Login extends Component {
     state = {
         animated: true,
         viewEntersAnim: true,
-        showError: false
+        showError: false,
+        stepIndex: 0
+    }
+
+    componentWillMount() {
+        const self = this
+        // HACK: encode/decode oauth user until Chrome 57 is released with preflight issue fix
+        setTimeout(function () {
+            if (window.location.search.indexOf('oauth=') > -1) {
+                self.handleOAuthLogin(
+                    JSON.parse(decodeURIComponent(window.location.search.split('oauth=')[1]))
+                )
+            }
+        }, 1000)
     }
 
     componentDidMount() {
@@ -32,29 +45,75 @@ class Login extends Component {
     }
 
     render() {
-        const { animated, viewEntersAnim, showError } = this.state
-        const { loading } = this.props
+        const self = this
+        const { animated, viewEntersAnim, showError, stepIndex } = this.state
+        const { configuration, loading } = this.props
+
+
+        function renderLoginPane() {
+            return (
+                <Paper zDepth={1} rounded={false}>
+                    <TextField id='username' ref='username' floatingLabelText='Username' fullWidth={true} autoFocus/>
+                    <TextField id='password' ref='password' floatingLabelText='Password' fullWidth={true} type='password' autoFocus/>
+
+                    {/* <Checkbox label='Remember Me' onCheck={this.handlesPasswordCookie}
+                        style={{ margin: '20px 0px' }} labelStyle={{ fontFamily: 'Nunito, sans-serif', width: 'none' }}/> */}
+
+                    <RaisedButton label='Login' fullWidth={true} type='primary' onClick={ stepIndex === 1 ? self.handlesAdminToggle : self.handlesOnLogin }
+                        labelStyle={{ fontFamily: 'Nunito, sans-serif', textTransform: 'none' }}/>
+                </Paper>
+            )
+        }
+
 
         return (
             <Row center='xs' middle='xs' className={cx({ 'screen-height': true, 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
                 <Col xs={6} lg={4} className={cx( { 'login-page': true } )}>
-                    <Paper zDepth={1} rounded={false}>
-                        {
-                          showError
-                          ?
-                          <p style={{color:'red'}}>Incorrect Username/Password Combination</p>
-                          :
-                          <p></p>
-                        }
-                        <TextField id='username' ref='username' floatingLabelText='Username' fullWidth={true} autoFocus/>
-                        <TextField id='password' ref='password' floatingLabelText='Password' fullWidth={true} type='password' autoFocus/>
 
-                        {/* <Checkbox label='Remember Me' onCheck={this.handlesPasswordCookie}
-                            style={{ margin: '20px 0px' }} labelStyle={{ fontFamily: 'Nunito, sans-serif', width: 'none' }}/> */}
+                    {
+                        AUTH_STRATEGY && AUTH_STRATEGY === 'google'
+                        ?
+                            configuration && configuration.length && configuration[0].isFirstUser
+                            ?
+                                <div>
+                                    <Stepper activeStep={stepIndex}>
+                                        <Step>
+                                            <StepLabel>Link admin to OAuth Account</StepLabel>
+                                        </Step>
+                                        <Step>
+                                            <StepLabel>Login with Admin Credentials</StepLabel>
+                                        </Step>
+                                    </Stepper>
+                                    {
+                                        stepIndex === 0
+                                        ?
+                                            // <RaisedButton label='Login with Google OAuth' fullWidth={false} type='primary'
+                                            //     onClick={self.handleOAuthLogin} labelStyle={{ fontFamily: 'Nunito, sans-serif', textTransform: 'none' }}/>
+                                            <a href="http://localhost:8080/api/auth/google">
+                                                <RaisedButton label='Login with Google OAuth' fullWidth={false} type='primary'
+                                                    labelStyle={{ fontFamily: 'Nunito, sans-serif', textTransform: 'none' }}/>
+                                            </a>
+                                        :
+                                            renderLoginPane()
+                                    }
+                                </div>
+                            :
+                                <a href="http://localhost:8080/api/auth/google">
+                                    <RaisedButton label='Login with Google OAuth' fullWidth={false} type='primary'
+                                        labelStyle={{ fontFamily: 'Nunito, sans-serif', textTransform: 'none' }}/>
+                                </a>
+                        :
+                            renderLoginPane()
 
-                        <RaisedButton label='Login' fullWidth={true} type='primary' onClick={this.handlesOnLogin}
-                            labelStyle={{ fontFamily: 'Nunito, sans-serif', textTransform: 'none' }}/>
-                    </Paper>
+                    }
+
+                    {
+                      showError
+                      ?
+                        <p style={{ color:'red', padding: '20px' }}>Incorrect Username/Password combination</p>
+                      :
+                        null
+                    }
                 </Col>
             </Row>
         )
@@ -67,15 +126,75 @@ class Login extends Component {
         this.setState({ password: event.target.value })
     }
 
+    handlesAdminToggle = () => {
+        const { configuration, toggleFirstUser } = this.props
+        const { router } = this.context
+
+        toggleFirstUser({
+            variables: { configId: configuration[0]._id }
+        })
+
+        router.push({ pathname: '/landscapes' })
+    }
+
+    handleOAuthLogin = authData => {
+
+        const { accounts, configuration, groups, loginUser, refetchGroups, toggleFirstUser } = this.props
+        const { router } = this.context
+
+        // user login & auth token generation
+        // this.setState({ showError: false })
+        // axios({
+        //     url: `${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/auth/google`,
+        //     headers: { 'Access-Control-Allow-Origin': '*' }
+        // }).then(res => {
+        //     console.log('%c RESPONSE ', 'background: #1c1c1c; color: limegreen', res)
+        // }).catch(err => console.log(err))
+
+        let userWithPermissions = auth.setUserPermissions(authData, groups, accounts)
+
+        axios({
+            method: 'post',
+            url: `${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/generateToken`,
+            data: userWithPermissions
+        }).then(res => {
+            return refetchGroups({}).then(groups => {
+              const { user, token } = res.data
+              loginUser(token, user, this.props.groups)
+
+              return axios({
+                  method: 'get',
+                  url: `${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/verifyToken`,
+                  headers: { 'x-access-token': token }
+              })
+            })
+        }).then(res => {
+
+            console.log('%c configuration ', 'background: #1c1c1c; color: limegreen', configuration)
+
+            // toggle admin user at first login
+            if (configuration && configuration.length && configuration[0].isFirstUser) {
+                this.setState({ stepIndex: 1 })
+            } else {
+                router.push({ pathname: '/landscapes' })
+            }
+
+        }).catch(err =>{
+            this.setState({ showError: true })
+        })
+    }
+
     handlesOnLogin = event => {
+
         event.preventDefault()
-        const { loginUser, groups, accounts, refetchGroups } = this.props
+
+        const { accounts, configuration, groups, loginUser, refetchGroups, toggleFirstUser } = this.props
         const { router } = this.context
         let { username, password } = this.refs
 
         username = username.getValue()
         password = password.getValue()
-        this.setState({showError: false})
+        this.setState({ showError: false })
 
         // user login & auth token generation
         axios({
@@ -93,19 +212,20 @@ class Login extends Component {
                 data: userWithPermissions
             })
         }).then(res => {
-              const { user, token } = res.data
-              loginUser(token, user, groups)
+            return refetchGroups({}).then(groups => {
+                const { user, token } = res.data
+                loginUser(token, user, groups)
 
-              return axios({
-                  method: 'get',
-                  url: `${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/verifyToken`,
-                  headers: { 'x-access-token': token }
-              })
-
+                return axios({
+                    method: 'get',
+                    url: `${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/verifyToken`,
+                    headers: { 'x-access-token': token }
+                })
+            })
         }).then(res => {
             router.push({ pathname: '/landscapes' })
         }).catch(err =>{
-            this.setState({showError: true})
+            this.setState({ showError: true })
         })
     }
 
