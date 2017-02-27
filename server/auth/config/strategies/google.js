@@ -11,14 +11,11 @@ let passport        = require('passport'),
 module.exports = () => {
     passport.use(
         new GoogleStrategy({
-            clientID: '',
-            clientSecret: '',
-            callbackURL: 'http://localhost:8080/api/auth/google/callback'
+            clientID: config.oauthCreds[config.authStrategy].clientID,
+            clientSecret: config.oauthCreds[config.authStrategy].clientSecret,
+            callbackURL: `http://localhost:${config.port}/api/auth/${config.authStrategy}/callback`
         }, (accessToken, refreshToken, profile, done) => {
-            console.log('logged into google!')
-            // console.log('accessToken', accessToken)
-            // console.log('refreshToken', refreshToken)
-            // console.log('profile', profile)
+            // console.log('logged into google!')
 
             return new Promise((resolve, reject) => {
                 Configuration.find().exec((err, configuration) => {

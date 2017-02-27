@@ -143,8 +143,6 @@ class Login extends Component {
         const { accounts, configuration, groups, loginUser, refetchGroups, toggleFirstUser } = this.props
         const { router } = this.context
 
-        console.log('%c this.props ', 'background: #1c1c1c; color: deepskyblue', this.props)
-
         // user login & auth token generation
         // this.setState({ showError: false })
         // axios({

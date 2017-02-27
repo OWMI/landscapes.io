@@ -12,7 +12,7 @@ let seedOptions = {}
 function removeUser(user) {
     return new Promise((resolve, reject) => {
         let User = mongoose.model('User')
-        User.find({ username: user.username }).remove(err => {
+        User.find({username: user.username}).remove(err => {
             if (err) {
                 reject(new Error('Failed to remove local ' + user.username))
             }
@@ -22,7 +22,7 @@ function removeUser(user) {
 }
 
 function saveUser(user) {
-    return function() {
+    return () => {
         return new Promise((resolve, reject) => {
             // Then save the user
             user.save((err, theuser) => {
@@ -79,8 +79,8 @@ function seedTheUser(user) {
             if (user.username === seedOptions.seedAdmin.username && process.env.NODE_ENV === 'production') {
                 checkUserNotExists(user)
                 .then(saveUser(user))
-                .then(setFirstUser())
                 .then(reportSuccess(password))
+                .then(setFirstUser())
                 .then(() => {
                     resolve()
                 }).catch(err => reject(err))
@@ -88,8 +88,8 @@ function seedTheUser(user) {
                 // removeUser(user)
                 checkUserNotExists(user)
                 .then(saveUser(user))
-                .then(setFirstUser())
                 .then(reportSuccess(password))
+                .then(setFirstUser())
                 .then(() => {
                     resolve()
                 }).catch(err => reject(err))
@@ -100,7 +100,7 @@ function seedTheUser(user) {
 
 // report the error
 function reportError(reject) {
-    return (err) => {
+    return err => {
         if (seedOptions.logResults) {
             winston.log('Database seeding:\t\t\t' + err + '\n')
         }
@@ -113,10 +113,7 @@ function seedGroup(group) {
         let Group = mongoose.model('Group')
 
         if (group.name === seedOptions.seedGroup.name && process.env.NODE_ENV === 'production') {
-            checkGroupNotExists(group)
-            .then(saveGroup(group))
-            .then(reportSuccess(group.name))
-            .then(() => {
+            checkGroupNotExists(group).then(saveGroup(group)).then(reportSuccess(group.name)).then(() => {
                 winston.info('GROUP MADE: ', group.name)
                 resolve()
             }).catch(err => {
@@ -125,10 +122,7 @@ function seedGroup(group) {
             })
         } else {
             // removeUser(user)
-            checkGroupNotExists(group)
-            .then(saveGroup(group))
-            .then(reportSuccess(group.name))
-            .then(() => {
+            checkGroupNotExists(group).then(saveGroup(group)).then(reportSuccess(group.name)).then(() => {
                 winston.info('GROUP MADE: ', group.name)
                 resolve()
             }).catch(err => {
@@ -155,20 +149,6 @@ function saveGroup(group) {
     }
 }
 
-function setFirstUser() {
-    return function() {
-        return new Promise((resolve, reject) => {
-            let Configuration = mongoose.model('Configuration')
-            Configuration.create({ isFirstUser: true }, (err, configuration) => {
-                if (err) {
-                    reject(new Error('Failed to set first user', err))
-                }
-                resolve({ success: true })
-            })
-        })
-    }
-}
-
 function checkGroupNotExists(group) {
     return new Promise((resolve, reject) => {
         let Group = mongoose.model('Group')
@@ -182,6 +162,23 @@ function checkGroupNotExists(group) {
             }
         })
     })
+}
+
+function setFirstUser() {
+    return () => {
+        return new Promise((resolve, reject) => {
+            if (config.authStrategy !== 'local') {
+                let Configuration = mongoose.model('Configuration')
+                Configuration.create({ isFirstUser: true }, (err, configuration) => {
+                    if (err) {
+                        reject(new Error('Failed to set first user', err))
+                    }
+                    resolve({ success: true })
+                })
+            }
+            resolve()
+        })
+    }
 }
 
 module.exports.start = function start(options) {
@@ -205,7 +202,6 @@ module.exports.start = function start(options) {
 
     let User = mongoose.model('User')
     let Group = mongoose.model('Group')
-
     return new Promise((resolve, reject) => {
 
         let userAccount = new User(seedOptions.seedUser)
@@ -222,11 +218,13 @@ module.exports.start = function start(options) {
             }).catch(reportError(reject))
         } else {
             // Add both Admin and User account
+
             User.generateRandomPassphrase()
             .then(seedTheUser(userAccount))
             .then(User.generateRandomPassphrase)
             .then(seedTheUser(adminAccount))
-            .then(seedGroup(testGroup)).then(() => {
+            .then(seedGroup(testGroup))
+            .then(() => {
                 resolve()
             }).catch(reportError(reject))
         }

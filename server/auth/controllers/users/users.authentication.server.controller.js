@@ -109,7 +109,6 @@ exports.signout = (req, res) => {
  * OAuth provider call
  */
 exports.oauthCall = (strategy, scope) => {
-    console.log('oauth called')
     return (req, res, next) => {
         // Authenticate
         passport.authenticate('google', { scope: ['profile'] })(req, res, next)
@@ -120,7 +119,6 @@ exports.oauthCall = (strategy, scope) => {
  * OAuth callback
  */
 exports.oauthCallback = strategy => {
-    console.log('in auth callback')
     return (req, res, next) => {
 
         // info.redirect_to contains inteded redirect path
