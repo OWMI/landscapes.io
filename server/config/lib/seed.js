@@ -12,7 +12,9 @@ let seedOptions = {}
 function removeUser(user) {
     return new Promise((resolve, reject) => {
         let User = mongoose.model('User')
-        User.find({username: user.username}).remove(err => {
+        User.find({
+            username: user.username
+        }).remove(err => {
             if (err) {
                 reject(new Error('Failed to remove local ' + user.username))
             }

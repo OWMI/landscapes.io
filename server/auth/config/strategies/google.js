@@ -9,10 +9,19 @@ let passport        = require('passport'),
     config          = require(path.resolve('./server/config/config'))
 
 module.exports = () => {
+
+    let _clientID = 'CLIENT_ID',
+        _clientSecret = 'CLIENT_SECRET'
+
+    if (config.oauthCreds[config.authStrategy]) {
+        _clientID = config.oauthCreds[config.authStrategy].clientID
+        _clientSecret = config.oauthCreds[config.authStrategy].clientSecret
+    }
+
     passport.use(
         new GoogleStrategy({
-            clientID: config.oauthCreds[config.authStrategy].clientID,
-            clientSecret: config.oauthCreds[config.authStrategy].clientSecret,
+            clientID: _clientID,
+            clientSecret: _clientSecret,
             callbackURL: `http://localhost:${config.port}/api/auth/${config.authStrategy}/callback`
         }, (accessToken, refreshToken, profile, done) => {
             // console.log('logged into google!')
