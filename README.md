@@ -74,6 +74,35 @@ npm run prod
 npm run test
 ```
 
+### OAuth Integration
+
+By default, landscapes.io is designed to work with OAuth through the [passport-oauth2](https://github.com/jaredhanson/passport-oauth2) authentication strategy for [Passport](http://passportjs.org/).
+
+**Update the config file**
+Updated the server configuration file located at ```/server/config/env/default.js``` with **authStrategy** and **oauthCreds**
+```javascript
+authStrategy: 'OAUTH_PROVIDER_NAME', // 'google', 'geoaxis'
+oauthCreds: {
+    google: {
+        clientID: 'CLIENT_ID',
+        clientSecret: 'CLIENT_SECRET'
+    },
+    geoaxis: {
+        clientID: 'CLIENT_ID',
+        clientSecret: 'CLIENT_SECRET'
+    }
+}
+```
+
+**Seed OAuth admin user**
+```
+// development
+MONGO_SEED=true npm start
+
+// production
+MONGO_SEED=true npm run prod
+```
+
 ##License
 
 Copyright 2014 OpenWhere, Inc.
