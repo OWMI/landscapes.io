@@ -78,7 +78,8 @@ npm run test
 
 By default, landscapes.io is designed to work with OAuth through the [passport-oauth2](https://github.com/jaredhanson/passport-oauth2) authentication strategy for [Passport](http://passportjs.org/).
 
-**Update the config file**
+**Update the server config**
+
 Updated the server configuration file located at ```/server/config/env/default.js``` with **authStrategy** and **oauthCreds**
 ```javascript
 authStrategy: 'OAUTH_PROVIDER_NAME', // 'google', 'geoaxis'
