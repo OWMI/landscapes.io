@@ -59,7 +59,7 @@ class Tags extends Component {
             <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
 
                 <a onClick={this.handlesCreateTagClick}>
-                    <p style={{ fontSize: '20px', cursor: 'pointer' }}><IoIosPlusEmpty size={30}/> Add Tag </p>
+                    <p style={{ fontSize: '20px', cursor: 'pointer' }}><IoIosPlusEmpty size={30}/> Add Global Tag </p>
                 </a>
 
                 <Table>
@@ -67,7 +67,7 @@ class Tags extends Component {
                         <TableRow>
                             <TableHeaderColumn>Tag Key</TableHeaderColumn>
                             <TableHeaderColumn>Default Value</TableHeaderColumn>
-                            <TableHeaderColumn>Required?</TableHeaderColumn>
+                            <TableHeaderColumn>Required</TableHeaderColumn>
                             <TableHeaderColumn></TableHeaderColumn>
                         </TableRow>
                     </TableHeader>

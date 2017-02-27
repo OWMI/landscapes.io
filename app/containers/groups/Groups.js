@@ -10,7 +10,7 @@ import { auth } from '../../services/auth'
   GraphQL - Apollo client
  ------------------------------------------*/
 
- var user = auth.getUserInfo() || {}
+ let user = auth.getUserInfo() || {}
 
  const GroupQuery = gql `
      query getGroupsByUser($userId: String, $isGlobalAdmin: Boolean) {
@@ -29,15 +29,69 @@ import { auth } from '../../services/auth'
      }
 
   `
+ const GroupsQuery = gql `
+     query getGroups {
+         groups {
+             _id,
+             name,
+             users{
+               isAdmin,
+               userId
+             },
+             imageUri,
+             description,
+             landscapes,
+             permissions
+         }
+     }
+
+  `
+  const UsersQuery = gql `
+      query getUsers {
+          users {
+            _id,
+            username,
+            profile,
+            email,
+            imageUri,
+            firstName,
+            lastName,
+            role
+          }
+      }
+
+   `
+   const editUserMutation = gql `
+       mutation updateUser($user: UserInput!) {
+           updateUser(user: $user) {
+               username
+           }
+       }
+   `
+
  // 1- add queries:
  const GroupsWithQuery = graphql(GroupQuery, {
       options: { variables: { userId: user._id || '', isGlobalAdmin: (user.role === 'admin') || false } },
      props: ({ data: { loading, groupsByUser, refetch } }) => ({
          groupsByUser,
          loading,
+         refetchGroupsByUser: refetch
+     })
+ })(graphql(GroupsQuery, {
+     props: ({ data: { loading, groups, refetch } }) => ({
+         groups,
+         loading,
          refetchGroups: refetch
      })
- })(Groups)
+ })(graphql(UsersQuery, {
+     props: ({ data: { loading, users, refetch } }) => ({
+         users,
+         loading,
+         refetchUsers: refetch
+     })
+ })(
+   graphql(editUserMutation, {name: 'EditUserWithMutation'})
+   (Groups))))
 
 
 /* -----------------------------------------

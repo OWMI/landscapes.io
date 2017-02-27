@@ -34,6 +34,7 @@ const Query = `
         username: String
         email: String
         role: String
+        profile: String
         imageUri: String
         password: String
         firstName: String

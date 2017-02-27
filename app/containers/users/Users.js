@@ -9,9 +9,9 @@ import * as viewsActions from '../../redux/modules/views'
   GraphQL - Apollo client
  ------------------------------------------*/
  const editUserMutation = gql `
-     mutation createUser($user: UserInput!) {
-         createUser(user: $user) {
-             name
+     mutation updateUser($user: UserInput!) {
+         updateUser(user: $user) {
+             username
          }
      }
  `
@@ -24,6 +24,7 @@ import * as viewsActions from '../../redux/modules/views'
              username,
              email,
              imageUri,
+             profile,
              firstName,
              lastName,
              password,

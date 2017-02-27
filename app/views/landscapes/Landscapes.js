@@ -4,8 +4,9 @@ import { compact, findIndex, isEqual } from 'lodash'
 import { Row, Col } from 'react-flexbox-grid'
 import React, { Component, PropTypes } from 'react'
 import shallowCompare from 'react-addons-shallow-compare'
-import { IoEdit, IoIosCloudUploadOutline, IoIosPlusEmpty } from 'react-icons/lib/io'
-import { CardHeader, CardActions, CardText, FlatButton, Paper } from 'material-ui'
+import { IoEdit, IoIosCloudUploadOutline, IoIosPlusEmpty, IoSearch } from 'react-icons/lib/io'
+import { CardHeader, CardActions, CardText, FlatButton, Paper, RaisedButton, TextField } from 'material-ui'
+import { Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table'
 
 import './landscapes.style.scss'
 import { Loader } from '../../components'
@@ -18,7 +19,9 @@ class Landscapes extends Component {
     state = {
         animated: true,
         viewEntersAnim: true,
-        viewLandscapes: []
+        viewLandscapes: [],
+        showCards: true,
+        items: []
     }
 
     componentDidMount() {
@@ -27,19 +30,42 @@ class Landscapes extends Component {
     }
 
     componentWillMount() {
-      const { currentUser } = this.props
+      const { currentUser, users } = this.props
       if(auth.getUserInfo().isGroupAdmin){
         currentUser.isGroupAdmin = true
       }
       this.setState({ currentUser })
 
+      const user = auth.getUserInfo();
+
+      if(users){
+        var currentViewUser = users.find(usr => {
+          return user._id === usr._id});
+      }
+      if(currentViewUser && currentViewUser.profile){
+        var userProfile = JSON.parse(currentViewUser.profile);
+        this.setState({showCards: userProfile.preferences.showLandscapeCards})
+      }
+      this.setState({currentViewUser: currentViewUser || {}})
     }
 
     componentWillReceiveProps(nextProps) {
         const self = this
         const { currentUser, deploymentsByLandscapeId, deploymentStatus, hasPendingDeployments, landscapes,
-                pendingDeployments, userAccess, setPendingDeployments, setUserAccess } = nextProps
+                pendingDeployments, userAccess, setPendingDeployments, setUserAccess, users } = nextProps
         let _viewLandscapes = []
+        const user = auth.getUserInfo();
+
+        if(users){
+          var currentViewUser = users.find(usr => {
+            return user._id === usr._id});
+        }
+
+        if(currentViewUser && currentViewUser.profile){
+          var userProfile = JSON.parse(currentViewUser.profile);
+          self.setState({showCards: userProfile.preferences.showLandscapeCards})
+        }
+        self.setState({currentViewUser: currentViewUser || {}})
 
         // set landscapes based on permissions
         if (landscapes && landscapes.length && currentUser.isGlobalAdmin) {
@@ -163,11 +189,11 @@ class Landscapes extends Component {
                     self.handlesPollingDeployments(_pendingDeployments, 10000)
                 }
 
-                self.setState({ viewLandscapes: _viewLandscapes })
+                self.setState({ viewLandscapes: _viewLandscapes,  items:  _viewLandscapes })
 
             })
         } else if (_viewLandscapes.length) {
-            self.setState({ viewLandscapes: _viewLandscapes })
+            self.setState({ viewLandscapes: _viewLandscapes, items:  _viewLandscapes})
         }
     }
 
@@ -183,7 +209,7 @@ class Landscapes extends Component {
     render() {
 
         const { loading, landscapes, users, groups, userAccess } = this.props
-        const { animated, viewEntersAnim, viewLandscapes, currentUser } = this.state
+        const { animated, viewEntersAnim, viewLandscapes, items, currentUser, showCards } = this.state
 
         if (loading) {
             return (
@@ -195,7 +221,7 @@ class Landscapes extends Component {
 
         return (
             <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
-
+              <Row style={{justifyContent: 'space-between', width: '100%'}}>
                 {
                     currentUser.isGlobalAdmin || userAccess && userAccess.canCreate || currentUser.isGroupAdmin
                     ?
@@ -205,81 +231,190 @@ class Landscapes extends Component {
                     :
                         null
                 }
+                <div className="filter-list" style={{marginTop:-5, marginBottom:10}}>
+                  <IoSearch style={{fontSize:20, color:'gray', marginRight:5}} /><TextField type="text" hintText="Search" onChange={this.filterList}/>
+                </div>
+                <FlatButton
+                  onClick={(event) => {
+                    event.preventDefault()
+                    var currentViewUser = this.state.currentViewUser
+                    console.log('currentViewUser____', currentViewUser)
 
-                <ul>
-                    {
-                        viewLandscapes.map((landscape, i) =>
-
-                        <Paper key={i} className={cx({ 'landscape-card': true })} style={{backgroundColor: materialTheme.palette.primary1Color}} zDepth={3} rounded={false} onClick={this.handlesLandscapeClick.bind(this, landscape)}>
-                                {/* header */}
-                                <Row start='xs' top='xs' style={{ padding: '20px 0px' }}>
-                                    <Col xs={8}>
-                                        <img id='landscapeIcon' src={landscape.imageUri || defaultLandscapeImage}/>
-                                    </Col>
-                                    <Col xs={4}>
-                                        {
-                                            currentUser.isGlobalAdmin || currentUser.permissions[landscape._id].indexOf('u') > -1
-                                            ?
-                                                <FlatButton id='landscape-edit' onTouchTap={this.handlesEditLandscapeClick.bind(this, landscape)}
-                                                    label='Edit' labelStyle={{ fontSize: '10px' }} icon={<IoEdit/>}/>
-                                            :
-                                                null
-                                        }
-
-                                        {
-                                            currentUser.isGlobalAdmin || currentUser.permissions[landscape._id].indexOf('x') > -1
-                                            ?
-                                                <FlatButton id='landscape-deploy' onTouchTap={this.handlesDeployClick.bind(this, landscape)}
-                                                    label='Deploy' labelStyle={{ fontSize: '10px' }} icon={<IoIosCloudUploadOutline/>}/>
-                                            :
-                                                null
-                                        }
-                                    </Col>
-                                </Row>
-
-                                <Row style={{ margin: '0px 20px', height: '95px' }}>
-                                    <div id='landscape-title'>{landscape.name}</div>
-                                    {
-                                      landscape.description.length > 120
-                                        ?
-                                        <div id='landscape-description'>{landscape.description.substr(0, 120) + '...'}</div>
-                                        :
-                                        <div id='landscape-description'>{landscape.description}</div>
-                                    }
-                                </Row>
-
-                                <Row end='xs' bottom='xs' id='icon-container'>
-                                    <Col xs={6}>
-                                        <Row center='xs'>
-                                            {
-                                                landscape.status
-                                                ?
-                                                    Object.keys(landscape.status).map((status, i) => {
-                                                        let _iconClassname = {}
-                                                        _iconClassname[`icon-${status}`] = true
-                                                        return (
-                                                            <Col key={i} xs={3}>
-                                                                {landscape.status[status]}
-                                                                <div className={cx(_iconClassname)}/>
-                                                            </Col>
-                                                        )
-                                                    })
-                                                :
-                                                    null
-                                            }
-                                        </Row>
-                                    </Col>
-                                    {/* <Col xs={3}>
-                                        <img style={{ marginLeft: '20px', filter: 'hue-rotate(-30deg) brightness(1)' }} height='50px' src='/public/untitled.png'/>
-                                    </Col> */}
-                                </Row>
-
-                        </Paper>)
+                    var userProfile = {}
+                    if(currentViewUser.profile){
+                      userProfile = JSON.parse(currentViewUser.profile);
                     }
-                </ul>
+                    else{
+                      userProfile['preferences'] = {}
+                    }
+                    userProfile['preferences']['showLandscapeCards'] = !showCards;
+                    console.log('currentViewUser', currentViewUser)
+                    currentViewUser.profile = JSON.stringify(userProfile)
+                    delete currentViewUser.__typename
+                    this.props.EditUserWithMutation({
+                        variables: { user: currentViewUser }
+                     }).then(() =>{
+                       this.setState({showCards: !showCards})
+                     })
+                  }}
+                  label={showCards ? 'Show List View' : 'Show Card View'}></FlatButton>
+              </Row>
+
+
+                {
+                  showCards
+                  ?
+                  <ul>
+                      {
+                          items.map((landscape, i) =>
+
+                          <Paper key={i} className={cx({ 'landscape-card': true })} style={{backgroundColor: materialTheme.palette.primary1Color}} zDepth={3} rounded={false} onClick={this.handlesLandscapeClick.bind(this, landscape)}>
+                                  {/* header */}
+                                  <Row start='xs' top='xs' style={{ padding: '20px 0px' }}>
+                                      <Col xs={8}>
+                                          <img id='landscapeIcon' src={landscape.imageUri || defaultLandscapeImage}/>
+                                      </Col>
+                                      <Col xs={4}>
+                                          {
+                                              currentUser.isGlobalAdmin || currentUser.permissions[landscape._id].indexOf('u') > -1
+                                              ?
+                                                  <FlatButton id='landscape-edit' onTouchTap={this.handlesEditLandscapeClick.bind(this, landscape)}
+                                                      label='Edit' labelStyle={{ fontSize: '10px' }} icon={<IoEdit/>}/>
+                                              :
+                                                  null
+                                          }
+
+                                          {
+                                              currentUser.isGlobalAdmin || currentUser.permissions[landscape._id].indexOf('x') > -1
+                                              ?
+                                                  <FlatButton id='landscape-deploy' onTouchTap={this.handlesDeployClick.bind(this, landscape)}
+                                                      label='Deploy' labelStyle={{ fontSize: '10px' }} icon={<IoIosCloudUploadOutline/>}/>
+                                              :
+                                                  null
+                                          }
+                                      </Col>
+                                  </Row>
+
+                                  <Row style={{ margin: '0px 20px', height: '95px' }}>
+                                      <div id='landscape-title'>{landscape.name}</div>
+                                      {
+                                        landscape.description.length > 120
+                                          ?
+                                          <div id='landscape-description'>{landscape.description.substr(0, 120) + '...'}</div>
+                                          :
+                                          <div id='landscape-description'>{landscape.description}</div>
+                                      }
+                                  </Row>
+
+                                  <Row end='xs' bottom='xs' id='icon-container'>
+                                      <Col xs={6}>
+                                          <Row center='xs'>
+                                              {
+                                                  landscape.status
+                                                  ?
+                                                      Object.keys(landscape.status).map((status, i) => {
+                                                          let _iconClassname = {}
+                                                          _iconClassname[`icon-${status}`] = true
+                                                          return (
+                                                              <Col key={i} xs={3}>
+                                                                  {landscape.status[status]}
+                                                                  <div className={cx(_iconClassname)}/>
+                                                              </Col>
+                                                          )
+                                                      })
+                                                  :
+                                                      null
+                                              }
+                                          </Row>
+                                      </Col>
+                                      {/* <Col xs={3}>
+                                          <img style={{ marginLeft: '20px', filter: 'hue-rotate(-30deg) brightness(1)' }} height='50px' src='/public/untitled.png'/>
+                                      </Col> */}
+                                  </Row>
+
+                          </Paper>)
+                      }
+                  </ul>
+                  :
+                  <Table fixedHeader={true} fixedFooter={false} selectable={true}
+                          multiSelectable={false}>
+                    <TableHeader
+                      displaySelectAll={false}
+                      adjustForCheckbox={false}
+                      enableSelectAll={false}>
+                      <TableRow>
+                        <TableHeaderColumn></TableHeaderColumn>
+                        <TableHeaderColumn>Name</TableHeaderColumn>
+                        <TableHeaderColumn>Description</TableHeaderColumn>
+                        <TableHeaderColumn>Status</TableHeaderColumn>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody  displayRowCheckbox={false}
+                                deselectOnClickaway={false}
+                                showRowHover={true}
+                                stripedRows={false}>
+                      {
+                        this.state.items.map((landscape, i) =>
+                          <TableRow key={i} onTouchTap={this.handlesEditLandscapeClick.bind(this, landscape)}>
+                            <TableRowColumn><img id='landscapeIcon' style={{height:35}} src={landscape.imageUri || defaultLandscapeImage}/></TableRowColumn>
+                            <TableRowColumn>{landscape.name}</TableRowColumn>
+                            <TableRowColumn>{
+                              landscape.description.length > 50
+                                ?
+                                <div id='landscape-description'>{landscape.description.substr(0, 50) + '...'}</div>
+                                :
+                                <div id='landscape-description'>{landscape.description}</div>
+                            }</TableRowColumn>
+                            <TableRowColumn>
+                              <Row>
+                                {
+                                  landscape.status
+                                  ?
+                                      Object.keys(landscape.status).map((status, i) => {
+                                          let _iconClassname = {}
+                                          if(status === 'deleted'){
+                                            _iconClassname[`icon-${status}-black`] = true
+                                          }
+                                          else{
+                                            _iconClassname[`icon-${status}`] = true
+                                          }
+                                          return (
+                                              <Col key={i} xs={3} >
+                                                  <Row style={{justifyContent: 'space-around'}}>
+                                                    {landscape.status[status]}
+                                                  </Row>
+                                                  <Row style={{justifyContent: 'space-around'}}>
+                                                    <div className={cx(_iconClassname)} style={{height:3, width:25}}/>
+                                                  </Row>
+                                              </Col>
+                                          )
+                                      })
+                                  :
+                                      null
+                              }
+                              </Row>
+                          </TableRowColumn>
+
+                          </TableRow>
+                        )
+                      }
+                    </TableBody>
+                  </Table>
+                }
+
             </div>
         )
     }
+    filterList = (event) =>{
+      var updatedList = this.state.viewLandscapes;
+      updatedList = updatedList.filter(function(item){
+        return (item.name.toLowerCase().search(
+          event.target.value.toLowerCase()) !== -1)
+          ;
+      });
+      this.setState({items: updatedList});
+    }
+
 
     handlesPollingDeployments = (pendingDeployments, interval) => {
 

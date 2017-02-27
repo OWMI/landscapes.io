@@ -217,7 +217,7 @@ class Login extends Component {
         }).then(res => {
             return refetchGroups({}).then(groups => {
                 const { user, token } = res.data
-                loginUser(token, user, this.props.groups)
+                loginUser(token, user, groups)
 
                 return axios({
                     method: 'get',

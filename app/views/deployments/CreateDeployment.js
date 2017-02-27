@@ -15,7 +15,8 @@ class CreateDeployment extends Component {
 
     state = {
         animated: true,
-        viewEntersAnim: true
+        viewEntersAnim: true,
+        showAddTag: false
     }
 
     componentDidMount() {
@@ -123,7 +124,7 @@ class CreateDeployment extends Component {
         return (
             <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
                 <Row center='xs' middle='xs'>
-                    <Col xs={6} lg={9} className={cx( { 'create-deployment': true } )}>
+                    <Col xs={6} lg={9} className={cx( { 'create-deployment': false } )}>
                         <Row middle='xs'>
                             <Col xs={4} style={{ textAlign: 'left' }}>
                                 <h4>New Deployment</h4>
@@ -142,58 +143,69 @@ class CreateDeployment extends Component {
                             :
                             null
                           }
-                            <TextField id='stackName' ref='stackName' floatingLabelText='Stack Name' className={cx( { 'two-field-row': true } )}/>
-
-                            {
-                              !isGlobalAdmin
-                              ?
-                                  <SelectField id='accountName' floatingLabelText='Account Name' value={this.state.accountName} onChange={this.handlesAccountChange}
-                                      floatingLabelStyle={{ left: '0px' }} className={cx( { 'two-field-row': true } )}>
-                                      {
-                                          landscapeAccounts && landscapeAccounts.length
-                                            ?
-                                                landscapeAccounts.map((acc, index) => {
-                                                    return (
-                                                        <MenuItem key={Object.keys(acc)[0]} value={acc[Object.keys(acc)[0]]} primaryText={acc[Object.keys(acc)[0]]}/>
-                                                    )
-                                                })
-                                            :
-                                                null
-                                      }
-                                  </SelectField>
-                              :
-                                  <SelectField id='accountName' floatingLabelText='Account Name' value={this.state.accountName} onChange={this.handlesAccountChange}
-                                      floatingLabelStyle={{ left: '0px' }} className={cx( { 'two-field-row': true } )}>
-                                      {
-                                          landscapeAccounts && landscapeAccounts.length
-                                            ?
-                                                landscapeAccounts.map((acc, index) => {
-                                                    return (
-                                                        <MenuItem key={acc._id} value={acc.name} primaryText={acc.name}/>
-                                                    )
-                                                })
-                                            :
-                                            null
+                          <Row style={{marginLeft:10, marginRight:10}}>
+                            <Col xs={6}>
+                              <TextField id='stackName' ref='stackName' floatingLabelText='Stack Name' className={cx( { 'two-field-row': true } )}/>
+                            </Col>
+                            <Col xs={6}>
+                              {
+                                !isGlobalAdmin
+                                ?
+                                    <SelectField id='accountName' floatingLabelText='Account Name' value={this.state.accountName} onChange={this.handlesAccountChange}
+                                        floatingLabelStyle={{ left: '0px' }} className={cx( { 'two-field-row': true } )}>
+                                        {
+                                            landscapeAccounts && landscapeAccounts.length
+                                              ?
+                                                  landscapeAccounts.map((acc, index) => {
+                                                      return (
+                                                          <MenuItem key={Object.keys(acc)[0]} value={acc[Object.keys(acc)[0]]} primaryText={acc[Object.keys(acc)[0]]}/>
+                                                      )
+                                                  })
+                                              :
+                                                  null
                                         }
-                                  </SelectField>
-                            }
+                                    </SelectField>
+                                :
+                                    <SelectField id='accountName' floatingLabelText='Account Name' value={this.state.accountName} onChange={this.handlesAccountChange}
+                                        floatingLabelStyle={{ left: '0px' }} className={cx( { 'two-field-row': true } )}>
+                                        {
+                                            landscapeAccounts && landscapeAccounts.length
+                                              ?
+                                                  landscapeAccounts.map((acc, index) => {
+                                                      return (
+                                                          <MenuItem key={acc._id} value={acc.name} primaryText={acc.name}/>
+                                                      )
+                                                  })
+                                              :
+                                              null
+                                          }
+                                    </SelectField>
+                              }
+                            </Col>
+                          </Row>
+                          <Row style={{marginLeft:10, marginRight:10}}>
+                            <Col xs={6}>
+                              <SelectField id='location' floatingLabelText='Region' value={this.state.location} onChange={this.handlesRegionChange}
+                                  floatingLabelStyle={{ left: '0px' }} className={cx( { 'two-field-row': true } )}>
+                                  {
+                                      menuItems.map((item, index) => {
+                                          return (
+                                              <MenuItem key={index} value={item.value} primaryText={item.text}/>
+                                          )
+                                      })
+                                  }
+                              </SelectField>
+                            </Col>
+                            <Col xs={6}>
+                              <TextField id='billingCode' ref='billingCode' floatingLabelText='Billing Code' fullWidth={true}
+                                  className={cx( { 'two-field-row': true } )}/>
+                            </Col>
+                          </Row>
 
-                            <SelectField id='location' floatingLabelText='Region' value={this.state.location} onChange={this.handlesRegionChange}
-                                floatingLabelStyle={{ left: '0px' }} className={cx( { 'two-field-row': true } )}>
-                                {
-                                    menuItems.map((item, index) => {
-                                        return (
-                                            <MenuItem key={index} value={item.value} primaryText={item.text}/>
-                                        )
-                                    })
-                                }
-                            </SelectField>
-
-                            <TextField id='billingCode' ref='billingCode' floatingLabelText='Billing Code' fullWidth={true}
-                                className={cx( { 'two-field-row': true } )}/>
-
+                          <Row style={{marginLeft:10, marginRight:10}}>
                             <TextField id='accessKeyId' ref='accessKeyId' value={this.state.accessKeyId} floatingLabelText='Access Key ID' fullWidth={true}/>
-
+                          </Row>
+                          <Row style={{marginLeft:10, marginRight:10}}>
                             {
                                 isGlobalAdmin || isGroupAdmin
                                 ?
@@ -202,7 +214,7 @@ class CreateDeployment extends Component {
                                         <TextField id='secretAccessKey' ref='secretAccessKey' value={secretAccessKey.substring(0, 255)} multiLine={true} rows={4}
                                             maxLength={255} floatingLabelStyle={{ left: '0px' }} floatingLabelText='Secret Access Key' fullWidth={true}/>
                                     :
-                                        <TextField id='secretAccessKey' ref='secretAccessKey' multiLine={true} rows={4}
+                                        <TextField id='secretAccessKey' ref='secretAccessKey' multiLine={true} rows={1} rowsMax={4}
                                             maxLength={255} floatingLabelStyle={{ left: '0px' }} floatingLabelText='Secret Access Key' fullWidth={true}/>
                                 :
                                     secretAccessKey
@@ -210,10 +222,11 @@ class CreateDeployment extends Component {
                                             <TextField id='secretAccessKey' ref='secretAccessKey' value={secretAccessKey.replace(/./g, '*')} multiLine={true} rows={4}
                                                 maxLength={255} floatingLabelStyle={{ left: '0px' }} floatingLabelText='Secret Access Key' fullWidth={true}/>
                                         :
-                                            <TextField id='secretAccessKey' ref='secretAccessKey' multiLine={true} rows={4}
+                                            <TextField id='secretAccessKey' ref='secretAccessKey' multiLine={true} rows={1} rowsMax={4}
                                                 maxLength={255} floatingLabelStyle={{ left: '0px' }} floatingLabelText='Secret Access Key' fullWidth={true}/>
                             }
 
+                          </Row>
                             <CardHeader title='Advanced' titleStyle={{ fontSize: '13px', paddingRight: 0 }} actAsExpander={true} showExpandableButton={true}/>
 
                             <CardText expandable={true}>
@@ -262,7 +275,7 @@ class CreateDeployment extends Component {
                           <h4 style={{ paddingTop: '30px', paddingLeft: 10}}>Tags</h4>
                         </Row>
                             <Col xs={12} style={{ minHeight: '200' }}>
-                              <Row>
+                              <Row style={{marginBottom: 20}}>
                                   <Col xs={4}>
                                       {
                                           _tags.map((tag, index) => {
@@ -294,6 +307,47 @@ class CreateDeployment extends Component {
                                       }
                                   </Col>
                               </Row>
+                              {
+                                this.state.showAddTag
+                                ?
+                                  <div>
+                                  <Card style={{border: '1px solid lightgray'}}>
+                                    <Row style={{marginTop: 10}}>
+                                      <Col xs={4} style={{textAlign:'left', paddingLeft:15}}>
+                                        <h4 >New Tag</h4>
+                                      </Col>
+                                      <Col xs={8}>
+                                          <RaisedButton label="Add" style={{marginRight:10, float: 'right'}}
+                                            onClick={() => {
+                                                var newTag = {
+                                                  key: this.state.newKey,
+                                                  defaultValue: this.state.newValue,
+                                                  _id: Date.now().toString()
+                                                }
+                                                console.log('new tag', newTag)
+                                              _tags.push(newTag)
+                                                this.setState({showAddTag: !this.state.showAddTag, newKey: '', newValue: '', tags: _tags})
+                                              }}/>
+                                          <RaisedButton label="Cancel" style={{marginRight:10, float: 'right'}} onClick={() => {
+                                              this.setState({showAddTag: !this.state.showAddTag})
+                                            }}/>
+                                      </Col>
+                                    </Row>
+                                  <Row style={{marginLeft: 10, marginRight: 10}}>
+                                    <Col xs={4}>
+                                      <TextField id='key' onChange={this.handlesNewKeyChange} floatingLabelText='Key' style={{marginRight: 10, marginLeft: 10}} fullWidth={true}/>
+                                    </Col>
+                                    <Col xs={8}>
+                                      <TextField id='defaultValue' onChange={this.handlesNewValueChange} floatingLabelText='Value' style={{marginRight: 10, marginLeft: 10}} fullWidth={true}/>
+                                    </Col>
+                                  </Row>
+                                </Card>
+                              </div>
+
+                                :
+                                <RaisedButton label="Add Tag" onClick={() => this.setState({showAddTag: !this.state.showAddTag})} style={{marginBottom:120}}/>
+                              }
+
                             </Col>
                         </Col>
                 </Row>
@@ -320,6 +374,16 @@ class CreateDeployment extends Component {
         })
     }
 
+    handlesNewKeyChange = (event) => {
+        this.setState({
+            newKey: event.target.value
+        })
+    }
+    handlesNewValueChange = (event) => {
+        this.setState({
+            newValue: event.target.value
+        })
+    }
     handlesRegionChange = (event, index, value) => {
         this.setState({
             location: value
@@ -330,7 +394,6 @@ class CreateDeployment extends Component {
     }
 
     handlesDeployClick = event => {
-
         event.preventDefault()
 
         const { mutate, landscapes, tags, params, refetch } = this.props
@@ -343,6 +406,7 @@ class CreateDeployment extends Component {
             cloudFormationParameters: {},
             tags: {}
         }
+        console.log("this.state.tags", this.state.tags)
       this.setState({loading: true})
         // map all fields to deploymentToCreate
         for (let key in this.refs) {
@@ -352,11 +416,18 @@ class CreateDeployment extends Component {
             else if (key.indexOf('_t') === 0) {
                 _id = key.replace('_t', '')
                 currentTag = tags.find(ac => { return ac._id === _id })
+                if(!currentTag){
+                  currentTag = this.state.tags.find(ac => { return ac._id === _id })
+                }
+                console.log('currentTag', currentTag)
                 deploymentToCreate.tags[_id] = {}
                 deploymentToCreate.tags[_id].Key = currentTag.key
                 deploymentToCreate.tags[_id].Value = this.refs[key].getValue()
                 if(currentTag.isRequired && this.refs[key].getValue() === ''){
                   return this.setState({errorMessage: true, message:'Please fill in all required tags.', loading: false})
+                }
+                if(!currentTag.isRequired && this.refs[key].getValue() === ''){
+                  delete deploymentToCreate.tags[_id]
                 }
             } else if (key === 'rejectUnauthorizedSsl') {
                 deploymentToCreate[key] = this.refs[key].isToggled()

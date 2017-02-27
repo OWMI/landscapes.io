@@ -6,18 +6,17 @@ import { Row, Col } from 'react-flexbox-grid'
 import axios from 'axios'
 
 import { Checkbox, RaisedButton, Dialog} from 'material-ui'
-import {GridList, GridTile} from 'material-ui/GridList'
+import { GridList, GridTile} from 'material-ui/GridList'
 import Subheader from 'material-ui/Subheader'
-import StarBorder from 'material-ui/svg-icons/toggle/star-border'
 import Snackbar from 'material-ui/Snackbar'
 
-import {Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table'
-import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/Card'
-import {Tabs, Tab} from 'material-ui/Tabs'
+import { Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table'
+import { Card, CardActions, CardHeader, CardMedia, CardTitle, CardText } from 'material-ui/Card'
+import { Tabs, Tab } from 'material-ui/Tabs'
 import TextField from 'material-ui/TextField'
 
 import Slider from 'material-ui/Slider'
-import {RadioButtonGroup, RadioButton} from 'material-ui/RadioButton'
+import { RadioButtonGroup, RadioButton } from 'material-ui/RadioButton'
 import getMuiTheme from 'material-ui/styles/getMuiTheme'
 import FlatButton from 'material-ui/FlatButton'
 import AvatarCropper from "react-avatar-cropper"
@@ -144,86 +143,80 @@ class EditUser extends Component {
               autoHideDuration={3000}
               onRequestClose={this.handleRequestClose}
             />
-            <Col xs={6} lg={9} className={cx( { 'create-landscape': true } )}>
+          <Col xs={12} lg={12} className={cx( { 'create-landscape': false } )}>
 
             <Row middle='xs'>
                 <Col xs={4} style={{ textAlign: 'left' }}>
                     <h4><strong>Edit User:</strong> {this.state.firstName} {this.state.lastName}</h4>
                 </Col>
                 <Col xs={5}>
+
+                </Col>
+                <Col xs={3}>
+                  <Row style={{width:'100%', minWidth: '500px'}}>
+                    <RaisedButton label='Delete' onTouchTap={() => { this.setState({ showDeleteDialog: !showDeleteDialog }) }}
+                        style={{ float: 'right', margin: '30px 0px' }}
+                        labelStyle={{ fontSize: '11px' }}/>
+                      <Dialog title='Delete User'  modal={false} open={showDeleteDialog}
+                            onRequestClose={() => { this.setState({ showDeleteDialog: !showDeleteDialog }) }}
+                            actions={[
+                                <FlatButton label='Cancel' primary={true} onTouchTap={() => { this.setState({ showDeleteDialog: !showDeleteDialog }) }}/>,
+                                <FlatButton label='Delete' primary={true} onTouchTap={this.handlesDeleteUserClick.bind(this, currentUser)}/>
+                            ]}>
+                            Are you sure you want to delete {this.state.firstName} {this.state.lastName}?
+                        </Dialog>
                     <RaisedButton label='Save' onClick={this.handlesCreateClick}
                         style={{ float: 'right', margin: '30px 0px' }}
                         labelStyle={{ fontSize: '11px' }}/>
-                </Col>
-                <Col xs={3}>
-                  <RaisedButton label='Delete' onTouchTap={() => { this.setState({ showDeleteDialog: !showDeleteDialog }) }}
-                      style={{ float: 'right', margin: '30px 0px' }}
-                      labelStyle={{ fontSize: '11px' }}/>
-                    <Dialog title='Delete User' modal={false} open={showDeleteDialog}
-                          onRequestClose={() => { this.setState({ showDeleteDialog: !showDeleteDialog }) }}
-                          actions={[
-                              <FlatButton label='Cancel' primary={true} onTouchTap={() => { this.setState({ showDeleteDialog: !showDeleteDialog }) }}/>,
-                              <FlatButton label='Delete' primary={true} onTouchTap={this.handlesDeleteUserClick.bind(this, currentUser)}/>
-                          ]}>
-                          Are you sure you want to delete {this.state.firstName} {this.state.lastName}?
-                      </Dialog>
-
+                      <RaisedButton label='Cancel' primary={true} onClick={() => {
+                          const {router} = this.context
+                          router.push(`/users/${params.id}`)
+                      }}
+                          style={{ float: 'right', margin: '30px 0px' }}
+                          labelStyle={{ fontSize: '11px' }}/>
+                  </Row>
                 </Col>
             </Row>
-                  <Card style={{padding:20}}>
-                  <GridList
-                    cols={1}
-                    cellHeight='auto'
-                    style={styles.gridList}
-                  >
-                      <GridTile
-                        key='username'
-                      >
-
+              <Card style={{padding:20, width:'100%'}}>
+                  <Row style={{width:'100%'}}>
+                  <Col style={{width:'50%'}}>
+                    <Row>
                       <TextField style={{width:'100%'}} id="username" floatingLabelText="Username" value={this.state.username} onChange={this.handlesOnUsernameChange}  placeholder='Username' />
-                      </GridTile>
-                      <GridTile
-                        key='email'
-                      >
+                    </Row>
+                    <Row>
                       <TextField style={{width:'100%'}} id="email" floatingLabelText="Email" value={this.state.email} onChange={this.handlesOnEmailChange}  placeholder='user@email.com' />
-                      </GridTile>
-                      <GridTile
-                        key='firstName'
-                      >
-                      <TextField style={{width:'100%'}} id="firstName" floatingLabelText="First Name" value={this.state.firstName} onChange={this.handlesOnFirstNameChange} placeholder='First Name' />
-                      </GridTile>
-                      <GridTile
-                        key='lastName'
-                      >
-                      <TextField style={{width:'100%'}} id="lastName" floatingLabelText="Last Name" value={this.state.lastName} onChange={this.handlesOnLastNameChange} placeholder='Last Name' />
-                      </GridTile>
-                      <GridTile
-                        key='newPassword'
-                      >
+                    </Row>
+                    <Row>
+                      <Col xs={6}>
+                        <TextField style={{width:'100%'}} id="firstName" floatingLabelText="First Name" value={this.state.firstName} onChange={this.handlesOnFirstNameChange} placeholder='First Name' />
+                      </Col>
+                      <Col xs={6}>
+                        <TextField style={{width:'100%'}} id="lastName" floatingLabelText="Last Name" value={this.state.lastName} onChange={this.handlesOnLastNameChange} placeholder='Last Name' />
+                      </Col>
+                    </Row>
+                    <Row>
                       <TextField style={{width:'100%'}} id="newPassword" floatingLabelText="New Password" value={this.state.newPassword} onChange={this.handlesOnNewPasswordChange} />
-                      </GridTile>
-                      <GridTile
-                        key='verifyPassword'
-                      >
+                    </Row>
+                    <Row>
                       <TextField style={{width:'100%'}} id="verifyPassword" floatingLabelText="Verify Password" value={this.state.verifyPassword} onChange={this.handlesOnVerifyPasswordChange}/>
-                      </GridTile>
-                      <GridTile
-                        key='role'
-                      >
-                      <RadioButtonGroup style={{width:'100%', margin: 5}} name="role" id="role" valueSelected={this.state.role} onChange={this.handleRoleChange}>
+                    </Row>
+                    <Row style={{marginTop:5}}>
+                      <RadioButtonGroup style={{ maxWidth:250}} name="role" id="role" valueSelected={this.state.role} onChange={this.handleRoleChange}>
                             <RadioButton
                               value="admin"
                               label="Global Admin"
+                              labelStyle={{textAlign: 'left', marginLeft:2, width:100}}
                             />
                             <RadioButton
                               value="user"
                               label="User"
+                              labelStyle={{textAlign: 'left', marginLeft:2}}
                             />
                           </RadioButtonGroup>
-                    </GridTile>
-                      <GridTile
-                        key='image'
-                      >
+                    </Row>
+                  </Col>
+                  <Col style={{width:'50%'}}>
+                    <Row style={{justifyContent:'space-around'}}>
                       <Dropzone id='imageUri' onDrop={this.handlesImageUpload} multiple={false} accept='image/*'
                         style={{ marginLeft: '10px', width: '180px', padding: '15px 0px' }}>
                         <div className="avatar-photo">
@@ -231,7 +224,7 @@ class EditUser extends Component {
                             <span>Click to Choose Image</span>
                             <i className="fa fa-camera"></i>
                           </div>
-                          <img src={this.state.croppedImg || this.state.imageUri || defaultUserImage} />
+                          <img src={this.state.croppedImg || currentUser.imageUri || defaultUserImage} />
                         </div>
                         {
                           this.state.cropperOpen &&
@@ -245,8 +238,9 @@ class EditUser extends Component {
                           />
                         }
                         </Dropzone>
-                    </GridTile>
-                  </GridList>
+                    </Row>
+                  </Col>
+                  </Row>
                   </Card>
 
                 </Col>

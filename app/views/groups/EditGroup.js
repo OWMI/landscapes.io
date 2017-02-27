@@ -394,9 +394,6 @@ class EditGroup extends Component {
                       <Row><h4><strong>Edit Group</strong></h4></Row>
                     </Col>
                     <Col xs={8}>
-                      <RaisedButton label="Save" labelStyle={{ fontSize: '11px' }} style={{ float: 'right', marginBottom: '30px' }} onClick={this.handlesCreateClick}/>
-                    </Col>
-                    <Col xs={1}>
                       {
                         this.state.isAdmin || isGroupAdmin
                           ?
@@ -416,7 +413,10 @@ class EditGroup extends Component {
                       }
                     </Col>
                     <Col xs={1}>
-                      <RaisedButton label="Cancel" labelStyle={{ fontSize: '11px' }} style={{ float: 'right', marginBottom: '30px' }} onClick={() => {
+                      <RaisedButton label="Save" labelStyle={{ fontSize: '11px' }} style={{ float: 'right', marginBottom: '30px' }} onClick={this.handlesCreateClick}/>
+                    </Col>
+                    <Col xs={1}>
+                      <RaisedButton label="Cancel" primary={true} labelStyle={{ fontSize: '11px' }} style={{ float: 'right', marginBottom: '30px' }} onClick={() => {
                           const {router} = this.context
                           router.push(`/groups/${params.id}`)
                       }}/>
@@ -428,33 +428,35 @@ class EditGroup extends Component {
                     <Row center='xs' middle='xs' className={cx({'animatedViews': animated, 'view-enter': viewEntersAnim})}>
                     <Snackbar open={this.state.successOpen} message="Group successfully updated." autoHideDuration={3000} onRequestClose={this.handleRequestClose}/>
                     <Snackbar open={this.state.failOpen} message="Error updating group" autoHideDuration={3000} onRequestClose={this.handleRequestClose}/>
-                          <div style={styles.root}>
 
-                              <Col >
+                              <Row style={{width: '100%'}}>
+                                <Col style={{paddingLeft: 10, paddingRight: 10,  width:'65%'}}>
                                   <Row key='name'>
-
                                       <TextField style={{
-                                          width: 450
+                                        width: '100%'
                                       }} id="username" floatingLabelText="Name" value={this.state.name} onChange={this.handlesOnNameChange} placeholder='Username'/>
                                   </Row>
                                   <Row key='description'>
                                       <TextField id="description" style={{
-                                          width: 450
-                                      }} multiLine={true} rows={2} rowsMax={4} floatingLabelText="Description" onChange={this.handlesOnDescriptionChange} value={this.state.description} hintText='Description'/>
+                                        width: '100%',
+                                        textAlign: 'left'
+                                      }} multiLine={true} rows={1} rowsMax={4} floatingLabelText="Description" onChange={this.handlesOnDescriptionChange} value={this.state.description} hintText='Description'/>
                                   </Row>
-                                  <Row key='permissions'>
+                                  <Row key='permissions' >
                                       <div style={{
                                           borderBottom: '1px solid #E9E9E9',
-                                          width: 450
+                                          width: '100%'
                                       }}>
                                           <Checkbox style={{
-                                              margin: 5
+                                              marginBottom: 15,
+                                              marginTop:15,
+                                              width:200
                                           }} label="Check All Permissions" onCheck={this.handlesOnCheck} checked={this.state.checkAll}/>
                                       </div>
                                       <br/>
                                       </Row>
 
-                                      <Row>
+                                      <Row style={{paddingTop:15, paddingBottom:15}} >
                                         <Col>
                                           <Checkbox label="Create" checked={this.state.permissionC} onCheck={this.handlesPermissionClickC}/>
                                           <Checkbox label="Read" disabled={true} checked={true}/>
@@ -463,7 +465,9 @@ class EditGroup extends Component {
                                           <Checkbox label="Execute" checked={this.state.permissionX} onCheck={this.handlesPermissionClickX}/>
                                         </Col>
                                       </Row>
-                                  <Row key='image'>
+                                </Col>
+                                <Col style={{paddingLeft: 20, paddingRight: 140, width:'35%'}}>
+                                  <Row key='image' style={{justifyContent:'space-around' }}>
                                       <Dropzone id='imageUri' onDrop={this.handlesImageUpload} multiple={false} accept='image/*' style={{
                                           marginLeft: '10px',
                                           width: '180px',
@@ -483,8 +487,8 @@ class EditGroup extends Component {
                                           }
                                       </Dropzone>
                                   </Row>
-                              </Col>
-                          </div>
+                                </Col>
+                              </Row>
                     <Tabs tabItemContainerStyle={{backgroundColor: materialTheme.palette.primary3Color}}>
                         <Tab label="Landscapes" key="3">
                           <div style={styles.wrapper}>
@@ -536,7 +540,7 @@ class EditGroup extends Component {
                                         <TableHeaderColumn tooltip="Image"></TableHeaderColumn>
                                           <TableHeaderColumn tooltip="Name">Name</TableHeaderColumn>
                                         <TableHeaderColumn tooltip="Email">Email</TableHeaderColumn>
-                                        <TableHeaderColumn tooltip="Role">Admin?</TableHeaderColumn>
+                                        <TableHeaderColumn tooltip="Role">Admin</TableHeaderColumn>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody displayRowCheckbox={this.state.showCheckboxes} deselectOnClickaway={false} showRowHover={this.state.showRowHover} stripedRows={false}>
@@ -685,6 +689,9 @@ class EditGroup extends Component {
           selectedRows.push(index)
         })
       }
+      else if(selectedRows === 'none'){
+        selectedRows = []
+      }
         this.setState({selectedUserRows: selectedRows})
     }
 
@@ -695,6 +702,9 @@ class EditGroup extends Component {
           selectedRows.push(index)
         })
       }
+      else if(selectedRows === 'none'){
+        selectedRows = []
+      }
         this.setState({selectedLandscapeRows: selectedRows})
     }
     handleOnRowSelectionAccounts = selectedRows => {
@@ -703,6 +713,9 @@ class EditGroup extends Component {
           this.state.stateAccounts.forEach((account, index) => {
             selectedRows.push(index)
           })
+        }
+        else if(selectedRows === 'none'){
+          selectedRows = []
         }
         this.setState({selectedAccountRows: selectedRows})
     }

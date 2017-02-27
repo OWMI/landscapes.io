@@ -17,15 +17,15 @@ owasp.config(config.shared.owasp)
 /**
  * A Validation function for local strategy properties
  */
-let validateLocalStrategyProperty = function (property) {
+let validateLocalStrategyProperty = function(property) {
     return ((this.provider !== 'local' && !this.updated) || property.length)
 }
 
 /**
  * A Validation function for local strategy email
  */
-let validateLocalStrategyEmail = function (email) {
-    return ((this.provider !== 'local' && !this.updated) || validator.isEmail(email, { require_tld: false }))
+let validateLocalStrategyEmail = function(email) {
+    return ((this.provider !== 'local' && !this.updated) || validator.isEmail(email, {require_tld: false}))
 }
 
 let roleNames = ['user', 'admin']
@@ -38,19 +38,16 @@ let UserSchema = new Schema({
         type: String,
         trim: true,
         default: '',
-        validate: [
-            validateLocalStrategyProperty,
-            'Please fill in your first name'
-        ]
+        validate: [validateLocalStrategyProperty, 'Please fill in your first name']
     },
     lastName: {
         type: String,
         trim: true,
         default: '',
-        validate: [
-            validateLocalStrategyProperty,
-            'Please fill in your last name'
-        ]
+        validate: [validateLocalStrategyProperty, 'Please fill in your last name']
+    },
+    profile: {
+        type: String
     },
     imageUri: {
         type: String
@@ -62,7 +59,7 @@ let UserSchema = new Schema({
     email: {
         type: String,
         index: {
-            // unique: true,
+            unique: false, /// HACK: make false when oauth is fixed
             sparse: true // For this to work on a previously indexed field, the index must be dropped & the application restarted.
         },
         lowercase: true,
@@ -105,10 +102,12 @@ let UserSchema = new Schema({
         'default': []
     },
     groups: {
-        type: [{
-            type: Schema.ObjectId,
-            ref: 'Group'
-        }]
+        type: [
+            {
+                type: Schema.ObjectId,
+                ref: 'Group'
+            }
+        ]
     },
     updated: {
         type: Date
@@ -126,14 +125,14 @@ let UserSchema = new Schema({
     }
 })
 
-UserSchema.roleNames = () => {
+UserSchema.roleNames = function() {
     return roleNames
 }
 
 /**
  * Hook a pre save method to hash the password
  */
-UserSchema.pre('save', function (next) {
+UserSchema.pre('save', function(next) {
     if (this.password && this.isModified('password')) {
         this.salt = crypto.randomBytes(16).toString('base64')
         this.password = this.hashPassword(this.password)
@@ -144,7 +143,7 @@ UserSchema.pre('save', function (next) {
 /**
  * Hook a pre validate method to test the local password
  */
-UserSchema.pre('validate', function (next) {
+UserSchema.pre('validate', function(next) {
     if (this.provider === 'local' && this.password && this.isModified('password')) {
         let result = owasp.test(this.password)
         if (result.errors.length) {
@@ -158,7 +157,7 @@ UserSchema.pre('validate', function (next) {
 /**
  * Create instance method for hashing a password
  */
-UserSchema.methods.hashPassword = function (password) {
+UserSchema.methods.hashPassword = function(password) {
     if (this.salt && password) {
         return crypto.pbkdf2Sync(password, new Buffer(this.salt, 'base64'), 10000, 64, 'SHA1').toString('base64')
     } else {
@@ -169,14 +168,14 @@ UserSchema.methods.hashPassword = function (password) {
 /**
  * Create instance method for authenticating user
  */
-UserSchema.methods.authenticate = function (password) {
+UserSchema.methods.authenticate = function(password) {
     return this.password === this.hashPassword(password)
 }
 
 /**
  * Find possible not used username
  */
-UserSchema.statics.findUniqueUsername = function (username, suffix, callback) {
+UserSchema.statics.findUniqueUsername = function(username, suffix, callback) {
     let _this = this
     let possibleUsername = username.toLowerCase() + (suffix || '')
 
@@ -200,7 +199,7 @@ UserSchema.statics.findUniqueUsername = function (username, suffix, callback) {
  * Returns a promise that resolves with the generated passphrase, or rejects with an error if something goes wrong.
  * NOTE: Passphrases are only tested against the required owasp strength tests, and not the optional tests.
  */
-UserSchema.statics.generateRandomPassphrase = function () {
+UserSchema.statics.generateRandomPassphrase = function() {
     return new Promise((resolve, reject) => {
         let password = ''
         let repeatingCharacters = new RegExp('(.)\\1{2,}', 'g')

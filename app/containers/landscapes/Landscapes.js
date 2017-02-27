@@ -10,6 +10,13 @@ import * as authorizationActions from '../../redux/modules/authorization'
 /* -----------------------------------------
   GraphQL - Apollo client
  ------------------------------------------*/
+ const editUserMutation = gql `
+     mutation updateUser($user: UserInput!) {
+         updateUser(user: $user) {
+             username
+         }
+     }
+ `
  const UserQuery = gql `
      query getUsers {
          users {
@@ -17,6 +24,7 @@ import * as authorizationActions from '../../redux/modules/authorization'
              username,
              email,
              firstName,
+             profile,
              lastName,
              password,
              role
@@ -117,6 +125,7 @@ const UsersWithQuery = graphql(UserQuery, {
         loading
     })
 })
+const UserMutation = graphql(editUserMutation, {name: 'EditUserWithMutation'})
 
 const GroupsWithQuery = graphql(GroupQuery, {
     props: ({ data: { loading, groups, refetch } }) => ({
@@ -130,6 +139,7 @@ const composedRequest = compose(
     LandscapesWithQuery,
     UsersWithQuery,
     GroupsWithQuery,
+    UserMutation,
     graphql(DeploymentStatusMutation, { name: 'deploymentStatus' }),
     graphql(DeploymentByLandscapeIdMutation, { name: 'deploymentsByLandscapeId' })
 )(Landscapes)

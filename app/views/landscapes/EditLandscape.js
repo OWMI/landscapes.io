@@ -7,7 +7,7 @@ import Dropzone from 'react-dropzone'
 import { IoCube, IoClose } from 'react-icons/lib/io'
 import shallowCompare from 'react-addons-shallow-compare'
 import UploadIcon from 'material-ui/svg-icons/file/file-upload'
-import { Checkbox, Dialog, FlatButton, Paper, RaisedButton, TextField } from 'material-ui'
+import { Checkbox, Card, Dialog, FlatButton, Paper, RaisedButton, TextField } from 'material-ui'
 import AvatarCropper from "react-avatar-cropper";
 
 import { Loader } from '../../components'
@@ -35,56 +35,6 @@ class EditLandscape extends Component {
         enterLandscapes()
     }
 
-    componentWillReceiveProps(nextProps) {
-        const { activeLandscape, loading, landscapes, documentTypes, params } = nextProps
-
-        let currentLandscape = activeLandscape
-
-          var _landscapes = landscapes || []
-
-          // for direct request
-          // if (activeLandscape && activeLandscape._id !== params.id)
-          currentLandscape = _landscapes.find(ls => { return ls._id === params.id })
-
-          if(currentLandscape && currentLandscape.documents){
-            this.setState({addedDocuments: currentLandscape.documents});
-          }
-
-          // set disableDelete value
-          if (currentLandscape && currentLandscape.status){
-            forIn(currentLandscape.status, (value, key) => {
-                if (value > 0)
-                    disableDelete = true
-            })
-          }
-
-          this.setState({currentLandscape})
-    }
-
-    componentWillMount(){
-      const { activeLandscape, loading, landscapes, params } = this.props
-      let currentLandscape = activeLandscape
-
-      var _landscapes = landscapes || []
-      // for direct request
-      // if (activeLandscape && activeLandscape._id !== params.id)
-      currentLandscape = _landscapes.find(ls => { return ls._id === params.id })
-
-      if(currentLandscape && currentLandscape.documents){
-        this.setState({addedDocuments: currentLandscape.documents});
-      }
-
-      // set disableDelete value
-      if (currentLandscape && currentLandscape.status){
-        forIn(currentLandscape.status, (value, key) => {
-            if (value > 0)
-                disableDelete = true
-        })
-      }
-
-      this.setState({ currentLandscape })
-    }
-
     shouldComponentUpdate(nextProps, nextState) {
         return shallowCompare(this, nextProps, nextState)
     }
@@ -100,7 +50,7 @@ class EditLandscape extends Component {
         const { activeLandscape, currentUser, loading, landscapes, documentTypes, params } = this.props
         let disableDelete = false,
             self = this,
-            currentLandscape = activeLandscape
+            currentLandscape = activeLandscape || {}
 
         var _landscapes = landscapes || []
         // for direct request
@@ -127,12 +77,18 @@ class EditLandscape extends Component {
 
         return (
             <Row center='xs' middle='xs' className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
-                <Col xs={8} lg={10} className={cx( { 'edit-landscape': true } )}>
+                <Col xs={12} lg={12} className={cx( { 'edit-landscape': true } )}>
                     <Row middle='xs'>
                         <Col xs={4} style={{ textAlign: 'left' }}>
                             <h4>Edit Landscape</h4>
                         </Col>
                         <Col xs={8}>
+                          <RaisedButton label='Cancel' primary={true} onClick={() => {
+                              const {router} = this.context
+                              router.push(`/landscape/${params.id}`)
+                          }}
+                            style={{ float: 'right', margin: '30px 0px' }}
+                            labelStyle={{ fontSize: '11px' }}/>
                             <RaisedButton label='Save' onTouchTap={this.handlesUpdateClick}
                                 style={{ float: 'right', margin: '30px 0px' }}
                                 labelStyle={{ fontSize: '11px' }}/>
@@ -148,37 +104,61 @@ class EditLandscape extends Component {
                                     <FlatButton label='Cancel' primary={true} onTouchTap={() => { this.setState({ showDeleteDialog: !showDeleteDialog }) }}/>,
                                     <FlatButton label='Delete' primary={true} onTouchTap={this.handlesDeleteLandscapeClick.bind(this, currentLandscape)}/>
                                 ]}>
-                                Are you sure you want to delete {currentLandscape.name}?
+                                Are you sure you want to delete?
                             </Dialog>
 
                         </Col>
                     </Row>
                     <Paper zDepth={1} rounded={false}>
+                      <Col>
+                        <Row style={{minHeight:350, width: '100%'}}>
+                          <Col style={{paddingLeft: 10, paddingRight: 10,  width:'65%'}}>
+                            <TextField id='name' ref='name' defaultValue={currentLandscape.name || ''} maxLength={64} floatingLabelText='Name' className={cx( { 'two-field-row': true } )}/>
+                            <TextField id='version' ref='version' defaultValue={currentLandscape.version} floatingLabelText='Version' className={cx( { 'two-field-row': true } )}/>
 
-                        <TextField id='name' ref='name' defaultValue={currentLandscape.name} maxLength={64} floatingLabelText='Name' className={cx( { 'two-field-row': true } )}/>
-                        <TextField id='version' ref='version' defaultValue={currentLandscape.version} floatingLabelText='Version' className={cx( { 'two-field-row': true } )}/>
-
-                        <TextField id='description' ref='description' defaultValue={currentLandscape.description} multiLine={true} rows={4}
-                            floatingLabelText='Description' fullWidth={true} floatingLabelStyle={{ left: '0px' }} textareaStyle={{ width: '95%' }}/>
-
-                          <Row center='xs' middle='xs' style={{marginBottom: 10}}>
-                              <Col xs={2}>
-                                <h4 style={{float:'left', marginLeft: 10}}>Documents</h4>
-                              </Col>
-                              <Col xs={10}>
-                                {
-                                  this.state.showAddDocument
-                                    ?
-                                    <RaisedButton label="Cancel" style={{float: 'right', marginRight:10}} onClick={() => this.setState({showAddDocument: false})} />
-                                    :
-                                    <RaisedButton label="Add" style={{float: 'right', marginRight:10}} onClick={() => this.setState({showAddDocument: true})} />
-                                }
-                              </Col>
-                          </Row>
+                            <TextField id='description' ref='description' defaultValue={currentLandscape.description} multiLine={true} rows={1} rowsMax={4}
+                                floatingLabelText='Description' fullWidth={true} floatingLabelStyle={{ left: '0px' }} textareaStyle={{ width: '95%' }}/>
+                          </Col>
+                          <Col style={{paddingLeft: 20, paddingRight: 200, width:'35%'}}>
+                            <Row style={{justifyContent: 'space-around'}}>
+                              <Dropzone id='imageUri' onDrop={this.handlesImageUpload} multiple={false} accept='image/*' style={{
+                                  marginLeft: '10px',
+                                  maxWidth: '100px',
+                                  padding: '15px 0px'
+                              }}>
+                                  <div className="avatar-photo">
+                                      <div className="avatar-edit">
+                                          <span>Click to Choose Image</span>
+                                          <i className="fa fa-camera" style={{fontSize: 30}}></i>
+                                      </div>
+                                      <img src={this.state.croppedImg || currentLandscape.imageUri}/>
+                                  </div>
+                                  {this.state.cropperOpen &&
+                                    <AvatarCropper onRequestHide={this.handleRequestHide} cropperOpen={this.state.cropperOpen} onCrop={this.handleCrop} image={this.state.img} width={400} height={400}/>
+                                  }
+                              </Dropzone>
+                            </Row>
+                          </Col>
+                        </Row>
+                        <Row center='xs' middle='xs' style={{marginBottom: 10}}>
+                            <Col xs={2}>
+                              <h4 style={{float:'left', marginLeft: 10}}>Documents</h4>
+                            </Col>
+                            <Col xs={10}>
+                              {
+                                this.state.showAddDocument
+                                  ?
+                                  <RaisedButton label="Cancel" style={{float: 'right', marginRight:10}} onClick={() => this.setState({showAddDocument: false})} />
+                                  :
+                                  <RaisedButton label="Add" style={{float: 'right', marginRight:15}} onClick={() => this.setState({showAddDocument: true})} />
+                              }
+                            </Col>
+                        </Row>
+                        <Row style={{width: '100%', marginBottom:25}}>
                           {
                             this.state.addedDocuments.length > 0
                             ?
-                            <Row style={{width:'95%', marginLeft: 10, borderBottom: '1px solid #DCDCDC', borderTop:  '1px solid #DCDCDC'}}>
+                            <Row style={{width:'100%', marginLeft: 10, borderBottom: '1px solid #DCDCDC', borderTop:  '1px solid #DCDCDC'}}>
                                 <Table selectable={false} fixedHeader={true}>
                                   <TableHeader adjustForCheckbox={false} displaySelectAll={false}>
                                     <TableRow>
@@ -215,12 +195,13 @@ class EditLandscape extends Component {
                             :
                             <div></div>
                           }
-
+                        </Row>
+                        <Row style={{width:'100%', marginBottom:25}}>
                           {
                             this.state.showAddDocument
                               ?
-                              <div>
-                                <Row  middle='xs' style={{marginBottom: 10, marginLeft: 10}}>
+                              <Card style={{width:'100%', marginBottom: 10, marginLeft: 10,}}>
+                                <Row  middle='xs' style={{marginBottom: 10, marginLeft: 10, width:'100%'}}>
                                   <h4>New Document</h4>
                                 </Row>
                                 <Row middle='xs' style={{marginBottom: 10, marginLeft: 10}}>
@@ -251,47 +232,34 @@ class EditLandscape extends Component {
                                 <Row middle='xs' style={{marginBottom: 20, marginLeft: 10}}>
                                     <RaisedButton label="Save" onClick={this.handlesCreateDocumentClick}/>
                                 </Row>
-                              </div>
+                              </Card>
                               :
                               <div></div>
                           }
+                        </Row>
+                        <Row>
+                          <Dropzone id='cloudFormationTemplate' onDrop={this.handlesTemplateClick} multiple={false}
+                              style={{ border: '', width: '100%', height: 150, padding: '15px 5px' }}
+                              activeStyle={{ border: 'limegreen 1px solid', width: '100%', padding: '15px 0px' }}>
+                              {
+                                  this.state.cloudFormationTemplate || currentLandscape.cloudFormationTemplate
+                                  ?
+                                      <textarea rows={100} style={{ background: '#f9f9f9', fontFamily: 'monospace', width: '100%' }}>{ this.state.cloudFormationTemplate || currentLandscape.cloudFormationTemplate }</textarea>
+                                  :
+                                      <Row center='xs' middle='xs'>
+                                          <Col style={{ marginTop: 25 }}>
+                                              <IoCube size={42}/>
+                                          </Col>
+                                          <div style={{ fontSize: '12px', width: '100%', margin: '10px 0px' }}> Drop
+                                              <strong style={{ fontSize: '12px' }}> JSON </strong> or
+                                              <strong style={{ fontSize: '12px' }}> YAML </strong> file
+                                          </div>
+                                      </Row>
+                              }
+                          </Dropzone>
+                        </Row>
+                      </Col>
 
-                        <Dropzone id='imageUri' onDrop={this.handlesImageUpload} multiple={false} accept='image/*' style={{
-                            marginLeft: '10px',
-                            maxWidth: '100px',
-                            padding: '15px 0px'
-                        }}>
-                            <div className="avatar-photo">
-                                <div className="avatar-edit">
-                                    <span>Click to Choose Image</span>
-                                    <i className="fa fa-camera" style={{fontSize: 30}}></i>
-                                </div>
-                                <img src={this.state.croppedImg || currentLandscape.imageUri}/>
-                            </div>
-                            {this.state.cropperOpen &&
-                              <AvatarCropper onRequestHide={this.handleRequestHide} cropperOpen={this.state.cropperOpen} onCrop={this.handleCrop} image={this.state.img} width={400} height={400}/>
-                            }
-                        </Dropzone>
-
-                        <Dropzone id='cloudFormationTemplate' onDrop={this.handlesTemplateClick} multiple={false}
-                            style={{ border: 'black 1px solid', width: '100%', height: 150, padding: '15px 0px' }}
-                            activeStyle={{ border: 'limegreen 1px solid', width: '100%', padding: '15px 0px' }}>
-                            {
-                                this.state.cloudFormationTemplate || currentLandscape.cloudFormationTemplate
-                                ?
-                                    <textarea rows={100} style={{ background: '#f9f9f9', fontFamily: 'monospace', width: '100%' }}>{ this.state.cloudFormationTemplate || currentLandscape.cloudFormationTemplate }</textarea>
-                                :
-                                    <Row center='xs' middle='xs'>
-                                        <Col style={{ marginTop: 25 }}>
-                                            <IoCube size={42}/>
-                                        </Col>
-                                        <div style={{ fontSize: '12px', width: '100%', margin: '10px 0px' }}> Drop
-                                            <strong style={{ fontSize: '12px' }}> JSON </strong> or
-                                            <strong style={{ fontSize: '12px' }}> YAML </strong> file
-                                        </div>
-                                    </Row>
-                            }
-                        </Dropzone>
                     </Paper>
                 </Col>
             </Row>
@@ -429,8 +397,9 @@ class EditLandscape extends Component {
 
         this.setState({ showDeleteDialog: !showDeleteDialog })
 
+        console.log('landscape', landscape)
         deleteLandscape({
-            variables: { landscape }
+            variables: { landscapeToDelete }
         }).then(({ data }) => {
             router.push({ pathname: `/landscapes` })
             return refetch()

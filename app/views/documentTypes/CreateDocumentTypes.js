@@ -50,19 +50,35 @@ class CreateDocumentTypes extends Component {
                                 <h4>New Document Type</h4>
                             </Col>
                             <Col xs={7}>
-                                <RaisedButton label='Save' onClick={this.handlesCreateClick}
+                              <Row>
+                                <Col xs={4}>
+
+                                </Col>
+                                <Col xs={4}>
+                                  <RaisedButton label='Save' onClick={this.handlesCreateClick}
+                                      style={{ float: 'right', margin: '30px 0px' }}
+                                      labelStyle={{ fontSize: '11px' }}/>
+                                </Col>
+                                <Col xs={4}>
+                                  <RaisedButton label='Cancel' primary={true} onClick={() => {
+                                      const {router} = this.context
+                                      router.push(`/documentTypes`)
+                                  }}
                                     style={{ float: 'right', margin: '30px 0px' }}
                                     labelStyle={{ fontSize: '11px' }}/>
+                                </Col>
+                              </Row>
                             </Col>
                         </Row>
                         <Card>
                             <TextField id='name' ref='name' floatingLabelText='Name' style={{width:'95%'}}
                               onChange={this.handlesNameChange}/>
 
-                            <Row style={{marginLeft: 10, marginRight: 10 }}>
-                              <TextField id='Description' ref='Description' multiLine={true} rows={4} floatingLabelText='Description' fullWidth={true}
+                            <Row style={{marginLeft: 10, marginRight: 10, marginBottom:10 }}>
+                              <TextField id='Description' ref='Description' multiLine={true} rows={1} rowsMax={4} floatingLabelText='Description' fullWidth={true}
                                 floatingLabelStyle={{ left: '0px'}} onChange={this.handlesDescriptionChange}/>
                             </Row>
+                            <div style={{height:10}}></div>
                         </Card>
                     </Col>
                 </Row>

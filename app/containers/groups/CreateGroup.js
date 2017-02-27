@@ -15,7 +15,7 @@ import { auth } from '../../services/auth'
  const createGroupMutation = gql `
      mutation createGroup($group: GroupInput!) {
          createGroup(group: $group) {
-             name
+             _id
          }
      }
  `
