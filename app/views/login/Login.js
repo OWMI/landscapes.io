@@ -46,8 +46,8 @@ class Login extends Component {
                           :
                           <p></p>
                         }
-                        <TextField id='username' ref='username' floatingLabelText='Username' fullWidth={true}/>
-                        <TextField id='password' ref='password' floatingLabelText='Password' fullWidth={true} type='password'/>
+                        <TextField id='username' ref='username' floatingLabelText='Username' fullWidth={true} autoFocus/>
+                        <TextField id='password' ref='password' floatingLabelText='Password' fullWidth={true} type='password' autoFocus/>
 
                         {/* <Checkbox label='Remember Me' onCheck={this.handlesPasswordCookie}
                             style={{ margin: '20px 0px' }} labelStyle={{ fontFamily: 'Nunito, sans-serif', width: 'none' }}/> */}

@@ -27,7 +27,8 @@ class EditLandscape extends Component {
             "Wiki", "Other", "Test", "Link"
         ],
         addedDocuments: [],
-        showAddDocument: false
+        showAddDocument: false,
+        cloudFormationTemplate: null
     }
 
     componentDidMount() {
@@ -242,19 +243,27 @@ class EditLandscape extends Component {
                               style={{ border: '', width: '100%', height: 150, padding: '15px 5px' }}
                               activeStyle={{ border: 'limegreen 1px solid', width: '100%', padding: '15px 0px' }}>
                               {
-                                  this.state.cloudFormationTemplate || currentLandscape.cloudFormationTemplate
+                                  this.state.cloudFormationTemplate
                                   ?
-                                      <textarea rows={100} style={{ background: '#f9f9f9', fontFamily: 'monospace', width: '100%' }}>{ this.state.cloudFormationTemplate || currentLandscape.cloudFormationTemplate }</textarea>
+                                      <textarea rows={100} style={{ background: '#f9f9f9', fontFamily: 'monospace', width: '100%' }}>{this.state.cloudFormationTemplate}</textarea>
                                   :
-                                      <Row center='xs' middle='xs'>
-                                          <Col style={{ marginTop: 25 }}>
-                                              <IoCube size={42}/>
-                                          </Col>
-                                          <div style={{ fontSize: '12px', width: '100%', margin: '10px 0px' }}> Drop
-                                              <strong style={{ fontSize: '12px' }}> JSON </strong> or
-                                              <strong style={{ fontSize: '12px' }}> YAML </strong> file
-                                          </div>
-                                      </Row>
+                                  <div>
+                                    {
+                                       currentLandscape.cloudFormationTemplate
+                                       ?
+                                          <textarea rows={100} style={{ background: '#f9f9f9', fontFamily: 'monospace', width: '100%' }}>{currentLandscape.cloudFormationTemplate}</textarea>
+                                       :
+                                           <Row center='xs' middle='xs'>
+                                               <Col style={{ marginTop: 25 }}>
+                                                   <IoCube size={42}/>
+                                               </Col>
+                                               <div style={{ fontSize: '12px', width: '100%', margin: '10px 0px' }}> Drop
+                                                   <strong style={{ fontSize: '12px' }}> JSON </strong> or
+                                                   <strong style={{ fontSize: '12px' }}> YAML </strong> file
+                                               </div>
+                                           </Row>
+                                    }
+                                  </div>
                               }
                           </Dropzone>
                         </Row>
@@ -331,18 +340,27 @@ class EditLandscape extends Component {
       array.push(data);
       this.setState({addedDocuments: array, showAddDocument: false, docType:'', docName: '', docUrl: ''})
     }
-    handlesTemplateClick = (acceptedFiles, rejectedFiles) => {
 
+    handlesTemplateClick = (acceptedFiles, rejectedFiles) => {
+        console.log('this.state.cloudFormationTemplate', this.state.cloudFormationTemplate)
         let self = this
         let data = new FormData()
 
         data.append('file', acceptedFiles[0])
-
+        console.log(acceptedFiles[0])
+        console.log(data)
+        this.setState({
+            cloudFormationTemplate: null
+        })
         axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/upload/template`, data).then(res => {
             self.setState({
                 cloudFormationTemplate: JSON.stringify(res.data, null, 4)
             })
+
+            console.log('res.data', res.data)
+            console.log('this.state.cloudFormationTemplate', this.state.cloudFormationTemplate)
         }).catch(err => {
+          console.log('err', err)
         })
     }
 

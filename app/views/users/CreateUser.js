@@ -14,6 +14,7 @@ import {Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow,
 import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/Card';
 import {Tabs, Tab} from 'material-ui/Tabs';
 import TextField from 'material-ui/TextField';
+import {debounce} from 'lodash';
 
 import Slider from 'material-ui/Slider';
 import {RadioButtonGroup, RadioButton} from 'material-ui/RadioButton';
@@ -61,7 +62,9 @@ class CreateUser extends Component {
         showCheckboxes: true,
         height:'300',
         errorMessage: false,
-        message: ''
+        message: '',
+        passwordErrors: [],
+        passwordSubmitError: false
     }
 
     componentDidMount() {
@@ -139,10 +142,17 @@ class CreateUser extends Component {
                               {
                                 this.state.errorMessage
                                 ?
-                                <p style={{color: 'red'}}>{this.state.message}</p>
+                                <p style={{color: 'red', textAlign: 'center'}}>{this.state.message}</p>
                                 :
                                 null
                               }
+                              {
+
+                                this.state.passwordErrors.map((error, index) =>{
+                                  return <p  key={index} style={{color: 'red', textAlign: 'center'}}>{error}</p>
+                                })
+                              }
+
                                 <Row style={{width:'100%'}}>
                                 <Col style={{width:'50%'}}>
                                   <Row>
@@ -160,10 +170,10 @@ class CreateUser extends Component {
                                     </Col>
                                   </Row>
                                   <Row>
-                                    <TextField style={{width:'100%'}} id="newPassword" floatingLabelText="New Password" value={this.state.newPassword} onChange={this.handlesOnNewPasswordChange} />
+                                    <TextField style={{width:'100%'}} id="newPassword" floatingLabelText="New Password" type="password" onChange={this.handlesOnNewPasswordChange} />
                                   </Row>
                                   <Row>
-                                    <TextField style={{width:'100%'}} id="verifyPassword" floatingLabelText="Verify Password" value={this.state.verifyPassword} onChange={this.handlesOnVerifyPasswordChange}/>
+                                    <TextField style={{width:'100%'}} id="verifyPassword" floatingLabelText="Verify Password" type="password" onChange={this.handlesOnVerifyPasswordChange}/>
                                   </Row>
                                   <Row style={{marginTop: 5}}>
                                     <RadioButtonGroup style={{ maxWidth:250}} name="role" id="role" valueSelected={this.state.role} onChange={this.handleRoleChange}>
@@ -281,11 +291,11 @@ class CreateUser extends Component {
             this.setState({ email: event.target.value })
         }
 
-        handlesOnNewPasswordChange = event => {
-            event.preventDefault()
-            // should add some validator before setState in real use cases
-            this.setState({ newPassword: event.target.value })
-        }
+        handlesOnNewPasswordChange = debounce(((event, value) => {
+            this.setState({newPassword: value});
+            this.checkPasswordStrength(value);
+          }), 1000)
+
         handlesOnVerifyPasswordChange = event => {
             event.preventDefault()
             // should add some validator before setState in real use cases
@@ -307,15 +317,57 @@ class CreateUser extends Component {
             this.setState({ lastName: event.target.value })
         }
 
+            jsonEqual = (a,b) => {
+              return JSON.stringify(a) === JSON.stringify(b);
+            }
+
+            checkPasswordStrength = (password) => {
+                let passwordErrors = [];
+                if (!password.match(".*[A-Z].*")){
+                  passwordErrors.push('Password must contain an uppercase letter.')
+                };
+                if (!password.match(".*[a-z].*")){
+                  passwordErrors.push('Password must contain a lowercase letter.')
+                };
+                if (!password.match(".*\\d.*")){
+                  passwordErrors.push('Password must contain a number.')
+                };
+                if (!password.match(".*[~!.......].*")){
+                  passwordErrors.push('Password must contain a special character.')
+                };
+                if (password.split('').length < 10){
+                  passwordErrors.push('Password must contain atleast 10 characters.')
+                };
+
+                if(passwordErrors.length){
+                  this.setState({passwordErrors});
+                  return false;
+                }
+                else{
+                  this.setState({passwordErrors});
+                  if(this.state.verifyPasswordError && this.state.verifyPassword){
+                    this.setState({buttonDisabled: false})
+                  }
+                  else if(!this.state.verifyPasswordError && this.state.verifyPassword){
+                    this.setState({buttonDisabled: true})
+                  }
+                  return true;
+                }
+              }
+
         handlesCreateClick = event => {
           const { router } = this.context
-          const { refetchUsers } = this.props
-
-          this.setState({errorMessage: false})
-          if(this.state.newPassword !== this.state.verifyPassword ){
-            this.setState({errorMessage: true, message:'Password and Verify Password must match.'})
+          const { refetchUsers, users } = this.props
+          var usernameFound = false
+          var emailFound = false
+          console.log('this.state.verifyPassword', this.state.verifyPassword)
+          console.log('this.state.newPassword', this.state.newPassword)
+          if(users && this.state.username){
+            usernameFound = users.find(user => { return user.username === this.state.username})
+            emailFound = users.find(user => { return user.email === this.state.email})
           }
-          else if(!this.state.username){
+          this.setState({errorMessage: false})
+          if(!this.state.username){
             this.setState({errorMessage: true, message:'Must provide username.'})
           }
           else if(!this.state.email){
@@ -323,6 +375,18 @@ class CreateUser extends Component {
           }
           else if(!this.state.firstName || !this.state.lastName){
             this.setState({errorMessage: true, message:'Must provide first and last name.'})
+          }
+          else if(usernameFound){
+            this.setState({errorMessage: true, message:'Username is already taken.'})
+          }
+          else if(emailFound){
+            this.setState({errorMessage: true, message:'Email is already taken.'})
+          }
+          else if(!this.state.email.match("[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$")){
+            this.setState({errorMessage: true, message:'Email must be in correct format.'})
+          }
+          else if(!this.jsonEqual(this.state.verifyPassword, this.state.newPassword)){
+            this.setState({errorMessage: true, message:'New password and verify password fields do not match.'})
           }
           else{
             event.preventDefault()
