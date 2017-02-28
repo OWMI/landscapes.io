@@ -47,6 +47,9 @@ module.exports = () => {
 
                         let _user = {
                             username: profile.id,
+                            firstName: profile.name.givenName,
+                            lastName: profile.name.familyName,
+                            displayName: profile.displayName,
                             provider: 'google',
                             providerData: profile
                         }
