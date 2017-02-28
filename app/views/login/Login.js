@@ -97,7 +97,7 @@ class Login extends Component {
                                     }
                                 </div>
                             :
-                                <a href="http://localhost:8080/api/auth/google">
+                                <a href={`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/auth/google`}>
                                     <RaisedButton label='Login with Google OAuth' fullWidth={false} type='primary'
                                         labelStyle={{ fontFamily: 'Nunito, sans-serif', textTransform: 'none' }}/>
                                 </a>
