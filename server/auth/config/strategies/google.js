@@ -12,8 +12,8 @@ module.exports = () => {
 
     let _clientID = 'CLIENT_ID',
         _clientSecret = 'CLIENT_SECRET',
-        _callbackURL = process.env.production
-                        ? `${process.env.PROTOCOL}://${process.env.SERVER_IP}:${process.env.SERVER_PORT}/api/auth/${config.authStrategy}/callback`
+        _callbackURL = process.env.NODE_ENV === 'production'
+                        ? `${process.env.PROTOCOL}://${process.env.PUBLIC_IP}/api/auth/${config.authStrategy}/callback`
                         : `http://localhost:8080/api/auth/${config.authStrategy}/callback`
 
     if (config.oauthCreds[config.authStrategy]) {
