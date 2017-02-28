@@ -89,8 +89,8 @@ let validateSecureMode = config => {
     let certificate = fs.existsSync(path.resolve(config.secure.certificate))
 
     if (!privateKey || !certificate) {
-        winston.info('+ Error: Certificate file or key file is missing, falling back to non-SSL mode')
-        winston.info('  To create them, simply run the following from your shell: sh ./scripts/generate-ssl-certs.sh')
+        // winston.info('+ Error: Certificate file or key file is missing, falling back to non-SSL mode')
+        // winston.info('  To create them, simply run the following from your shell: sh ./scripts/generate-ssl-certs.sh')
         config.secure.ssl = false
     }
 }
