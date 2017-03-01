@@ -10,12 +10,12 @@ import Card from 'material-ui/Card'
 import shallowCompare from 'react-addons-shallow-compare'
 import UploadIcon from 'material-ui/svg-icons/file/file-upload'
 import { Paper, RaisedButton, TextField } from 'material-ui'
-import Snackbar from 'material-ui/Snackbar';
-import AvatarCropper from "react-avatar-cropper";
-import defaultLandscapeImage from '../../style/AWS.png';
-import MenuItem from 'material-ui/MenuItem';
-import SelectField from 'material-ui/SelectField';
-import {Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table';
+import Snackbar from 'material-ui/Snackbar'
+import AvatarCropper from "react-avatar-cropper"
+import defaultLandscapeImage from '../../style/AWS.png'
+import MenuItem from 'material-ui/MenuItem'
+import SelectField from 'material-ui/SelectField'
+import { Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table'
 import lodash from 'lodash'
 import { auth } from '../../services/auth'
 
@@ -31,9 +31,7 @@ class CreateLandscape extends Component {
         successOpen: false,
         failOpen: false,
         errorMessage: false,
-        addedDocuments: [
-
-        ],
+        addedDocuments: [],
         showAddDocument: false
     }
 
@@ -41,49 +39,65 @@ class CreateLandscape extends Component {
         const { enterLandscapes } = this.props
         enterLandscapes()
     }
+
     componentWillReceiveProps(nextProps) {
-      const { groupsByUser } = nextProps
-      let userGroups = [];
-      let isGroupAdmin = false;
-      if(auth.getUserInfo().isGroupAdmin){
-        isGroupAdmin = true;
-      }
-      if(auth.getUserInfo().groups){
-        userGroups = lodash.filter(auth.getUserInfo().groups, (group) =>{
-          return group.isAdmin === true
-        })
-      }
-      var index = null;
-      var userAdminGroups = [];
-      if(groupsByUser){
-        userGroups.forEach(group =>{
-           index = groupsByUser.map(function(o) { return o._id; }).indexOf(group.groupId);
-           userAdminGroups.push(groupsByUser[index])
-        })
-      }
-      this.setState({userAdminGroups, isGroupAdmin})
+        const { groupsByUser } = nextProps
+        let userGroups = []
+        let isGroupAdmin = false
+
+        if (auth.getUserInfo().isGroupAdmin) {
+            isGroupAdmin = true
+        }
+
+        if (auth.getUserInfo().groups) {
+            userGroups = lodash.filter(auth.getUserInfo().groups, (group) => {
+                return group.isAdmin === true
+            })
+        }
+
+        let index = null
+        let userAdminGroups = []
+
+        if (groupsByUser) {
+            userGroups.forEach(group => {
+                index = groupsByUser.map(function(o) {
+                    return o._id
+                }).indexOf(group.groupId)
+                userAdminGroups.push(groupsByUser[index])
+            })
+        }
+
+        this.setState({ userAdminGroups, isGroupAdmin })
     }
-    componentWillMount() {
-      const { groupsByUser } = this.props
-      let userGroups = [];
-      let isGroupAdmin = false;
-      if(auth.getUserInfo().isGroupAdmin){
-        isGroupAdmin = true;
-      }
-      if(auth.getUserInfo().groups){
-        userGroups = lodash.filter(auth.getUserInfo().groups, (group) =>{
-          return group.isAdmin === true
-        })
-      }
-      var index = null;
-      var userAdminGroups = [];
-      if(groupsByUser){
-        userGroups.forEach(group =>{
-           index = groupsByUser.map(function(o) { return o._id; }).indexOf(group.groupId);
-           userAdminGroups.push(groupsByUser[index])
-        })
-      }
-      this.setState({userAdminGroups, isGroupAdmin})
+
+    componentWillMount(){
+        const { groupsByUser } = this.props
+        let userGroups = []
+        let isGroupAdmin = false
+
+        if (auth.getUserInfo().isGroupAdmin) {
+            isGroupAdmin = true
+        }
+
+        if (auth.getUserInfo().groups) {
+            userGroups = lodash.filter(auth.getUserInfo().groups, group => {
+                return group.isAdmin === true
+            })
+        }
+
+        let index = null
+        let userAdminGroups = []
+
+        if (groupsByUser) {
+            userGroups.forEach(group => {
+                index = groupsByUser.map(o => {
+                    return o._id
+                }).indexOf(group.groupId)
+                userAdminGroups.push(groupsByUser[index])
+            })
+        }
+
+        this.setState({ userAdminGroups, isGroupAdmin })
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -224,8 +238,8 @@ class CreateLandscape extends Component {
                                             <TableRowColumn>{document.url}</TableRowColumn>
                                             <TableRowColumn>
                                               <FlatButton onTouchTap={() =>{
-                                                  var documentArray = this.state.addedDocuments;
-                                                  documentArray.splice(index, 1);
+                                                  let documentArray = this.state.addedDocuments
+                                                  documentArray.splice(index, 1)
                                                   this.setState({addedDocuments: [...documentArray]
                                                   })
                                                 }} hoverColor={'none'}
@@ -315,26 +329,26 @@ class CreateLandscape extends Component {
           cropperOpen: false,
           img: null,
           croppedImg: defaultImage
-        };
+        }
       }
       handleFileChange = (dataURI) => {
         this.setState({
           img: dataURI,
           croppedImg: this.state.croppedImg,
           cropperOpen: true
-        });
+        })
       }
       handleCrop = (dataURI) => {
         this.setState({
           cropperOpen: false,
           img: null,
           croppedImg: dataURI
-        });
+        })
       }
       handleRequestHide = () =>{
         this.setState({
           cropperOpen: false
-        });
+        })
       }
 
     handlesImageUpload = (acceptedFiles, rejectedFiles) => {
@@ -383,12 +397,12 @@ class CreateLandscape extends Component {
 
 
     handlesCreateDocumentClick = () => {
-      var data = {
+      let data = {
         url: this.state.docUrl,
         name: this.state.docName,
         type: this.state.docType
       }
-      var array = this.state.addedDocuments;
+      let array = this.state.addedDocuments
       array.push(data)
       this.setState({
           addedDocuments: array,
@@ -410,8 +424,7 @@ class CreateLandscape extends Component {
             self.setState({
                 cloudFormationTemplate: JSON.stringify(res.data, null, 4)
             })
-        }).catch(err => {
-        })
+        }).catch(err => console.error(err))
     }
 
     handlesCreateClick = event => {
@@ -431,7 +444,7 @@ class CreateLandscape extends Component {
         if(!landscapeToCreate.version){
           landscapeToCreate.version = '1.0'
         }
-        landscapeToCreate.documents = this.state.addedDocuments;
+        landscapeToCreate.documents = this.state.addedDocuments
         if(!landscapeToCreate.name){
           this.setState({errorMessage: true, message: 'Name is required.'})
           return
@@ -449,11 +462,11 @@ class CreateLandscape extends Component {
             variables: { landscape: landscapeToCreate }
          }).then(({ data }) => {
            if (selectedRows) {
-             for (var i = 0; i < selectedRows.length; i++) {
+             for (let i = 0; i < selectedRows.length; i++) {
                if(!userAdminGroups[selectedRows[i]].accounts){
                  userAdminGroups[selectedRows[i]].accounts = []
                }
-                 userAdminGroups[selectedRows[i]].landscapes.push(data.createLandscape._id);
+                 userAdminGroups[selectedRows[i]].landscapes.push(data.createLandscape._id)
                  delete userAdminGroups[selectedRows[i]].__typename
                  userAdminGroups[selectedRows[i]].users.forEach(user =>{
                    delete user.__typename
