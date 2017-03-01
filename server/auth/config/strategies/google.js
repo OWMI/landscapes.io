@@ -11,7 +11,10 @@ let passport        = require('passport'),
 module.exports = () => {
 
     let _clientID = 'CLIENT_ID',
-        _clientSecret = 'CLIENT_SECRET'
+        _clientSecret = 'CLIENT_SECRET',
+        _callbackURL = process.env.NODE_ENV === 'production'
+                        ? `${process.env.PROTOCOL}://${process.env.PUBLIC_IP}/api/auth/${config.authStrategy}/callback`
+                        : `http://localhost:8080/api/auth/${config.authStrategy}/callback`
 
     if (config.oauthCreds[config.authStrategy]) {
         _clientID = config.oauthCreds[config.authStrategy].clientID
@@ -22,9 +25,8 @@ module.exports = () => {
         new GoogleStrategy({
             clientID: _clientID,
             clientSecret: _clientSecret,
-            callbackURL: `http://localhost:${config.port}/api/auth/${config.authStrategy}/callback`
+            callbackURL: _callbackURL
         }, (accessToken, refreshToken, profile, done) => {
-            // console.log('logged into google!')
 
             return new Promise((resolve, reject) => {
                 Configuration.find().exec((err, configuration) => {
@@ -45,6 +47,9 @@ module.exports = () => {
 
                         let _user = {
                             username: profile.id,
+                            firstName: profile.name.givenName,
+                            lastName: profile.name.familyName,
+                            displayName: profile.displayName,
                             provider: 'google',
                             providerData: profile
                         }

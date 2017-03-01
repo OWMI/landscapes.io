@@ -49,7 +49,6 @@ class Login extends Component {
         const { animated, viewEntersAnim, showError, stepIndex } = this.state
         const { configuration, loading } = this.props
 
-
         function renderLoginPane() {
             return (
                 <Paper zDepth={1} rounded={false}>
@@ -89,7 +88,7 @@ class Login extends Component {
                                         ?
                                             // <RaisedButton label='Login with Google OAuth' fullWidth={false} type='primary'
                                             //     onClick={self.handleOAuthLogin} labelStyle={{ fontFamily: 'Nunito, sans-serif', textTransform: 'none' }}/>
-                                            <a href="http://localhost:8080/api/auth/google">
+                                            <a href={`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/auth/${AUTH_STRATEGY}`}>
                                                 <RaisedButton label='Login with Google OAuth' fullWidth={false} type='primary'
                                                     labelStyle={{ fontFamily: 'Nunito, sans-serif', textTransform: 'none' }}/>
                                             </a>
@@ -98,7 +97,7 @@ class Login extends Component {
                                     }
                                 </div>
                             :
-                                <a href="http://localhost:8080/api/auth/google">
+                                <a href={`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/auth/${AUTH_STRATEGY}`}>
                                     <RaisedButton label='Login with Google OAuth' fullWidth={false} type='primary'
                                         labelStyle={{ fontFamily: 'Nunito, sans-serif', textTransform: 'none' }}/>
                                 </a>

@@ -11,31 +11,39 @@ class RightNav extends Component {
     state = {
         userMenu: false
     }
+
     componentWillMount() {
-      const { userIsAuthenticated } = this.props
-      this.setState({userIsAuthenticated})
+        const { userIsAuthenticated } = this.props
+        this.setState({ userIsAuthenticated })
     }
+
     componentWillReceiveProps(nextProps) {
+
       const isAuthenticated = (auth.getToken())
           ? true
           : false
+
       const { userIsAuthenticated } = nextProps
-      this.setState({userIsAuthenticated: isAuthenticated})
-      this.setState({userMenu: false})
-      this.setState({settings: false})
-      if(auth.getUserInfo() && auth.getUserInfo().role === 'admin'){
-        this.setState({userIsAdmin: true})
+
+      this.setState({
+          userIsAuthenticated: isAuthenticated,
+          userMenu: false,
+          settings: false
+      })
+
+      if (auth.getUserInfo() && auth.getUserInfo().role === 'admin') {
+          this.setState({userIsAdmin: true})
+      } else {
+          this.setState({userIsAdmin: false})
       }
-      else{
-        this.setState({userIsAdmin: false})
+
+      if (auth.getUserInfo() && auth.getUserInfo().isGroupAdmin) {
+          this.setState({isGroupAdmin: true})
+      } else {
+          this.setState({isGroupAdmin: false})
       }
-      if(auth.getUserInfo() && auth.getUserInfo().isGroupAdmin){
-        this.setState({isGroupAdmin: true})
-      }
-      else{
-        this.setState({isGroupAdmin: false})
-      }
-    }
+  }
+
 
     render() {
         const { rightLinks, onRightNavButtonClick, user, userIsAuthenticated } = this.props
@@ -142,7 +150,7 @@ class RightNav extends Component {
                     ?
                     <div>
                     <FlatButton onTouchTap={this.handleUsernameClick}
-                        label={user.username} hoverColor={'none'}
+                        label={auth.getUserInfo().displayName} hoverColor={'none'}
                         labelStyle={{ fontSize: '12px', fontWeight: 'bold' }}
                         icon={<IoPerson/>}
                     />

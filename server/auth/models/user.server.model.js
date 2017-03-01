@@ -95,7 +95,7 @@ let UserSchema = new Schema({
     role: {
         type: String,
         enum: roleNames,
-        default: 'admin'
+        default: 'user'
     },
     permissions: {
         type: Array,
