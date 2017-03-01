@@ -1,10 +1,11 @@
 
 import cx from 'classnames'
-import { IoEdit, IoLoadC, IoIosPlusEmpty, IoSearch } from 'react-icons/lib/io'
+import { IoEdit, IoLoadC, IoIosPlusEmpty, IoSearch, IoArrowUpC, IoArrowDownC, IoAndroidMenu, IoIosGridView } from 'react-icons/lib/io'
 import getMuiTheme from 'material-ui/styles/getMuiTheme'
 import { Row, Col } from 'react-flexbox-grid'
 import { Paper , CardHeader, CardActions, CardText, FlatButton, TextField } from 'material-ui'
 import { Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table'
+import { sortBy, orderBy } from 'lodash'
 
 import { Loader } from '../../components'
 import React, { Component, PropTypes } from 'react'
@@ -21,7 +22,8 @@ class Groups extends Component {
         animated: true,
         viewEntersAnim: true,
         showCards: true,
-        items: []
+        items: [],
+        order: 'asc'
     }
 
     componentDidMount() {
@@ -113,33 +115,39 @@ class Groups extends Component {
         return (
             <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
               <Row style={{justifyContent: 'space-between', width: '100%'}}>
-                <a onClick={this.handlesCreateGroupClick}>
-                    <p style={{ fontSize: '20px', cursor: 'pointer' }}><IoIosPlusEmpty size={30}/>Add Group</p>
-                </a>
+                <a  onClick={(event) => {
+                  event.preventDefault()
+                  var currentUser = this.state.currentUser
+                  var userProfile = {}
+                  if(currentUser.profile){
+                    userProfile = JSON.parse(currentUser.profile);
+                  }
+                  else{
+                    userProfile['preferences'] = {}
+                  }
+                  userProfile['preferences']['showGroupCards'] = !showCards;
+                  currentUser.profile = JSON.stringify(userProfile)
+                  delete currentUser.__typename
+                  this.props.EditUserWithMutation({
+                      variables: { user: currentUser }
+                   }).then(() =>{
+                     this.setState({showCards: !showCards})
+                   })
+                }}
+                  style={{ fontSize: '20px', cursor: 'pointer' }}>Groups
+                  {
+                    showCards
+                    ?
+                    <IoAndroidMenu style={{fontSize: 30, marginLeft:8}} />
+                    :
+                    <IoIosGridView style={{fontSize: 30, marginLeft:8}}/>
+                  }</a>
                 <div className="filter-list" style={{marginTop:-5, marginBottom:10}}>
                   <IoSearch style={{fontSize:20, color:'gray', marginRight:5}} /><TextField type="text" hintText="Search" onChange={this.filterList}/>
                 </div>
-                <FlatButton
-                  onClick={(event) => {
-                    event.preventDefault()
-                    var currentUser = this.state.currentUser
-                    var userProfile = {}
-                    if(currentUser.profile){
-                      userProfile = JSON.parse(currentUser.profile);
-                    }
-                    else{
-                      userProfile['preferences'] = {}
-                    }
-                    userProfile['preferences']['showGroupCards'] = !showCards;
-                    currentUser.profile = JSON.stringify(userProfile)
-                    delete currentUser.__typename
-                    this.props.EditUserWithMutation({
-                        variables: { user: currentUser }
-                     }).then(() =>{
-                       this.setState({showCards: !showCards})
-                     })
-                  }}
-                  label={showCards ? 'Show List View' : 'Show Card View'}></FlatButton>
+                <a onClick={this.handlesCreateGroupClick}>
+                    <p style={{ fontSize: '20px', cursor: 'pointer' }}><IoIosPlusEmpty size={30}/>Add Group</p>
+                </a>
               </Row>
 
                 {
@@ -177,16 +185,43 @@ class Groups extends Component {
                   :
                   <Table fixedHeader={true} fixedFooter={false} selectable={true}
                           multiSelectable={false}>
-                    <TableHeader
-                      displaySelectAll={false}
-                      adjustForCheckbox={false}
-                      enableSelectAll={false}>
-                      <TableRow>
-                        <TableHeaderColumn></TableHeaderColumn>
-                        <TableHeaderColumn>Name</TableHeaderColumn>
-                        <TableHeaderColumn>Description</TableHeaderColumn>
-                      </TableRow>
-                    </TableHeader>
+                          <TableHeader
+                            displaySelectAll={false}
+                            adjustForCheckbox={false}
+                            enableSelectAll={false}
+                            style={{borderTop: '1px solid lightgray'}}>
+                            <TableRow>
+                              <TableHeaderColumn></TableHeaderColumn>
+                              <TableHeaderColumn><Row onClick={this.handlesClickName}>Name
+                              {
+                                this.state.orderBy === 'name' && this.state.order === 'asc'
+                                ?
+                                <IoArrowUpC />
+                                :
+                                <Col>{
+                                    this.state.orderBy === 'name'
+                                    ?
+                                    <IoArrowDownC />
+                                    :
+                                    null
+                                  }</Col>}</Row>
+                              </TableHeaderColumn>
+                              <TableHeaderColumn><Row onClick={this.handlesClickDescription}>Description
+                              {
+                                this.state.orderBy === 'description' && this.state.order === 'asc'
+                                ?
+                                <IoArrowUpC />
+                                :
+                                <Col>{
+                                    this.state.orderBy === 'description'
+                                    ?
+                                    <IoArrowDownC />
+                                    :
+                                    null
+                                  }</Col>}</Row>
+                              </TableHeaderColumn>
+                            </TableRow>
+                          </TableHeader>
                     <TableBody  displayRowCheckbox={false}
                                 deselectOnClickaway={false}
                                 showRowHover={true}
@@ -230,6 +265,28 @@ class Groups extends Component {
 
     handlesListChange = event => {
 
+    }
+    handlesClickName = event => {
+        this.setState({orderBy: 'name'});
+        if(this.state.order === 'asc'){
+          this.setState({order: 'desc'})
+        }
+        else{
+          this.setState({order: 'asc'})
+        }
+        var sorted = orderBy(this.state.items, 'name', this.state.order);
+        this.setState({items: sorted})
+    }
+    handlesClickDescription= event => {
+        this.setState({orderBy: 'description'});
+        if(this.state.order === 'asc'){
+          this.setState({order: 'desc'})
+        }
+        else{
+          this.setState({order: 'asc'})
+        }
+        var sorted = orderBy(this.state.items, 'description', this.state.order);
+        this.setState({items: sorted})
     }
 
     handlesEditGroupClick = (group, event) => {

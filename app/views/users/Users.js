@@ -1,9 +1,10 @@
 import cx from 'classnames'
-import { IoEdit, IoLoadC, IoIosPlusEmpty, IoSearch } from 'react-icons/lib/io'
+import { IoEdit, IoLoadC, IoIosPlusEmpty, IoSearch, IoArrowUpC, IoArrowDownC, IoIosGridView, IoAndroidMenu} from 'react-icons/lib/io'
 import getMuiTheme from 'material-ui/styles/getMuiTheme'
 import { Loader } from '../../components'
 import { Row, Col } from 'react-flexbox-grid'
-import { Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table'
+import { Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn, TableSortLabel } from 'material-ui/Table'
+import { sortBy, orderBy } from 'lodash'
 
 import React, { Component, PropTypes } from 'react'
 import shallowCompare from 'react-addons-shallow-compare'
@@ -21,7 +22,9 @@ class Users extends Component {
         animated: true,
         viewEntersAnim: true,
         showCards: true,
-        items: []
+        items: [],
+        orderBy: '',
+        order: 'asc'
 
     }
 
@@ -65,7 +68,7 @@ class Users extends Component {
         }
         let currentUser = users.find(usr => {
             return user._id === usr._id})
-            
+
         if(currentUser && currentUser.profile){
           var userProfile = JSON.parse(currentUser.profile);
 
@@ -86,7 +89,7 @@ class Users extends Component {
     }
 
     render() {
-        const { animated, viewEntersAnim, showCards } = this.state
+        const { animated, viewEntersAnim, showCards, order, orderBy } = this.state
         const { loading } = this.props
 
 
@@ -101,33 +104,39 @@ class Users extends Component {
         return (
             <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
               <Row style={{justifyContent: 'space-between', width: '100%'}}>
-                <a onClick={this.handlesCreateGroupClick}>
-                    <p style={{ fontSize: '20px', cursor: 'pointer' }}><IoIosPlusEmpty size={30}/>Add User</p>
-                </a>
+                <a onClick={(event) => {
+                  event.preventDefault()
+                  var currentUser = this.state.currentUser
+                  var userProfile = {}
+                  if(currentUser.profile){
+                    userProfile = JSON.parse(currentUser.profile);
+                  }
+                  else{
+                    userProfile['preferences'] = {}
+                  }
+                  userProfile['preferences']['showUserCards'] = !showCards;
+                  currentUser.profile = JSON.stringify(userProfile)
+                  delete currentUser.__typename
+                  this.props.EditUserWithMutation({
+                      variables: { user: currentUser }
+                   }).then(() =>{
+                       this.setState({showCards: !showCards})
+                   })
+                }}
+                  style={{ fontSize: '20px', cursor: 'pointer' }}>Users
+                  {
+                    showCards
+                    ?
+                    <IoAndroidMenu style={{fontSize: 30, marginLeft:8}} />
+                    :
+                    <IoIosGridView style={{fontSize: 30, marginLeft:8}}/>
+                  }</a>
                 <div className="filter-list" style={{marginTop:-5, marginBottom:10}}>
                   <IoSearch style={{fontSize:20, color:'gray', marginRight:5}} /><TextField type="text" hintText="Search" onChange={this.filterList}/>
                 </div>
-                <FlatButton
-                  onClick={(event) => {
-                    event.preventDefault()
-                    var currentUser = this.state.currentUser
-                    var userProfile = {}
-                    if(currentUser.profile){
-                      userProfile = JSON.parse(currentUser.profile);
-                    }
-                    else{
-                      userProfile['preferences'] = {}
-                    }
-                    userProfile['preferences']['showUserCards'] = !showCards;
-                    currentUser.profile = JSON.stringify(userProfile)
-                    delete currentUser.__typename
-                    this.props.EditUserWithMutation({
-                        variables: { user: currentUser }
-                     }).then(() =>{
-                         this.setState({showCards: !showCards})
-                     })
-                  }}
-                  label={showCards ? 'Show List View' : 'Show Card View'}></FlatButton>
+                <a onClick={this.handlesCreateGroupClick}>
+                    <p style={{ fontSize: '20px', cursor: 'pointer' }}><IoIosPlusEmpty size={30}/>Add User</p>
+                </a>
               </Row>
               {
                 showCards
@@ -160,17 +169,70 @@ class Users extends Component {
                 </ul>
                 :
                 <Table fixedHeader={true} fixedFooter={false} selectable={true}
-                        multiSelectable={false}>
+                        multiSelectable={false} >
                   <TableHeader
                     displaySelectAll={false}
                     adjustForCheckbox={false}
-                    enableSelectAll={false}>
+                    enableSelectAll={false}
+                    style={{borderTop: '1px solid lightgray'}}>
                     <TableRow>
                       <TableHeaderColumn></TableHeaderColumn>
-                      <TableHeaderColumn>Name</TableHeaderColumn>
-                      <TableHeaderColumn>Username</TableHeaderColumn>
-                      <TableHeaderColumn>Email</TableHeaderColumn>
-                      <TableHeaderColumn>Role</TableHeaderColumn>
+                      <TableHeaderColumn><Row onClick={this.handlesClickName}>Name
+                      {
+                        this.state.orderBy === 'name' && this.state.order === 'asc'
+                        ?
+                        <IoArrowUpC />
+                        :
+                        <Col>{
+                            this.state.orderBy === 'name'
+                            ?
+                            <IoArrowDownC />
+                            :
+                            null
+                          }</Col>}</Row>
+                      </TableHeaderColumn>
+                      <TableHeaderColumn><Row onClick={this.handlesClickUsername}>Username
+                      {
+                        this.state.orderBy === 'username' && this.state.order === 'asc'
+                        ?
+                        <IoArrowUpC />
+                        :
+                        <Col>{
+                            this.state.orderBy === 'username'
+                            ?
+                            <IoArrowDownC />
+                            :
+                            null
+                          }</Col>}</Row>
+                      </TableHeaderColumn>
+                      <TableHeaderColumn><Row onClick={this.handlesClickEmail}>Email
+                      {
+                        this.state.orderBy === 'email' && this.state.order === 'asc'
+                        ?
+                        <IoArrowUpC />
+                        :
+                        <Col>{
+                            this.state.orderBy === 'email'
+                            ?
+                            <IoArrowDownC />
+                            :
+                            null
+                          }</Col>}</Row>
+                      </TableHeaderColumn>
+                      <TableHeaderColumn><Row onClick={this.handlesClickRole}>Role
+                      {
+                        this.state.orderBy === 'role' && this.state.order === 'asc'
+                        ?
+                        <IoArrowUpC />
+                        :
+                        <Col>{
+                            this.state.orderBy === 'role'
+                            ?
+                            <IoArrowDownC />
+                            :
+                            null
+                          }</Col>}</Row>
+                      </TableHeaderColumn>
                     </TableRow>
                   </TableHeader>
                   <TableBody  displayRowCheckbox={false}
@@ -212,6 +274,51 @@ class Users extends Component {
         const { router } = this.context
         router.push({ pathname: '/users/create' })
     }
+    handlesClickName = event => {
+        this.setState({orderBy: 'name'});
+        if(this.state.order === 'asc'){
+          this.setState({order: 'desc'})
+        }
+        else{
+          this.setState({order: 'asc'})
+        }
+        var sorted = orderBy(this.state.items, 'lastName', this.state.order);
+        this.setState({items: sorted})
+    }
+    handlesClickUsername = event => {
+        this.setState({orderBy: 'username'});
+        if(this.state.order === 'asc'){
+          this.setState({order: 'desc'})
+        }
+        else{
+          this.setState({order: 'asc'})
+        }
+        var sorted = orderBy(this.state.items, 'username', this.state.order);
+        this.setState({items: sorted})
+    }
+    handlesClickEmail = event => {
+        this.setState({orderBy: 'email'});
+        if(this.state.order === 'asc'){
+          this.setState({order: 'desc'})
+        }
+        else{
+          this.setState({order: 'asc'})
+        }
+        var sorted = orderBy(this.state.items, 'email', this.state.order);
+        this.setState({items: sorted})
+    }
+    handlesClickRole = event => {
+        this.setState({orderBy: 'role'});
+        if(this.state.order === 'asc'){
+          this.setState({order: 'desc'})
+        }
+        else{
+          this.setState({order: 'asc'})
+        }
+        var sorted = orderBy(this.state.items, 'role', this.state.order);
+        this.setState({items: sorted})
+    }
+
 
     handlesEditGroupClick = (user, event) => {
         const { router } = this.context

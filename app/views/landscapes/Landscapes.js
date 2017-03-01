@@ -4,9 +4,10 @@ import { compact, findIndex, isEqual } from 'lodash'
 import { Row, Col } from 'react-flexbox-grid'
 import React, { Component, PropTypes } from 'react'
 import shallowCompare from 'react-addons-shallow-compare'
-import { IoEdit, IoIosCloudUploadOutline, IoIosPlusEmpty, IoSearch } from 'react-icons/lib/io'
+import { IoEdit, IoIosCloudUploadOutline, IoIosPlusEmpty, IoSearch, IoArrowUpC, IoArrowDownC,  IoAndroidMenu, IoIosGridView  } from 'react-icons/lib/io'
 import { CardHeader, CardActions, CardText, FlatButton, Paper, RaisedButton, TextField } from 'material-ui'
 import { Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table'
+import { sortBy, orderBy } from 'lodash'
 
 import './landscapes.style.scss'
 import { Loader } from '../../components'
@@ -21,7 +22,8 @@ class Landscapes extends Component {
         viewEntersAnim: true,
         viewLandscapes: [],
         showCards: true,
-        items: []
+        items: [],
+        order: 'asc'
     }
 
     componentDidMount() {
@@ -222,6 +224,39 @@ class Landscapes extends Component {
         return (
             <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
               <Row style={{justifyContent: 'space-between', width: '100%'}}>
+                <a  onClick={(event) => {
+                  event.preventDefault()
+                  var currentViewUser = this.state.currentViewUser
+                  console.log('currentViewUser____', currentViewUser)
+
+                  var userProfile = {}
+                  if(currentViewUser.profile){
+                    userProfile = JSON.parse(currentViewUser.profile);
+                  }
+                  else{
+                    userProfile['preferences'] = {}
+                  }
+                  userProfile['preferences']['showLandscapeCards'] = !showCards;
+                  console.log('currentViewUser', currentViewUser)
+                  currentViewUser.profile = JSON.stringify(userProfile)
+                  delete currentViewUser.__typename
+                  this.props.EditUserWithMutation({
+                      variables: { user: currentViewUser }
+                   }).then(() =>{
+                     this.setState({showCards: !showCards})
+                   })
+                }}
+                  style={{ fontSize: '20px', cursor: 'pointer' }}>Landscapes
+                  {
+                    showCards
+                    ?
+                    <IoAndroidMenu style={{fontSize: 30, marginLeft:8}} />
+                    :
+                    <IoIosGridView style={{fontSize: 30, marginLeft:8}}/>
+                  }</a>
+                <div className="filter-list" style={{marginTop:-5, marginBottom:10}}>
+                  <IoSearch style={{fontSize:20, color:'gray', marginRight:5}} /><TextField type="text" hintText="Search" onChange={this.filterList}/>
+                </div>
                 {
                     currentUser.isGlobalAdmin || userAccess && userAccess.canCreate || currentUser.isGroupAdmin
                     ?
@@ -231,33 +266,6 @@ class Landscapes extends Component {
                     :
                         null
                 }
-                <div className="filter-list" style={{marginTop:-5, marginBottom:10}}>
-                  <IoSearch style={{fontSize:20, color:'gray', marginRight:5}} /><TextField type="text" hintText="Search" onChange={this.filterList}/>
-                </div>
-                <FlatButton
-                  onClick={(event) => {
-                    event.preventDefault()
-                    var currentViewUser = this.state.currentViewUser
-                    console.log('currentViewUser____', currentViewUser)
-
-                    var userProfile = {}
-                    if(currentViewUser.profile){
-                      userProfile = JSON.parse(currentViewUser.profile);
-                    }
-                    else{
-                      userProfile['preferences'] = {}
-                    }
-                    userProfile['preferences']['showLandscapeCards'] = !showCards;
-                    console.log('currentViewUser', currentViewUser)
-                    currentViewUser.profile = JSON.stringify(userProfile)
-                    delete currentViewUser.__typename
-                    this.props.EditUserWithMutation({
-                        variables: { user: currentViewUser }
-                     }).then(() =>{
-                       this.setState({showCards: !showCards})
-                     })
-                  }}
-                  label={showCards ? 'Show List View' : 'Show Card View'}></FlatButton>
               </Row>
 
 
@@ -338,17 +346,44 @@ class Landscapes extends Component {
                   :
                   <Table fixedHeader={true} fixedFooter={false} selectable={true}
                           multiSelectable={false}>
-                    <TableHeader
-                      displaySelectAll={false}
-                      adjustForCheckbox={false}
-                      enableSelectAll={false}>
-                      <TableRow>
-                        <TableHeaderColumn></TableHeaderColumn>
-                        <TableHeaderColumn>Name</TableHeaderColumn>
-                        <TableHeaderColumn>Description</TableHeaderColumn>
-                        <TableHeaderColumn>Status</TableHeaderColumn>
-                      </TableRow>
-                    </TableHeader>
+                          <TableHeader
+                            displaySelectAll={false}
+                            adjustForCheckbox={false}
+                            enableSelectAll={false}
+                            style={{borderTop: '1px solid lightgray'}}>
+                            <TableRow>
+                              <TableHeaderColumn></TableHeaderColumn>
+                              <TableHeaderColumn><Row onClick={this.handlesClickName}>Name
+                              {
+                                this.state.orderBy === 'name' && this.state.order === 'asc'
+                                ?
+                                <IoArrowUpC />
+                                :
+                                <Col>{
+                                    this.state.orderBy === 'name'
+                                    ?
+                                    <IoArrowDownC />
+                                    :
+                                    null
+                                  }</Col>}</Row>
+                              </TableHeaderColumn>
+                              <TableHeaderColumn><Row onClick={this.handlesClickDescription}>Description
+                              {
+                                this.state.orderBy === 'description' && this.state.order === 'asc'
+                                ?
+                                <IoArrowUpC />
+                                :
+                                <Col>{
+                                    this.state.orderBy === 'description'
+                                    ?
+                                    <IoArrowDownC />
+                                    :
+                                    null
+                                  }</Col>}</Row>
+                              </TableHeaderColumn>
+                              <TableHeaderColumn>Status</TableHeaderColumn>
+                            </TableRow>
+                          </TableHeader>
                     <TableBody  displayRowCheckbox={false}
                                 deselectOnClickaway={false}
                                 showRowHover={true}
@@ -438,7 +473,28 @@ class Landscapes extends Component {
 
         }, interval)
     }
-
+    handlesClickName = event => {
+        this.setState({orderBy: 'name'});
+        if(this.state.order === 'asc'){
+          this.setState({order: 'desc'})
+        }
+        else{
+          this.setState({order: 'asc'})
+        }
+        var sorted = orderBy(this.state.items, 'name', this.state.order);
+        this.setState({items: sorted})
+    }
+    handlesClickDescription= event => {
+        this.setState({orderBy: 'description'});
+        if(this.state.order === 'asc'){
+          this.setState({order: 'desc'})
+        }
+        else{
+          this.setState({order: 'asc'})
+        }
+        var sorted = orderBy(this.state.items, 'description', this.state.order);
+        this.setState({items: sorted})
+    }
     handlesCreateLandscapeClick = event => {
         const { router } = this.context
         router.push({ pathname: '/landscapes/create' })
