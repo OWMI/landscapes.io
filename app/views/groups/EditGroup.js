@@ -21,12 +21,12 @@ import Dropzone from 'react-dropzone'
 import Chip from 'material-ui/Chip';
 import Avatar from 'material-ui/Avatar';
 import UploadIcon from 'material-ui/svg-icons/file/file-upload'
-import { IoEdit, IoAndroidClose } from 'react-icons/lib/io'
+import { IoEdit, IoAndroidClose, IoSearch, IoArrowDownC, IoArrowUpC } from 'react-icons/lib/io'
 import defaultUserImage from '../../style/empty.png'
 import defaultImage from '../../style/empty-group.png'
 import AvatarCropper from "react-avatar-cropper";
 import ReactDom from "react-dom";
-import {sortBy} from "lodash";
+import {sortBy, orderBy} from "lodash";
 import { auth } from '../../services/auth'
 
 import {Loader} from '../../components'
@@ -37,6 +37,7 @@ const CheckboxGroup = Checkbox.Group;
 const defaultCheckedList = ['r'];
 
 import '../../style/avatar-cropper.style.scss'
+import './groups.style.scss'
 
 const styles = {
     root: {
@@ -88,7 +89,11 @@ class EditGroup extends Component {
         enableSelectAll: true,
         deselectOnClickaway: true,
         showCheckboxes: true,
-        height: '300'
+        height: '300',
+        landscapeItems: [],
+        accountItems: [],
+        userItems: [],
+        order: 'asc'
     }
 
     componentWillMount() {
@@ -149,7 +154,7 @@ class EditGroup extends Component {
                 landscapesSorted.find((ls, index) => {
                     if (currentGroup.landscapes[i] === ls._id) {
                         ls.selected = true;
-                        selectedLandscapeRows.push(index)
+                        selectedLandscapeRows.push(ls)
                     }
                     stateLandscapes.push(ls)
                 })
@@ -160,7 +165,7 @@ class EditGroup extends Component {
                 accountsSorted.find((ls, index) => {
                     if (currentGroup.accounts[i] === ls._id) {
                         ls.selected = true;
-                        selectedAccountRows.push(index)
+                        selectedAccountRows.push(ls)
                     }
                     stateAccounts.push(ls)
                 })
@@ -177,7 +182,7 @@ class EditGroup extends Component {
                             isAdmin = true
                           }
                         }
-                        selectedUserRows.push(index)
+                        selectedUserRows.push(user)
                     }
                 })
             }
@@ -218,7 +223,7 @@ class EditGroup extends Component {
                 }
             })
         }
-        this.setState({stateLandscapes: landscapesSorted, stateUsers, stateAccounts: accountsSorted, isGroupAdmin})
+        this.setState({landscapeItems: landscapesSorted, accountItems: accountsSorted, userItems: stateUsers, stateLandscapes: landscapesSorted, stateUsers, stateAccounts: accountsSorted, isGroupAdmin})
 
     }
 
@@ -279,7 +284,7 @@ class EditGroup extends Component {
                 landscapesSorted.find((ls, index) => {
                     if (currentGroup.landscapes[i] === ls._id) {
                         ls.selected = true;
-                        selectedLandscapeRows.push(index)
+                        selectedLandscapeRows.push(ls)
                     }
                     stateLandscapes.push(ls)
                 })
@@ -289,8 +294,7 @@ class EditGroup extends Component {
             for (var i = 0; i < currentGroup.accounts.length; i++) {
                 accountsSorted.find((ls, index) => {
                     if (currentGroup.accounts[i] === ls._id) {
-                        ls.selected = true;
-                        selectedAccountRows.push(index)
+                        selectedAccountRows.push(ls)
                     }
                     stateAccounts.push(ls)
                 })
@@ -307,7 +311,7 @@ class EditGroup extends Component {
                             isAdmin = true
                           }
                         }
-                        selectedUserRows.push(index)
+                        selectedUserRows.push(user)
                     }
                     if (!user.imageUri) {
                         user.imageUri = defaultUserImage
@@ -349,7 +353,7 @@ class EditGroup extends Component {
                 }
             })
         }
-        this.setState({stateLandscapes: landscapesSorted, stateUsers, stateAccounts: accountsSorted, selectedAccountRows, isGroupAdmin})
+        this.setState({landscapeItems: landscapesSorted, accountItems: accountsSorted, userItems: stateUsers, stateLandscapes: landscapesSorted, stateUsers, stateAccounts: accountsSorted, selectedAccountRows, isGroupAdmin})
     }
 
     componentDidMount() {
@@ -375,7 +379,16 @@ class EditGroup extends Component {
             name: '',
             description: ''
         }
-
+        let availableFeeds = this.state.landscapeItems.map((row, i)  => {
+            return (
+              <TableRow key={row._id} selected={row.selected}>
+                  <TableRowColumn data-my-row-identifier={row._id}><img src={row.imageUri} style={{
+                  width: 50
+              }}/></TableRowColumn>
+                  <TableRowColumn data-my-row-identifier={row._id}>{row.name}</TableRowColumn>
+                  <TableRowColumn data-my-row-identifier={row._id}>{row.description}</TableRowColumn>
+              </TableRow>
+            )});
         if (loading || this.state.loading) {
             return (
                 <div className={cx({'animatedViews': animated, 'view-enter': viewEntersAnim})}>
@@ -491,32 +504,67 @@ class EditGroup extends Component {
                               </Row>
                     <Tabs tabItemContainerStyle={{backgroundColor: materialTheme.palette.primary3Color}}>
                         <Tab label="Landscapes" key="3">
-                          <div style={styles.wrapper}>
-                              {
-                                this.state.selectedLandscapeRows.map((row, index) => (
-                                  <Chip style = {styles.chip} key={index} >
-                                    <Avatar src={this.state.stateLandscapes[row].imageUri}/>
-                                     {this.state.stateLandscapes[row].name}
-                                  </Chip>
-                              ))
-                            }
-                          </div>
-                            <Table key="landscapeTable" height={this.state.height} fixedHeader={this.state.fixedHeader} fixedFooter={this.state.fixedFooter} selectable={this.state.selectable} multiSelectable={this.state.multiSelectable} onRowSelection={this.handleOnRowSelectionLandscapes}>
-                                <TableHeader displaySelectAll={this.state.showCheckboxes} adjustForCheckbox={this.state.showCheckboxes} enableSelectAll={this.state.enableSelectAll}>
+                          <Row style={{justifyContent:'space-between'}}>
+                            <Col>
+                              <div style={styles.wrapper}>
+                                {
+                                  this.state.selectedLandscapeRows.map((row, index) => (
+                                    <Chip style = {styles.chip} key={index} >
+                                      <Avatar src={row.imageUri}/>
+                                       {row.name}
+                                    </Chip>
+                                ))
+                              }
+                              </div>
+                            </Col>
+                            <Col style={{width:'300px'}}>
+                              <div className="filter-list" style={{marginTop:-5, marginBottom:10}}>
+                                <IoSearch style={{fontSize:20, color:'gray', marginRight:5}} /><TextField type="text" hintText="Search" onChange={this.filterLandscapeList}/>
+                              </div>
+                            </Col>
+                          </Row>
+                            <Table key="landscapeTable" height={this.state.height} fixedHeader={this.state.fixedHeader} fixedFooter={this.state.fixedFooter} selectable={this.state.selectable} multiSelectable={this.state.multiSelectable} onCellClick={this.handlesLandscapeRowClick}>
+                                <TableHeader displaySelectAll={false} adjustForCheckbox={false} enableSelectAll={false}>
                                     <TableRow>
                                         <TableHeaderColumn tooltip="Image"></TableHeaderColumn>
-                                        <TableHeaderColumn tooltip="Name">Name</TableHeaderColumn>
-                                        <TableHeaderColumn tooltip="Description">Description</TableHeaderColumn>
+                                          <TableHeaderColumn><Row onClick={this.handlesClickOrder.bind(this, {orderBy: 'name', array:'landscape'})}>Name
+                                          {
+                                            this.state.orderBy === 'name' && this.state.order === 'asc'
+                                            ?
+                                            <IoArrowUpC />
+                                            :
+                                            <Col>{
+                                                this.state.orderBy === 'name'
+                                                ?
+                                                <IoArrowDownC />
+                                                :
+                                                null
+                                              }</Col>}</Row>
+                                          </TableHeaderColumn>
+                                          <TableHeaderColumn><Row onClick={this.handlesClickOrder.bind(this, {orderBy: 'description', array:'landscape'})}>Description
+                                          {
+                                            this.state.orderBy === 'description' && this.state.order === 'asc'
+                                            ?
+                                            <IoArrowUpC />
+                                            :
+                                            <Col>{
+                                                this.state.orderBy === 'description'
+                                                ?
+                                                <IoArrowDownC />
+                                                :
+                                                null
+                                              }</Col>}</Row>
+                                          </TableHeaderColumn>
                                     </TableRow>
                                 </TableHeader>
-                                <TableBody displayRowCheckbox={this.state.showCheckboxes} deselectOnClickaway={false} showRowHover={this.state.showRowHover} stripedRows={false}>
-                                    {this.state.stateLandscapes.map((row, index) => (
-                                        <TableRow key={row._id} selected={this.state.selectedLandscapeRows.indexOf(index) !== -1}>
-                                            <TableRowColumn><img src={row.imageUri} style={{
+                                <TableBody displayRowCheckbox={false} deselectOnClickaway={false} showRowHover={this.state.showRowHover} stripedRows={false}>
+                                    {this.state.landscapeItems.map((row, index) => (
+                                        <TableRow key={row._id} className={cx({'showBackground': (this.state.selectedLandscapeRows.indexOf(row) !== -1)})}>
+                                            <TableRowColumn data-my-row-identifier={row._id}><img src={row.imageUri} style={{
                                             width: 50
                                         }}/></TableRowColumn>
-                                            <TableRowColumn>{row.name}</TableRowColumn>
-                                            <TableRowColumn>{row.description}</TableRowColumn>
+                                            <TableRowColumn data-my-row-identifier={row._id}>{row.name}</TableRowColumn>
+                                            <TableRowColumn data-my-row-identifier={row._id}>{row.description}</TableRowColumn>
                                         </TableRow>
                                     ))}
                                 </TableBody>
@@ -524,33 +572,69 @@ class EditGroup extends Component {
                             </Table>
                         </Tab>
                         <Tab label="Users" key="2">
-                            <div style={styles.wrapper}>
+                          <Row style={{justifyContent:'space-between'}}>
+                            <Col>
+                              <div style={styles.wrapper}>
                                 {
                                   this.state.selectedUserRows.map((row, index) => (
                                     <Chip style = {styles.chip} key={index} >
-                                      <Avatar src={this.state.stateUsers[row].imageUri}/>
-                                       {this.state.stateUsers[row].firstName} {this.state.stateUsers[row].lastName}
+                                      <Avatar src={row.imageUri}/>
+                                       {row.firstName}
                                     </Chip>
                                 ))
                               }
-                            </div>
-                            <Table key="userTable" height={this.state.height} fixedHeader={this.state.fixedHeader} fixedFooter={this.state.fixedFooter} selectable={this.state.selectable} multiSelectable={this.state.multiSelectable} onRowSelection={this.handleOnRowSelectionUsers}>
-                                <TableHeader displaySelectAll={this.state.showCheckboxes} adjustForCheckbox={this.state.showCheckboxes} enableSelectAll={this.state.enableSelectAll}>
+                              </div>
+                            </Col>
+                            <Col style={{width:'300px'}}>
+                              <div className="filter-list" style={{marginTop:-5, marginBottom:10}}>
+                                <IoSearch style={{fontSize:20, color:'gray', marginRight:5}} /><TextField type="text" hintText="Search" onChange={this.filterUserList}/>
+                              </div>
+                            </Col>
+                          </Row>
+                            <Table key="userTable" onCellClick={this.handlesUserRowClick} height={this.state.height} fixedHeader={this.state.fixedHeader} fixedFooter={this.state.fixedFooter} selectable={this.state.selectable} multiSelectable={this.state.multiSelectable}>
+                                <TableHeader displaySelectAll={false} adjustForCheckbox={false} enableSelectAll={false}>
                                     <TableRow>
                                         <TableHeaderColumn tooltip="Image"></TableHeaderColumn>
-                                          <TableHeaderColumn tooltip="Name">Name</TableHeaderColumn>
-                                        <TableHeaderColumn tooltip="Email">Email</TableHeaderColumn>
-                                        <TableHeaderColumn tooltip="Role">Admin</TableHeaderColumn>
+                                          <TableHeaderColumn><Row onClick={this.handlesClickOrder.bind(this, {orderBy: 'lastName', array:'user'})}>Name
+                                          {
+                                            this.state.orderBy === 'lastName' && this.state.order === 'asc'
+                                            ?
+                                            <IoArrowUpC />
+                                            :
+                                            <Col>{
+                                                this.state.orderBy === 'lastName'
+                                                ?
+                                                <IoArrowDownC />
+                                                :
+                                                null
+                                              }</Col>}</Row>
+                                          </TableHeaderColumn>
+                                          <TableHeaderColumn><Row onClick={this.handlesClickOrder.bind(this, {orderBy: 'email', array:'user'})}>Email
+                                          {
+                                            this.state.orderBy === 'email' && this.state.order === 'asc'
+                                            ?
+                                            <IoArrowUpC />
+                                            :
+                                            <Col>{
+                                                this.state.orderBy === 'email'
+                                                ?
+                                                <IoArrowDownC />
+                                                :
+                                                null
+                                              }</Col>}</Row>
+                                          </TableHeaderColumn>
+                                          <TableHeaderColumn>Admin
+                                          </TableHeaderColumn>
                                     </TableRow>
                                 </TableHeader>
-                                <TableBody displayRowCheckbox={this.state.showCheckboxes} deselectOnClickaway={false} showRowHover={this.state.showRowHover} stripedRows={false}>
+                                <TableBody displayRowCheckbox={false} deselectOnClickaway={false} showRowHover={this.state.showRowHover} stripedRows={false}>
                                     {
-                                      this.state.stateUsers.map((row, index) => (
-                                          <TableRow key={row._id} selected={this.state.selectedUserRows.indexOf(index) !== -1}>
-                                              <TableRowColumn><img src={row.imageUri} style={{width: 40, borderRadius: 50}}/></TableRowColumn>
-                                              <TableRowColumn>{row.lastName}, {row.firstName} </TableRowColumn>
-                                              <TableRowColumn>{row.email}</TableRowColumn>
-                                              <TableRowColumn>
+                                      this.state.userItems.map((row, index) => (
+                                        <TableRow key={row._id} className={cx({'showBackground': (this.state.selectedUserRows.indexOf(row) !== -1)})}>
+                                              <TableRowColumn data-my-row-identifier={row._id}><img src={row.imageUri} style={{width: 40, borderRadius: 50}}/></TableRowColumn>
+                                              <TableRowColumn data-my-row-identifier={row._id}>{row.lastName}, {row.firstName} </TableRowColumn>
+                                              <TableRowColumn data-my-row-identifier={row._id}>{row.email}</TableRowColumn>
+                                              <TableRowColumn data-my-row-identifier={row._id}>
                                                 <Toggle toggled={row.isAdmin || (row.role === 'admin')} onToggle={() => (
                                                     this.state.stateUsers[index].isAdmin = !this.state.stateUsers[index].isAdmin,
                                                     this.setState({stateUsers: [...this.state.stateUsers]})
@@ -560,29 +644,86 @@ class EditGroup extends Component {
                                       ))
                                     }
                                 </TableBody>
-                                <TableFooter adjustForCheckbox={this.state.showCheckboxes}></TableFooter>
+                                <TableFooter adjustForCheckbox={false}></TableFooter>
                             </Table>
 
                         </Tab>
                         <Tab label="Accounts" key="4">
-                            <Table key="accountsTable" height={this.state.height} fixedHeader={this.state.fixedHeader} fixedFooter={this.state.fixedFooter} selectable={this.state.selectable} multiSelectable={this.state.multiSelectable} onRowSelection={this.handleOnRowSelectionAccounts}>
-                                <TableHeader displaySelectAll={this.state.showCheckboxes} adjustForCheckbox={this.state.showCheckboxes} enableSelectAll={this.state.enableSelectAll}>
+                          <Row style={{justifyContent:'space-between'}}>
+                            <Col>
+                              <div style={styles.wrapper}>
+                                {
+                                  this.state.selectedAccountRows.map((row, index) => (
+                                    <Chip style = {styles.chip} key={index} >
+                                       {row.name}
+                                    </Chip>
+                                ))
+                              }
+                              </div>
+                            </Col>
+                            <Col style={{width:'300px'}}>
+                              <div className="filter-list" style={{marginTop:-5, marginBottom:10}}>
+                                <IoSearch style={{fontSize:20, color:'gray', marginRight:5}} /><TextField type="text" hintText="Search" onChange={this.filterAccountList}/>
+                              </div>
+                            </Col>
+                          </Row>
+                            <Table key="accountsTable" height={this.state.height} fixedHeader={this.state.fixedHeader} fixedFooter={this.state.fixedFooter}  onCellClick={this.handlesAccountRowClick} selectable={false} multiSelectable={false} >
+                                <TableHeader displaySelectAll={false} adjustForCheckbox={false} enableSelectAll={false}>
                                     <TableRow>
-                                        <TableHeaderColumn tooltip="Name">Name</TableHeaderColumn>
-                                        <TableHeaderColumn tooltip="Region">Region</TableHeaderColumn>
-                                        <TableHeaderColumn tooltip="Created At">Created At</TableHeaderColumn>
+                                      <TableHeaderColumn><Row onClick={this.handlesClickOrder.bind(this, {orderBy: 'name', array:'account'})}>Name
+                                      {
+                                        this.state.orderBy === 'name' && this.state.order === 'asc'
+                                        ?
+                                        <IoArrowUpC />
+                                        :
+                                        <Col>{
+                                            this.state.orderBy === 'name'
+                                            ?
+                                            <IoArrowDownC />
+                                            :
+                                            null
+                                          }</Col>}</Row>
+                                      </TableHeaderColumn>
+                                      <TableHeaderColumn><Row onClick={this.handlesClickOrder.bind(this, {orderBy: 'region', array:'account'})}>Region
+                                      {
+                                        this.state.orderBy === 'region' && this.state.order === 'asc'
+                                        ?
+                                        <IoArrowUpC />
+                                        :
+                                        <Col>{
+                                            this.state.orderBy === 'region'
+                                            ?
+                                            <IoArrowDownC />
+                                            :
+                                            null
+                                          }</Col>}</Row>
+                                      </TableHeaderColumn>
+                                      <TableHeaderColumn><Row onClick={this.handlesClickOrder.bind(this, {orderBy: 'createdAt', array:'account'})}>Created At
+                                      {
+                                        this.state.orderBy === 'createdAt' && this.state.order === 'asc'
+                                        ?
+                                        <IoArrowUpC />
+                                        :
+                                        <Col>{
+                                            this.state.orderBy === 'createdAt'
+                                            ?
+                                            <IoArrowDownC />
+                                            :
+                                            null
+                                          }</Col>}</Row>
+                                      </TableHeaderColumn>
                                     </TableRow>
                                 </TableHeader>
-                                <TableBody displayRowCheckbox={this.state.showCheckboxes} deselectOnClickaway={false} showRowHover={this.state.showRowHover} stripedRows={false}>
-                                    {this.state.stateAccounts.map((row, index) => (
-                                        <TableRow key={row._id} selected={this.state.selectedAccountRows.indexOf(index) !== -1}>
-                                            <TableRowColumn>{row.name}</TableRowColumn>
-                                            <TableRowColumn>{row.region}</TableRowColumn>
-                                            <TableRowColumn>{row.createdAt}</TableRowColumn>
+                                <TableBody displayRowCheckbox={false} deselectOnClickaway={false} showRowHover={this.state.showRowHover} stripedRows={false}>
+                                    {this.state.accountItems.map((row, index) => (
+                                        <TableRow key={row._id} className={cx({'showBackground': (this.state.selectedAccountRows.indexOf(row) !== -1)})}>
+                                            <TableRowColumn data-my-row-identifier={row._id}>{row.name}</TableRowColumn>
+                                            <TableRowColumn data-my-row-identifier={row._id}>{row.region}</TableRowColumn>
+                                            <TableRowColumn data-my-row-identifier={row._id}>{row.createdAt}</TableRowColumn>
                                         </TableRow>
                                     ))}
                                 </TableBody>
-                                <TableFooter adjustForCheckbox={this.state.showCheckboxes}></TableFooter>
+                                <TableFooter adjustForCheckbox={false}></TableFooter>
                             </Table>
                         </Tab>
                     </Tabs>
@@ -595,6 +736,61 @@ class EditGroup extends Component {
             </div>
 
         )
+    }
+    filterLandscapeList = (event) => {
+      var updatedList = this.state.stateLandscapes;
+      updatedList = updatedList.filter(function(item){
+        return (item.name.toLowerCase().search(
+          event.target.value.toLowerCase()) !== -1);
+      });
+      this.setState({landscapeItems: [...updatedList]});
+    }
+    filterAccountList = (event) => {
+      var updatedList = this.state.stateAccounts;
+      updatedList = updatedList.filter(function(item){
+        return (item.name.toLowerCase().search(
+          event.target.value.toLowerCase()) !== -1) ||
+          (item.region.toLowerCase().search(
+            event.target.value.toLowerCase()) !== -1)
+      });
+      this.setState({accountItems: [...updatedList]});
+    }
+    filterUserList = (event) => {
+      var updatedList = this.state.stateUsers;
+      updatedList = updatedList.filter(function(item){
+        return (item.lastName.toLowerCase().search(
+          event.target.value.toLowerCase()) !== -1) ||
+          (item.firstName.toLowerCase().search(
+            event.target.value.toLowerCase()) !== -1) ||
+            (item.email.toLowerCase().search(
+              event.target.value.toLowerCase()) !== -1) ||
+              (item.username.toLowerCase().search(
+                event.target.value.toLowerCase()) !== -1)
+      });
+      this.setState({userItems: [...updatedList]});
+    }
+
+    handlesClickOrder = event => {
+        this.setState({orderBy: event.orderBy});
+        if(this.state.order === 'asc'){
+          this.setState({order: 'desc'})
+        }
+        else{
+          this.setState({order: 'asc'})
+        }
+        if(event.array === 'landscape'){
+          var sorted = orderBy(this.state.landscapeItems, event.orderBy, this.state.order);
+          this.setState({landscapeItems: sorted})
+        }
+        else if(event.array === 'account'){
+          var sorted = orderBy(this.state.accountItems, event.orderBy, this.state.order);
+          this.setState({accountItems: sorted})
+        }
+        else if(event.array === 'user'){
+          var sorted = orderBy(this.state.userItems, event.orderBy, this.state.order);
+          this.setState({userItems: sorted})
+        }
+
     }
     handlesDialogToggle = event => {
         this.setState({
@@ -646,7 +842,6 @@ class EditGroup extends Component {
     }
 
     handleTouchTap = () => {
-        alert('You clicked the Chip.');
     }
 
     handlesImageUpload = (acceptedFiles, rejectedFiles) => {
@@ -695,31 +890,48 @@ class EditGroup extends Component {
         this.setState({selectedUserRows: selectedRows})
     }
 
-    handleOnRowSelectionLandscapes = selectedRows => {
-      if(selectedRows === 'all'){
-        selectedRows = []
-        this.state.stateLandscapes.forEach((account, index) => {
-          selectedRows.push(index)
-        })
+    handlesLandscapeRowClick = (rowNumber, columnNumber, evt) =>{
+      var landscapeRows = this.state.selectedLandscapeRows || [];
+      var selectedLandscape = this.state.stateLandscapes.find(landscape => {return landscape._id === evt.target.dataset.myRowIdentifier;})
+      var index = this.state.selectedLandscapeRows.map(function(el) {
+          return el._id;
+        }).indexOf(evt.target.dataset.myRowIdentifier);
+      if(index === -1){
+        landscapeRows.push(selectedLandscape);
       }
-      else if(selectedRows === 'none'){
-        selectedRows = []
+      else{
+        landscapeRows.splice(index, 1)
       }
-        this.setState({selectedLandscapeRows: selectedRows})
+      this.setState({selectedLandscapeRows: [...landscapeRows]})
     }
-    handleOnRowSelectionAccounts = selectedRows => {
-        if(selectedRows === 'all'){
-          selectedRows = []
-          this.state.stateAccounts.forEach((account, index) => {
-            selectedRows.push(index)
-          })
-        }
-        else if(selectedRows === 'none'){
-          selectedRows = []
-        }
-        this.setState({selectedAccountRows: selectedRows})
+    handlesAccountRowClick = (rowNumber, columnNumber, evt) =>{
+      var rows = this.state.selectedAccountRows || [];
+      var selected = this.state.stateAccounts.find(account => {return account._id === evt.target.dataset.myRowIdentifier;})
+      var index = this.state.selectedAccountRows.map(function(el) {
+          return el._id;
+        }).indexOf(evt.target.dataset.myRowIdentifier);
+      if(index === -1){
+        rows.push(selected);
+      }
+      else{
+        rows.splice(index, 1)
+      }
+      this.setState({selectedAccountRows: [...rows]})
     }
-
+    handlesUserRowClick = (rowNumber, columnNumber, evt) =>{
+      var rows = this.state.selectedUserRows || [];
+      var selected = this.state.stateUsers.find(user => {return user._id === evt.target.dataset.myRowIdentifier;})
+      var index = this.state.selectedUserRows.map(function(el) {
+          return el._id;
+        }).indexOf(evt.target.dataset.myRowIdentifier);
+      if(index === -1){
+        rows.push(selected);
+      }
+      else{
+        rows.splice(index, 1)
+      }
+      this.setState({selectedUserRows: [...rows]})
+    }
     handlesOnCheck = event => {
         var isChecked = this.state.checkAll;
         if (isChecked) {
@@ -775,23 +987,23 @@ class EditGroup extends Component {
         groupToEdit.accounts = []
         if (this.state.selectedLandscapeRows) {
             for (var i = 0; i < this.state.selectedLandscapeRows.length; i++) {
-                groupToEdit.landscapes.push(this.state.stateLandscapes[this.state.selectedLandscapeRows[i]]._id)
+                groupToEdit.landscapes.push(this.state.selectedLandscapeRows[i]._id)
             }
         }
         if (this.state.selectedUserRows) {
             for (var i = 0; i < this.state.selectedUserRows.length; i++) {
-                if(this.state.users[this.state.selectedUserRows[i]].role === 'admin'){
-                  this.state.users[this.state.selectedUserRows[i]].isAdmin = true;
+                if(this.state.selectedUserRows[i].role === 'admin'){
+                  this.state.selectedUserRows[i].isAdmin = true;
                 }
                 groupToEdit.users.push({
-                    userId: this.state.users[this.state.selectedUserRows[i]]._id,
-                    isAdmin: this.state.users[this.state.selectedUserRows[i]].isAdmin || false
+                    userId: this.state.selectedUserRows[i]._id,
+                    isAdmin: this.state.selectedUserRows[i].isAdmin || false
                 })
             }
         }
         if (this.state.selectedAccountRows) {
             for (var i = 0; i < this.state.selectedAccountRows.length; i++) {
-              groupToEdit.accounts.push(this.state.stateAccounts[this.state.selectedAccountRows[i]]._id)
+              groupToEdit.accounts.push(this.state.selectedAccountRows[i]._id)
 
             }
         }
