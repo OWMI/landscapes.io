@@ -68,8 +68,7 @@ module.exports = () => {
     })
 
     passport.deserializeUser((id, done) => {
-
-        User.findOne({_id: id}).exec((err, user) => {
+        User.findOne({ _id: id }).exec((err, user) => {
             winston.log('passport.deserializeUser:', user)
             done(err, user)
         })

@@ -64,7 +64,6 @@ class Login extends Component {
             )
         }
 
-
         return (
             <Row center='xs' middle='xs' className={cx({ 'screen-height': true, 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
                 <Col xs={6} lg={4} className={cx( { 'login-page': true } )}>

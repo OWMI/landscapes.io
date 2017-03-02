@@ -11,7 +11,7 @@
         "showWhenUserAuth": false,
         "showOnUserDropdown": false,
         "hideWhenUserAuth": true
-    },{
+    }, {
         "label": "Landscapes",
         "link": "/landscapes",
         "view": "landscapes",
@@ -21,7 +21,7 @@
         "showWhenUserAuth": true,
         "showOnUserDropdown": false,
         "hideWhenUserAuth": false
-    },{
+    }, {
         "label": "Groups",
         "link": "/groups",
         "view": "groups",
@@ -43,6 +43,18 @@
         "hideWhenUserAuth": false,
         "showOnlyGlobalAdmin": true
 
+    }, {
+        "label": "LDAP",
+        "link": "/ldap",
+        "view": "ldap",
+        "isRouteBtn": true,
+        "alwaysShows": false,
+        "showAdminOnly": true,
+        "showWhenUserAuth": true,
+        "showOnUserDropdown": false,
+        "showOnSettingsDropdown": true,
+        "showOnSettingsDropdownAdminOnly": false,
+        "hideWhenUserAuth": false
     }, {
         "label": "Accounts",
         "link": "/accounts",
@@ -67,7 +79,7 @@
         "showOnSettingsDropdown": true,
         "showOnSettingsDropdownAdminOnly": true,
         "hideWhenUserAuth": false
-    },{
+    }, {
         "label": "Document Types",
         "link": "/documentTypes",
         "view": "documentTypes",

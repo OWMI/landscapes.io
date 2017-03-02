@@ -2,6 +2,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import _ from 'lodash'
 import passport from 'passport'
+import ldap from 'ldapjs'
 import async from 'async'
 import https from 'https'
 import AWS from 'aws-sdk'
@@ -9,14 +10,25 @@ import { find, filter } from 'lodash'
 import { pubsub } from './subscriptions'
 import lodash from 'lodash'
 
+const config = require(path.resolve('./server/config/config'))
 const Landscape = require('./models/landscape')
 const Deployment = require('./models/deployment')
 const Configuration = require('./models/configuration')
+const Mappings = require('./models/mappings')
 const Group = require('./models/group')
 const Account = require('./models/account')
 const User = require('../auth/models/user.server.model')
 const TypeDocument = require('./models/documentTypes')
 const Tag = require('./models/tag')
+
+// Instantiate the LDAP client
+const ldapClient = ldap.createClient({
+    url: config.ldap.url
+})
+
+ldapClient.bind(config.ldap.bindDn, config.ldap.bindCredentials, err => {
+    if (err) console.log(err)
+})
 
 // FIX: Attempts to resolve 'UnknownEndpoint' error experienced on GovCloud
 // AWS.events.on('httpError', () => {
@@ -89,6 +101,43 @@ const resolveFunctions = {
                 if (err) return err
                 return group
           })
+        },
+        ldapGroups(root, args, context) {
+
+            let groupsArray = [],
+                opts = {
+                    filter: '(cn=*)',
+                    scope: 'sub',
+
+                }
+
+            return new Promise((resolve, reject) => {
+                ldapClient.search('ou=groups,dc=landscapes,dc=io', opts, (err, res) => {
+                    res.on('searchEntry', entry => {
+                        groupsArray.push(entry.object)
+                    })
+
+                    res.on('searchReference', referral => {
+                        console.log('referral: ' + referral.uris.join())
+                    })
+
+                    res.on('error', err => {
+                        console.error('error: ' + err.message)
+                        reject(err)
+                    })
+
+                    res.on('end', result => {
+                        resolve(groupsArray)
+                    })
+                })
+            })
+
+        },
+        mappings(root, args, context) {
+            return Mappings.find().exec((err, mappings) => {
+                if (err) return err
+                return mappings
+            })
         },
         documentTypes(root, args, context) {
             return TypeDocument.find().sort('-created').exec((err, documentTypes) => {
@@ -295,6 +344,26 @@ const resolveFunctions = {
                     return doc
                 }
             })
+        },
+        updateMappings(_, { mapping }) {
+            const { _id, landscapeGroup, mappedGroups } = mapping
+
+            if (_id) {
+                console.log(' ---> updating mapping')
+                Mappings.update({ _id }, mapping,
+                    { upsert: true, setDefaultsOnInsert: true }, (err, doc) => {
+                        if (err) return err
+                        return doc
+                    }
+                )
+            } else {
+                console.log(' ---> creating mapping')
+                let newMapping = new Mappings(mapping)
+                newMapping.save(err => {
+                    if (err) return err
+                    return newMapping
+                })
+            }
         },
         createAccount(_, { account }) {
           return new Promise((resolve, reject) => {

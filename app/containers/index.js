@@ -34,6 +34,8 @@ import ConnectedAccounts from './accounts/Accounts'
 import ConnectedCreateAccount from './accounts/CreateAccount'
 import ConnectedUpdateAccount from './accounts/UpdateAccount'
 
+import ConnectedLdap from './ldap/Ldap'
+
 import ConnectedLandscapes from './landscapes/Landscapes'
 import ConnectedCreateLandscape from './landscapes/CreateLandscape'
 import ConnectedEditLandscape from './landscapes/EditLandscape'
@@ -76,6 +78,8 @@ export {
     ConnectedEditUser,
     ConnectedUserDetails,
     ConnectedProfile,
+
+    ConnectedLdap,
 
     ConnectedLandscapes,
     ConnectedCreateLandscape,

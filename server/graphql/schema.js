@@ -5,7 +5,9 @@ import resolvers from './resolvers'
 import User from './types/user.js'
 import Group from './types/group.js'
 import Account from './types/account.js'
+import ldapGroup from './types/ldapGroup.js'
 import Landscape from './types/landscape.js'
+import Mappings from './types/mappings.js'
 import Configuration from './types/configuration.js'
 import Deployment from './types/deployment.js'
 import Subscription from './types/subscriptions.js'
@@ -39,6 +41,7 @@ const Query = `
         password: String
         firstName: String
         lastName: String
+        displayName: String
     }
 
     input AccountInput {
@@ -97,42 +100,52 @@ const Query = `
     }
 
     input GroupInput {
-      _id: String
-      landscapes: [String]
-      users: [userInput]
-      permissions: [String]
-      accounts: [String]
-      imageUri: String
-      name: String
-      description: String
+        _id: String
+        landscapes: [String]
+        users: [userInput]
+        permissions: [String]
+        accounts: [String]
+        imageUri: String
+        name: String
+        description: String
+    }
+
+    input MappingsInput {
+        _id: String
+        createdBy: ID
+        landscapeGroup: String
+        mappedGroups: [String]
+        type: String
     }
 
     input TagInput {
-      _id: String
-      key: String
-      defaultValue: String
-      isGlobal: Boolean
-      isRequired: Boolean
+        _id: String
+        key: String
+        defaultValue: String
+        isGlobal: Boolean
+        isRequired: Boolean
     }
 
     input DocumentTypeInput {
-      _id: String
-      name: String
-      description: String
+        _id: String
+        name: String
+        description: String
     }
 
     type Query {
-        groups: [Group]
-        groupsByUser(id: String, isGlobalAdmin: Boolean): [Group]
-        groupById(id: String): Group
         accounts: [Account]
-        landscapes: [Landscape]
         configuration: [Configuration]
         documentTypes: [TypeDocument]
-        tags: [Tag]
+        groups: [Group]
+        groupById(id: String): Group
+        groupsByUser(id: String, isGlobalAdmin: Boolean): [Group]
         landscapeById(id: String): [Landscape]
         landscapesWithDeploymentStatus: [Landscape]
-        users: [User],
+        ldapGroups: [ldapGroup]
+        landscapes: [Landscape]
+        mappings: [Mappings]
+        tags: [Tag]
+        users: [User]
         userById(id: String): [User]
     }
 `
@@ -166,6 +179,8 @@ const Mutation = `
         updateLandscape ( landscape: LandscapeInput! ): Landscape
         deleteLandscape ( landscape: LandscapeInput! ): Landscape
 
+        updateMappings ( mapping: MappingsInput! ): Mappings
+
         createDeployment ( deployment: DeploymentInput! ): Deployment
         updateDeployment ( deployment: DeploymentInput! ): Deployment
         deleteDeployment ( deployment: DeploymentInput! ): Deployment
@@ -182,6 +197,8 @@ export default makeExecutableSchema({
         Deployment,
         Group,
         Landscape,
+        Mappings,
+        ldapGroup,
         Mutation,
         Subscription,
         Tag,
