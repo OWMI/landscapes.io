@@ -379,16 +379,7 @@ class EditGroup extends Component {
             name: '',
             description: ''
         }
-        let availableFeeds = this.state.landscapeItems.map((row, i)  => {
-            return (
-              <TableRow key={row._id} selected={row.selected}>
-                  <TableRowColumn data-my-row-identifier={row._id}><img src={row.imageUri} style={{
-                  width: 50
-              }}/></TableRowColumn>
-                  <TableRowColumn data-my-row-identifier={row._id}>{row.name}</TableRowColumn>
-                  <TableRowColumn data-my-row-identifier={row._id}>{row.description}</TableRowColumn>
-              </TableRow>
-            )});
+
         if (loading || this.state.loading) {
             return (
                 <div className={cx({'animatedViews': animated, 'view-enter': viewEntersAnim})}>
@@ -523,7 +514,7 @@ class EditGroup extends Component {
                               </div>
                             </Col>
                           </Row>
-                            <Table key="landscapeTable" height={this.state.height} fixedHeader={this.state.fixedHeader} fixedFooter={this.state.fixedFooter} selectable={this.state.selectable} multiSelectable={this.state.multiSelectable} onCellClick={this.handlesLandscapeRowClick}>
+                            <Table key="landscapeTable" height={this.state.height} fixedHeader={this.state.fixedHeader} fixedFooter={this.state.fixedFooter} selectable={false} multiSelectable={false}  onCellClick={this.handlesLandscapeRowClick}>
                                 <TableHeader displaySelectAll={false} adjustForCheckbox={false} enableSelectAll={false}>
                                     <TableRow>
                                         <TableHeaderColumn tooltip="Image"></TableHeaderColumn>
@@ -558,16 +549,17 @@ class EditGroup extends Component {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody displayRowCheckbox={false} deselectOnClickaway={false} showRowHover={this.state.showRowHover} stripedRows={false}>
-                                    {this.state.landscapeItems.map((row, index) => (
-                                        <TableRow key={row._id} className={cx({'showBackground': (this.state.selectedLandscapeRows.indexOf(row) !== -1)})}>
-                                            <TableRowColumn data-my-row-identifier={row._id}><img src={row.imageUri} style={{
-                                            width: 50
-                                        }}/></TableRowColumn>
-                                            <TableRowColumn data-my-row-identifier={row._id}>{row.name}</TableRowColumn>
-                                            <TableRowColumn data-my-row-identifier={row._id}>{row.description}</TableRowColumn>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
+                                  {
+                                    this.state.landscapeItems.map((row, index)  => (
+                                      <TableRow key={row._id} className={cx({'showBackground': this.state.selectedLandscapeRows.indexOf(row) !== -1})}>
+                                          <TableRowColumn data-my-row-identifier={row._id}><img src={row.imageUri} style={{
+                                          width: 50
+                                      }}/></TableRowColumn>
+                                          <TableRowColumn data-my-row-identifier={row._id}>{row.name}</TableRowColumn>
+                                          <TableRowColumn data-my-row-identifier={row._id}>{row.description}</TableRowColumn>
+                                      </TableRow>
+                                  ))}
+                                  </TableBody>
                                 <TableFooter adjustForCheckbox={this.state.showCheckboxes}></TableFooter>
                             </Table>
                         </Tab>
@@ -591,7 +583,7 @@ class EditGroup extends Component {
                               </div>
                             </Col>
                           </Row>
-                            <Table key="userTable" onCellClick={this.handlesUserRowClick} height={this.state.height} fixedHeader={this.state.fixedHeader} fixedFooter={this.state.fixedFooter} selectable={this.state.selectable} multiSelectable={this.state.multiSelectable}>
+                            <Table key="userTable" onCellClick={this.handlesUserRowClick} height={this.state.height} fixedHeader={this.state.fixedHeader} fixedFooter={this.state.fixedFooter} selectable={false} multiSelectable={false} >
                                 <TableHeader displaySelectAll={false} adjustForCheckbox={false} enableSelectAll={false}>
                                     <TableRow>
                                         <TableHeaderColumn tooltip="Image"></TableHeaderColumn>
@@ -627,22 +619,21 @@ class EditGroup extends Component {
                                           </TableHeaderColumn>
                                     </TableRow>
                                 </TableHeader>
-                                <TableBody displayRowCheckbox={false} deselectOnClickaway={false} showRowHover={this.state.showRowHover} stripedRows={false}>
+                                <TableBody displayRowCheckbox={false} deselectOnClickaway={false} showRowHover={this.state.showRowHover} stripedRows={false} >
                                     {
-                                      this.state.userItems.map((row, index) => (
-                                        <TableRow key={row._id} className={cx({'showBackground': (this.state.selectedUserRows.indexOf(row) !== -1)})}>
-                                              <TableRowColumn data-my-row-identifier={row._id}><img src={row.imageUri} style={{width: 40, borderRadius: 50}}/></TableRowColumn>
-                                              <TableRowColumn data-my-row-identifier={row._id}>{row.lastName}, {row.firstName} </TableRowColumn>
-                                              <TableRowColumn data-my-row-identifier={row._id}>{row.email}</TableRowColumn>
-                                              <TableRowColumn data-my-row-identifier={row._id}>
-                                                <Toggle toggled={row.isAdmin || (row.role === 'admin')} onToggle={() => (
-                                                    this.state.stateUsers[index].isAdmin = !this.state.stateUsers[index].isAdmin,
-                                                    this.setState({stateUsers: [...this.state.stateUsers]})
-                                                  )} disabled={row.role === 'admin'} />
-                                              </TableRowColumn>
-                                          </TableRow>
-                                      ))
-                                    }
+                                      this.state.userItems.map((row, index)  => (
+                                        <TableRow key={row._id} className={cx({'showBackground': this.state.selectedUserRows.indexOf(row) !== -1})}>
+                                          <TableRowColumn data-my-row-identifier={row._id}><img src={row.imageUri} style={{width: 40, borderRadius: 50}}/></TableRowColumn>
+                                          <TableRowColumn data-my-row-identifier={row._id}>{row.lastName}, {row.firstName} </TableRowColumn>
+                                          <TableRowColumn data-my-row-identifier={row._id}>{row.email}</TableRowColumn>
+                                          <TableRowColumn data-my-row-identifier={row._id}>
+                                            <Toggle toggled={row.isAdmin || (row.role === 'admin')} onToggle={() => (
+                                                this.state.stateUsers[index].isAdmin = !this.state.stateUsers[index].isAdmin,
+                                                this.setState({stateUsers: [...this.state.stateUsers]})
+                                              )} disabled={row.role === 'admin'} />
+                                          </TableRowColumn>
+                                        </TableRow>
+                                    ))}
                                 </TableBody>
                                 <TableFooter adjustForCheckbox={false}></TableFooter>
                             </Table>
@@ -715,13 +706,14 @@ class EditGroup extends Component {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody displayRowCheckbox={false} deselectOnClickaway={false} showRowHover={this.state.showRowHover} stripedRows={false}>
-                                    {this.state.accountItems.map((row, index) => (
-                                        <TableRow key={row._id} className={cx({'showBackground': (this.state.selectedAccountRows.indexOf(row) !== -1)})}>
-                                            <TableRowColumn data-my-row-identifier={row._id}>{row.name}</TableRowColumn>
-                                            <TableRowColumn data-my-row-identifier={row._id}>{row.region}</TableRowColumn>
-                                            <TableRowColumn data-my-row-identifier={row._id}>{row.createdAt}</TableRowColumn>
-                                        </TableRow>
-                                    ))}
+                                  {
+                                    this.state.accountItems.map((row, index)  => (
+                                      <TableRow key={row._id} className={cx({'showBackground': this.state.selectedAccountRows.indexOf(row) !== -1})}>
+                                        <TableRowColumn data-my-row-identifier={row._id}>{row.name}</TableRowColumn>
+                                        <TableRowColumn data-my-row-identifier={row._id}>{row.region}</TableRowColumn>
+                                        <TableRowColumn data-my-row-identifier={row._id}>{row.createdAt}</TableRowColumn>
+                                      </TableRow>
+                                  ))}
                                 </TableBody>
                                 <TableFooter adjustForCheckbox={false}></TableFooter>
                             </Table>
