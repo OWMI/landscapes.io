@@ -66,7 +66,7 @@ class Groups extends Component {
         this.setState({showCards: userProfile.preferences.showGroupCards})
       }
 
-      this.setState({items: stateGroups, groups: stateGroups, currentUser: currentUser || {}})
+      this.setState({items: stateGroups || [], groups: stateGroups, currentUser: currentUser || {}})
 
     }
     componentWillMount() {
@@ -95,13 +95,13 @@ class Groups extends Component {
         var userProfile = JSON.parse(currentUser.profile);
         this.setState({showCards: userProfile.preferences.showGroupCards})
       }
-      this.setState({items: stateGroups, groups: stateGroups, currentUser: currentUser || {}})
+      this.setState({items: stateGroups || [], groups: stateGroups, currentUser: currentUser || {}})
 
     }
 
 
     render() {
-        const { animated, viewEntersAnim, showCards } = this.state
+        const { animated, viewEntersAnim, showCards, items } = this.state
         const { loading, groupsByUser, groups } = this.props
 
         if (loading) {
@@ -227,7 +227,7 @@ class Groups extends Component {
                                 showRowHover={true}
                                 stripedRows={false}>
                       {
-                        this.state.items.map((group, i) =>
+                        items.map((group, i) =>
                           <TableRow key={i} onTouchTap={this.handlesGroupClick.bind(this, group)}>
                             <TableRowColumn><img id='landscapeIcon' src={group.imageUri || defaultImage} style={{height:35}}/> </TableRowColumn>
                             <TableRowColumn>{group.name}</TableRowColumn>

@@ -573,7 +573,7 @@ class EditGroup extends Component {
                         </Tab>
                         <Tab label="Users" key="2">
                           <Row style={{justifyContent:'space-between'}}>
-                            <Col>
+                            <Col xs={8}>
                               <div style={styles.wrapper}>
                                 {
                                   this.state.selectedUserRows.map((row, index) => (
@@ -585,7 +585,7 @@ class EditGroup extends Component {
                               }
                               </div>
                             </Col>
-                            <Col style={{width:'300px'}}>
+                            <Col xs={4}>
                               <div className="filter-list" style={{marginTop:-5, marginBottom:10}}>
                                 <IoSearch style={{fontSize:20, color:'gray', marginRight:5}} /><TextField type="text" hintText="Search" onChange={this.filterUserList}/>
                               </div>
