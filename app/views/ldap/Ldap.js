@@ -10,7 +10,10 @@ class Ldap extends Component {
 
     state = {
         animated: true,
-        viewEntersAnim: true
+        viewEntersAnim: true,
+        selectedLandscapeGroup: {
+            index: 0
+        }
     }
 
     componentDidMount() {
