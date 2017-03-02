@@ -228,7 +228,7 @@ class Groups extends Component {
                                 stripedRows={false}>
                       {
                         this.state.items.map((group, i) =>
-                          <TableRow key={i} onTouchTap={this.handlesEditGroupClick.bind(this, group)}>
+                          <TableRow key={i} onTouchTap={this.handlesGroupClick.bind(this, group)}>
                             <TableRowColumn><img id='landscapeIcon' src={group.imageUri || defaultImage} style={{height:35}}/> </TableRowColumn>
                             <TableRowColumn>{group.name}</TableRowColumn>
                             <TableRowColumn>{

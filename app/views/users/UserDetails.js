@@ -11,7 +11,8 @@ import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'mat
 import {Tabs, Tab} from 'material-ui/Tabs';
 import TextField from 'material-ui/TextField';
 import {Row, Col} from 'react-flexbox-grid'
-import { IoEdit, IoAndroidClose, IoIosCloudUploadOutline } from 'react-icons/lib/io'
+import {orderBy} from 'lodash'
+import { IoEdit, IoAndroidClose, IoIosCloudUploadOutline, IoArrowDownC, IoArrowUpC } from 'react-icons/lib/io'
 
 import Slider from 'material-ui/Slider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme'
@@ -34,7 +35,8 @@ class UserDetails extends Component {
 
     state = {
         animated: true,
-        viewEntersAnim: true
+        viewEntersAnim: true,
+        order: 'asc'
     }
     componentDidMount() {
         const { enterUsers } = this.props
@@ -186,9 +188,48 @@ class UserDetails extends Component {
                                   enableSelectAll={false} >
                                   <TableRow>
                                     <TableHeaderColumn tooltip="Image"></TableHeaderColumn>
-                                    <TableHeaderColumn tooltip="Name">Name</TableHeaderColumn>
-                                    <TableHeaderColumn tooltip="Description">Description</TableHeaderColumn>
-                                    <TableHeaderColumn tooltip="GroupAdmin">Admin?</TableHeaderColumn>
+                                      <TableHeaderColumn><Row onClick={this.handlesClickOrder.bind(this, {orderBy: 'name', array:'group'})}>Name
+                                      {
+                                        this.state.orderBy === 'name' && this.state.order === 'asc'
+                                        ?
+                                        <IoArrowUpC />
+                                        :
+                                        <Col>{
+                                            this.state.orderBy === 'name'
+                                            ?
+                                            <IoArrowDownC />
+                                            :
+                                            null
+                                          }</Col>}</Row>
+                                      </TableHeaderColumn>
+                                      <TableHeaderColumn><Row onClick={this.handlesClickOrder.bind(this, {orderBy: 'description', array:'group'})}>Description
+                                      {
+                                        this.state.orderBy === 'description' && this.state.order === 'asc'
+                                        ?
+                                        <IoArrowUpC />
+                                        :
+                                        <Col>{
+                                            this.state.orderBy === 'description'
+                                            ?
+                                            <IoArrowDownC />
+                                            :
+                                            null
+                                          }</Col>}</Row>
+                                      </TableHeaderColumn>
+                                      <TableHeaderColumn><Row onClick={this.handlesClickOrder.bind(this, {orderBy: 'isGroupAdmin', array:'group'})}>Admin
+                                      {
+                                        this.state.orderBy === 'isGroupAdmin' && this.state.order === 'asc'
+                                        ?
+                                        <IoArrowUpC />
+                                        :
+                                        <Col>{
+                                            this.state.orderBy === 'isGroupAdmin'
+                                            ?
+                                            <IoArrowDownC />
+                                            :
+                                            null
+                                          }</Col>}</Row>
+                                      </TableHeaderColumn>
                                     <TableHeaderColumn tooltip="Button"></TableHeaderColumn>
                                   </TableRow>
                                 </TableHeader>
@@ -217,6 +258,18 @@ class UserDetails extends Component {
                     </div>
               </div>
             )
+        }
+
+        handlesClickOrder = event => {
+            this.setState({orderBy: event.orderBy});
+            if(this.state.order === 'asc'){
+              this.setState({order: 'desc'})
+            }
+            else{
+              this.setState({order: 'asc'})
+            }
+              var sorted = orderBy(this.state.userGroups, event.orderBy, this.state.order);
+              this.setState({userGroups: sorted})
         }
 
         handlesEditGroupClick = event => {

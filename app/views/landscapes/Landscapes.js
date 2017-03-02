@@ -390,7 +390,7 @@ class Landscapes extends Component {
                                 stripedRows={false}>
                       {
                         this.state.items.map((landscape, i) =>
-                          <TableRow key={i} onTouchTap={this.handlesEditLandscapeClick.bind(this, landscape)}>
+                          <TableRow key={i} onTouchTap={this.handlesLandscapeClick.bind(this, landscape)}>
                             <TableRowColumn><img id='landscapeIcon' style={{height:35}} src={landscape.imageUri || defaultLandscapeImage}/></TableRowColumn>
                             <TableRowColumn>{landscape.name}</TableRowColumn>
                             <TableRowColumn>{
