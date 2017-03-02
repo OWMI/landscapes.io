@@ -7,10 +7,13 @@ import Password         from './password/Password'
 
 // protected views:
 import Protected        from './protected/Protected'
+
 import CreateLandscape  from './landscapes/CreateLandscape'
 import EditLandscape    from './landscapes/EditLandscape'
 import LandscapeDetails from './landscapes/LandscapeDetails'
 import Landscapes       from './landscapes/Landscapes'
+
+import Ldap       from './ldap/Ldap'
 
 import Users            from './users/Users'
 import CreateUser       from './users/CreateUser'
@@ -51,6 +54,8 @@ export {
     CreateLandscape,
     EditLandscape,
     LandscapeDetails,
+
+    Ldap,
 
     Users,
     CreateUser,

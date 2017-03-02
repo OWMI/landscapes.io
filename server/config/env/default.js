@@ -50,7 +50,9 @@ module.exports = {
         bindDn: 'cn=admin,dc=landscapes,dc=io',
         bindCredentials: 'password',
         searchBase: 'ou=people,dc=landscapes,dc=io',
-        searchFilter: '(uid={{username}})'
+        searchFilter: '(uid={{username}})',
+        groupSearchBase: 'ou=groups,dc=landscapes,dc=io',
+        groupSearchFilter: '(cn={{groups}})',
     },
     // Lusca config
     csrf: {

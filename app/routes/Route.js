@@ -46,6 +46,8 @@ import {
     ConnectedCreateAccount,
     ConnectedUpdateAccount,
 
+    ConnectedLdap,
+
     ConnectedLandscapes,
     ConnectedCreateLandscape,
     ConnectedEditLandscape,
@@ -81,6 +83,8 @@ export const Routes = () => {
                         <Route path="/landscape/:id" component={ConnectedLandscapeDetails} onEnter={requireAuth}/>
                         <Route path="/landscapes/create" component={ConnectedCreateLandscape} onEnter={requireAuth}/>
                         <Route path="/landscapes/edit/:id" component={ConnectedEditLandscape} onEnter={requireAuth}/>
+                        {/* ldap */}
+                        <Route path="/ldap" component={ConnectedLdap} onEnter={requireAuth}/>
                         {/* deployment views */}
                         <Route path="/:landscapeId/deployments" component={ConnectedDeployments} onEnter={requireAuth}/>
                         <Route path="/:landscapeId/deployments/create" component={ConnectedCreateDeployment} onEnter={requireAuth}/>

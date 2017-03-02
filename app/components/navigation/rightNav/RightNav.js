@@ -18,30 +18,29 @@ class RightNav extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
+        const isAuthenticated = (auth.getToken())
+            ? true
+            : false
 
-      const isAuthenticated = (auth.getToken())
-          ? true
-          : false
+        const { userIsAuthenticated } = nextProps
 
-      const { userIsAuthenticated } = nextProps
+        this.setState({
+            userIsAuthenticated: isAuthenticated,
+            userMenu: false,
+            settings: false
+        })
 
-      this.setState({
-          userIsAuthenticated: isAuthenticated,
-          userMenu: false,
-          settings: false
-      })
+        if (auth.getUserInfo() && auth.getUserInfo().role === 'admin') {
+            this.setState({ userIsAdmin: true })
+        } else {
+            this.setState({ userIsAdmin: false })
+        }
 
-      if (auth.getUserInfo() && auth.getUserInfo().role === 'admin') {
-          this.setState({userIsAdmin: true})
-      } else {
-          this.setState({userIsAdmin: false})
-      }
-
-      if (auth.getUserInfo() && auth.getUserInfo().isGroupAdmin) {
-          this.setState({isGroupAdmin: true})
-      } else {
-          this.setState({isGroupAdmin: false})
-      }
+        if (auth.getUserInfo() && auth.getUserInfo().isGroupAdmin) {
+            this.setState({ isGroupAdmin: true })
+        } else {
+            this.setState({ isGroupAdmin: false })
+        }
   }
 
 
@@ -49,7 +48,7 @@ class RightNav extends Component {
         const { rightLinks, onRightNavButtonClick, user, userIsAuthenticated } = this.props
 
         return (
-            <Row between='xs' style={{marginTop: 5}}>
+            <Row between='xs' style={{ marginTop: 5 }}>
                 {
                     (userIsAuthenticated && this.state.userIsAuthenticated && this.state.userIsAdmin)
                     ?
@@ -60,127 +59,126 @@ class RightNav extends Component {
                             )
                         })
                     :
-                    <div>{
-                        (userIsAuthenticated && this.state.userIsAuthenticated && !this.state.userIsAdmin && this.state.isGroupAdmin)
-                        ?
-                        rightLinks.filter(btnLink => ((btnLink.showWhenUserAuth === true) && (btnLink.showOnUserDropdown === false) && (btnLink.showOnSettingsDropdown !== true) && (btnLink.showOnlyGlobalAdmin !== true))).map((aLinkBtn, index) => {
-                                return (
-                                    <RightNavButton key={index} link={aLinkBtn.link} label={aLinkBtn.label}
-                                        viewName={aLinkBtn.view} onClick={onRightNavButtonClick}/>
-                                )
-                            })
-                        :
                         <div>
-                          {
-                            (userIsAuthenticated && this.state.userIsAuthenticated && !this.state.userIsAdmin && !this.state.isGroupAdmin)
-                            ?
-                                rightLinks.filter(btnLink => ((btnLink.showWhenUserAuth === true) && (btnLink.showOnUserDropdown === false) && (btnLink.showAdminOnly === false))).map((aLinkBtn, index) => {
-                                    return (
-                                        <RightNavButton key={index} link={aLinkBtn.link} label={aLinkBtn.label}
-                                            viewName={aLinkBtn.view} onClick={onRightNavButtonClick}/>
-                                    )
-                                })
-                            :
-                            rightLinks.filter(btnLink => ((btnLink.showWhenUserAuth === false) || (btnLink.alwaysShows === true))).map((aLinkBtn, index) => {
-                                return (
-                                    <RightNavButton key={index} link={aLinkBtn.link} label={aLinkBtn.label}
-                                        viewName={aLinkBtn.view} onClick={onRightNavButtonClick}/>
-                                    )
-                            })
-                          }
-                        </div>
+                            {
+                                (userIsAuthenticated && this.state.userIsAuthenticated && !this.state.userIsAdmin && this.state.isGroupAdmin)
+                                ?
+                                    rightLinks.filter(btnLink => ((btnLink.showWhenUserAuth === true) && (btnLink.showOnUserDropdown === false) && (btnLink.showOnSettingsDropdown !== true) && (btnLink.showOnlyGlobalAdmin !== true))).map((aLinkBtn, index) => {
+                                        return (
+                                            <RightNavButton key={index} link={aLinkBtn.link} label={aLinkBtn.label}
+                                                viewName={aLinkBtn.view} onClick={onRightNavButtonClick}/>
+                                        )
+                                    })
+                                :
+                                    <div>
+                                      {
+                                        (userIsAuthenticated && this.state.userIsAuthenticated && !this.state.userIsAdmin && !this.state.isGroupAdmin)
+                                        ?
+                                            rightLinks.filter(btnLink => ((btnLink.showWhenUserAuth === true) && (btnLink.showOnUserDropdown === false) && (btnLink.showAdminOnly === false))).map((aLinkBtn, index) => {
+                                                return (
+                                                    <RightNavButton key={index} link={aLinkBtn.link} label={aLinkBtn.label}
+                                                        viewName={aLinkBtn.view} onClick={onRightNavButtonClick}/>
+                                                )
+                                            })
+                                        :
+                                            rightLinks.filter(btnLink => ((btnLink.showWhenUserAuth === false) || (btnLink.alwaysShows === true))).map((aLinkBtn, index) => {
+                                                return (
+                                                    <RightNavButton key={index} link={aLinkBtn.link} label={aLinkBtn.label}
+                                                        viewName={aLinkBtn.view} onClick={onRightNavButtonClick}/>
+                                                    )
+                                            })
+                                      }
+                                    </div>
 
-                    }
-                    </div>
+                            }
+                        </div>
                 }
                 {
                     (userIsAuthenticated && this.state.userIsAuthenticated && (this.state.isGroupAdmin || this.state.userIsAdmin))
                     ?
-                    <div>
-                    <FlatButton onTouchTap={this.handleSettingsClick}
-                        label='Settings' hoverColor={'none'}
-                        labelStyle={{ fontSize: '12px', fontWeight: 'bold' }}
-                    />
-                  {
-                    this.state.userIsAdmin
-                    ?
-                    <IconMenu
-                        open={this.state.settings}
-                        iconButtonElement={<IconButton style={{ display: 'none' }}></IconButton>}
-                        onRequestChange={this.handleOnRequestChange}
-                        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-                        targetOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-                        >
+                        <div>
+                            <FlatButton onTouchTap={this.handleSettingsClick}
+                                label='Settings' hoverColor={'none'}
+                                labelStyle={{ fontSize: '12px', fontWeight: 'bold' }}
+                            />
                             {
-                                rightLinks.filter(btnLink => ((btnLink.showWhenUserAuth === true) && ((btnLink.showOnSettingsDropdown === true) || (btnLink.showOnSettingsDropdownAdminOnly === true)))).map((aLinkBtn, index) => {
-                                      return (
-                                          <Link key={index} to={aLinkBtn.link} onClick={this.handleRightNavItemClick}>
-                                              <MenuItem primaryText={aLinkBtn.label}/>
-                                          </Link>
-                                      )
-                                })
-                            }
-                    </IconMenu>
-                    :
-                    <IconMenu
-                        open={this.state.settings}
-                        iconButtonElement={<IconButton style={{ display: 'none' }}></IconButton>}
-                        onRequestChange={this.handleOnRequestChange}
-                        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-                        targetOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-                        >
-                            {
-                                rightLinks.filter(btnLink => ((btnLink.showWhenUserAuth === true) && (btnLink.showOnSettingsDropdown === true) && (btnLink.showOnSettingsDropdownAdminOnly === false))).map((aLinkBtn, index) => {
-                                      return (
-                                          <Link key={index} to={aLinkBtn.link} onClick={this.handleRightNavItemClick}>
-                                              <MenuItem primaryText={aLinkBtn.label}/>
-                                          </Link>
-                                      )
-                                })
-                            }
-                    </IconMenu>
-                  }
-                    </div>
-                    :
-                        null
+                                this.state.userIsAdmin
+                                    ?
+                                        <IconMenu
+                                            open={this.state.settings}
+                                            iconButtonElement={<IconButton style={{ display: 'none' }}></IconButton>}
+                                            onRequestChange={this.handleOnRequestChange}
+                                            anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                                            targetOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                                            >
+                                                {
+                                                    rightLinks.filter(btnLink => ((btnLink.showWhenUserAuth === true) && ((btnLink.showOnSettingsDropdown === true) || (btnLink.showOnSettingsDropdownAdminOnly === true)))).map((aLinkBtn, index) => {
+                                                          return (
+                                                              <Link key={index} to={aLinkBtn.link} onClick={this.handleRightNavItemClick}>
+                                                                  <MenuItem primaryText={aLinkBtn.label}/>
+                                                              </Link>
+                                                          )
+                                                    })
+                                                }
+                                        </IconMenu>
+                                    :
+                                        <IconMenu
+                                            open={this.state.settings}
+                                            iconButtonElement={<IconButton style={{ display: 'none' }}></IconButton>}
+                                            onRequestChange={this.handleOnRequestChange}
+                                            anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                                            targetOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                                            >
+                                                {
+                                                    rightLinks.filter(btnLink => ((btnLink.showWhenUserAuth === true) && (btnLink.showOnSettingsDropdown === true) && (btnLink.showOnSettingsDropdownAdminOnly === false))).map((aLinkBtn, index) => {
+                                                          return (
+                                                              <Link key={index} to={aLinkBtn.link} onClick={this.handleRightNavItemClick}>
+                                                                  <MenuItem primaryText={aLinkBtn.label}/>
+                                                              </Link>
+                                                          )
+                                                    })
+                                                }
+                                        </IconMenu>
+                                }
+                            </div>
+                        :
+                            null
                 }
-
                 {
                     (userIsAuthenticated && this.state.userIsAuthenticated)
                     ?
-                    <div>
-                    <FlatButton onTouchTap={this.handleUsernameClick}
-                        label={auth.getUserInfo().displayName} hoverColor={'none'}
-                        labelStyle={{ fontSize: '12px', fontWeight: 'bold' }}
-                        icon={<IoPerson/>}
-                    />
-                    <IconMenu
-                        open={this.state.userMenu}
-                        iconButtonElement={<IconButton style={{ display: 'none' }}></IconButton>}
-                        onRequestChange={this.handleOnRequestChange}
-                        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-                        targetOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-                        >
-                            {
-                                rightLinks.filter(btnLink => ((btnLink.showWhenUserAuth === true) && (btnLink.showOnUserDropdown === true))).map((aLinkBtn, index) => {
-                                    if(aLinkBtn.label === 'Logout'){
-                                      return (
-                                          <Link key={index} to={aLinkBtn.link} onClick={this.handleLogout}>
-                                              <MenuItem primaryText={aLinkBtn.label}/>
-                                          </Link>
-                                      )
+                        <div>
+                            <FlatButton onTouchTap={this.handleUsernameClick}
+                                label={auth.getUserInfo().displayName} hoverColor={'none'}
+                                labelStyle={{ fontSize: '12px', fontWeight: 'bold' }}
+                                icon={<IoPerson/>}
+                            />
+                            <IconMenu open={this.state.userMenu}
+                                iconButtonElement={<IconButton style={{ display: 'none' }}></IconButton>}
+                                onRequestChange={this.handleOnRequestChange}
+                                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                                targetOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                                >
+                                    {
+                                        rightLinks.filter(btnLink => ((btnLink.showWhenUserAuth === true) && (btnLink.showOnUserDropdown === true))).map((aLinkBtn, index) => {
+                                            if(aLinkBtn.label === 'Logout'){
+                                              return (
+                                                  <Link key={index} to={aLinkBtn.link} onClick={this.handleLogout}>
+                                                      <MenuItem primaryText={aLinkBtn.label}/>
+                                                  </Link>
+                                              )
+                                            }
+                                            else{
+                                              return (
+                                                  <Link key={index} to={aLinkBtn.link} onClick={this.handleRightNavItemClick}>
+                                                      <MenuItem primaryText={aLinkBtn.label}/>
+                                                  </Link>
+                                              )
+                                            }
+                                        })
                                     }
-                                    else{
-                                      return (
-                                          <Link key={index} to={aLinkBtn.link} onClick={this.handleRightNavItemClick}>
-                                              <MenuItem primaryText={aLinkBtn.label}/>
-                                          </Link>
-                                      )
-                                    }
-                                })
-                            }
-                    </IconMenu>
-                    </div>
+                            </IconMenu>
+                        </div>
                     :
                         null
                 }
