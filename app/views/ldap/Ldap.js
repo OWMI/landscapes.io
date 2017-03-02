@@ -10,15 +10,15 @@ class Ldap extends Component {
 
     state = {
         animated: true,
-        viewEntersAnim: true,
-        selectedLandscapeGroup: {
-            index: 0
-        }
+        viewEntersAnim: true
     }
 
     componentDidMount() {
-        const { enterProtected } = this.props
-        enterProtected()
+        this.handleInit(this.props)
+    }
+
+    componentWillReceiveProps(nextProps) {
+        this.handleInit(nextProps)
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -79,6 +79,13 @@ class Ldap extends Component {
                 </Col>
             </Row>
         )
+    }
+
+    handleInit(props) {
+        const { enterProtected, groups } = props
+        enterProtected()
+        // init
+        if (groups) this.handleLandscapeGroupClick(groups[0], 0)
     }
 
     handleLandscapeGroupClick(group, index) {
