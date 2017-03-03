@@ -30,6 +30,10 @@ import ConnectedTags from './tags/Tags'
 import ConnectedCreateTag from './tags/CreateTag'
 import ConnectedUpdateTag from './tags/UpdateTag'
 
+import ConnectedIntegrations from './integrations/Integrations'
+import ConnectedIntegrationDetails from './integrations/IntegrationDetails'
+import ConnectedIntegrationConfigure from './integrations/IntegrationConfigure'
+
 import ConnectedAccounts from './accounts/Accounts'
 import ConnectedCreateAccount from './accounts/CreateAccount'
 import ConnectedUpdateAccount from './accounts/UpdateAccount'
@@ -68,6 +72,10 @@ export {
     ConnectedTags,
     ConnectedCreateTag,
     ConnectedUpdateTag,
+
+    ConnectedIntegrations,
+    ConnectedIntegrationDetails,
+    ConnectedIntegrationConfigure,
 
     ConnectedAccounts,
     ConnectedCreateAccount,

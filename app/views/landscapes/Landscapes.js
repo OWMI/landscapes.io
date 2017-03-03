@@ -97,7 +97,6 @@ class Landscapes extends Component {
             _viewLandscapes.forEach(landscape => {
                 landscape.status = new StatusModel()
             })
-
             // create promise array to gather all deployments
             let _promises = _viewLandscapes.map((landscape, index) => {
                 return new Promise((resolve, reject) => {

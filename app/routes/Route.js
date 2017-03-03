@@ -42,6 +42,10 @@ import {
     ConnectedCreateTag,
     ConnectedUpdateTag,
 
+    ConnectedIntegrations,
+    ConnectedIntegrationDetails,
+    ConnectedIntegrationConfigure,
+
     ConnectedAccounts,
     ConnectedCreateAccount,
     ConnectedUpdateAccount,
@@ -70,6 +74,10 @@ export const Routes = () => {
                         <Route path="/tags" component={ConnectedTags} onEnter={requireAuth}/>
                         <Route path="/tags/create" component={ConnectedCreateTag} onEnter={requireAuth}/>
                         <Route path="/tags/update/:id" component={ConnectedUpdateTag} onEnter={requireAuth}/>
+                        {/* Integration views */}
+                        <Route path="/integrations" component={ConnectedIntegrations} onEnter={requireAuth}/>
+                        <Route path="/integration/:id" component={ConnectedIntegrationDetails} onEnter={requireAuth}/>
+                        <Route path="/integration/configure/:id" component={ConnectedIntegrationConfigure} onEnter={requireAuth}/>
                         {/* account views */}
                         <Route path="/accounts" component={ConnectedAccounts} onEnter={requireAuth}/>
                         <Route path="/accounts/create" component={ConnectedCreateAccount} onEnter={requireAuth}/>

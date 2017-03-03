@@ -30,6 +30,10 @@ import Tags         from './tags/Tags'
 import CreateTag    from './tags/CreateTag'
 import UpdateTag    from './tags/UpdateTag'
 
+import Integrations         from './integrations/Integrations'
+import IntegrationDetails         from './integrations/IntegrationDetails'
+import IntegrationConfigure         from './integrations/IntegrationConfigure'
+
 import Accounts         from './accounts/Accounts'
 import CreateAccount    from './accounts/CreateAccount'
 import UpdateAccount    from './accounts/UpdateAccount'
@@ -71,6 +75,10 @@ export {
     Tags,
     CreateTag,
     UpdateTag,
+
+    Integrations,
+    IntegrationDetails,
+    IntegrationConfigure,
 
     Accounts,
     CreateAccount,

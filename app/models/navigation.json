@@ -43,6 +43,19 @@
         "hideWhenUserAuth": false,
         "showOnlyGlobalAdmin": true
 
+    },
+    {
+        "label": "Integrations",
+        "link": "/integrations",
+        "view": "integrations",
+        "isRouteBtn": true,
+        "alwaysShows": false,
+        "showAdminOnly": true,
+        "showWhenUserAuth": true,
+        "showOnUserDropdown": false,
+        "showOnSettingsDropdown": true,
+        "showOnSettingsDropdownAdminOnly": true,
+        "hideWhenUserAuth": false
     }, {
         "label": "LDAP",
         "link": "/ldap",
