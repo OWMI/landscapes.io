@@ -26,6 +26,10 @@ class Login extends Component {
                 self.handleOAuthLogin(
                     JSON.parse(decodeURIComponent(window.location.search.split('oauth=')[1]))
                 )
+            } else if (window.location.search.indexOf('user=') > -1) {
+                self.handleGeoAccessLogin(
+                    window.location.search.split('user=')[1]
+                )
             }
         }, 1000)
     }
@@ -69,7 +73,7 @@ class Login extends Component {
                 <Col xs={6} lg={4} className={cx( { 'login-page': true } )}>
 
                     {
-                        AUTH_STRATEGY && AUTH_STRATEGY === 'google'
+                        AUTH_STRATEGY === 'google' || AUTH_STRATEGY === 'geoaxis'
                         ?
                             configuration && configuration.length && configuration[0].isFirstUser
                             ?
@@ -85,10 +89,8 @@ class Login extends Component {
                                     {
                                         stepIndex === 0
                                         ?
-                                            // <RaisedButton label='Login with Google OAuth' fullWidth={false} type='primary'
-                                            //     onClick={self.handleOAuthLogin} labelStyle={{ fontFamily: 'Nunito, sans-serif', textTransform: 'none' }}/>
                                             <a href={`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/auth/${AUTH_STRATEGY}`}>
-                                                <RaisedButton label='Login with Google OAuth' fullWidth={false} type='primary'
+                                                <RaisedButton label={`Login with ${AUTH_STRATEGY} OAuth`} fullWidth={false} type='primary'
                                                     labelStyle={{ fontFamily: 'Nunito, sans-serif', textTransform: 'none' }}/>
                                             </a>
                                         :
@@ -97,7 +99,7 @@ class Login extends Component {
                                 </div>
                             :
                                 <a href={`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/auth/${AUTH_STRATEGY}`}>
-                                    <RaisedButton label='Login with Google OAuth' fullWidth={false} type='primary'
+                                    <RaisedButton label={`Login with ${AUTH_STRATEGY} OAuth`} fullWidth={false} type='primary'
                                         labelStyle={{ fontFamily: 'Nunito, sans-serif', textTransform: 'none' }}/>
                                 </a>
                         :
@@ -135,19 +137,39 @@ class Login extends Component {
         router.push({ pathname: '/landscapes' })
     }
 
-    handleOAuthLogin = authData => {
+    handleGeoAccessLogin = user => {
 
-        const { accounts, configuration, groups, loginUser, refetchGroups, toggleFirstUser } = this.props
+        user = JSON.parse(atob(user))
+        const { accounts, groups, loginUser, refetchGroups } = this.props
         const { router } = this.context
+        const userWithPermissions = auth.setUserPermissions(user, groups, accounts)
 
         // user login & auth token generation
-        // this.setState({ showError: false })
-        // axios({
-        //     url: `${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/auth/google`,
-        //     headers: { 'Access-Control-Allow-Origin': '*' }
-        // }).then(res => {
-        //     console.log('%c RESPONSE ', 'background: #1c1c1c; color: limegreen', res)
-        // }).catch(err => console.log(err))
+        axios({
+            method: 'post',
+            url: `${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/generateToken`,
+            data: userWithPermissions
+        }).then(res => {
+            const { user, token } = res.data
+            loginUser(token, user, groups)
+
+            return axios({
+                method: 'get',
+                url: `${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/verifyToken`,
+                headers: { 'x-access-token': token }
+            })
+        }).then(res => {
+            router.push({ pathname: '/landscapes' })
+        }).catch(err => {
+            console.error(err)
+            this.setState({ showError: true })
+        })
+    }
+
+    handleOAuthLogin = authData => {
+
+        const { accounts, groups, loginUser, refetchGroups } = this.props
+        const { router } = this.context
 
         let userWithPermissions = auth.setUserPermissions(authData, groups, accounts)
 
@@ -156,7 +178,7 @@ class Login extends Component {
             url: `${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/generateToken`,
             data: userWithPermissions
         }).then(res => {
-            return refetchGroups({}).then(groups => {
+            return refetchGroups().then(groups => {
               const { user, token } = res.data
               loginUser(token, user, this.props.groups)
 
@@ -167,9 +189,6 @@ class Login extends Component {
               })
             })
         }).then(res => {
-
-            console.log('%c configuration ', 'background: #1c1c1c; color: limegreen', configuration)
-
             // toggle admin user at first login
             if (configuration && configuration.length && configuration[0].isFirstUser) {
                 this.setState({ stepIndex: 1 })
@@ -186,7 +205,7 @@ class Login extends Component {
 
         event.preventDefault()
 
-        const { accounts, configuration, groups, loginUser, refetchGroups, toggleFirstUser } = this.props
+        const { accounts, configuration, groups, loginUser, refetchGroups } = this.props
         const { router } = this.context
         let { username, password } = this.refs
 
@@ -198,10 +217,7 @@ class Login extends Component {
         axios({
             method: 'post',
             url: `${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/auth/signin`,
-            data: {
-                username,
-                password
-            }
+            data: { username, password }
         }).then(res => {
             let userWithPermissions = auth.setUserPermissions(res.data, groups, accounts)
             return axios({
@@ -210,19 +226,18 @@ class Login extends Component {
                 data: userWithPermissions
             })
         }).then(res => {
-            return refetchGroups({}).then(groups => {
-                const { user, token } = res.data
-                loginUser(token, user, groups)
+            const { user, token } = res.data
+            loginUser(token, user, groups)
 
-                return axios({
-                    method: 'get',
-                    url: `${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/verifyToken`,
-                    headers: { 'x-access-token': token }
-                })
+            return axios({
+                method: 'get',
+                url: `${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/verifyToken`,
+                headers: { 'x-access-token': token }
             })
         }).then(res => {
             router.push({ pathname: '/landscapes' })
-        }).catch(err =>{
+        }).catch(err => {
+            console.error(err)
             this.setState({ showError: true })
         })
     }

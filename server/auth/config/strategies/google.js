@@ -10,11 +10,11 @@ let passport        = require('passport'),
 
 module.exports = () => {
 
+    const { NODE_ENV, PROTOCOL, PUBLIC_IP, PORT } = process.env
+
     let _clientID = 'CLIENT_ID',
         _clientSecret = 'CLIENT_SECRET',
-        _callbackURL = process.env.NODE_ENV === 'production'
-                        ? `${process.env.PROTOCOL}://${process.env.PUBLIC_IP}/api/auth/${config.authStrategy}/callback`
-                        : `http://localhost:8080/api/auth/${config.authStrategy}/callback`
+        _callbackURL = `${PROTOCOL}://${PUBLIC_IP}:${PORT}/api/auth/${config.authStrategy}/callback`
 
     if (config.oauthCreds[config.authStrategy]) {
         _clientID = config.oauthCreds[config.authStrategy].clientID
@@ -34,7 +34,6 @@ module.exports = () => {
                     resolve(configuration)
                 })
             }).then(configuration => {
-                console.log('configuration', configuration)
                 User.findOne({ username: profile.id }, (err, user) => {
                     if (err) return done(err)
 

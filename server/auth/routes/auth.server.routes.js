@@ -17,25 +17,16 @@ module.exports = app => {
     app.route('/api/auth/signin').post(users.signin)
     app.route('/api/auth/signout').get(users.signout)
 
+    // common oauth
+    app.route('/api/auth/google').get(users.oauthCall('google', { scope: ['profile'] }))
+    app.route('/api/auth/google/callback').get(users.oauthCallback('google'))
+
+    // geoaxis oauth
+    app.route('/api/auth/geoaxis').get(users.oauthCall('geoaxis', {}))
+    app.route('/api/auth/geoaxis/callback').get(users.geoaxisCallback)
 
     app.route('/api/github/repo').post(integrations.getGithubRepo)
     app.route('/api/yaml/parse').post(integrations.parseYAML)
     app.route('/api/github/commit').post(integrations.addAndCommitGithub)
 
-    app.route('/api/auth/google').get(users.oauthCall('google', { scope: ['profile'] }))
-    // app.route('/api/auth/google').get((req, res) => {
-    //     console.log('%c req ', 'background: #1c1c1c; color: deepskyblue', req)
-    //     users.oauthCall('google', { scope: ['profile'] })
-    // })
-
-    app.route('/api/auth/google/callback').get(users.oauthCallback('google'))
-
-    // app.get('/api/auth/google', passport.authenticate('google', { scope: ['profile'] }))
-    //
-    // app.get('/api/auth/google/callback',
-    //     passport.authenticate('google', { failureRedirect: '/login' }), (req, res) => {
-    //         // Successful authentication, redirect home.
-    //         res.redirect('/')
-    //     }
-    // )
 }

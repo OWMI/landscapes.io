@@ -1,4 +1,6 @@
-'use strict'
+`use strict`
+
+const { PROTOCOL, PUBLIC_IP, PORT } = process.env
 
 let ldapUrl = process.env.LDAP_PORT_389
     ? `ldap://${process.env.LDAP_PORT_389}:389`
@@ -6,12 +8,12 @@ let ldapUrl = process.env.LDAP_PORT_389
 
 module.exports = {
     app: {
-        title: 'landscapes.io',
-        description: 'a management tool for AWS CloudFormation',
-        keywords: 'aws, cloudformation, cloud'
+        title: `landscapes.io`,
+        description: `a management tool for AWS CloudFormation`,
+        keywords: `aws, cloudformation, cloud`
     },
     port: process.env.PORT || 8080,
-    host: '0.0.0.0',
+    host: process.env.PUBLIC_IP || `0.0.0.0`,
 
     // DOMAIN config should be set to the fully qualified application accessible URL.
     // For example: https://www.myapp.com (including port if required).
@@ -28,43 +30,49 @@ module.exports = {
     },
 
     // sessionSecret should be changed for security measures and concerns
-    sessionSecret: process.env.SESSION_SECRET || 'blackSky',
+    sessionSecret: process.env.SESSION_SECRET || `blackSky`,
 
     // sessionKey is the cookie session name
-    sessionKey: 'sessionId',
-    sessionCollection: 'sessions',
+    sessionKey: `sessionId`,
+    sessionCollection: `sessions`,
 
-    authStrategy: 'local',
+    authStrategy: `local`,
 
     oauthCreds: {
         google: {
-            clientID: 'CLIENT_ID',
-            clientSecret: 'CLIENT_SECRET'
+            clientID: process.env.GOOGLE_CLIENT_ID || `GOOGLE_CLIENT_ID`,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET || `GOOGLE_CLIENT_SECRET`,
+            callbackURL: `${PROTOCOL}://${PUBLIC_IP}:${PORT}/api/auth/google/callback`
+        },
+        geoaxis: {
+            clientID: process.env.GEOAXIS_CLIENT_ID || `GEOAXIS_CLIENT_ID`,
+            clientSecret: process.env.GEOAXIS_CLIENT_SECRET || `GEOAXIS_CLIENT_SECRET`,
+            callbackURL: `https://landscapes.blacksky.io/api/auth/geoaxis/callback`
         }
     },
 
-    caBundlePath: '../sslcerts/cacert.pem',
+    caBundlePath: `../sslcerts/cacert.pem`,
 
     ldap: {
         url: ldapUrl,
-        bindDn: 'cn=admin,dc=landscapes,dc=io',
-        bindCredentials: 'password',
-        searchBase: 'ou=people,dc=landscapes,dc=io',
-        searchFilter: '(uid={{username}})',
-        groupSearchBase: 'ou=groups,dc=landscapes,dc=io',
-        groupSearchFilter: '(cn={{groups}})',
+        bindDn: `cn=admin,dc=landscapes,dc=io`,
+        bindCredentials: `password`,
+        searchBase: `ou=people,dc=landscapes,dc=io`,
+        searchFilter: `(uid={{username}})`,
+        groupSearchBase: `ou=groups,dc=landscapes,dc=io`,
+        groupSearchFilter: `(cn={{groups}})`,
     },
     // Lusca config
     csrf: {
         csrf: false,
         csp: false,
-        xframe: 'SAMEORIGIN',
-        p3p: 'ABCDEF',
+        xframe: `SAMEORIGIN`,
+        p3p: `ABCDEF`,
         xssProtection: true
     },
     uploads: {
         profileUpload: {
-            dest: './public/uploads/', // Profile upload destination path
+            dest: `./public/uploads/`, // Profile upload destination path
             limits: {
                 fileSize: 1 * 1024 * 1024 // Max file size in bytes (1 MB)
             }
