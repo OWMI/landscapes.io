@@ -1,9 +1,10 @@
 `use strict`
 
-const { PROTOCOL, PUBLIC_IP, PORT } = process.env
+const { AUTH_STRATEGY, DOMAIN, GEOAXIS_CLIENT_ID, GEOAXIS_CLIENT_SECRET, GOOGLE_CLIENT_ID,
+        GOOGLE_CLIENT_SECRET, LDAP_PORT_389, NODE_ENV, PROTOCOL, PUBLIC_IP, PORT, SESSION_SECRET } = process.env
 
-let ldapUrl = process.env.LDAP_PORT_389
-    ? `ldap://${process.env.LDAP_PORT_389}:389`
+let ldapUrl = LDAP_PORT_389
+    ? `ldap://${LDAP_PORT_389}:389`
     : `ldap://localhost:389`
 
 module.exports = {
@@ -12,12 +13,12 @@ module.exports = {
         description: `a management tool for AWS CloudFormation`,
         keywords: `aws, cloudformation, cloud`
     },
-    port: process.env.PORT || 8080,
-    host: process.env.PUBLIC_IP || `0.0.0.0`,
+    port: PORT || 8080,
+    host: PUBLIC_IP || `0.0.0.0`,
 
     // DOMAIN config should be set to the fully qualified application accessible URL.
     // For example: https://www.myapp.com (including port if required).
-    domain: process.env.DOMAIN,
+    domain: DOMAIN,
 
     // Session Cookie settings
     sessionCookie: {
@@ -30,23 +31,25 @@ module.exports = {
     },
 
     // sessionSecret should be changed for security measures and concerns
-    sessionSecret: process.env.SESSION_SECRET || `blackSky`,
+    sessionSecret: SESSION_SECRET || `blackSky`,
 
     // sessionKey is the cookie session name
     sessionKey: `sessionId`,
     sessionCollection: `sessions`,
 
-    authStrategy: `local`,
+    authStrategy: AUTH_STRATEGY || `local`,
 
     oauthCreds: {
         google: {
-            clientID: process.env.GOOGLE_CLIENT_ID || `GOOGLE_CLIENT_ID`,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET || `GOOGLE_CLIENT_SECRET`,
-            callbackURL: `${PROTOCOL}://${PUBLIC_IP}:${PORT}/api/auth/google/callback`
+            clientID: GOOGLE_CLIENT_ID || `GOOGLE_CLIENT_ID`,
+            clientSecret: GOOGLE_CLIENT_SECRET || `GOOGLE_CLIENT_SECRET`,
+            callbackURL: NODE_ENV === 'production'
+                         ? `${PROTOCOL}://${PUBLIC_IP}/api/auth/google/callback`
+                         : `${PROTOCOL}://localhost:${PORT}/api/auth/google/callback`
         },
         geoaxis: {
-            clientID: process.env.GEOAXIS_CLIENT_ID || `GEOAXIS_CLIENT_ID`,
-            clientSecret: process.env.GEOAXIS_CLIENT_SECRET || `GEOAXIS_CLIENT_SECRET`,
+            clientID: GEOAXIS_CLIENT_ID || `GEOAXIS_CLIENT_ID`,
+            clientSecret: GEOAXIS_CLIENT_SECRET || `GEOAXIS_CLIENT_SECRET`,
             callbackURL: `https://landscapes.blacksky.io/api/auth/geoaxis/callback`
         }
     },

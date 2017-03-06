@@ -22,13 +22,15 @@ const TypeDocument = require('./models/documentTypes')
 const Tag = require('./models/tag')
 
 // Instantiate the LDAP client
-const ldapClient = ldap.createClient({
-    url: config.ldap.url
-})
+if (config.authStrategy === 'ldap') {
+    const ldapClient = ldap.createClient({
+        url: config.ldap.url
+    })
 
-ldapClient.bind(config.ldap.bindDn, config.ldap.bindCredentials, err => {
-    if (err) console.log(err)
-})
+    ldapClient.bind(config.ldap.bindDn, config.ldap.bindCredentials, err => {
+        if (err) console.log(err)
+    })
+}
 
 // FIX: Attempts to resolve 'UnknownEndpoint' error experienced on GovCloud
 // AWS.events.on('httpError', () => {

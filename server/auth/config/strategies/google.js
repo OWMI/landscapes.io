@@ -10,23 +10,12 @@ let passport        = require('passport'),
 
 module.exports = () => {
 
-    const { NODE_ENV, PROTOCOL, PUBLIC_IP, PORT } = process.env
-
-    let _clientID = 'CLIENT_ID',
-        _clientSecret = 'CLIENT_SECRET',
-        _callbackURL = `${PROTOCOL}://${PUBLIC_IP}:${PORT}/api/auth/${config.authStrategy}/callback`
-
-    if (config.oauthCreds[config.authStrategy]) {
-        _clientID = config.oauthCreds[config.authStrategy].clientID
-        _clientSecret = config.oauthCreds[config.authStrategy].clientSecret
-    }
+    const { clientID, clientSecret, callbackURL } = config.oauthCreds.google
 
     passport.use(
-        new GoogleStrategy({
-            clientID: _clientID,
-            clientSecret: _clientSecret,
-            callbackURL: _callbackURL
-        }, (accessToken, refreshToken, profile, done) => {
+        new GoogleStrategy({ clientID, clientSecret, callbackURL }, (accessToken, refreshToken, profile, done) => {
+
+            const { displayName, familyName, givenName, id, name } = profile
 
             return new Promise((resolve, reject) => {
                 Configuration.find().exec((err, configuration) => {
@@ -44,35 +33,39 @@ module.exports = () => {
                         profile.accessToken = accessToken
                         profile.refreshToken = refreshToken
 
-                        let _user = {
-                            username: profile.id,
-                            firstName: profile.name.givenName,
-                            lastName: profile.name.familyName,
-                            displayName: profile.displayName,
+                        user = new User({
+                            username: id,
+                            firstName: name.givenName,
+                            lastName: name.familyName,
+                            displayName: displayName,
                             provider: 'google',
-                            providerData: profile
-                        }
-
-                        if (configuration && configuration.length && configuration[0].isFirstUser) {
-                            _user.role = 'admin'
-                        }
-
-                        let newUser = new User(_user)
-
-                        newUser.save(error => {
-                            if (error) {
-                                console.log(error)
-                                return err
-                            } else {
-                                console.log(' ---> created: ', newUser._id)
-                                return done(null, newUser)
-                            }
+                            providerData: profile,
+                            role: configuration && configuration.length && configuration[0].isFirstUser
+                                  ? 'admin'
+                                  : 'user'
                         })
-                    }
 
-                    return done(null, user)
+                        user.save(err => {
+                            console.log(err ? err : ' ---> created: ' + user._id)
+                            return done(err, user)
+                        })
+                    } else {
+                        return done(err, user)
+                    }
                 })
             })
         }
     ))
+
+    passport.serializeUser((user, done) => {
+        done(null, user._id)
+    })
+
+    passport.deserializeUser((id, done) => {
+        User.findOne({ _id: id }).exec((err, user) => {
+            winston.log('passport.deserializeUser:', user)
+            done(err, user)
+        })
+    })
+
 }

@@ -21,17 +21,15 @@ class Login extends Component {
     componentWillMount() {
         const self = this
         // HACK: encode/decode oauth user until Chrome 57 is released with preflight issue fix
-        setTimeout(function () {
-            if (window.location.search.indexOf('oauth=') > -1) {
-                self.handleOAuthLogin(
-                    JSON.parse(decodeURIComponent(window.location.search.split('oauth=')[1]))
-                )
-            } else if (window.location.search.indexOf('user=') > -1) {
-                self.handleGeoAccessLogin(
-                    window.location.search.split('user=')[1]
-                )
-            }
-        }, 1000)
+        if (window.location.search.indexOf('oauth=') > -1) {
+            self.handleOAuthLogin(
+                JSON.parse(decodeURIComponent(window.location.search.split('oauth=')[1]))
+            )
+        } else if (window.location.search.indexOf('user=') > -1) {
+            self.handleGeoAccessLogin(
+                window.location.search.split('user=')[1]
+            )
+        }
     }
 
     componentDidMount() {
@@ -159,7 +157,7 @@ class Login extends Component {
                 headers: { 'x-access-token': token }
             })
         }).then(res => {
-            router.push({ pathname: '/landscapes' })
+            window.location.replace('/landscapes')
         }).catch(err => {
             console.error(err)
             this.setState({ showError: true })
@@ -193,7 +191,7 @@ class Login extends Component {
             if (configuration && configuration.length && configuration[0].isFirstUser) {
                 this.setState({ stepIndex: 1 })
             } else {
-                router.push({ pathname: '/landscapes' })
+                window.location.replace('/landscapes')
             }
 
         }).catch(err =>{

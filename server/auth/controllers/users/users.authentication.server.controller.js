@@ -121,62 +121,29 @@ exports.oauthCall = (strategy, scope) => {
  */
 exports.oauthCallback = strategy => {
     return (req, res, next) => {
+        passport.authenticate(strategy, { session: false }, (err, user, info) => {
+            if (err || !user) {
+                winston.log(`passport.authenticate.${strategy} --> ERROR:`, err)
+                res.status(400).send(info)
+            } else {
+                // Remove sensitive data before login
+                user.password = undefined
+                user.salt = undefined
 
-        // info.redirect_to contains inteded redirect path
-        passport.authenticate(strategy, (err, user, info) => {
-
-            if (err)
-                return res.redirect('/login?err=' + encodeURIComponent(errorHandler.getErrorMessage(err)))
-
-            if (!user)
-                return
-
-            req.login(user, err => {
-
-                if (err) {
-                    return res.redirect('/login?err=' + encodeURIComponent(err))
-                }
-
-                let redirectURL = '/login?oauth=' + encodeURIComponent(JSON.stringify(user))
-
-                if (process.env.NODE_ENV !== 'production')
-                    redirectURL = `http://localhost:3000/login?oauth=` + encodeURIComponent(JSON.stringify(user))
-
-                return res.redirect(redirectURL)
-            })
-
+                req.login(user, err => {
+                    if (err) {
+                        res.status(400).send(err)
+                    } else {
+                        let redirectURL = `/login?user=${new Buffer(JSON.stringify(user)).toString('base64')}`
+                        if (process.env.NODE_ENV !== 'production')
+                            redirectURL = `http://${config.host}:3000/login?user=${new Buffer(JSON.stringify(user)).toString('base64')}`
+                        res.redirect(redirectURL)
+                    }
+                })
+            }
         })(req, res, next)
     }
 }
-
-/**
- * OAuth callback
- */
-exports.geoaxisCallback = (req, res, next) => {
-
-    passport.authenticate('geoaxis', { session: false }, (err, user, info) => {
-        if (err || !user) {
-            winston.log('passport.authenticate.geoaxis --> ERROR:', err)
-            res.status(400).send(info)
-        } else {
-            // Remove sensitive data before login
-            user.password = undefined
-            user.salt = undefined
-
-            req.login(user, err => {
-                if (err) {
-                    res.status(400).send(err)
-                } else {
-                    let redirectURL = `/login?user=${new Buffer(JSON.stringify(user)).toString('base64')}`
-                    if (process.env.NODE_ENV !== 'production')
-                        redirectURL = `http://${config.host}:3000/login?user=${new Buffer(JSON.stringify(user)).toString('base64')}`
-                    res.redirect(redirectURL)
-                }
-            })
-        }
-    })(req, res, next)
-}
-
 
 /**
  * Helper function to save or update a OAuth user profile
