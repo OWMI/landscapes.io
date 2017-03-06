@@ -20,15 +20,10 @@ class Login extends Component {
 
     componentWillMount() {
         const self = this
+        const { search } = window.location
         // HACK: encode/decode oauth user until Chrome 57 is released with preflight issue fix
-        if (window.location.search.indexOf('oauth=') > -1) {
-            self.handleOAuthLogin(
-                JSON.parse(decodeURIComponent(window.location.search.split('oauth=')[1]))
-            )
-        } else if (window.location.search.indexOf('user=') > -1) {
-            self.handleGeoAccessLogin(
-                window.location.search.split('user=')[1]
-            )
+        if (search.indexOf('user=') > -1) {
+            self.handleOAuthLogin(search.split('user=')[1])
         }
     }
 
@@ -135,10 +130,10 @@ class Login extends Component {
         router.push({ pathname: '/landscapes' })
     }
 
-    handleGeoAccessLogin = user => {
+    handleOAuthLogin = user => {
 
         user = JSON.parse(atob(user))
-        const { accounts, groups, loginUser, refetchGroups } = this.props
+        const { accounts, configuration, groups, loginUser, refetchGroups } = this.props
         const { router } = this.context
         const userWithPermissions = auth.setUserPermissions(user, groups, accounts)
 
@@ -157,43 +152,12 @@ class Login extends Component {
                 headers: { 'x-access-token': token }
             })
         }).then(res => {
-            window.location.replace('/landscapes')
-        }).catch(err => {
-            console.error(err)
-            this.setState({ showError: true })
-        })
-    }
-
-    handleOAuthLogin = authData => {
-
-        const { accounts, groups, loginUser, refetchGroups } = this.props
-        const { router } = this.context
-
-        let userWithPermissions = auth.setUserPermissions(authData, groups, accounts)
-
-        axios({
-            method: 'post',
-            url: `${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/generateToken`,
-            data: userWithPermissions
-        }).then(res => {
-            return refetchGroups().then(groups => {
-              const { user, token } = res.data
-              loginUser(token, user, this.props.groups)
-
-              return axios({
-                  method: 'get',
-                  url: `${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/verifyToken`,
-                  headers: { 'x-access-token': token }
-              })
-            })
-        }).then(res => {
             // toggle admin user at first login
             if (configuration && configuration.length && configuration[0].isFirstUser) {
                 this.setState({ stepIndex: 1 })
             } else {
                 window.location.replace('/landscapes')
             }
-
         }).catch(err =>{
             this.setState({ showError: true })
         })
