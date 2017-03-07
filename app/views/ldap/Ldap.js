@@ -86,9 +86,10 @@ class Ldap extends Component {
 
     handleInit(props) {
         const { enterProtected, groups } = props
+        const { selectedLandscapeGroup } = this.state
         enterProtected()
         // init
-        if (groups) this.handleLandscapeGroupClick(groups[0], 0)
+        if (groups && !selectedLandscapeGroup.name) this.handleLandscapeGroupClick(groups[0], 0)
     }
 
     handleLandscapeGroupClick(group, index) {
@@ -113,6 +114,7 @@ class Ldap extends Component {
 
         let mappingToUpdate = {
             _id: currentMapping ? currentMapping._id : null,
+            landscapeGroupId: selectedLandscapeGroup._id,
             landscapeGroup: selectedLandscapeGroup.name,
             mappedGroups: currentMapping ? currentMapping.mappedGroups : []
         }

@@ -43,8 +43,8 @@ class Login extends Component {
 
     render() {
         const self = this
-        const { animated, viewEntersAnim, showError, stepIndex } = this.state
-        const { configuration, loading } = this.props
+        const { animated, viewEntersAnim, showError, stepIndex } = self.state
+        const { configuration, loading } = self.props
 
         function renderLoginPane() {
             return (
@@ -133,7 +133,7 @@ class Login extends Component {
     handleOAuthLogin = user => {
 
         user = JSON.parse(atob(user))
-        const { accounts, configuration, groups, loginUser, refetchGroups } = this.props
+        const { accounts, configuration, groups, loginUser } = this.props
         const { router } = this.context
         const userWithPermissions = auth.setUserPermissions(user, groups, accounts)
 
@@ -166,14 +166,14 @@ class Login extends Component {
     handlesOnLogin = event => {
 
         event.preventDefault()
-
-        const { accounts, configuration, groups, loginUser, refetchGroups } = this.props
-        const { router } = this.context
-        let { username, password } = this.refs
+        const self = this
+        const { accounts, groups, loginUser } = self.props
+        const { router } = self.context
+        let { username, password } = self.refs
 
         username = username.getValue()
         password = password.getValue()
-        this.setState({ showError: false })
+        self.setState({ showError: false })
 
         // user login & auth token generation
         axios({
@@ -181,7 +181,16 @@ class Login extends Component {
             url: `${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/auth/signin`,
             data: { username, password }
         }).then(res => {
-            let userWithPermissions = auth.setUserPermissions(res.data, groups, accounts)
+            let userWithPermissions
+            const { provider } = res.data
+
+            if (provider === 'ldap') {
+                const { ldapGroups, mappings } = self.props
+                userWithPermissions = auth.setLdapUserPermissions(res.data, groups, accounts, ldapGroups, mappings)
+            } else {
+                userWithPermissions = auth.setUserPermissions(res.data, groups, accounts)
+            }
+
             return axios({
                 method: 'post',
                 url: `${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/generateToken`,
@@ -200,13 +209,13 @@ class Login extends Component {
             router.push({ pathname: '/landscapes' })
         }).catch(err => {
             console.error(err)
-            this.setState({ showError: true })
+            self.setState({ showError: true })
         })
     }
 
     closeError = event => {
         event.preventDefault()
-        const { resetError } = this.props
+        const { resetError } = self.props
         resetError()
     }
 }

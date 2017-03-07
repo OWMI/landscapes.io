@@ -131,7 +131,66 @@ export const auth = {
         }
     },
 
+    setLdapUserPermissions(user, groups, accounts, ldapGroups, mappings) {
+
+        let userLdapGroups = []
+        user.permissions = {}
+        user.isGroupAdmin = false
+        user.accounts = {}
+
+        // base case
+        if (user.role === 'admin') {
+            user.isGlobalAdmin = true
+            return user
+        }
+
+        userLdapGroups = ldapGroups.filter(lg => {
+            return lg.roleOccupant.indexOf(`uid=${user.username}`) > -1
+        })
+
+        userLdapGroups.forEach(userLdapGroup => {
+            mappings.forEach(mapping => {
+                if (mapping.mappedGroups.indexOf(userLdapGroup.cn) > -1) {
+                    const { landscapeGroup, landscapeGroupId } = mapping
+                    const group = _.find(groups, { _id: landscapeGroupId })
+
+                    user.groups.push({
+                        name: group.name,
+                        groupId: group._id,
+                        isAdmin: false // TODO: handling group admins for ldap
+                    })
+
+                    group.landscapes.forEach(landscape => {
+                        // permissions
+                        user.permissions[landscape] = group.permissions
+
+                        //accounts
+                        if (!user.accounts[landscape]) {
+                            user.accounts[landscape] = []
+                        }
+
+                        let _account = {}
+                        if (group.accounts) {
+                            group.accounts.forEach(groupAccount => {
+                                accounts.forEach(account => {
+                                    if (groupAccount === account._id) {
+                                        _account[account._id] = account.name
+                                        user.accounts[landscape].push(_account)
+                                        _account = {}
+                                    }
+                                })
+                            })
+                        }
+                    })
+                }
+            })
+        })
+
+        return user
+    },
+
     setUserPermissions(user, groups, accounts) {
+
         user.permissions = {}
         user.isGroupAdmin = false
         user.accounts = {}
@@ -150,15 +209,23 @@ export const auth = {
                         if (groupUser.isAdmin) {
                             user.isGroupAdmin = true
                         }
-                        user.groups.push({groupId: group._id, isAdmin: groupUser.isAdmin})
+
+                        user.groups.push({
+                            name: group.name,
+                            groupId: group._id,
+                            isAdmin: groupUser.isAdmin
+                        })
+
                         group.landscapes.forEach(landscape => {
                             // permissions
                             user.permissions[landscape] = group.permissions
+
                             //accounts
                             if (!user.accounts[landscape]) {
                                 user.accounts[landscape] = []
                             }
-                            var _account = {}
+
+                            let _account = {}
                             if (group.accounts) {
                                 group.accounts.forEach(groupAccount => {
                                     accounts.forEach(account => {
@@ -171,11 +238,11 @@ export const auth = {
                                 })
                             }
                         })
+
                     }
                 })
             })
         }
-
         return user
     },
 

@@ -28,6 +28,42 @@ const ConfigurationWithQuery = graphql(ConfigurationQuery, {
     })
 })
 
+const LdapGroupQuery = gql `
+    query getLdapGroups {
+        ldapGroups {
+            cn,
+            roleOccupant
+        }
+    }
+`
+
+const LdapGroupsWithQuery = graphql(LdapGroupQuery, {
+    props: ({ data: { loading, ldapGroups } }) => ({
+        ldapGroups,
+        loading
+    })
+})
+
+const MappingsQuery = gql `
+    query getMappings {
+        mappings {
+            _id,
+            mappedGroups,
+            landscapeGroup,
+            landscapeGroupId,
+
+        }
+    }
+`
+
+const MappingsWithQuery = graphql(MappingsQuery, {
+    props: ({ data: { loading, mappings, refetch } }) => ({
+        mappings,
+        loading,
+        refetchMappings: refetch
+    })
+})
+
 const GroupQuery = gql `
     query getGroups {
         groups {
@@ -111,6 +147,8 @@ const composedRequest = compose(
     GroupsWithQuery,
     AccountsWithQuery,
     LoginWithMutation,
+    MappingsWithQuery,
+    LdapGroupsWithQuery,
     ConfigurationWithQuery,
     graphql(ToggleFirstUserMutation, { name: 'toggleFirstUser' })
 )(Login)

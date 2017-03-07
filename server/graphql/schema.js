@@ -113,6 +113,7 @@ const Query = `
     input MappingsInput {
         _id: String
         createdBy: ID
+        landscapeGroupId: String
         landscapeGroup: String
         mappedGroups: [String]
         type: String
