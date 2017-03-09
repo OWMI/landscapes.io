@@ -8,6 +8,7 @@ const Integration = `
         name: String
         type: String
         imageUri: String
+        repoURL: String
     }
 `
 

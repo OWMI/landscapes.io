@@ -407,9 +407,8 @@ class EditUser extends Component {
       this.setState({publicKeyError: false})
       function GetRepo() {
           var data = {
-            repoOwner: 'wowcroud',
-            repoName: 'VPCPrivate',
-            deployFolderName: 'managedVPC',
+            deployFolderName: integration.type,
+            repoURL: integration.repoURL,
             username: integration.username,
             password: integration.password
           }

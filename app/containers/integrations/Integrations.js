@@ -30,7 +30,8 @@ import * as viewsActions from '../../redux/modules/views'
              name,
              imageUri,
              password,
-             type
+             type,
+             repoURL
          }
      }
   `

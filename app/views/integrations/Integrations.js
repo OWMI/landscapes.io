@@ -46,16 +46,18 @@ class Integrations extends Component {
       console.log('integrations', integrations)
 
       var _integrations = integrations || [];
+      this.setState({integrations: _integrations})
       if(!_integrations.length ){
         _integrations = [
           {
             _id: "managedvpc1",
             name:'Managed VPCs',
-            imageUri: vpcImage
+            imageUri: vpcImage,
+            type: "managedVPC"
           }
         ]
+        this.setState({integrations: _integrations})
       }
-      this.setState({integrations: _integrations})
 
       var currentUser = auth.getUserInfo();
       if(auth.getUserInfo().isGroupAdmin){
@@ -68,18 +70,18 @@ class Integrations extends Component {
       const { integrations } = nextProps;
       console.log('integrations', integrations)
       var _integrations = integrations || [];
+      this.setState({integrations: _integrations})
       if(!_integrations.length ){
         _integrations = [
           {
             _id: "managedvpc1",
             name:'Managed VPCs',
-            imageUri: vpcImage
+            imageUri: vpcImage,
+            type: "managedVPC"
           }
         ]
+        this.setState({integrations: _integrations})
       }
-      this.setState({integrations: _integrations})
-
-      this.setState({integrations: _integrations})
       var currentUser = auth.getUserInfo();
       if(auth.getUserInfo().isGroupAdmin){
         currentUser.isGroupAdmin = true
@@ -116,7 +118,7 @@ class Integrations extends Component {
                     {
                         integrations.map((integration, i) =>
 
-                        <Paper key={i} className={cx({ 'landscape-card': true })} style={{backgroundColor: materialTheme.palette.primary1Color}} zDepth={3} rounded={false}>
+                        <Paper key={i} className={cx({ 'landscape-card': true })} onClick={this.handlesViewIntegrationClick.bind(this, integration)} style={{backgroundColor: materialTheme.palette.primary1Color}} zDepth={3} rounded={false}>
                                 {/* header */}
                                 <Row start='xs' top='xs' style={{ padding: '20px 0px' }}>
                                     <Col xs={8}>
@@ -126,8 +128,17 @@ class Integrations extends Component {
                                         {
                                             currentUser.isGlobalAdmin
                                             ?
-                                                <FlatButton id='landscape-deploy' onTouchTap={this.handlesEditIntegrationClick.bind(this, integration)}
-                                                    label='Configure' labelStyle={{ fontSize: '10px' }}/>
+                                              <div>
+                                                {
+                                                  !integration.username || !integration.password
+                                                  ?
+                                                  <FlatButton id='landscape-deploy' onTouchTap={this.handlesCreateIntegrationClick.bind(this, integration)}
+                                                      label='Add' labelStyle={{ fontSize: '10px' }}/>
+                                                  :
+                                                  <FlatButton id='landscape-deploy' onTouchTap={this.handlesEditIntegrationClick.bind(this, integration)}
+                                                      label='Edit' labelStyle={{ fontSize: '10px' }}/>
+                                                }
+                                              </div>
                                             :
                                                 null
                                         }
@@ -159,11 +170,10 @@ class Integrations extends Component {
         })
     }
 
-    handlesCreateIntegrationClick = event => {
+    handlesCreateIntegrationClick = (integration, event) => {
         const { router } = this.context
-        router.push({ pathname: '/integrations/create' })
+        router.push({ pathname: '/integration/configure/' + integration._id })
     }
-
     handlesEditIntegrationClick = (integration, event) => {
         const { router } = this.context
         router.push({ pathname: '/integration/configure/' + integration._id })

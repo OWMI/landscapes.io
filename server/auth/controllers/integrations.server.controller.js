@@ -5,6 +5,7 @@ let mongoose        = require('mongoose')
 let passport        = require('passport')
 let winston         = require('winston')
 let User            = mongoose.model('User')
+let crypto          = require('crypto')
 let config          = require(path.resolve('./server/config/config'))
 let errorHandler    = require(path.resolve('./server/auth/controllers/errors.server.controller'))
 var promisify = require("promisify-node");
@@ -15,6 +16,94 @@ var fsp = require("fs-plus");
 let noReturnUrls = ['/authentication/signin', '/authentication/signup']
 var Git = require("nodegit");
 var YAML = require('yamljs');
+const secureRandom = require('secure-random')
+const fs = require('fs')
+const chalk = require('chalk')
+const _algorithm = 'aes-128-cbc'
+const _keyLengthInBytes = 16
+const _ivLengthInBytes = 16
+
+let _writeAccountKeyFile = filePath => {
+    return new Promise((resolve, reject) => {
+        try {
+            let key = secureRandom.randomBuffer(_keyLengthInBytes)
+            let iv = secureRandom.randomBuffer(_ivLengthInBytes)
+            let data = `{ "key": "${key.toString('hex')}", "iv": "${iv.toString('hex')}", "createdAt": "${new Date().toISOString()}" }`
+            fs.writeFileSync(filePath, data)
+            console.log(chalk.blue('+ Crypto: Generated account key file at', filePath.toString(), '\n'))
+            resolve()
+        } catch (err) {
+            reject(err)
+        }
+    })
+}
+
+let getAccountKeyFile = () => {
+    return new Promise((resolve, reject) => {
+        let filePath = path.resolve('./config/accountKeyFile.json')
+
+        if (!fs.existsSync(filePath)) {
+            console.log(chalk.blue('+ Crypto: Account key file not found.\n'))
+            _writeAccountKeyFile(filePath).then(() => {
+                fs.readFile(filePath, {
+                    encoding: 'utf-8'
+                }, (err, data) => {
+                    if (err)
+                        reject(err)
+                    else
+                        resolve(JSON.parse(data))
+                })
+            }).catch((err) => winston.log('error', err))
+        } else {
+            fs.readFile(filePath, {
+                encoding: 'utf-8'
+            }, (err, data) => {
+                if (err)
+                    reject(err)
+                else
+                    resolve(JSON.parse(data))
+            })
+        }
+    })
+}
+
+let _iv
+let _key
+
+getAccountKeyFile().then(json => {
+    _key = new Buffer(json.key, 'hex')
+    _iv = new Buffer(json.iv, 'hex')
+}).catch((err) => winston.log('error', err))
+
+let encrypt = text => {
+    console.log('## ENCRYPT SECRET ACCESS KEY ##')
+
+    if (text === null || typeof text === 'undefined')
+        return text
+
+    try {
+        let cipher = crypto.createCipheriv(_algorithm, _key, _iv)
+        let encrypted = cipher.update(text, 'utf8', 'hex') + cipher.final('hex')
+        return encrypted
+    } catch (err) {
+        winston.log('error', 'account.encrypt: ' + err)
+    }
+}
+
+let decrypt = encryptedText => {
+    console.log('## DECRYPT SECRET ACCESS KEY ##')
+
+    if (encryptedText === null || typeof encryptedText === 'undefined')
+        return encryptedText
+
+    try {
+        let decipher = crypto.createDecipheriv(_algorithm, _key, _iv)
+        let decrypted = decipher.update(encryptedText, 'hex', 'utf8') + decipher.final('utf8')
+        return decrypted
+    } catch (err) {
+        winston.log('error', 'account.decrypt: ' + err)
+    }
+}
 
 exports.getPublicKey = (req, res) => {
   console.log('home === ', fsp.getHomeDirectory())
@@ -33,60 +122,61 @@ exports.getPublicKey = (req, res) => {
 
 exports.getGithubRepo = (req, res) => {
     /* Pulls repo and sends location of files on local system */
-        var request = req.body;
-        var username = request['username'];
-        var password = request['password']
-        // create tmp folder
-        var nativeObject = {files:[], location:  path.join('./_github/', request.deployFolderName)};
-        var remoteRepo = "https://github.com/" + request.repoOwner + "/" + request.repoName;
-        console.log('Remote stash repo: %s', remoteRepo);
-        console.log('Cloning into %s', path.join('./_github/', request.deployFolderName));
-        var cloneOptions = {};
-        console.log('Cloning snapshot repo');
-        var getMostRecentCommit = function(repository) {
-            return repository.getBranchCommit('master');
-        };
-        var getCommitMessage = function(commit) {
-            nativeObject.commitMessage = commit.message();
-            return commit.message();
-        };
-        if(!password || !username){
-          console.log('refresh')
-          fse.readdir( path.join('./_github/', request.deployFolderName), (err, files) => {
-              nativeObject['files'] = files
-              return res.json(nativeObject)
-          })
-        }
-        else{
-          var opts = {
-            fetchOpts: {
-              callbacks: {
-                credentials: function() {
-                  return Git.Cred.userpassPlaintextNew(username, password);
-                },
-                certificateCheck: function() {
-                  return 1;
-                }
-              }
+    var request = req.body;
+    console.log('request ------- ', request)
+    request.password = decrypt(request.password)
+    var username = request['username'];
+    var password = request['password']
+    var nativeObject = {files:[], location:  path.join('./_github/', request.deployFolderName)};
+    var remoteRepo = request.repoURL;
+    console.log('Remote stash repo: %s', remoteRepo);
+    console.log('Cloning into %s', path.join('./_github/', request.deployFolderName));
+    var cloneOptions = {};
+    console.log('Cloning snapshot repo');
+    var getMostRecentCommit = function(repository) {
+        return repository.getBranchCommit('master');
+    };
+    var getCommitMessage = function(commit) {
+        nativeObject.commitMessage = commit.message();
+        return commit.message();
+    };
+    if(!password || !username){
+      console.log('refresh')
+      fse.readdir( path.join('./_github/', request.deployFolderName), (err, files) => {
+          nativeObject['files'] = files
+          return res.json(nativeObject)
+      })
+    }
+    else{
+      var opts = {
+        fetchOpts: {
+          callbacks: {
+            credentials: function() {
+              return Git.Cred.userpassPlaintextNew(username, password);
+            },
+            certificateCheck: function() {
+              return 1;
             }
-          };
-          fse.remove(path.join('./_github/', request.deployFolderName)).then(function() {
-            Git.Clone(remoteRepo, path.join('./_github/', request.deployFolderName) , opts)
-              .then(getMostRecentCommit, function() { console.log('error %o', arguments);})
-              .then(function(commit) {
-                return new Promise((resolve, reject) => {
-                    fse.readdir( path.join('./_github/', request.deployFolderName), (err, files) => {
-                        nativeObject['files'] = files
-                        return resolve(nativeObject);
-                    })
-                })
-              })
-              .done(function(data) {
-                console.log('Finished Cloning');
-                return res.json(nativeObject)
-              });
-          });
+          }
         }
+      };
+      fse.remove(path.join('./_github/', request.deployFolderName)).then(function() {
+        Git.Clone(remoteRepo, path.join('./_github/', request.deployFolderName) , opts)
+          .then(getMostRecentCommit, function() { console.log('error %o', arguments);})
+          .then(function(commit) {
+            return new Promise((resolve, reject) => {
+                fse.readdir( path.join('./_github/', request.deployFolderName), (err, files) => {
+                    nativeObject['files'] = files
+                    return resolve(nativeObject);
+                })
+            })
+          })
+          .done(function(data) {
+            console.log('Finished Cloning');
+            return res.json(nativeObject)
+          });
+      });
+    }
 }
 exports.parseYAML = (req, res) => {
   console.log('parsing ------ ', req.body.locations)

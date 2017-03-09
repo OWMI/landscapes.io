@@ -46,6 +46,8 @@ class IntegrationDetails extends Component {
       if(integrations){
         integration = integrations.find(integration => { return integration._id === params.id })
       }
+      console.log('integration', integration)
+
       this.setState({integration})
 
       var currentUser = auth.getUserInfo();
@@ -56,15 +58,13 @@ class IntegrationDetails extends Component {
 
       function GetRepo() {
           var data = {
-            repoOwner: 'wowcroud',
-            repoName: 'VPCPrivate',
-            deployFolderName: 'managedVPC',
+            deployFolderName: integration.type,
+            repoURL: integration.repoURL,
             username: integration.username,
             password: integration.password
           }
           return new Promise((resolve, reject) => {
               axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/github/repo`, data).then(res => {
-                console.log('data', data)
                 var yamlData = {
                   type:'managedVPC',
                   locations: [
@@ -72,7 +72,6 @@ class IntegrationDetails extends Component {
                   ]
                 }
                 return axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/yaml/parse`, yamlData).then(yaml => {
-                    console.log('resolve data =', yaml.data)
                     return resolve(yaml.data)
                   })
               }).catch(err => {
@@ -104,6 +103,7 @@ class IntegrationDetails extends Component {
       if(integrations){
         integration = integrations.find(integration => { return integration._id === params.id })
       }
+      console.log('integration', integration)
       this.setState({integration})
 
       var currentUser = auth.getUserInfo();
@@ -113,9 +113,8 @@ class IntegrationDetails extends Component {
       this.setState({ currentUser })
       function GetRepo() {
           var data = {
-            repoOwner: 'wowcroud',
-            repoName: 'VPCPrivate',
-            deployFolderName: 'managedVPC',
+            deployFolderName: integration.type,
+            repoURL: integration.repoURL,
             username: integration.username,
             password: integration.password
           }
@@ -128,7 +127,6 @@ class IntegrationDetails extends Component {
                   ]
                 }
                 return axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/yaml/parse`, yamlData).then(yaml => {
-                    console.log('resolve data =', yaml.data)
                     return resolve(yaml.data)
                   })
               }).catch(err => {
@@ -136,7 +134,6 @@ class IntegrationDetails extends Component {
               })
           })
       }
-
       GetRepo().then((data) =>{
         var update = true;
         console.log('data.rawData ------ ', data)
@@ -181,15 +178,15 @@ class IntegrationDetails extends Component {
                       <Row><h4><strong>Integration</strong>: {integration.name}</h4></Row>
                     </Col>
                     <Col xs={8}>
-                        <RaisedButton label='Configure' onClick={this.handlesDeployClick}
-                            style={{ float: 'right', marginBottom: '30px' }}
-                            labelStyle={{ fontSize: '11px' }} icon={<IoIosCloudUploadOutline/>}/>
                         <RaisedButton label='Edit' onClick={this.handlesEditLandscapeClick}
                             style={{ float: 'right', marginBottom: '30px' }}
                             labelStyle={{ fontSize: '11px' }} icon={<IoEdit/>}/>
                     </Col>
                 </Row>
                 <Col>
+                  <Paper key={'integrationDetails'} onClick={this.handlesViewIntegrationClick.bind(this, integration)} zDepth={3} rounded={false}>
+
+                  </Paper>
                   <div>
                       {
                         this.state.data && this.state.data['rawData']

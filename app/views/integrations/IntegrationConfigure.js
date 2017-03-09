@@ -120,10 +120,21 @@ class IntegrationConfigure extends Component {
             <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
               <Row style={{justifyContent: 'space-between', width: '100%'}}>
                 <h4>Configure Integration</h4>
+                  <div  style={{ margin: '10px 20px', justifyContent:'center'}}>
+                    <RaisedButton label="Save" onClick={this.handlesCreateIntegrationClick}/>
+                  </div>
               </Row>
               <Row style={{width:'100%', justifyContent:'center'}}>
                 <Paper className={cx({ 'landscape-card': false })} style={{width:500, minHeight:300, justifyContent:'center'}} zDepth={3} rounded={false}>
                         {/* header */}
+                          {
+                              this.state.errorMessage
+                              ?
+                                  <p style={{ color: 'red', textAlign: 'center', marginTop:15 }}>
+                                      {this.state.errorMessage}
+                                  </p>
+                              : null
+                          }
                         <Row start='xs' top='xs' style={{ padding: '20px 0px' }}>
                                 <img id='landscapeIcon' style={{width:50, marginLeft:20}} src={defaultGithubImage}/>
                                 {
@@ -138,15 +149,14 @@ class IntegrationConfigure extends Component {
                                   </div>
                                 }
                         </Row>
-
                         <Row style={{ margin: '0px 0px', justifyContent:'center'}}>
-                            <TextField floatingLabelText="Github Username" label="Github Username" ref="username"/>
+                            <TextField floatingLabelText="Github Username" label="Github Username" defaultValue={integration.username || ''} ref="username"/>
                         </Row>
                         <Row style={{ margin: '0px 0px', justifyContent:'center'}}>
-                          <TextField floatingLabelText="Github Password" type="password" label="Password" ref="password"/>
+                          <TextField floatingLabelText="Github Password" type="password" label="Password" defaultValue={''} ref="password"/>
                         </Row>
-                        <Row  style={{ margin: '10px 20px', justifyContent:'center'}}>
-                          <RaisedButton label="Link" onClick={this.handlesCreateIntegrationClick}/>
+                        <Row style={{ margin: '0px 0px', justifyContent:'center'}}>
+                            <TextField id="repoURL" floatingLabelText="Github Repo URL" label="Github Repo URL" defaultValue={integration.repoURL || ''} ref="repoURL"/>
                         </Row>
                 </Paper>
                 </Row>
@@ -185,56 +195,65 @@ class IntegrationConfigure extends Component {
     handlesCreateIntegrationClick = (event) => {
         event.preventDefault()
         this.setState({
-          loading: true
+          loading: true,
+          errorMessage: false
         })
         const { CreateIntegrationWithMutation, UpdateIntegrationWithMutation } = this.props
         const { router } = this.context
         const { integration } = this.state
-
-        console.log('integration', integration)
 
         var newIntegration = integration || {}
 
         for (let key in this.refs) {
             newIntegration[key] = this.refs[key].getValue()
         }
-        console.log('integration', integration)
-        // this.handlesDialogToggle()
-        if(!newIntegration._id){
-          CreateIntegrationWithMutation({
-              variables: { integration: newIntegration }
-           }).then(({ data }) => {
-             this.props.refetchIntegrations({}).then(({ data }) =>{
-               this.setState({
-                 successOpen: true,
-                 loading: false
-               })
-               router.push({ pathname: '/integrations' })
-             })
-             .catch((error) => {
-               this.setState({loading: false})
-             })
-          }).catch((error) => {
-          })
+        if(!newIntegration.repoURL){
+          this.setState({errorMessage: 'Repository URL is required.', loading: false})
+        }
+        if(!newIntegration.username){
+          this.setState({errorMessage: 'Github username is required.', loading: false})
+        }
+        if(!newIntegration.password){
+          this.setState({errorMessage: 'Github password is required.', loading: false})
         }
         else{
-          UpdateIntegrationWithMutation({
-              variables: { integration: newIntegration }
-           }).then(({ data }) => {
-             this.props.refetchIntegrations({}).then(({ data }) =>{
-               const { router } = this.context
-               this.setState({
-                 successOpen: true,
-                 loading: false
+          // this.handlesDialogToggle()
+          if(!newIntegration._id){
+            CreateIntegrationWithMutation({
+                variables: { integration: newIntegration }
+             }).then(({ data }) => {
+               this.props.refetchIntegrations({}).then(({ data }) =>{
+                 this.setState({
+                   successOpen: true,
+                   loading: false
+                 })
+                 router.push({ pathname: '/integrations' })
                })
-               router.push({ pathname: '/integrations' })
-             })
-             .catch((error) => {
-               this.setState({loading: false})
-             })
-          }).catch((error) => {
-            this.setState({loading: false})
-          })
+               .catch((error) => {
+                 this.setState({loading: false})
+               })
+            }).catch((error) => {
+            })
+          }
+          else{
+            UpdateIntegrationWithMutation({
+                variables: { integration: newIntegration }
+             }).then(({ data }) => {
+               this.props.refetchIntegrations({}).then(({ data }) =>{
+                 const { router } = this.context
+                 this.setState({
+                   successOpen: true,
+                   loading: false
+                 })
+                 router.push({ pathname: '/integrations' })
+               })
+               .catch((error) => {
+                 this.setState({loading: false})
+               })
+            }).catch((error) => {
+              this.setState({loading: false})
+            })
+          }
         }
     }
 }

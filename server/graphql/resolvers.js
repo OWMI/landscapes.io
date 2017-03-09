@@ -259,7 +259,6 @@ const resolveFunctions = {
         updateIntegration(_, { integration }) {
 
           console.log(' ---> updating integration')
-
           Integration.findOneAndUpdate({ _id: integration._id }, integration, { new: true }, (err, doc) => {
               if (err) {
                   console.log(err)

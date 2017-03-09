@@ -54,6 +54,7 @@ const Query = `
         imageUri: String
         password: String
         name: String
+        repoURL: String
         __typename: String
     }
 
