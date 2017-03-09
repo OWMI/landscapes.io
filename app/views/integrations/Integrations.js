@@ -46,7 +46,7 @@ class Integrations extends Component {
       console.log('integrations', integrations)
 
       var _integrations = integrations || [];
-      if(!integrations){
+      if(!_integrations.length ){
         _integrations = [
           {
             _id: "managedvpc1",
@@ -68,7 +68,7 @@ class Integrations extends Component {
       const { integrations } = nextProps;
       console.log('integrations', integrations)
       var _integrations = integrations || [];
-      if(!integrations){
+      if(!_integrations.length ){
         _integrations = [
           {
             _id: "managedvpc1",
