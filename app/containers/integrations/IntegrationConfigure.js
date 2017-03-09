@@ -8,10 +8,44 @@ import * as viewsActions from '../../redux/modules/views'
 /* -----------------------------------------
   GraphQL - Apollo client
  ------------------------------------------*/
+ const createIntegrationMutation = gql `
+     mutation createIntegration($integration: IntegrationInput!) {
+         createIntegration(integration: $integration) {
+             name
+         }
+     }
+ `
+ const updateIntegrationMutation = gql `
+      mutation updateIntegration($integration: IntegrationInput!) {
+          updateIntegration(integration: $integration) {
+              name
+          }
+      }
+  `
+ const IntegrationQuery = gql `
+     query getIntegrations {
+         integrations {
+             _id,
+             username,
+             name,
+             imageUri,
+             password,
+             type
+         }
+     }
+  `
+ const integrationMutation = graphql(createIntegrationMutation, {name: 'CreateIntegrationWithMutation'})
+ const integrationUpdateMutation = graphql(updateIntegrationMutation, {name: 'UpdateIntegrationWithMutation'})
+ const integrationQuery = graphql(IntegrationQuery, { props: ({ data: { loading, integrations, refetch } }) => ({
+     integrations,
+     loading,
+     refetchIntegrations: refetch
+ })
+})
 
  // createdBy
 
-const composedRequest = compose()(IntegrationConfigure)
+const composedRequest = compose(integrationMutation, integrationUpdateMutation, integrationQuery)(IntegrationConfigure)
 
 
 /* -----------------------------------------

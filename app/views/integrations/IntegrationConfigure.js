@@ -14,6 +14,7 @@ import { auth } from '../../services/auth'
 import materialTheme from '../../style/custom-theme.js';
 import defaultImage from '../../style/AWS.png';
 import defaultGithubImage from '../../style/github.png';
+import vpcImage from '../../style/vpc.png';
 // const confirm = Modal.confirm
 
 class IntegrationConfigure extends Component {
@@ -22,11 +23,6 @@ class IntegrationConfigure extends Component {
         animated: true,
         viewEntersAnim: true,
         showDialog: false,
-        integration:
-          {
-            _id: "managedvpc1",
-            name:'Managed VPCs'
-          },
         currentUsers:[],
         removedUsers:[]
 
@@ -46,13 +42,44 @@ class IntegrationConfigure extends Component {
         leaveLandscapes()
     }
     componentWillMount(){
+      const { integrations, params } = this.props;
+      var integration = {};
+      console.log('integrations', integrations)
+
+      if(integrations){
+        integration = integrations.find(integration => {return integration._id === params.id})
+      }
+      else{
+        integration = {
+          name:'Managed VPCs',
+          type: 'managedVPC',
+          imageUri: defaultGithubImage
+        }
+      }
+      this.setState({integration})
       var currentUser = auth.getUserInfo();
       if(auth.getUserInfo().isGroupAdmin){
         currentUser.isGroupAdmin = true
       }
       this.setState({ currentUser })
     }
-    componentWillReceiveProps(){
+    componentWillReceiveProps(nextProps){
+      const { integrations, params } = nextProps;
+      console.log('integrations', integrations)
+
+      var integration = {};
+      if(integrations){
+        integration = integrations.find(integration => {return integration._id === params.id})
+      }
+      else{
+        integration = {
+          name:'Managed VPCs',
+          type: 'managedVPC',
+          imageUri: vpcImage
+        }
+      }
+      this.setState({integration})
+
       var currentUser = auth.getUserInfo();
       if(auth.getUserInfo().isGroupAdmin){
         currentUser.isGroupAdmin = true
@@ -82,26 +109,32 @@ class IntegrationConfigure extends Component {
               <Row style={{justifyContent: 'space-between', width: '100%'}}>
                 <h4>Configure Integration</h4>
               </Row>
-
               <Row style={{width:'100%', justifyContent:'center'}}>
                 <Paper className={cx({ 'landscape-card': false })} style={{width:500, minHeight:300, justifyContent:'center'}} zDepth={3} rounded={false}>
                         {/* header */}
                         <Row start='xs' top='xs' style={{ padding: '20px 0px' }}>
-                            <Col xs={8}>
-                                <img id='landscapeIcon' style={{width:50}} src={defaultGithubImage}/>
-                            </Col>
-                            <Col xs={4}>
-                            </Col>
+                                <img id='landscapeIcon' style={{width:50, marginLeft:20}} src={defaultGithubImage}/>
+                                {
+                                  integration && integration.username
+                                  ?
+                                  <div style={{ marginBottom: 10, marginTop:15, marginLeft:15}}>
+                                    Current Configuration: {integration.username}
+                                  </div>
+                                  :
+                                  <div style={{ marginBottom: 10, marginTop:15, marginLeft:15}}>
+                                    Current Configuration: NONE
+                                  </div>
+                                }
                         </Row>
 
                         <Row style={{ margin: '0px 0px', justifyContent:'center'}}>
-                            <TextField floatingLabelText="Github Username" label="Github Username" ref="name"/>
+                            <TextField floatingLabelText="Github Username" label="Github Username" ref="username"/>
                         </Row>
                         <Row style={{ margin: '0px 0px', justifyContent:'center'}}>
-                          <TextField floatingLabelText="Github Password" type="password" label="Password"/>
+                          <TextField floatingLabelText="Github Password" type="password" label="Password" ref="password"/>
                         </Row>
                         <Row  style={{ margin: '10px 20px', justifyContent:'center'}}>
-                          <RaisedButton label="Link"/>
+                          <RaisedButton label="Link" onClick={this.handlesCreateIntegrationClick}/>
                         </Row>
                 </Paper>
                 </Row>
@@ -137,31 +170,58 @@ class IntegrationConfigure extends Component {
       }).catch(err => console.error(err))
     }
 
-    handlesDeleteIntegrationClick = (event) => {
+    handlesCreateIntegrationClick = (event) => {
         event.preventDefault()
         this.setState({
           loading: true
         })
-        const { mutate } = this.props
+        const { CreateIntegrationWithMutation, UpdateIntegrationWithMutation } = this.props
         const { router } = this.context
+        const { integration } = this.state
 
-        this.handlesDialogToggle()
+        var newIntegration = integration || {}
 
-        mutate({
-            variables: { integration: this.state.activeIntegration }
-         }).then(({ data }) => {
-           this.props.refetchIntegrations({}).then(({ data }) =>{
-             this.setState({
-               successOpen: true,
-               loading: false
+        for (let key in this.refs) {
+            newIntegration[key] = this.refs[key].getValue()
+        }
+        console.log('integration', integration)
+        // this.handlesDialogToggle()
+        if(!newIntegration._id){
+          CreateIntegrationWithMutation({
+              variables: { integration: newIntegration }
+           }).then(({ data }) => {
+             this.props.refetchIntegrations({}).then(({ data }) =>{
+               this.setState({
+                 successOpen: true,
+                 loading: false
+               })
+               router.push({ pathname: '/integrations' })
              })
-             router.push({ pathname: '/integrations' })
-           })
-           .catch((error) => {
-             this.setState({loading: false})
-           })
-        }).catch((error) => {
-        })
+             .catch((error) => {
+               this.setState({loading: false})
+             })
+          }).catch((error) => {
+          })
+        }
+        else{
+          UpdateIntegrationWithMutation({
+              variables: { integration: newIntegration }
+           }).then(({ data }) => {
+             this.props.refetchIntegrations({}).then(({ data }) =>{
+               const { router } = this.context
+               this.setState({
+                 successOpen: true,
+                 loading: false
+               })
+               router.push({ pathname: '/integrations' })
+             })
+             .catch((error) => {
+               this.setState({loading: false})
+             })
+          }).catch((error) => {
+            this.setState({loading: false})
+          })
+        }
     }
 }
 

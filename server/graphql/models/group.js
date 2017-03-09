@@ -13,6 +13,7 @@ const groupSchema = new Schema({
   users: { type: Array, 'default':[] },
   description: { type: String, required: true, trim: true },
   permissions: { type : Array , 'default' : [] },
+  managedVPC: { type : Boolean },
   landscapes: [Schema.Types.ObjectId],
   accounts: [Schema.Types.ObjectId]
 })

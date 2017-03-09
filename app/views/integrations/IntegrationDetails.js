@@ -17,57 +17,58 @@ import vpcImage from '../../style/vpc.png';
 
 class IntegrationDetails extends Component {
 
-    state = {
-        animated: true,
-        viewEntersAnim: true,
-        showDialog: false,
-        integration:
-          {
-            _id: 'managedVPC',
-            name:'Managed VPCs',
-            username:'wowcroudsvc',
-            password:'Mojo2013',
-            imageUri: vpcImage
-          },
-        nativeObject: [],
-        loading: true,
-        currentUsers:[],
-        removedUsers:[]
+  state = {
+      animated: true,
+      viewEntersAnim: true,
+      showDialog: false,
+      currentUsers:[],
+      removedUsers:[],
+      data:{}
 
-    }
+  }
 
-    componentDidMount() {
-        const { enterLandscapes } = this.props
-        enterLandscapes()
-    }
+  componentDidMount() {
+      const { enterLandscapes } = this.props
+      enterLandscapes()
+  }
 
-    shouldComponentUpdate(nextProps, nextState) {
-        return shallowCompare(this, nextProps, nextState)
-    }
+  shouldComponentUpdate(nextProps, nextState) {
+      return shallowCompare(this, nextProps, nextState)
+  }
 
-    componentWillUnmount() {
-        const { leaveLandscapes } = this.props
-        leaveLandscapes()
-    }
+  componentWillUnmount() {
+      const { leaveLandscapes } = this.props
+      leaveLandscapes()
+  }
     componentWillMount(){
+      const { integrations, params } = this.props;
+      var integration = {};
+      if(integrations){
+        integration = integrations.find(integration => { return integration._id === params.id })
+      }
+      this.setState({integration})
+
       var currentUser = auth.getUserInfo();
       if(auth.getUserInfo().isGroupAdmin){
         currentUser.isGroupAdmin = true
       }
       this.setState({ currentUser })
+
       function GetRepo() {
           var data = {
             repoOwner: 'wowcroud',
             repoName: 'VPCPrivate',
-            deployFolderName: 'managedVPC'
+            deployFolderName: 'managedVPC',
+            username: integration.username,
+            password: integration.password
           }
           return new Promise((resolve, reject) => {
               axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/github/repo`, data).then(res => {
+                console.log('data', data)
                 var yamlData = {
                   type:'managedVPC',
                   locations: [
                     res.data.location + '/roles/cloud-admins/vars/main.yml'
-                    // res.data.location + '/hosts.yml'
                   ]
                 }
                 return axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/yaml/parse`, yamlData).then(yaml => {
@@ -80,28 +81,31 @@ class IntegrationDetails extends Component {
           })
       }
       GetRepo().then((data) =>{
-        console.log('data', data)
+        console.log('data.rawData ------ ', data)
         var update = true;
+        this.setState({ data: [...data]})
         this.setState({nativeObject: []})
         var nativeObject = {}
         this.setState({loading: false})
         data.map(object =>{
-          console.log('object', object)
-
           Object.keys(object.items).map(item =>{
-            console.log('item', item)
             nativeObject[item] = object.items[item];
-            console.log('nativeObject', nativeObject)
           })
           this.setState({nativeObject: nativeObject, update: [...update]})
-          console.log('this.state.nativeObject', this.state.nativeObject)
         })
       })
       .catch(() =>{
         this.setState({loading: false})
       });
     }
-    componentWillReceiveProps(){
+    componentWillReceiveProps(nextProps){
+      const { integrations, params } = nextProps;
+      var integration = {};
+      if(integrations){
+        integration = integrations.find(integration => { return integration._id === params.id })
+      }
+      this.setState({integration})
+
       var currentUser = auth.getUserInfo();
       if(auth.getUserInfo().isGroupAdmin){
         currentUser.isGroupAdmin = true
@@ -111,7 +115,9 @@ class IntegrationDetails extends Component {
           var data = {
             repoOwner: 'wowcroud',
             repoName: 'VPCPrivate',
-            deployFolderName: 'managedVPC'
+            deployFolderName: 'managedVPC',
+            username: integration.username,
+            password: integration.password
           }
           return new Promise((resolve, reject) => {
               axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/github/repo`, data).then(res => {
@@ -119,7 +125,6 @@ class IntegrationDetails extends Component {
                   type:'managedVPC',
                   locations: [
                     res.data.location + '/roles/cloud-admins/vars/main.yml'
-                    // res.data.location + '/hosts.yml'
                   ]
                 }
                 return axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/yaml/parse`, yamlData).then(yaml => {
@@ -131,23 +136,19 @@ class IntegrationDetails extends Component {
               })
           })
       }
-      GetRepo().then((data) =>{
-        console.log('data', data)
-        var update = true;
 
+      GetRepo().then((data) =>{
+        var update = true;
+        console.log('data.rawData ------ ', data)
+        this.setState({ data: [...data]})
         var nativeObject = {}
         this.setState({nativeObject: []})
         this.setState({loading: false})
         data.map(object =>{
-          console.log('object', object)
           Object.keys(object.items).map(item =>{
-            console.log('item', item)
             nativeObject[item] = object.items[item];
-            console.log('nativeObject', nativeObject)
           })
-
           this.setState({nativeObject: nativeObject, update: [...update]})
-          console.log('this.state.nativeObject', this.state.nativeObject)
         })
       })
       .catch(() =>{
@@ -164,9 +165,7 @@ class IntegrationDetails extends Component {
             <FlatButton label='Delete' primary={true} onTouchTap={this.handlesDeleteIntegrationClick}/>
         ]
         var nativeObject = this.state.nativeObject || [];
-
-        console.log('NATVIE  =', nativeObject)
-
+        console.log('this.rawData', this.state.data)
         if (loading) {
             return (
                 <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
@@ -191,49 +190,21 @@ class IntegrationDetails extends Component {
                     </Col>
                 </Row>
                 <Col>
-                {/*
-                  Object.keys(nativeObject).map((object, i) =>{
-                    return (
-                      <Card key={i}>
-                        {console.log('TEST_______', object)}
-                        <CardHeader title={object} titleStyle={{ fontSize: '13px', paddingRight: 0 }} actAsExpander={true} showExpandableButton={true}/>
-                        <CardText key={i} expandable={true}>
-                        <Table>
-                            <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
-                                <TableRow>
-                                  <TableHeaderColumn>Test</TableHeaderColumn>
-                                  {
-                                    /*
-                                    Object.keys(nativeObject[object].items[0]).map((header, index) =>{
-                                      return(
-                                        <TableHeaderColumn key={index}>
-                                        <p>{header}</p> {console.log('HEADER=====', header)}
-                                        </TableHeaderColumn>
-                                      )
-                                    })
-                                  }
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody displayRowCheckbox={false}>
-                              <TableRow key={100}>
-                                <TableRowColumn>Test info</TableRowColumn>
-                                <TableRowColumn>Test info</TableRowColumn>
-                              </TableRow>
-                                {
-                                    nativeObject[object].map((item, itemIndex) => {
-                                        return (
-                                            <TableRow key={`${itemIndex}`}>
-
-                                            </TableRow>
-                                        )
-                                    })
-                                }
-                            </TableBody>
-                        </Table>
-                        </CardText>
-                    </Card>)
-                  })
-                */}
+                  <div>
+                      {
+                        this.state.data && this.state.data['rawData']
+                        ?
+                        <div>
+                          <p>{this.state.data.rawData}</p>
+                          {console.log('DATA', this.state.data)}
+                        </div>
+                        :
+                        <div>
+                          <p>{this.state.data.path}</p>
+                          {console.log('DATA reject', this.state.data.path)}
+                        </div>
+                      }
+                  </div>
                 </Col>
             </div>
         )
@@ -263,7 +234,6 @@ class IntegrationDetails extends Component {
     handlesClickButton = () =>{
       var data = ''
       axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/github/commit`, data).then(res => {
-        console.log('res', res)
       }).catch(err => console.error(err))
     }
 

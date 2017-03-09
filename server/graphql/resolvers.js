@@ -18,6 +18,7 @@ const Mappings = require('./models/mappings')
 const Group = require('./models/group')
 const Account = require('./models/account')
 const User = require('../auth/models/user.server.model')
+const Integration = require('../auth/models/integration.server.model')
 const TypeDocument = require('./models/documentTypes')
 const Tag = require('./models/tag')
 
@@ -45,6 +46,12 @@ const resolveFunctions = {
             return Landscape.find().sort('-created').populate('user', 'displayName').exec((err, landscapes) => {
                 if (err) return err
                 return landscapes
+            })
+        },
+        integrations(root, args, context) {
+            return Integration.find().exec((err, integrations) => {
+                if (err) return err
+                return integrations
             })
         },
         configuration(root, args, context) {
@@ -230,6 +237,48 @@ const resolveFunctions = {
                     return err
                 } else {
                     console.log(' ---> Account deleted: ', doc)
+                    return doc
+                }
+            })
+        },
+        createIntegration(_, { integration }) {
+
+            console.log(' ---> creating integration', integration)
+            let newIntegration = new Integration(integration)
+
+            newIntegration.save(err => {
+                if (err) {
+                    console.log(err)
+                    return err
+                } else {
+                    console.log(' ---> created: ', newIntegration._id)
+                    return newIntegration
+                }
+            })
+        },
+        updateIntegration(_, { integration }) {
+
+          console.log(' ---> updating integration')
+
+          Integration.findOneAndUpdate({ _id: integration._id }, integration, { new: true }, (err, doc) => {
+              if (err) {
+                  console.log(err)
+                  return err
+              } else {
+                  console.log(' ---> updated: ', doc)
+                  return doc
+              }
+          })
+        },
+        deleteIntegration(_, { integration }) {
+            console.log(' ---> deleting integration')
+
+            Integration.findByIdAndRemove(integration._id, (err, doc) => {
+                if (err) {
+                    console.log('error', err)
+                    return err
+                } else {
+                    console.log(' ---> integration deleted: ', doc)
                     return doc
                 }
             })

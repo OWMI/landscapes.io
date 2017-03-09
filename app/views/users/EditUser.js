@@ -77,26 +77,38 @@ class EditUser extends Component {
 
     // Necessary for case: hard refresh or route from no other state
     componentWillReceiveProps(nextProps){
-      const { loading, groups, landscapes, users, params } = nextProps
+      const { loading, groups, landscapes, integrations, users, params } = nextProps
+      var integration = {};
+      if(integrations){
+        integration = integrations.find(integration => { return integration.type === 'managedVPC' })
+      }
+      this.setState({integration})
 
       let currentUser = {}
       this.setState({currentUser})
       if(users){
         let currentUser = users.find(ls => { return ls._id === params.id })
-        this.setState({ _id:currentUser._id, password: currentUser.password, username: currentUser.username, role: currentUser.role, email: currentUser.email, firstName: currentUser.firstName, lastName: currentUser.lastName})
+        console.log('currentUser', currentUser)
+        this.setState({ _id:currentUser._id, password: currentUser.password, username: currentUser.username, role: currentUser.role, email: currentUser.email, firstName: currentUser.firstName, lastName: currentUser.lastName, publicKey: currentUser.publicKey || null, managedVPC: currentUser.managedVPC || false})
         this.setState({currentUser})
       }
     }
 
     // Necessary for case: routes from another state
     componentWillMount(){
-      const { loading, groups, landscapes, users, params } = this.props
+      const { loading, groups, landscapes, integrations, users, params } = this.props
+      var integration = {};
+      if(integrations){
+        integration = integrations.find(integration => { return integration.type === 'managedVPC' })
+      }
+      this.setState({integration})
 
       let currentUser = {}
       this.setState({currentUser})
       if(users){
         currentUser = users.find(ls => { return ls._id === params.id })
-        this.setState({ _id: currentUser._id, password: currentUser.password, username: currentUser.username, role: currentUser.role, email: currentUser.email, firstName: currentUser.firstName, lastName: currentUser.lastName})
+        console.log('currentUser', currentUser)
+        this.setState({ _id: currentUser._id, password: currentUser.password, username: currentUser.username, role: currentUser.role, email: currentUser.email, firstName: currentUser.firstName, lastName: currentUser.lastName, publicKey: currentUser.publicKey || null, managedVPC: currentUser.managedVPC || false})
         this.setState({currentUser})
       }
     }
@@ -177,6 +189,8 @@ class EditUser extends Component {
                   </Row>
                 </Col>
             </Row>
+            <div style={styles.root}>
+
               <Card style={{padding:20, width:'100%'}}>
                   <Row style={{width:'100%'}}>
                   <Col style={{width:'50%'}}>
@@ -199,6 +213,51 @@ class EditUser extends Component {
                     </Row>
                     <Row>
                       <TextField style={{width:'100%'}} id="verifyPassword" floatingLabelText="Verify Password" value={this.state.verifyPassword} onChange={this.handlesOnVerifyPasswordChange}/>
+                    </Row>
+                    <Row key='integration'>
+                      <div style={{
+                          borderBottom: '1px solid #E9E9E9',
+                          width: '100%'
+                      }}>
+                        <Col style={{ marginTop:15, marginBottom: 15, marginLeft: 0, justifyContent: 'left' }}>
+                          <Checkbox label="Managed VPC" onCheck={this.handlesOnManagedVPCChange} labelStyle={{textAlign: 'left', marginLeft:2, width:100}} checked={this.state.managedVPC} style={{ textAlign: 'left', marginLeft:10, width:135}}/>
+                          {
+                            this.state.managedVPC
+                            ?
+                            <div>
+                              {
+                                this.state.showGettingPublicKey
+                                ?
+                                <p>Attempting to automatically retrieve public key...</p>
+                                :
+                                null
+                              }
+                              <div style={{justifyContent: 'left'}}>
+                                {
+                                  this.state.publicKey
+                                  ?
+                                  <TextField style={{ display:'block', marginLeft:10}} id="publicKey" value={this.state.publicKey} rows={1} rowsMax={4} multiLine={true} />
+                                  :
+                                  null
+                                }
+                              </div>
+                              <div>
+                                {
+                                  this.state.publicKeyError
+                                  ?
+                                  <p>{this.state.publicKeyError}</p>
+                                  :
+                                  null
+                                }
+                              </div>
+                              <RaisedButton style={{ display:'block', width: 200}} label="Retrieve Public Key" onClick={this.handlesPublic} />
+                            </div>
+                            :
+                            null
+                          }
+                        </Col>
+
+                      </div>
                     </Row>
                     <Row style={{marginTop:5}}>
                       <RadioButtonGroup style={{ maxWidth:250}} name="role" id="role" valueSelected={this.state.role} onChange={this.handleRoleChange}>
@@ -242,7 +301,7 @@ class EditUser extends Component {
                   </Col>
                   </Row>
                   </Card>
-
+                </div>
                 </Col>
             </Row>
         )
@@ -334,6 +393,94 @@ class EditUser extends Component {
         // should add some validator before setState in real use cases
         this.setState({ verifyPassword: event.target.value })
     }
+    handlesOnManagedVPCChange = event => {
+        event.preventDefault()
+        console.log('this.state.managedVPC', !this.state.managedVPC)
+
+        this.setState({managedVPC: !this.state.managedVPC})
+
+    }
+    handlesPublic = () => {
+      const { integration } = this.state
+      var data = {}
+      this.setState({showGettingPublicKey: true})
+      this.setState({publicKeyError: false})
+      function GetRepo() {
+          var data = {
+            repoOwner: 'wowcroud',
+            repoName: 'VPCPrivate',
+            deployFolderName: 'managedVPC',
+            username: integration.username,
+            password: integration.password
+          }
+          return new Promise((resolve, reject) => {
+              axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/github/repo`, data).then(res => {
+                var yamlData = {
+                  type:'managedVPC',
+                  locations: [
+                    res.data.location + '/roles/cloud-admins/vars/main.yml'
+                  ]
+                }
+                return axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/yaml/parse`, yamlData).then(yaml => {
+                    return resolve(yaml.data)
+                  })
+              }).catch(err => {
+                  return reject(err)
+              })
+          })
+      }
+      GetRepo().then((data) =>{
+        this.setState({ repoData: data})
+        axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/github/publicKey`, data).then(res => {
+          console.log('res', res)
+          if(res.data.message){
+            this.setState({showGettingPublicKey: false, publicKeyError: "Failed to find public key at location: " + res.data.location + '.'})
+          }
+          else{
+            this.setState({showGettingPublicKey: false, publicKey: res.data})
+          }
+        }).catch(error => {
+          console.log('error', error.message)
+        })
+      })
+      .catch(() =>{
+        this.setState({loading: false})
+      });
+    }
+    convertAndPush = (user) => {
+      return new Promise((resolve, reject) => {
+
+      this.state.repoData.forEach((repo, index) => {
+        if(repo.items){
+            Object.keys(repo.items).find(key => {
+              if(key === 'current_users'){
+                var currentUsers = this.state.repoData[index].items['current_users']
+                var repoData = this.state.repoData
+                var currentUser = currentUsers.find(cu => {return user.username === cu.username})
+                if(!currentUser){
+                  currentUsers.push({
+                    name: user.username,
+                    host_group: user.role,
+                    publicKey: this.state.publicKey
+                  })
+                  repoData[index].items.current_users = currentUsers;
+                      axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/yaml/stringify`, this.state.repoData).then(res => {
+                            return axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/github/commit`, res.data).then(res => {
+                              return resolve(res.data)
+                            }).catch(err =>{
+                              return reject(err)
+                            })
+                          })
+                          .catch(err => {
+                            return reject(err)
+                          })
+                      }
+                    }
+                  })
+              }
+            })
+          })
+    }
 
     handlesCreateClick = event => {
         const { router } = this.context
@@ -348,9 +495,12 @@ class EditUser extends Component {
           role: this.state.role,
           imageUri: this.state.croppedImg,
           firstName: this.state.firstName,
-          lastName: this.state.lastName
+          lastName: this.state.lastName,
+          managedVPC: this.state.managedVPC || false
         }
-
+        if(this.state.publicKey){
+          userToEdit.publicKey = this.state.publicKey
+        }
         if (newPassword && verifyPassword){
           axios({
               method: 'post',
@@ -369,10 +519,37 @@ class EditUser extends Component {
             this.setState({ passwordSubmitError: true })
         })
       }
+      console.log('userToEdit', userToEdit)
+      if(this.state.repoData && this.state.managedVPC){
+        this.convertAndPush(userToEdit).then(data => {
+          this.props.EditUserWithMutation({
+              variables: { user: userToEdit }
+           }).then(({ data }) => {           const { router } = this.context
 
+             this.props.refetchUsers({
+             }).then(({ data }) =>{
+               this.setState({
+                 successOpen: true
+               })
+               this.setState({loading: false})
+
+               router.push({ pathname: '/users' })
+             }).catch((error) => {
+                 this.setState({loading: false})
+             })
+          }).catch((error) => {
+            this.setState({
+              failOpen: true
+            })
+              console.error('graphql error', error)
+          })
+        })
+      }
+      else{
         this.props.EditUserWithMutation({
             variables: { user: userToEdit }
-         }).then(({ data }) => {           const { router } = this.context
+         }).then(({ data }) => {
+           const { router } = this.context
 
            this.props.refetchUsers({
            }).then(({ data }) =>{
@@ -391,7 +568,7 @@ class EditUser extends Component {
           })
             console.error('graphql error', error)
         })
-
+      }
     }
     handlesDeleteUserClick = (user, event) => {
         event.preventDefault()

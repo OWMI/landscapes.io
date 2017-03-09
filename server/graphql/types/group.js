@@ -13,6 +13,7 @@ const Group = `
         createdBy: User
         imageUri: String
         name: String!
+        managedVPC: Boolean
         description: String
     }
 `

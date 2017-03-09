@@ -7,6 +7,7 @@ import Group from './types/group.js'
 import Account from './types/account.js'
 import ldapGroup from './types/ldapGroup.js'
 import Landscape from './types/landscape.js'
+import Integration from './types/integration.js'
 import Mappings from './types/mappings.js'
 import Configuration from './types/configuration.js'
 import Deployment from './types/deployment.js'
@@ -42,6 +43,18 @@ const Query = `
         firstName: String
         lastName: String
         displayName: String
+        publicKey: String
+        managedVPC: Boolean
+    }
+
+    input IntegrationInput {
+        _id: String
+        username: String
+        type: String
+        imageUri: String
+        password: String
+        name: String
+        __typename: String
     }
 
     input AccountInput {
@@ -107,6 +120,7 @@ const Query = `
         accounts: [String]
         imageUri: String
         name: String
+        managedVPC: Boolean
         description: String
     }
 
@@ -139,6 +153,7 @@ const Query = `
         groups: [Group]
         groupById(id: String): Group
         groupsByUser(id: String, isGlobalAdmin: Boolean): [Group]
+        integrations: [Integration]
         landscapeById(id: String): [Landscape]
         landscapesWithDeploymentStatus: [Landscape]
         ldapGroups: [ldapGroup]
@@ -171,6 +186,10 @@ const Mutation = `
         deleteGroup ( group: GroupInput! ): Group
         editGroup ( group: GroupInput! ): Group
 
+        createIntegration ( integration: IntegrationInput! ): Integration
+        updateIntegration ( integration: IntegrationInput! ): Integration
+        deleteIntegration ( integration: IntegrationInput! ): Integration
+
         createAccount ( account: AccountInput! ): Account
         updateAccount ( account: AccountInput! ): Account
         deleteAccount ( account: AccountInput! ): Account
@@ -197,6 +216,7 @@ export default makeExecutableSchema({
         Deployment,
         Group,
         Landscape,
+        Integration,
         Mappings,
         ldapGroup,
         Mutation,

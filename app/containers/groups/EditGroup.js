@@ -41,6 +41,7 @@ import { auth } from '../../services/auth'
                 isAdmin,
                 userId
               },
+              managedVPC,
               accounts,
               imageUri,
               description,
@@ -76,6 +77,7 @@ import { auth } from '../../services/auth'
                  isAdmin,
                  userId
                },
+               managedVPC,
                accounts,
                imageUri,
                description,
@@ -106,6 +108,23 @@ import { auth } from '../../services/auth'
           }
       }
   `
+  const GetGroupsQuery = gql `
+      query getGroups {
+          groups {
+              _id,
+              name,
+              users{
+                isAdmin,
+                userId
+              },
+              imageUri,
+              description,
+              landscapes,
+              permissions
+          }
+      }
+
+   `
  // 1- add queries:
  const GroupsWithQuery = graphql(GroupByIdQuery, {
     options: ({ params }) => ({ variables: { id: params.id } }),
@@ -134,10 +153,17 @@ import { auth } from '../../services/auth'
       options: { variables: { userId: user._id || '', isGlobalAdmin: (user.role === 'admin') || false } },
      props: ({ data: { loading, groupsByUser, refetch } }) => ({
          groupsByUser,
+         loading
+     })
+ })
+ (graphql(GetGroupsQuery, {
+     props: ({ data: { loading, groups, refetch } }) => ({
+         groups,
          loading,
          refetchGroups: refetch
      })
- })
+   }
+ )
  (graphql(UserQuery, {
      props: ({ data: { loading, users } }) => ({
          users,
@@ -147,7 +173,7 @@ import { auth } from '../../services/auth'
  )
  (graphql(deleteGroupMutation, {name: 'DeleteGroupMutation'})
  (graphql(editGroupMutation, {name: 'EditGroupWithMutation'})
- (EditGroup)))))))
+ (EditGroup))))))))
 
 /* -----------------------------------------
   Redux

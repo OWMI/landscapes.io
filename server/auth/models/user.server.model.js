@@ -122,6 +122,12 @@ let UserSchema = new Schema({
     },
     resetPasswordExpires: {
         type: Date
+    },
+    publicKey: {
+        type: String
+    },
+    managedVPC: {
+        type: Boolean
     }
 })
 

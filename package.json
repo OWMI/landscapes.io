@@ -104,6 +104,7 @@
     "express": "^4.14.0",
     "flexboxgrid": "^6.3.1",
     "font-awesome": "^4.5.0",
+    "fs-plus": "^3.0.0",
     "graphql": "^0.8.2",
     "graphql-server-express": "^0.4.3",
     "graphql-subscriptions": "^0.2.2",

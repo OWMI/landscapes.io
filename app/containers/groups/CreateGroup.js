@@ -77,6 +77,7 @@ const LandscapeQuery = gql `
                isAdmin,
                userId
              },
+             managedVPC,
              imageUri,
              description,
              landscapes,
@@ -85,6 +86,24 @@ const LandscapeQuery = gql `
      }
 
   `
+
+  const GetGroupsQuery = gql `
+      query getGroups {
+          groups {
+              _id,
+              name,
+              users{
+                isAdmin,
+                userId
+              },
+              imageUri,
+              description,
+              landscapes,
+              permissions
+          }
+      }
+
+   `
  // infoLinkText,
  // img,
  // createdBy
@@ -110,17 +129,24 @@ const GroupsWithQuery = graphql(UserQuery, {
     })
   }
 )
+(graphql(GetGroupsQuery, {
+    props: ({ data: { loading, groups, refetch } }) => ({
+        groups,
+        loading,
+        refetchGroups: refetch
+    })
+  }
+)
 (graphql(GroupQuery, {
      options: { variables: { userId: user._id || '', isGlobalAdmin: (user.role === 'admin') || false } },
     props: ({ data: { loading, groupsByUser, refetch } }) => ({
         groupsByUser,
-        loading,
-        refetchGroups: refetch
+        loading
     })
 })
 (
   graphql(createGroupMutation, {name: 'CreateGroupWithMutation'})
-(CreateGroup)))))
+(CreateGroup))))))
 /* -----------------------------------------
   Redux
  ------------------------------------------*/

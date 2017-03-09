@@ -22,15 +22,9 @@ class Integrations extends Component {
         animated: true,
         viewEntersAnim: true,
         showDialog: false,
-        integrations: [
-          {
-            _id: "managedvpc1",
-            name:'Managed VPCs',
-            imageUri: vpcImage
-          }
-        ],
         currentUsers:[],
-        removedUsers:[]
+        removedUsers:[],
+        retrievingRepo: false
 
     }
 
@@ -48,6 +42,21 @@ class Integrations extends Component {
         leaveLandscapes()
     }
     componentWillMount(){
+      const { integrations } = this.props;
+      console.log('integrations', integrations)
+
+      var _integrations = integrations || [];
+      if(!integrations){
+        _integrations = [
+          {
+            _id: "managedvpc1",
+            name:'Managed VPCs',
+            imageUri: vpcImage
+          }
+        ]
+      }
+      this.setState({integrations: _integrations})
+
       var currentUser = auth.getUserInfo();
       if(auth.getUserInfo().isGroupAdmin){
         currentUser.isGroupAdmin = true
@@ -55,7 +64,22 @@ class Integrations extends Component {
       this.setState({ currentUser })
     }
 
-    componentWillReceiveProps(){
+    componentWillReceiveProps(nextProps){
+      const { integrations } = nextProps;
+      console.log('integrations', integrations)
+      var _integrations = integrations || [];
+      if(!integrations){
+        _integrations = [
+          {
+            _id: "managedvpc1",
+            name:'Managed VPCs',
+            imageUri: vpcImage
+          }
+        ]
+      }
+      this.setState({integrations: _integrations})
+
+      this.setState({integrations: _integrations})
       var currentUser = auth.getUserInfo();
       if(auth.getUserInfo().isGroupAdmin){
         currentUser.isGroupAdmin = true
@@ -66,7 +90,6 @@ class Integrations extends Component {
     render() {
         const { animated, viewEntersAnim, integrations, currentUser } = this.state
         const { loading } = this.props
-
         const confirmActions = [
             <FlatButton label='Cancel' primary={true} onTouchTap={this.handlesDialogToggle}/>,
             <FlatButton label='Delete' primary={true} onTouchTap={this.handlesDeleteIntegrationClick}/>
@@ -101,6 +124,14 @@ class Integrations extends Component {
                                             :
                                                 null
                                         }
+                                        {
+                                            currentUser.isGlobalAdmin && integration.username
+                                            ?
+                                                <FlatButton id='landscape-deploy' onTouchTap={this.handlesViewIntegrationClick.bind(this, integration)}
+                                                    label='Run Script' labelStyle={{ fontSize: '10px' }}/>
+                                            :
+                                                null
+                                        }
                                     </Col>
                                 </Row>
 
@@ -125,6 +156,11 @@ class Integrations extends Component {
         const { router } = this.context
         router.push({ pathname: '/integrations/create' })
     }
+    //
+    // handlesRunIntegrationClick = event => {
+    //     const { router } = this.context
+    //     this.setState({retrievingRepo: true})
+    // }
 
     handlesEditIntegrationClick = (integration, event) => {
         const { router } = this.context

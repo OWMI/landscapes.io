@@ -203,7 +203,12 @@ class EditGroup extends Component {
         this.setState({selectedLandscapeRows: selectedLandscapeRows})
         this.setState({selectedUserRows: selectedUserRows})
         this.setState({selectedAccountRows: selectedAccountRows})
-
+        if( currentGroup.managedVPC){
+          this.setState({managedVPC: true})
+        }
+        else{
+          this.setState({managedVPC: false})
+        }
         if (currentGroup.permissions) {
             if (currentGroup.permissions.length === 5) {
                 this.setState({checkAll: true})
@@ -334,6 +339,12 @@ class EditGroup extends Component {
         this.setState({selectedLandscapeRows: selectedLandscapeRows})
         this.setState({selectedUserRows: selectedUserRows})
 
+        if( currentGroup.managedVPC){
+          this.setState({managedVPC: true})
+        }
+        else{
+          this.setState({managedVPC: false})
+        }
         if (currentGroup.permissions) {
             if (currentGroup.permissions.length === 5) {
                 this.setState({checkAll: true})
@@ -380,6 +391,7 @@ class EditGroup extends Component {
             description: ''
         }
 
+        console.log(this.state.currentGroup)
         if (loading || this.state.loading) {
             return (
                 <div className={cx({'animatedViews': animated, 'view-enter': viewEntersAnim})}>
@@ -445,6 +457,14 @@ class EditGroup extends Component {
                                         width: '100%',
                                         textAlign: 'left'
                                       }} multiLine={true} rows={1} rowsMax={4} floatingLabelText="Description" onChange={this.handlesOnDescriptionChange} value={this.state.description} hintText='Description'/>
+                                  </Row>
+                                  <Row key='integration'>
+                                    <div style={{
+                                        borderBottom: '1px solid #E9E9E9',
+                                        width: '100%'
+                                    }}>
+                                      <Checkbox label="Managed VPC" onCheck={this.handlesOnManagedVPCChange} checked={this.state.managedVPC} className={cx( { 'two-field-row': true } )} style={{marginTop:15, marginBottom: 15, marginLeft: 10, textAlign: 'left', width:150}}/>
+                                    </div>
                                   </Row>
                                   <Row key='permissions' >
                                       <div style={{
@@ -811,7 +831,10 @@ class EditGroup extends Component {
         }).catch((error) => {
         })
     }
-
+    handlesOnManagedVPCChange = event => {
+        event.preventDefault()
+        this.setState({managedVPC: !this.state.managedVPC})
+    }
     getInitialState = () => {
         return {cropperOpen: false, img: null, croppedImg: defaultImage};
     }
@@ -974,6 +997,7 @@ class EditGroup extends Component {
         };
 
         groupToEdit.permissions = this.handlesCreatePermission()
+        groupToEdit.managedVPC = this.state.managedVPC || false
         groupToEdit.users = []
         groupToEdit.landscapes = []
         groupToEdit.accounts = []

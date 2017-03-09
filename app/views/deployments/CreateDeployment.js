@@ -4,7 +4,7 @@ import React, { Component, PropTypes } from 'react'
 import shallowCompare from 'react-addons-shallow-compare'
 import { Row, Col } from 'react-flexbox-grid'
 import { IoIosCloudUploadOutline } from 'react-icons/lib/io'
-import { Card, CardHeader, CardText, MenuItem, RaisedButton, SelectField, TextField, Toggle } from 'material-ui'
+import { Checkbox, Card, CardHeader, CardText, MenuItem, RaisedButton, SelectField, TextField, Toggle } from 'material-ui'
 
 import './deployments.style.scss'
 import { Loader } from '../../components'
@@ -197,8 +197,9 @@ class CreateDeployment extends Component {
                               </SelectField>
                             </Col>
                             <Col xs={6}>
-                              <TextField id='billingCode' ref='billingCode' floatingLabelText='Billing Code' fullWidth={true}
-                                  className={cx( { 'two-field-row': true } )}/>
+                              {/* <TextField id='billingCode' ref='billingCode' floatingLabelText='Billing Code' fullWidth={true}
+                                  className={cx( { 'two-field-row': true } )}/> */}
+                              <Checkbox label="Managed VPC" className={cx( { 'two-field-row': true } )} style={{marginTop:35, marginLeft: 10, width:150}}/>
                             </Col>
                           </Row>
 

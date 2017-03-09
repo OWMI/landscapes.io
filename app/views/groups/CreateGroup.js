@@ -76,6 +76,7 @@ class CreateGroup extends Component {
           enableSelectAll: true,
           deselectOnClickaway: true,
           showCheckboxes: true,
+          managedVPC: false,
           height: '300'
     }
 
@@ -191,6 +192,14 @@ class CreateGroup extends Component {
                                             width: '100%',
                                             textAlign: 'left'
                                           }} multiLine={true} rows={1} rowsMax={4} floatingLabelText="Description" onChange={this.handlesOnDescriptionChange} hintText='Description'/>
+                                      </Row>
+                                      <Row key='integration'>
+                                        <div style={{
+                                            borderBottom: '1px solid #E9E9E9',
+                                            width: '100%'
+                                        }}>
+                                          <Checkbox label="Managed VPC" onCheck={this.handlesOnManagedVPCChange} checked={this.state.managedVPC}  className={cx( { 'two-field-row': true } )} style={{marginTop:15, marginBottom: 15, marginLeft: 10, textAlign: 'left', width:150}}/>
+                                        </div>
                                       </Row>
                                       <Row key='permissions' >
                                           <div style={{
@@ -457,6 +466,10 @@ class CreateGroup extends Component {
         event.preventDefault()
         this.setState({description: event.target.value})
     }
+    handlesOnManagedVPCChange = event => {
+        event.preventDefault()
+        this.setState({managedVPC: !this.state.managedVPC})
+    }
     handlesGroupClick = event => {
         const { router } = this.context
         router.push({ pathname: '/protected' })
@@ -564,6 +577,7 @@ class CreateGroup extends Component {
             }
         }
         groupToCreate.imageUri = this.state.croppedImg || this.state.imageUri
+        groupToCreate.managedVPC = this.state.managedVPC || false
         console.log('groupToCreate', groupToCreate)
         this.props.CreateGroupWithMutation({
             variables: { group: groupToCreate }
