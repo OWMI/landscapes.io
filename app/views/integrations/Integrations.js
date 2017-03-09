@@ -105,6 +105,13 @@ class Integrations extends Component {
 
         return (
             <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
+              <Row style={{justifyContent: 'space-between', width: '100%'}}>
+                <a style={{ fontSize: '20px', cursor: 'pointer' }}>Integrations</a>
+                <div className="filter-list" style={{marginTop:-5, marginBottom:10}}>
+                </div>
+                <a>
+                </a>
+              </Row>
                 <ul>
                     {
                         integrations.map((integration, i) =>
