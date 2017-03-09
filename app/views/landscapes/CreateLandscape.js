@@ -147,17 +147,19 @@ class CreateLandscape extends Component {
 
                             </Col>
                             <Col xs={4}>
-                              <RaisedButton label='Save' onClick={this.handlesCreateClick}
-                                  style={{ float: 'right', margin: '30px 0px' }}
-                                  labelStyle={{ fontSize: '11px' }}/>
                             </Col>
                             <Col xs={4}>
-                              <RaisedButton label='Cancel' primary={true} onClick={() => {
-                                  const {router} = this.context
-                                  router.push(`/landscapes`)
-                              }}
-                                style={{ float: 'right', margin: '30px 0px' }}
-                                labelStyle={{ fontSize: '11px' }}/>
+                              <Row>
+                                <RaisedButton label='Save' onClick={this.handlesCreateClick}
+                                    style={{ float: 'right', margin: '30px 0px' }}
+                                    labelStyle={{ fontSize: '11px' }}/>
+                                <RaisedButton label='Cancel' primary={true} onClick={() => {
+                                    const {router} = this.context
+                                    router.push(`/landscapes`)
+                                }}
+                                  style={{ float: 'right', margin: '30px 0px', marginLeft:10 }}
+                                  labelStyle={{ fontSize: '11px' }}/>
+                              </Row>
                             </Col>
                           </Row>
                         </Col>
