@@ -23,7 +23,7 @@ module.exports = app => {
 
     // geoaxis oauth
     app.route('/api/auth/geoaxis').get(users.oauthCall('geoaxis', {}))
-    app.route('/api/auth/geoaxis/callback').get(users.geoaxisCallback)
+    app.route('/api/auth/geoaxis/callback').get(users.oauthCallback('geoaxis'))
 
     app.route('/api/github/repo').post(integrations.getGithubRepo)
     app.route('/api/yaml/parse').post(integrations.parseYAML)

@@ -6,6 +6,7 @@ const Schema = mongoose.Schema
 const mappingsSchema = new Schema({
     createdAt: { type: Date, default: Date.now },
     createdBy: { type: Schema.ObjectId, ref: 'User' },
+    landscapeGroupId: { type: String, required: true },
     landscapeGroup: { type: String, required: true },
     mappedGroups: { type: Array, 'default': [] },
     type: { type: String, 'default': 'ldap' }

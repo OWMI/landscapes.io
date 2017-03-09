@@ -51,7 +51,8 @@ const MappingsQuery = gql `
         mappings {
             _id,
             mappedGroups,
-            landscapeGroup
+            landscapeGroup,
+            landscapeGroupId
         }
     }
 `
@@ -69,7 +70,8 @@ const UpdateMappingsMutation = gql `
         updateMappings(mapping: $mapping) {
             _id,
             mappedGroups,
-            landscapeGroup
+            landscapeGroup,
+            landscapeGroupId
         }
     }
 `

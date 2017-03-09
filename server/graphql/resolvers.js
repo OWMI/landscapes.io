@@ -32,13 +32,13 @@ ldapClient.bind(config.ldap.bindDn, config.ldap.bindCredentials, err => {
 })
 
 // FIX: Attempts to resolve 'UnknownEndpoint' error experienced on GovCloud
-// AWS.events.on('httpError', () => {
-//     if (this.response.error && this.response.error.code === 'UnknownEndpoint') {
-//         this.response.error.retryable = true;
-//     } else if (this.response.error && this.response.error.code === 'NetworkingError') {
-//         this.response.error.retryable = true;
-//     }
-// })
+AWS.events.on('httpError', () => {
+    if (this.response.error && this.response.error.code === 'UnknownEndpoint') {
+        this.response.error.retryable = true;
+    } else if (this.response.error && this.response.error.code === 'NetworkingError') {
+        this.response.error.retryable = true;
+    }
+})
 
 const resolveFunctions = {
     Query: {
@@ -395,7 +395,7 @@ const resolveFunctions = {
             })
         },
         updateMappings(_, { mapping }) {
-            const { _id, landscapeGroup, mappedGroups } = mapping
+            const { _id } = mapping
 
             if (_id) {
                 console.log(' ---> updating mapping')

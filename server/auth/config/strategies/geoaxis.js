@@ -40,12 +40,11 @@ module.exports = () => {
                             lastName: lastname,
                             displayName: `${firstname} ${lastname}`,
                             provider: 'geoaxis',
-                            providerData: profile
+                            providerData: profile,
+                            role: configuration && configuration.length && configuration[0].isFirstUser
+                                  ? 'admin'
+                                  : 'user'
                         })
-
-                        if (configuration && configuration.length && configuration[0].isFirstUser) {
-                            user.role = 'admin'
-                        }
 
                         user.save(err => {
                             console.log(err ? err : ' ---> created: ' + user._id)
