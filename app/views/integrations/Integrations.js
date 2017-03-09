@@ -120,7 +120,7 @@ class Integrations extends Component {
                                 {/* header */}
                                 <Row start='xs' top='xs' style={{ padding: '20px 0px' }}>
                                     <Col xs={8}>
-                                        <img id='landscapeIcon' src={integration.imageUri || defaultImage}/>
+                                        <img id='landscapeIcon' src={integration.imageUri || vpcImage}/>
                                     </Col>
                                     <Col xs={4}>
                                         {

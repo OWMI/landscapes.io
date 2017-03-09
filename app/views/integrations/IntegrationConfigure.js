@@ -53,7 +53,7 @@ class IntegrationConfigure extends Component {
         integration = {
           name:'Managed VPCs',
           type: 'managedVPC',
-          imageUri: defaultGithubImage
+          imageUri: vpcImage
         }
       }
       this.setState({integration})
