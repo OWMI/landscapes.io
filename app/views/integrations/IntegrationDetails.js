@@ -196,15 +196,14 @@ class IntegrationDetails extends Component {
                         <Col xs={1} style={{ textAlign: 'left' }}>
                             <img src={this.state.integration.imageUri} style={{ width: 85 }} />
                         </Col>
-                        <Col xs={4} style={{ textAlign: 'left', marginLeft:20 }}>
+                        <Col xs={10} style={{ textAlign: 'left', paddingLeft:50 }}>
                             <Row><h4>{this.state.integration.name}</h4></Row>
-                        </Col>
-                        <Col xs={7}>
                         </Col>
                     </Row>
                     <Row middle='xs' style={{ flex: 1, marginLeft: 10 }}>
                         <Col style={{ textAlign: 'left', flex: 1 }}>
                             <h4>Current Configuration:</h4>
+                            <h5><strong>Type:  </strong> {this.state.integration.type}</h5>
                             <h5><strong>Repo URL: </strong> {this.state.integration.repoURL}</h5>
                             <h5><strong>Github Username: </strong> {this.state.integration.username}</h5>
                               {
