@@ -86,6 +86,7 @@ class IntegrationDetails extends Component {
         this.setState({nativeObject: []})
         var nativeObject = {}
         this.setState({loading: false})
+        this.setState({passwordInvalid: false})
         data.map(object =>{
           Object.keys(object.items).map(item =>{
             nativeObject[item] = object.items[item];
@@ -95,6 +96,7 @@ class IntegrationDetails extends Component {
       })
       .catch(() =>{
         this.setState({loading: false})
+        this.setState({passwordInvalid: true})
       });
     }
     componentWillReceiveProps(nextProps){
@@ -104,6 +106,7 @@ class IntegrationDetails extends Component {
         integration = integrations.find(integration => { return integration._id === params.id })
       }
       console.log('integration', integration)
+
       this.setState({integration})
 
       var currentUser = auth.getUserInfo();
@@ -111,6 +114,7 @@ class IntegrationDetails extends Component {
         currentUser.isGroupAdmin = true
       }
       this.setState({ currentUser })
+
       function GetRepo() {
           var data = {
             deployFolderName: integration.type,
@@ -118,6 +122,7 @@ class IntegrationDetails extends Component {
             username: integration.username,
             password: integration.password
           }
+          console.log('data', data)
           return new Promise((resolve, reject) => {
               axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/github/repo`, data).then(res => {
                 var yamlData = {
@@ -135,12 +140,13 @@ class IntegrationDetails extends Component {
           })
       }
       GetRepo().then((data) =>{
-        var update = true;
         console.log('data.rawData ------ ', data)
+        var update = true;
         this.setState({ data: [...data]})
-        var nativeObject = {}
         this.setState({nativeObject: []})
+        var nativeObject = {}
         this.setState({loading: false})
+        this.setState({passwordInvalid: false})
         data.map(object =>{
           Object.keys(object.items).map(item =>{
             nativeObject[item] = object.items[item];
@@ -150,6 +156,7 @@ class IntegrationDetails extends Component {
       })
       .catch(() =>{
         this.setState({loading: false})
+        this.setState({passwordInvalid: true})
       });
     }
 
@@ -183,26 +190,34 @@ class IntegrationDetails extends Component {
                             labelStyle={{ fontSize: '11px' }} icon={<IoEdit/>}/>
                     </Col>
                 </Row>
-                <Col>
-                  <Paper key={'integrationDetails'} onClick={this.handlesViewIntegrationClick.bind(this, integration)} zDepth={3} rounded={false}>
-
+                <Row style={{width: '100%', justifyContent: 'center'}}>
+                  <Paper key={'integrationDetails'} style={{width:'75%', minHeight:200}} onClick={this.handlesViewIntegrationClick.bind(this, integration)} zDepth={3} rounded={false}>
+                    <Row middle='xs'>
+                        <Col xs={1} style={{ textAlign: 'left' }}>
+                            <img src={this.state.integration.imageUri} style={{ width: 85 }} />
+                        </Col>
+                        <Col xs={4} style={{ textAlign: 'left', marginLeft:20 }}>
+                            <Row><h4>{this.state.integration.name}</h4></Row>
+                        </Col>
+                        <Col xs={7}>
+                        </Col>
+                    </Row>
+                    <Row middle='xs' style={{ flex: 1, marginLeft: 10 }}>
+                        <Col style={{ textAlign: 'left', flex: 1 }}>
+                            <h4>Current Configuration:</h4>
+                            <h5><strong>Repo URL: </strong> {this.state.integration.repoURL}</h5>
+                            <h5><strong>Github Username: </strong> {this.state.integration.username}</h5>
+                              {
+                                this.state.passwordInvalid
+                                ?
+                                <p>Current Configuration Password is Invalid</p>
+                                :
+                                null
+                              }
+                        </Col>
+                    </Row>
                   </Paper>
-                  <div>
-                      {
-                        this.state.data && this.state.data['rawData']
-                        ?
-                        <div>
-                          <p>{this.state.data.rawData}</p>
-                          {console.log('DATA', this.state.data)}
-                        </div>
-                        :
-                        <div>
-                          <p>{this.state.data.path}</p>
-                          {console.log('DATA reject', this.state.data.path)}
-                        </div>
-                      }
-                  </div>
-                </Col>
+                </Row>
             </div>
         )
     }
