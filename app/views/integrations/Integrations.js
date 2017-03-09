@@ -132,12 +132,12 @@ class Integrations extends Component {
                                                 null
                                         }
                                         {
-                                            currentUser.isGlobalAdmin && integration.username
+                                          /*  currentUser.isGlobalAdmin && integration.username
                                             ?
                                                 <FlatButton id='landscape-deploy' onTouchTap={this.handlesViewIntegrationClick.bind(this, integration)}
                                                     label='Run Script' labelStyle={{ fontSize: '10px' }}/>
                                             :
-                                                null
+                                                null */
                                         }
                                     </Col>
                                 </Row>
@@ -163,11 +163,6 @@ class Integrations extends Component {
         const { router } = this.context
         router.push({ pathname: '/integrations/create' })
     }
-    //
-    // handlesRunIntegrationClick = event => {
-    //     const { router } = this.context
-    //     this.setState({retrievingRepo: true})
-    // }
 
     handlesEditIntegrationClick = (integration, event) => {
         const { router } = this.context

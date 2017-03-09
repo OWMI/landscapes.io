@@ -44,10 +44,16 @@ class IntegrationConfigure extends Component {
     componentWillMount(){
       const { integrations, params } = this.props;
       var integration = {};
-      console.log('integrations', integrations)
-
       if(integrations){
         integration = integrations.find(integration => {return integration._id === params.id})
+        if(!integration){
+          integration = {
+            name:'Managed VPCs',
+            type: 'managedVPC',
+            imageUri: vpcImage
+          }
+        }
+        this.setState({integration})
       }
       else{
         integration = {
@@ -55,8 +61,8 @@ class IntegrationConfigure extends Component {
           type: 'managedVPC',
           imageUri: vpcImage
         }
+        this.setState({integration})
       }
-      this.setState({integration})
       var currentUser = auth.getUserInfo();
       if(auth.getUserInfo().isGroupAdmin){
         currentUser.isGroupAdmin = true
@@ -65,11 +71,17 @@ class IntegrationConfigure extends Component {
     }
     componentWillReceiveProps(nextProps){
       const { integrations, params } = nextProps;
-      console.log('integrations', integrations)
-
       var integration = {};
       if(integrations){
         integration = integrations.find(integration => {return integration._id === params.id})
+        if(!integration){
+          integration = {
+            name:'Managed VPCs',
+            type: 'managedVPC',
+            imageUri: vpcImage
+          }
+        }
+        this.setState({integration})
       }
       else{
         integration = {
@@ -77,9 +89,9 @@ class IntegrationConfigure extends Component {
           type: 'managedVPC',
           imageUri: vpcImage
         }
+        console.log('COULD NOT FIND', integration)
+        this.setState({integration})
       }
-      this.setState({integration})
-
       var currentUser = auth.getUserInfo();
       if(auth.getUserInfo().isGroupAdmin){
         currentUser.isGroupAdmin = true
@@ -178,6 +190,8 @@ class IntegrationConfigure extends Component {
         const { CreateIntegrationWithMutation, UpdateIntegrationWithMutation } = this.props
         const { router } = this.context
         const { integration } = this.state
+
+        console.log('integration', integration)
 
         var newIntegration = integration || {}
 
