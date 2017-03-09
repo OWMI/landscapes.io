@@ -260,7 +260,7 @@ class Landscapes extends Component {
                     currentUser.isGlobalAdmin || userAccess && userAccess.canCreate || currentUser.isGroupAdmin
                     ?
                         <a onClick={this.handlesCreateLandscapeClick}>
-                            <p style={{ fontSize: '20px', cursor: 'pointer' }}><IoIosPlusEmpty size={30}/>Add Landscape</p>
+                          <p style={{ fontSize: '18px', cursor: 'pointer' }}><IoIosPlusEmpty size={25}/>Add Landscape</p>
                         </a>
                     :
                         null
@@ -351,8 +351,8 @@ class Landscapes extends Component {
                             enableSelectAll={false}
                             style={{borderTop: '1px solid lightgray'}}>
                             <TableRow>
-                              <TableHeaderColumn></TableHeaderColumn>
-                              <TableHeaderColumn><Row onClick={this.handlesClickName}>Name
+                              <TableHeaderColumn style={{width:100}}></TableHeaderColumn>
+                              <TableHeaderColumn><Row onClick={this.handlesClickName} style={{cursor: 'pointer'}}>Name
                               {
                                 this.state.orderBy === 'name' && this.state.order === 'asc'
                                 ?
@@ -366,7 +366,7 @@ class Landscapes extends Component {
                                     null
                                   }</Col>}</Row>
                               </TableHeaderColumn>
-                              <TableHeaderColumn><Row onClick={this.handlesClickDescription}>Description
+                              <TableHeaderColumn><Row onClick={this.handlesClickDescription} style={{cursor: 'pointer'}}>Description
                               {
                                 this.state.orderBy === 'description' && this.state.order === 'asc'
                                 ?
@@ -390,7 +390,7 @@ class Landscapes extends Component {
                       {
                         this.state.items.map((landscape, i) =>
                           <TableRow key={i} onTouchTap={this.handlesLandscapeClick.bind(this, landscape)}>
-                            <TableRowColumn><img id='landscapeIcon' style={{height:35}} src={landscape.imageUri || defaultLandscapeImage}/></TableRowColumn>
+                            <TableRowColumn style={{width:100}}><img id='landscapeIcon' style={{height:35}} src={landscape.imageUri || defaultLandscapeImage}/></TableRowColumn>
                             <TableRowColumn>{landscape.name}</TableRowColumn>
                             <TableRowColumn>{
                               landscape.description.length > 50

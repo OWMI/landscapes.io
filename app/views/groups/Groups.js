@@ -146,7 +146,7 @@ class Groups extends Component {
                   <IoSearch style={{fontSize:20, color:'gray', marginRight:5}} /><TextField type="text" hintText="Search" onChange={this.filterList}/>
                 </div>
                 <a onClick={this.handlesCreateGroupClick}>
-                    <p style={{ fontSize: '20px', cursor: 'pointer' }}><IoIosPlusEmpty size={30}/>Add Group</p>
+                    <p style={{ fontSize: '18px', cursor: 'pointer' }}><IoIosPlusEmpty size={25}/>Add Group</p>
                 </a>
               </Row>
 
@@ -191,8 +191,8 @@ class Groups extends Component {
                             enableSelectAll={false}
                             style={{borderTop: '1px solid lightgray'}}>
                             <TableRow>
-                              <TableHeaderColumn></TableHeaderColumn>
-                              <TableHeaderColumn><Row onClick={this.handlesClickName}>Name
+                              <TableHeaderColumn style={{width:100}}></TableHeaderColumn>
+                              <TableHeaderColumn><Row onClick={this.handlesClickName} style={{cursor: 'pointer'}}>Name
                               {
                                 this.state.orderBy === 'name' && this.state.order === 'asc'
                                 ?
@@ -206,7 +206,7 @@ class Groups extends Component {
                                     null
                                   }</Col>}</Row>
                               </TableHeaderColumn>
-                              <TableHeaderColumn><Row onClick={this.handlesClickDescription}>Description
+                              <TableHeaderColumn><Row onClick={this.handlesClickDescription} style={{cursor: 'pointer'}}>Description
                               {
                                 this.state.orderBy === 'description' && this.state.order === 'asc'
                                 ?
@@ -229,7 +229,7 @@ class Groups extends Component {
                       {
                         items.map((group, i) =>
                           <TableRow key={i} onTouchTap={this.handlesGroupClick.bind(this, group)}>
-                            <TableRowColumn><img id='landscapeIcon' src={group.imageUri || defaultImage} style={{height:35}}/> </TableRowColumn>
+                            <TableRowColumn style={{width:100}}><img id='landscapeIcon' src={group.imageUri || defaultImage} style={{height:35}}/> </TableRowColumn>
                             <TableRowColumn>{group.name}</TableRowColumn>
                             <TableRowColumn>{
                               group.description.length > 50

@@ -135,7 +135,7 @@ class Users extends Component {
                   <IoSearch style={{fontSize:20, color:'gray', marginRight:5}} /><TextField type="text" hintText="Search" onChange={this.filterList}/>
                 </div>
                 <a onClick={this.handlesCreateGroupClick}>
-                    <p style={{ fontSize: '20px', cursor: 'pointer' }}><IoIosPlusEmpty size={30}/>Add User</p>
+                    <p style={{ fontSize: '18px', cursor: 'pointer' }}><IoIosPlusEmpty size={25}/>Add User</p>
                 </a>
               </Row>
               {
@@ -176,8 +176,8 @@ class Users extends Component {
                     enableSelectAll={false}
                     style={{borderTop: '1px solid lightgray'}}>
                     <TableRow>
-                      <TableHeaderColumn></TableHeaderColumn>
-                      <TableHeaderColumn><Row onClick={this.handlesClickName}>Name
+                      <TableHeaderColumn style={{width:100}}></TableHeaderColumn>
+                      <TableHeaderColumn><Row onClick={this.handlesClickName} style={{cursor: 'pointer'}}>Name
                       {
                         this.state.orderBy === 'name' && this.state.order === 'asc'
                         ?
@@ -191,7 +191,7 @@ class Users extends Component {
                             null
                           }</Col>}</Row>
                       </TableHeaderColumn>
-                      <TableHeaderColumn><Row onClick={this.handlesClickUsername}>Username
+                      <TableHeaderColumn><Row onClick={this.handlesClickUsername} style={{cursor: 'pointer'}}>Username
                       {
                         this.state.orderBy === 'username' && this.state.order === 'asc'
                         ?
@@ -205,7 +205,7 @@ class Users extends Component {
                             null
                           }</Col>}</Row>
                       </TableHeaderColumn>
-                      <TableHeaderColumn><Row onClick={this.handlesClickEmail}>Email
+                      <TableHeaderColumn><Row onClick={this.handlesClickEmail} style={{cursor: 'pointer'}}>Email
                       {
                         this.state.orderBy === 'email' && this.state.order === 'asc'
                         ?
@@ -219,7 +219,7 @@ class Users extends Component {
                             null
                           }</Col>}</Row>
                       </TableHeaderColumn>
-                      <TableHeaderColumn><Row onClick={this.handlesClickRole}>Role
+                      <TableHeaderColumn><Row onClick={this.handlesClickRole} style={{cursor: 'pointer'}}>Role
                       {
                         this.state.orderBy === 'role' && this.state.order === 'asc'
                         ?
@@ -242,7 +242,7 @@ class Users extends Component {
                     {
                       this.state.items.map((user, i) =>
                         <TableRow key={i} onTouchTap={this.handlesGroupClick.bind(this, user)}>
-                          <TableRowColumn><img id='landscapeIcon' src={user.imageUri || defaultImage} style={{height:35}}/> </TableRowColumn>
+                          <TableRowColumn style={{width:100}}><img id='landscapeIcon' src={user.imageUri || defaultImage} style={{height:35}}/> </TableRowColumn>
                           <TableRowColumn>{user.lastName}, {user.firstName} </TableRowColumn>
                           <TableRowColumn>{user.username}</TableRowColumn>
                           <TableRowColumn>{user.email}</TableRowColumn>
