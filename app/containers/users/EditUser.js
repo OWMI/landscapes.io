@@ -15,7 +15,18 @@ import * as viewsActions from '../../redux/modules/views'
          }
      }
  `
-
+ const IntegrationQuery = gql `
+     query getIntegrations {
+         integrations {
+             _id,
+             username,
+             name,
+             imageUri,
+             password,
+             type
+         }
+     }
+  `
  // const CreateUserWithMutation = graphql(editUserMutation)(CreateUser)
  const UserQuery = gql `
      query getUsers {
@@ -27,7 +38,9 @@ import * as viewsActions from '../../redux/modules/views'
              firstName,
              lastName,
              password,
-             role
+             role,
+             publicKey,
+             managedVPC
          }
      }
   `
@@ -84,6 +97,13 @@ import * as viewsActions from '../../redux/modules/views'
      })
    }
  )
+ (graphql(IntegrationQuery, {
+     props: ({ data: { loading, integrations } }) => ({
+         integrations,
+         loading
+     })
+   }
+ )
  (graphql(UserQuery, {
      props: ({ data: { loading, users, refetch } }) => ({
          users,
@@ -96,7 +116,7 @@ import * as viewsActions from '../../redux/modules/views'
    graphql(editUserMutation, {name: 'EditUserWithMutation'})
  (
    graphql(DeleteUserMutation, {name: 'DeleteUserMutation'})
- (EditUser)))))
+ (EditUser))))))
 
 /* -----------------------------------------
   Redux
