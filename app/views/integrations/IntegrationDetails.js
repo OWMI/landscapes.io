@@ -185,13 +185,13 @@ class IntegrationDetails extends Component {
                       <Row><h4><strong>Integration</strong>: {integration.name}</h4></Row>
                     </Col>
                     <Col xs={8}>
-                        <RaisedButton label='Edit' onClick={this.handlesEditLandscapeClick}
+                        <RaisedButton label='Edit' onClick={this.handlesEditIntegrationClick}
                             style={{ float: 'right', marginBottom: '30px' }}
                             labelStyle={{ fontSize: '11px' }} icon={<IoEdit/>}/>
                     </Col>
                 </Row>
                 <Row style={{width: '100%', justifyContent: 'center'}}>
-                  <Paper key={'integrationDetails'} style={{width:'75%', minHeight:200}} onClick={this.handlesViewIntegrationClick.bind(this, integration)} zDepth={3} rounded={false}>
+                  <Paper key={'integrationDetails'} style={{width:'70%'}} onClick={this.handlesViewIntegrationClick.bind(this, integration)} zDepth={3} rounded={false}>
                     <Row middle='xs'>
                         <Col xs={1} style={{ textAlign: 'left' }}>
                             <img src={this.state.integration.imageUri} style={{ width: 85 }} />
@@ -200,7 +200,7 @@ class IntegrationDetails extends Component {
                             <Row><h4>{this.state.integration.name}</h4></Row>
                         </Col>
                     </Row>
-                    <Row middle='xs' style={{ flex: 1, marginLeft: 10 }}>
+                    <Row middle='xs' style={{ flex: 1, marginLeft: 10, marginBottom: 20 }}>
                         <Col style={{ textAlign: 'left', flex: 1 }}>
                             <h4>Current Configuration:</h4>
                             <h5><strong>Type:  </strong> {this.state.integration.type}</h5>
@@ -233,10 +233,11 @@ class IntegrationDetails extends Component {
         router.push({ pathname: '/integrations/create' })
     }
 
-    handlesEditIntegrationClick = (integration, event) => {
+    handlesEditIntegrationClick = event => {
         const { router } = this.context
-        router.push({ pathname: '/integrations/update/' + integration._id })
+        router.push({ pathname: '/integration/configure/' + this.state.integration._id })
     }
+
     handlesViewIntegrationClick = (integration, event) => {
         const { router } = this.context
         router.push({ pathname: '/integrations/' + integration._id })

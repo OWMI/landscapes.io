@@ -294,6 +294,8 @@ class CreateUser extends Component {
       }
       GetRepo().then((data) =>{
         this.setState({ repoData: data})
+        this.setState({ githubData: integration })
+
         axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/github/publicKey`, data).then(res => {
           console.log('res', res)
           if(res.data.message){
@@ -402,6 +404,8 @@ class CreateUser extends Component {
               if(key === 'current_users'){
                 var currentUsers = this.state.repoData[index].items['current_users']
                 var repoData = this.state.repoData
+                console.log('repoData', repoData)
+
                 var currentUser = currentUsers.find(cu => {return user.username === cu.username})
                 if(!currentUser){
                   currentUsers.push({
@@ -411,11 +415,17 @@ class CreateUser extends Component {
                   })
                   repoData[index].items.current_users = currentUsers;
                       axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/yaml/stringify`, this.state.repoData).then(res => {
-                            return axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/github/commit`, res.data).then(res => {
-                              return resolve(res.data)
-                            }).catch(err =>{
-                              return reject(err)
-                            })
+                        console.log(' res.data',  res.data)
+                            var newData = {
+                              githubData: this.state.githubData,
+                              repoData: res.data
+                            }
+                        return axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/github/commit`, newData).then(res => {
+                            console.log(">>>>>res.data", res.data)
+                            return resolve(res.data)
+                          }).catch(err =>{
+                            return reject(err)
+                          })
                           })
                           .catch(err => {
                             return reject(err)
@@ -465,6 +475,7 @@ class CreateUser extends Component {
         const { refetchUsers, users } = this.props
         let usernameFound = false
         let emailFound = false
+        this.setState({loading: true})
 
         if (users && this.state.username) {
             usernameFound = users.find(user => { return user.username === this.state.username })
@@ -519,10 +530,12 @@ class CreateUser extends Component {
                 }).then(() => {
                     this.props.refetchUsers({}).then(({data}) => {
                         this.setState({ successOpen: true })
+                        this.setState({loading: false})
                         router.push({ pathname: '/users' })
                     }).catch((error) => {})
                 }).catch((error) => {
                     this.setState({failOpen: true})
+                    this.setState({loading: false})
                 })
               })
             }
@@ -534,10 +547,12 @@ class CreateUser extends Component {
               }).then(() => {
                   this.props.refetchUsers({}).then(({data}) => {
                       this.setState({ successOpen: true })
+                      this.setState({loading: false})
                       router.push({ pathname: '/users' })
                   }).catch((error) => {})
               }).catch((error) => {
                   this.setState({failOpen: true})
+                  this.setState({loading: false})
               })
             }
           }

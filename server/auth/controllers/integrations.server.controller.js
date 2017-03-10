@@ -218,117 +218,134 @@ exports.stringifyYAML = (req, res) => {
 
 exports.addAndCommitGithub = (req, res) => {
       /* TODO: Does not work yet */
-      var request = req.body;
+      var request = req.body.repoData;
+      var githubData = req.body.githubData;
+      // var signature = Git.Signature.create("wowcroudsvc", "", Date.now(), 60);
+      var signature;
+      var filepath;
+      var repoPath = '_github/managedVPC'
 
+      var opts = {
+        remoteCallbacks: {
+          callbacks: {
+            certificateCheck: function() {
+                return 1;
+            },
+            credentials: function () {
+              return Git.Cred.userpassPlaintextNew(githubData.username, githubData.password);
+            }
+          }
+        },
+        fetchOpts: {
+          callbacks: {
+            credentials: function() {
+              return Git.Cred.userpassPlaintextNew(githubData.username, githubData.password);
+            },
+            certificateCheck: function() {
+              return 1;
+            }
+          }
+        }
+      }
       /* WRITE TO FILE */
       let _promises = request.map((file, index) => {
           return new Promise((resolve, reject) => {
-            fse.writeFile(file.path, file.yaml, function(err) {
-              if(err) {
-                  return reject(err);
-              }
-              console.log("The file was saved!");
-              resolve();
-            });
+                filepath = file.path
+                fse.writeFile(file.path, file.yaml, function(err) {
+                  if(err) {
+                      return reject(err);
+                  }
+                  console.log('file written!')
+                  return resolve(file);
+                })
           })
       })
       Promise.all(_promises).then(_objects => {
-        return res.json(_objects)
-      })
-      //   var repoOwner = "wowcroud";
-      //   var repoName = "VPCPrivate";
-      //   // create tmp folder
-      //   var deployFolderName = 'temp';
-      //   var nativeObject = {};
-      //   var json = {
-      //     location: path.join('./_managedVPC/',deployFolderName)
-      //   }
-      //   var remoteRepo = "https://github.com/" + repoOwner + "/" + repoName;
-      //   console.log('Remote stash repo: %s', remoteRepo);
-      //   console.log('Cloning into %s', path.join('./_managedVPC/',deployFolderName));
-      //   var cloneOptions = {};
-      //   console.log('Cloning snapshot repo');
-      //
-      //   var opts = {
-      //     fetchOpts: {
-      //       callbacks: {
-      //         credentials: function() {
-      //           return Git.Cred.userpassPlaintextNew(username, password);
-      //         },
-      //         certificateCheck: function() {
-      //           return 1;
-      //         }
-      //       }
-      //     }
-      //   };
-      //
-      //   var fileName = "newFile.txt";
-      //   var fileContent = "hello world";
-      //
-      //   var repository;
-      //   var remote;
-      //
-      //   var signature = Git.Signature.create("Foo bar",
-      //     "foo@bar.com", 123456789, 60);
-      //
-      //   // Create a new repository in a clean directory, and add our first file
-      //   fse.remove(path.join('./_managedVPC/',deployFolderName))
-      //   .then(function() {
-      //     console.log('creating new')
-      //     return fse.ensureDir(path.resolve( path.join('./_managedVPC/',deployFolderName)));
-      //   })
-      //   .then(function() {
-      //     console.log('creating new in remoete')
-      //
-      //     return Git.Repository.init(path.join('./_managedVPC/',deployFolderName), 0, {
-      //   callbacks: {
-      //     credentials: function(url, userName) {
-      //       return Git.Cred.userpassPlaintextNew('wowcroudsvc', "Mojo2013");
-      //     }
-      //   }
-      // });
-      //   })
-      //   .then(function(repo) {
-      //     repository = repo;
-      //     console.log('creating repository')
-      //
-      //     return fse.writeFile(path.join(repository.workdir(), fileName), fileContent);
-      //   })
-      //
-      //   // Load up the repository index and make our initial commit to HEAD
-      //   .then(function() {
-      //     console.log('refreshIndex refreshIndex')
-      //
-      //     return repository.refreshIndex();
-      //   })
-      //   .then(function(index) {
-      //     return index.addByPath(fileName)
-      //       .then(function() {
-      //         return index.write();
-      //       })
-      //       .then(function() {
-      //         return index.writeTree();
-      //       });
-      //   })
-      //   .then(function(oid) {
-      //     return repository.createCommit("HEAD", signature, signature,
-      //       "initial commit", oid, []);
-      //   })
-      //
-      //   // Add a new remote
-      //   .then(function() {
-      //     console.log('Made it to add route')
-      //     return Git.Remote.create(repository, "origin",
-      //     remoteRepo)
-      //     .then(function(remoteResult) {
-      //       remote = remoteResult;
-      //
-      //       // Create the push object for this remote
-      //       return remote.push(
-      //         ["refs/heads/master:refs/heads/master"]
-      //       );
-      //     });
-      //   }).done(function() {
-      //     console.log("Done!");
-      //   });
+        var repo;
+        var remote;
+        var signature;
+        var parent_count;
+        var parents;
+        var headCommit;
+        var index;
+        var oid;
+        var directoryName = "./";
+        console.log('PATH -----', repoPath)
+        Git.Repository.open(path.join('./', repoPath))
+          .then(function(repoResult) {
+            repo = repoResult;
+            return fse.ensureDir(path.join(repo.workdir(), directoryName));
+          })
+          .then(function() {
+            return repo.refreshIndex();
+          })
+          .then(function(indexResult) {
+            index = indexResult;
+          })
+          .then(function() {
+            // this file is in a subdirectory and can use a relative path
+            return index.addAll();
+          })
+          .then(function() {
+            // this will write both files to the index
+            return index.write();
+          })
+          .then(function() {
+            return index.writeTree();
+          })
+          .then(function(oidResult) {
+            oid = oidResult;
+            return Git.Reference.nameToId(repo, "HEAD");
+          })
+          .then(function(head) {
+            return repo.getCommit(head);
+          })
+          .then(function(parent) {
+            var author = Git.Signature.create("wowcroudsvc",
+              "matthew.fincher@gmail.com", Date.now(), 60);
+            return repo.createCommit("HEAD", author, author, "automation: add users", oid, [parent]);
+          })
+          .then(function() {
+            Git.Remote.setPushurl(repo, "origin", githubData.repoURL);
+            Git.Remote.setUrl(repo, "origin", githubData.repoURL);
+            return repo.getRemote("origin")
+            .then(function(remoteResult) {
+              remote = remoteResult;
+
+              // Create the push object for this remote
+              return remote.push(
+                ["refs/heads/master:refs/heads/master"],
+                {
+                  callbacks: {
+                    certificateCheck: function() {
+                      return 1;
+                    },
+                    credentials: function() {
+                      return Git.Cred.userpassPlaintextNew(githubData.username, decrypt(githubData.password));
+                    }
+                  }
+                },
+                {
+                  callbacks: {
+                    certificateCheck: function() {
+                      return 1;
+                    },
+                    credentials: function() {
+                      return Git.Cred.userpassPlaintextNew(githubData.username, githubData.password);
+                    }
+                  }
+                }
+              ).then(function(number) {
+                console.log('number', number)
+              })
+              .catch(function(error) {
+                console.log('error', error)
+              });
+            });
+          })
+          .done(function() {
+              console.log("Done! Pushing!!");
+              return res.json(_objects)
+          });
+        })
       }

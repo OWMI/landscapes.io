@@ -430,6 +430,7 @@ class EditUser extends Component {
       }
       GetRepo().then((data) =>{
         this.setState({ repoData: data})
+        this.setState({ githubData: integration })
         axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/github/publicKey`, data).then(res => {
           console.log('res', res)
           if(res.data.message){
@@ -449,35 +450,42 @@ class EditUser extends Component {
     convertAndPush = (user) => {
       return new Promise((resolve, reject) => {
 
-      this.state.repoData.forEach((repo, index) => {
-        if(repo.items){
-            Object.keys(repo.items).find(key => {
-              if(key === 'current_users'){
-                var currentUsers = this.state.repoData[index].items['current_users']
-                var repoData = this.state.repoData
-                var currentUser = currentUsers.find(cu => {return user.username === cu.username})
-                if(!currentUser){
-                  currentUsers.push({
-                    name: user.username,
-                    host_group: user.role,
-                    publicKey: this.state.publicKey
-                  })
-                  repoData[index].items.current_users = currentUsers;
-                      axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/yaml/stringify`, this.state.repoData).then(res => {
-                            return axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/github/commit`, res.data).then(res => {
-                              return resolve(res.data)
-                            }).catch(err =>{
-                              return reject(err)
-                            })
+        this.state.repoData.forEach((repo, index) => {
+          if(repo.items){
+              Object.keys(repo.items).find(key => {
+                if(key === 'current_users'){
+                  var currentUsers = this.state.repoData[index].items['current_users']
+                  var repoData = this.state.repoData
+                  console.log('repoData', repoData)
+                  var currentUser = currentUsers.find(cu => {return user.username === cu.username})
+                  if(!currentUser){
+                    currentUsers.push({
+                      name: user.username,
+                      host_group: user.role,
+                      publicKey: this.state.publicKey
+                    })
+                    repoData[index].items.current_users = currentUsers;
+
+                    axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/yaml/stringify`, this.state.repoData).then(res => {
+                            console.log(' res.data',  res.data)
+                            var newData = {
+                              githubData: this.state.githubData,
+                              repoData: res.data
+                            }
+                        return axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/github/commit`, newData).then(res => {
+                            return resolve(res.data)
+                          }).catch(err =>{
+                            return reject(err)
+                          })
                           })
                           .catch(err => {
                             return reject(err)
                           })
+                        }
                       }
-                    }
-                  })
-              }
-            })
+                    })
+                }
+              })
           })
     }
 
@@ -523,7 +531,8 @@ class EditUser extends Component {
         this.convertAndPush(userToEdit).then(data => {
           this.props.EditUserWithMutation({
               variables: { user: userToEdit }
-           }).then(({ data }) => {           const { router } = this.context
+           }).then(({ data }) => {
+             const { router } = this.context
 
              this.props.refetchUsers({
              }).then(({ data }) =>{
