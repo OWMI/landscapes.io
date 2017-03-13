@@ -37,7 +37,7 @@ module.exports = {
     sessionKey: `sessionId`,
     sessionCollection: `sessions`,
 
-    authStrategy: AUTH_STRATEGY || `local`,
+    authStrategy: AUTH_STRATEGY || `ldap`,
 
     oauthCreds: {
         google: {
