@@ -86,7 +86,7 @@ For Google, you can obtain Client ID/Secret and set the authorized redirect URIs
 
 **Set environment variables OR update the server config**
 
-*** Approach #1 ***
+***Environment Variables Approach***
 ```
 AUTH_STRATEGY=google GOOGLE_CLIENT_ID=CLIENT_ID_HERE.apps.googleusercontent.com GOOGLE_CLIENT_SECRET=CLIENT_SECRET_HERE npm start
 
@@ -96,7 +96,8 @@ AUTH_STRATEGY=ldap npm start
 docker-compose -f docker-compose-ldap-only.yml up
 ```
 
-Updated the server configuration file located at ```/server/config/env/default.js``` with **authStrategy** and **oauthCreds**
+***Config File Approach***
+Update the server configuration file located at ```/server/config/env/default.js``` with **authStrategy** and **oauthCreds**
 ```javascript
 authStrategy: 'OAUTH_PROVIDER_NAME', // 'google', 'geoaxis'
 oauthCreds: {
