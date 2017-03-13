@@ -61,7 +61,7 @@ function getImplicitGlobals() {
 }
 
 function setNodeEnv() {
-    let MONGODB_URI = process.env.MONGOHQ_URL || process.env.MONGODB_URI || 'mongodb://' + (process.env.DB_PORT_27017 || 'localhost') + '/landscapes'
+    let MONGODB_URI = process.env.MONGODB_URI || 'mongodb://' + (process.env.DB_PORT_27017 || 'localhost') + '/landscapes'
     return new webpack.DefinePlugin({
         'process.env': {
             'NODE_ENV': JSON.stringify('production')
