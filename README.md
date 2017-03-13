@@ -86,17 +86,18 @@ For Google, you can obtain Client ID/Secret and set the authorized redirect URIs
 
 **Set environment variables OR update the server config**
 
-***Environment Variables Approach***
+**Environment Variables Approach**
 ```
 AUTH_STRATEGY=google GOOGLE_CLIENT_ID=CLIENT_ID_HERE.apps.googleusercontent.com GOOGLE_CLIENT_SECRET=CLIENT_SECRET_HERE npm start
 
 AUTH_STRATEGY=geoaxis GEOAXIS_CLIENT_ID=CLIENT_ID_HERE GEOAXIS_CLIENT_SECRET=CLIENT_SECRET_HERE npm start
 
 AUTH_STRATEGY=ldap npm start
-docker-compose -f docker-compose-ldap-only.yml up
 ```
 
-***Config File Approach***
+---
+
+**Config File Approach**
 
 Update the server configuration file located at ```/server/config/env/default.js``` with **authStrategy** and **oauthCreds**
 ```javascript
@@ -112,12 +113,31 @@ oauthCreds: {
     }
 }
 ```
+### LDAP Seeding/Integration
 
-**Seed OAuth admin user**
+**Launch development OpenLDAP and phpLDAPadmin servers...**
 ```
-// ldap
-...todo
+$ docker-compose -f docker-compose-ldap.yaml up
+```
 
+**Test connection to OpenLDAP...**
+```
+$ curl "ldap://localhost/dc=landscapes,dc=io" -u "cn=admin,dc=landscapes,dc=io"
+Enter host password for user 'cn=admin,dc=landscapes,dc=io': password
+```
+
+**Seed OpenLDAP with development data...**
+```
+ldapmodify -a -f development.ldif -x -H ldap://localhost:389 -w password -D cn=admin,dc=landscapes,dc=io
+ldapmodify -f development-set-roles.ldif -x -H ldap://localhost:389 -w password -D cn=admin,dc=landscapes,dc=io
+```
+
+**Change OpenLDAP password...**
+```
+ldappasswd -s n3wP@ssw0rd -W -D cn=admin,dc=landscapes,dc=io" -x "uid=test_admin_user,ou=people,dc=landscapes,dc=io"
+```
+### Seed GeoAxis/Google admin user
+```
 // development
 MONGO_SEED=true npm start
 
