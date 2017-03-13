@@ -2,18 +2,13 @@
 
 let path            = require('path')
 let mongoose        = require('mongoose')
-let passport        = require('passport')
 let winston         = require('winston')
-let User            = mongoose.model('User')
 let crypto          = require('crypto')
 let config          = require(path.resolve('./server/config/config'))
-let errorHandler    = require(path.resolve('./server/auth/controllers/errors.server.controller'))
 var promisify = require("promisify-node");
 var fse = promisify(require("fs-extra"));
 var fsp = require("fs-plus");
 
-// URLs for which user can't be redirected on signin
-let noReturnUrls = ['/authentication/signin', '/authentication/signup']
 var Git = require("nodegit");
 var YAML = require('yamljs');
 const secureRandom = require('secure-random')
@@ -123,16 +118,14 @@ exports.getPublicKey = (req, res) => {
 exports.getGithubRepo = (req, res) => {
     /* Pulls repo and sends location of files on local system */
     var request = req.body;
-    console.log('request ------- ', request)
     request.password = decrypt(request.password)
     var username = request['username'];
     var password = request['password']
-    var nativeObject = {files:[], location:  path.join('./_github/', request.deployFolderName)};
+    var fileLocations = {files:[], location:  path.join('./_github/', request.deployFolderName)};
     var remoteRepo = request.repoURL;
-    console.log('Remote stash repo: %s', remoteRepo);
-    console.log('Cloning into %s', path.join('./_github/', request.deployFolderName));
+    winston.info('Remote stash repo: %s', remoteRepo);
+    winston.info('Cloning into %s', path.join('./_github/', request.deployFolderName));
     var cloneOptions = {};
-    console.log('Cloning snapshot repo');
     var getMostRecentCommit = function(repository) {
         return repository.getBranchCommit('master');
     };
@@ -141,7 +134,6 @@ exports.getGithubRepo = (req, res) => {
         return commit.message();
     };
     if(!password || !username){
-      console.log('refresh')
       fse.readdir( path.join('./_github/', request.deployFolderName), (err, files) => {
           nativeObject['files'] = files
           return res.json(nativeObject)
@@ -162,25 +154,24 @@ exports.getGithubRepo = (req, res) => {
       };
       fse.remove(path.join('./_github/', request.deployFolderName)).then(function() {
         Git.Clone(remoteRepo, path.join('./_github/', request.deployFolderName) , opts)
-          .then(getMostRecentCommit, function() { console.log('error %o', arguments);})
+          .then(getMostRecentCommit, function() { winston.info('error %o', arguments)})
           .then(function(commit) {
             return new Promise((resolve, reject) => {
                 fse.readdir( path.join('./_github/', request.deployFolderName), (err, files) => {
-                    nativeObject['files'] = files
-                    return resolve(nativeObject);
+                    fileLocations['files'] = files
+                    return resolve(fileLocations);
                 })
             })
           })
           .done(function(data) {
-            console.log('Finished Cloning');
-            return res.json(nativeObject)
+            winston.info('Finished Cloning');
+            return res.json(fileLocations)
           });
       });
     }
 }
+
 exports.parseYAML = (req, res) => {
-  console.log('parsing ------ ', req.body.locations)
-  var total = req.body.locations.length;
   var nativeObject = {}
   let _promises = req.body.locations.map((location, index) => {
       return new Promise((resolve, reject) => {
@@ -198,6 +189,7 @@ exports.parseYAML = (req, res) => {
     return res.json(_objects)
   })
 }
+
 exports.stringifyYAML = (req, res) => {
   var request = req.body
   var nativeObject = {}
@@ -220,7 +212,6 @@ exports.addAndCommitGithub = (req, res) => {
       /* TODO: Does not work yet */
       var request = req.body.repoData;
       var githubData = req.body.githubData;
-      // var signature = Git.Signature.create("wowcroudsvc", "", Date.now(), 60);
       var signature;
       var filepath;
       var repoPath = '_github/managedVPC'
@@ -270,7 +261,7 @@ exports.addAndCommitGithub = (req, res) => {
         var index;
         var oid;
         var directoryName = "./";
-        console.log('PATH -----', repoPath)
+
         Git.Repository.open(path.join('./', repoPath))
           .then(function(repoResult) {
             repo = repoResult;
@@ -283,26 +274,28 @@ exports.addAndCommitGithub = (req, res) => {
             index = indexResult;
           })
           .then(function() {
-            // this file is in a subdirectory and can use a relative path
+            // adds all changes to index to be written
             return index.addAll();
           })
           .then(function() {
-            // this will write both files to the index
+            // writes files to index
             return index.write();
           })
           .then(function() {
             return index.writeTree();
           })
-          .then(function(oidResult) {
-            oid = oidResult;
+          .then(function(indexResult) {
+            oid = indexResult;
             return Git.Reference.nameToId(repo, "HEAD");
           })
           .then(function(head) {
             return repo.getCommit(head);
           })
           .then(function(parent) {
-            var author = Git.Signature.create("wowcroudsvc",
-              "matthew.fincher@gmail.com", Date.now(), 60);
+            // pull from integration
+            var time = Date.now() / 1000
+            var author = Git.Signature.create(githubData.username,
+              githubData.githubEmail, time, 60);
             return repo.createCommit("HEAD", author, author, "automation: add users", oid, [parent]);
           })
           .then(function() {
@@ -311,7 +304,6 @@ exports.addAndCommitGithub = (req, res) => {
             return repo.getRemote("origin")
             .then(function(remoteResult) {
               remote = remoteResult;
-
               // Create the push object for this remote
               return remote.push(
                 ["refs/heads/master:refs/heads/master"],
@@ -336,15 +328,15 @@ exports.addAndCommitGithub = (req, res) => {
                   }
                 }
               ).then(function(number) {
-                console.log('number', number)
+                winston.info('error code', number)
               })
               .catch(function(error) {
-                console.log('error', error)
+                winston.info('error', error)
               });
             });
           })
           .done(function() {
-              console.log("Done! Pushing!!");
+              winston.info("Pushed to remote.");
               return res.json(_objects)
           });
         })

@@ -132,6 +132,9 @@ let IntegrationSchema = new Schema({
     repoURL: {
         type: String
     },
+    githubEmail: {
+        type: String
+    },
     updated: {
         type: Date
     },

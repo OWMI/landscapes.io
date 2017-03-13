@@ -22,6 +22,13 @@ import * as viewsActions from '../../redux/modules/views'
           }
       }
   `
+ const deleteIntegrationMutation = gql `
+      mutation deleteIntegration($integration: IntegrationInput!) {
+          deleteIntegration(integration: $integration) {
+              name
+          }
+      }
+  `
  const IntegrationQuery = gql `
      query getIntegrations {
          integrations {
@@ -31,12 +38,14 @@ import * as viewsActions from '../../redux/modules/views'
              imageUri,
              password,
              type,
-             repoURL
+             repoURL,
+             githubEmail
          }
      }
   `
  const integrationMutation = graphql(createIntegrationMutation, {name: 'CreateIntegrationWithMutation'})
  const integrationUpdateMutation = graphql(updateIntegrationMutation, {name: 'UpdateIntegrationWithMutation'})
+ const integrationDeleteMutation = graphql(deleteIntegrationMutation, {name: 'DeleteIntegrationWithMutation'})
  const integrationQuery = graphql(IntegrationQuery, { props: ({ data: { loading, integrations, refetch } }) => ({
      integrations,
      loading,

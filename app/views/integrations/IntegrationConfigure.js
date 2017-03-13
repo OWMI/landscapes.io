@@ -125,7 +125,7 @@ class IntegrationConfigure extends Component {
                   </div>
               </Row>
               <Row style={{width:'100%', justifyContent:'center'}}>
-                <Paper className={cx({ 'landscape-card': false })} style={{width:500, minHeight:300, justifyContent:'center'}} zDepth={3} rounded={false}>
+                <Paper className={cx({ 'landscape-card': false })} style={{width:500, minHeight:400, justifyContent:'center'}} zDepth={3} rounded={false}>
                         {/* header */}
                           {
                               this.state.errorMessage
@@ -148,6 +148,9 @@ class IntegrationConfigure extends Component {
                                     Current Configuration: NONE
                                   </div>
                                 }
+                        </Row>
+                        <Row style={{ margin: '0px 0px', justifyContent:'center'}}>
+                            <TextField floatingLabelText="Github Email" label="Github Email" defaultValue={integration.githubEmail || ''} ref="githubEmail"/>
                         </Row>
                         <Row style={{ margin: '0px 0px', justifyContent:'center'}}>
                             <TextField floatingLabelText="Github Username" label="Github Username" defaultValue={integration.username || ''} ref="username"/>
@@ -209,6 +212,9 @@ class IntegrationConfigure extends Component {
         }
         if(!newIntegration.repoURL){
           this.setState({errorMessage: 'Repository URL is required.', loading: false})
+        }
+        if(!newIntegration.githubEmail){
+          this.setState({errorMessage: 'Github email is required.', loading: false})
         }
         if(!newIntegration.username){
           this.setState({errorMessage: 'Github username is required.', loading: false})

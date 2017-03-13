@@ -180,7 +180,12 @@ class Integrations extends Component {
     }
     handlesViewIntegrationClick = (integration, event) => {
         const { router } = this.context
-        router.push({ pathname: '/integration/' + integration._id })
+        if(!integration.repoURL){
+          router.push({ pathname: '/integration/configure/' + integration._id })
+        }
+        else{
+          router.push({ pathname: '/integration/' + integration._id })
+        }
     }
 
     handlesClickButton = () =>{

@@ -9,6 +9,7 @@ const Integration = `
         type: String
         imageUri: String
         repoURL: String
+        githubEmail: String
     }
 `
 

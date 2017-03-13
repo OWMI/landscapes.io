@@ -29,7 +29,8 @@ import { auth } from '../../services/auth'
              imageUri,
              firstName,
              lastName,
-             role
+             role,
+             managedVPC
          }
      }
   `

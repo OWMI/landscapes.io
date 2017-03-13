@@ -56,6 +56,7 @@ const Query = `
         name: String
         repoURL: String
         __typename: String
+        githubEmail: String
     }
 
     input AccountInput {

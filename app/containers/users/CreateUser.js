@@ -26,7 +26,8 @@ import * as viewsActions from '../../redux/modules/views'
              imageUri,
              password,
              type,
-             repoURL
+             repoURL,
+             githubEmail
          }
      }
   `

@@ -538,7 +538,8 @@ class EditGroup extends Component {
                                 <TableHeader displaySelectAll={false} adjustForCheckbox={false} enableSelectAll={false}>
                                     <TableRow>
                                         <TableHeaderColumn tooltip="Image"></TableHeaderColumn>
-                                          <TableHeaderColumn><Row onClick={this.handlesClickOrder.bind(this, {orderBy: 'name', array:'landscape'})}>Name
+                                          <TableHeaderColumn>
+                                            <Row onClick={this.handlesClickOrder.bind(this, {orderBy: 'name', array:'landscape'})}>Name
                                           {
                                             this.state.orderBy === 'name' && this.state.order === 'asc'
                                             ?
@@ -779,6 +780,11 @@ class EditGroup extends Component {
               (item.username.toLowerCase().search(
                 event.target.value.toLowerCase()) !== -1)
       });
+      if(this.state.managedVPC){
+        updatedList = updatedList.filter(function(item){
+          return (item.managedVPC.search(true) !== -1)
+        });
+      }
       this.setState({userItems: [...updatedList]});
     }
 
@@ -833,6 +839,15 @@ class EditGroup extends Component {
     }
     handlesOnManagedVPCChange = event => {
         event.preventDefault()
+        var updatedList = this.state.stateUsers
+        if(!this.state.managedVPC){
+          updatedList = this.state.stateUsers.filter(function(item){
+            if(item['managedVPC'] && item['managedVPC'] === true){
+              return item
+            }
+          });
+        }
+        this.setState({userItems: [...updatedList]});
         this.setState({managedVPC: !this.state.managedVPC})
     }
     getInitialState = () => {

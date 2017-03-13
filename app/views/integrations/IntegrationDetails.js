@@ -191,7 +191,7 @@ class IntegrationDetails extends Component {
                     </Col>
                 </Row>
                 <Row style={{width: '100%', justifyContent: 'center'}}>
-                  <Paper key={'integrationDetails'} style={{width:'70%'}} onClick={this.handlesViewIntegrationClick.bind(this, integration)} zDepth={3} rounded={false}>
+                  <Paper key={'integrationDetails'} style={{width:'70%'}} zDepth={3} rounded={false}>
                     <Row middle='xs'>
                         <Col xs={1} style={{ textAlign: 'left' }}>
                             <img src={this.state.integration.imageUri} style={{ width: 85 }} />
@@ -206,6 +206,7 @@ class IntegrationDetails extends Component {
                             <h5><strong>Type:  </strong> {this.state.integration.type}</h5>
                             <h5><strong>Repo URL: </strong> {this.state.integration.repoURL}</h5>
                             <h5><strong>Github Username: </strong> {this.state.integration.username}</h5>
+                            <h5><strong>Github Email: </strong> {this.state.integration.githubEmail}</h5>
                               {
                                 this.state.passwordInvalid
                                 ?
