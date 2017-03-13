@@ -22,15 +22,6 @@ const Integration = require('../auth/models/integration.server.model')
 const TypeDocument = require('./models/documentTypes')
 const Tag = require('./models/tag')
 
-// Instantiate the LDAP client
-const ldapClient = ldap.createClient({
-    url: config.ldap.url
-})
-
-ldapClient.bind(config.ldap.bindDn, config.ldap.bindCredentials, err => {
-    if (err) console.log(err)
-})
-
 // FIX: Attempts to resolve 'UnknownEndpoint' error experienced on GovCloud
 AWS.events.on('httpError', () => {
     if (this.response.error && this.response.error.code === 'UnknownEndpoint') {
@@ -111,11 +102,19 @@ const resolveFunctions = {
         },
         ldapGroups(root, args, context) {
 
+            // Instantiate the LDAP client
+            const ldapClient = ldap.createClient({
+                url: config.ldap.url
+            })
+
+            ldapClient.bind(config.ldap.bindDn, config.ldap.bindCredentials, err => {
+                if (err) console.log(err)
+            })
+
             let groupsArray = [],
                 opts = {
                     filter: '(cn=*)',
-                    scope: 'sub',
-
+                    scope: 'sub'
                 }
 
             return new Promise((resolve, reject) => {
