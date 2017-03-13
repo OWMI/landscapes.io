@@ -146,7 +146,7 @@ let IntegrationSchema = new Schema({
 
 IntegrationSchema.pre('save', function(next) {
     if (this.password && this.isModified('password')) {
-        this.password = this.encrypt(this.password)
+        this.password = encrypt(this.password)
     }
     next()
 })
