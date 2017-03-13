@@ -97,6 +97,7 @@ docker-compose -f docker-compose-ldap-only.yml up
 ```
 
 ***Config File Approach***
+
 Update the server configuration file located at ```/server/config/env/default.js``` with **authStrategy** and **oauthCreds**
 ```javascript
 authStrategy: 'OAUTH_PROVIDER_NAME', // 'google', 'geoaxis'
