@@ -55,7 +55,7 @@ import * as viewsActions from '../../redux/modules/views'
 
  // createdBy
 
-const composedRequest = compose(integrationMutation, integrationUpdateMutation, integrationQuery)(IntegrationConfigure)
+const composedRequest = compose(integrationMutation, integrationDeleteMutation, integrationUpdateMutation, integrationQuery)(IntegrationConfigure)
 
 
 /* -----------------------------------------

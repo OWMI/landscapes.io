@@ -405,32 +405,6 @@ class EditUser extends Component {
       var data = {}
       this.setState({showGettingPublicKey: true})
       this.setState({publicKeyError: false})
-      function GetRepo() {
-          var data = {
-            deployFolderName: integration.type,
-            repoURL: integration.repoURL,
-            username: integration.username,
-            password: integration.password
-          }
-          return new Promise((resolve, reject) => {
-              axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/github/repo`, data).then(res => {
-                var yamlData = {
-                  type:'managedVPC',
-                  locations: [
-                    res.data.location + '/roles/cloud-admins/vars/main.yml'
-                  ]
-                }
-                return axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/yaml/parse`, yamlData).then(yaml => {
-                    return resolve(yaml.data)
-                  })
-              }).catch(err => {
-                  return reject(err)
-              })
-          })
-      }
-      GetRepo().then((data) =>{
-        this.setState({ repoData: data})
-        this.setState({ githubData: integration })
         axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/github/publicKey`, data).then(res => {
           console.log('res', res)
           if(res.data.message){
@@ -439,55 +413,9 @@ class EditUser extends Component {
           else{
             this.setState({showGettingPublicKey: false, publicKey: res.data})
           }
-        }).catch(error => {
-          console.log('error', error.message)
         })
-      })
-      .catch(() =>{
-        this.setState({loading: false})
-      });
     }
-    convertAndPush = (user) => {
-      return new Promise((resolve, reject) => {
 
-        this.state.repoData.forEach((repo, index) => {
-          if(repo.items){
-              Object.keys(repo.items).find(key => {
-                if(key === 'current_users'){
-                  var currentUsers = this.state.repoData[index].items['current_users']
-                  var repoData = this.state.repoData
-                  console.log('repoData', repoData)
-                  var currentUser = currentUsers.find(cu => {return user.username === cu.username})
-                  if(!currentUser){
-                    currentUsers.push({
-                      name: user.username,
-                      host_group: user.role,
-                      publicKey: this.state.publicKey
-                    })
-                    repoData[index].items.current_users = currentUsers;
-
-                    axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/yaml/stringify`, this.state.repoData).then(res => {
-                            console.log(' res.data',  res.data)
-                            var newData = {
-                              githubData: this.state.githubData,
-                              repoData: res.data
-                            }
-                        return axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/github/commit`, newData).then(res => {
-                            return resolve(res.data)
-                          }).catch(err =>{
-                            return reject(err)
-                          })
-                          })
-                          .catch(err => {
-                            return reject(err)
-                          })
-                        }
-                      }
-                    })
-                }
-              })
-          })
-    }
 
     handlesCreateClick = event => {
         const { router } = this.context
@@ -527,33 +455,6 @@ class EditUser extends Component {
         })
       }
       console.log('userToEdit', userToEdit)
-      if(this.state.repoData && this.state.managedVPC){
-        this.convertAndPush(userToEdit).then(data => {
-          this.props.EditUserWithMutation({
-              variables: { user: userToEdit }
-           }).then(({ data }) => {
-             const { router } = this.context
-
-             this.props.refetchUsers({
-             }).then(({ data }) =>{
-               this.setState({
-                 successOpen: true
-               })
-               this.setState({loading: false})
-
-               router.push({ pathname: '/users' })
-             }).catch((error) => {
-                 this.setState({loading: false})
-             })
-          }).catch((error) => {
-            this.setState({
-              failOpen: true
-            })
-              console.error('graphql error', error)
-          })
-        })
-      }
-      else{
         this.props.EditUserWithMutation({
             variables: { user: userToEdit }
          }).then(({ data }) => {
@@ -576,7 +477,6 @@ class EditUser extends Component {
           })
             console.error('graphql error', error)
         })
-      }
     }
     handlesDeleteUserClick = (user, event) => {
         event.preventDefault()

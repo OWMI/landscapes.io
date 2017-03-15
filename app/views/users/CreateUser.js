@@ -60,7 +60,7 @@ class CreateUser extends Component {
         enableSelectAll: true,
         deselectOnClickaway: true,
         showCheckboxes: true,
-        height: '300',
+        height: '300px',
         errorMessage: false,
         message: '',
         passwordErrors: [],
@@ -269,48 +269,14 @@ class CreateUser extends Component {
       var data = {}
       this.setState({showGettingPublicKey: true})
       this.setState({publicKeyError: false})
-      function GetRepo() {
-          var data = {
-            deployFolderName: integration.type,
-            repoURL: integration.repoURL,
-            username: integration.username,
-            password: integration.password
-          }
-          return new Promise((resolve, reject) => {
-              axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/github/repo`, data).then(res => {
-                var yamlData = {
-                  type:'managedVPC',
-                  locations: [
-                    res.data.location + '/roles/cloud-admins/vars/main.yml'
-                  ]
-                }
-                return axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/yaml/parse`, yamlData).then(yaml => {
-                    return resolve(yaml.data)
-                  })
-              }).catch(err => {
-                  return reject(err)
-              })
-          })
-      }
-      GetRepo().then((data) =>{
-        this.setState({ repoData: data})
-        this.setState({ githubData: integration })
-
         axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/github/publicKey`, data).then(res => {
-          console.log('res', res)
           if(res.data.message){
             this.setState({showGettingPublicKey: false, publicKeyError: "Failed to find public key at location: " + res.data.location + '.'})
           }
           else{
             this.setState({showGettingPublicKey: false, publicKey: res.data})
           }
-        }).catch(error => {
-          console.log('error', error.message)
         })
-      })
-      .catch(() =>{
-        this.setState({loading: false})
-      });
     }
 
     handleFileChange = (dataURI) => {
@@ -393,49 +359,6 @@ class CreateUser extends Component {
     handlesOnManagedVPCChange = event => {
         event.preventDefault()
         this.setState({managedVPC: !this.state.managedVPC})
-    }
-
-    convertAndPush = (user) => {
-      return new Promise((resolve, reject) => {
-
-      this.state.repoData.forEach((repo, index) => {
-        if(repo.items){
-            Object.keys(repo.items).find(key => {
-              if(key === 'current_users'){
-                var currentUsers = this.state.repoData[index].items['current_users']
-                var repoData = this.state.repoData
-                console.log('repoData', repoData)
-
-                var currentUser = currentUsers.find(cu => {return user.username === cu.username})
-                if(!currentUser){
-                  currentUsers.push({
-                    name: user.username,
-                    host_group: user.role,
-                    publicKey: this.state.publicKey
-                  })
-                  repoData[index].items.current_users = currentUsers;
-                      axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/yaml/stringify`, this.state.repoData).then(res => {
-                        console.log(' res.data',  res.data)
-                            var newData = {
-                              githubData: this.state.githubData,
-                              repoData: res.data
-                            }
-                        return axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/github/commit`, newData).then(res => {
-                            console.log(">>>>>res.data", res.data)
-                            return resolve(res.data)
-                          }).catch(err =>{
-                            return reject(err)
-                          })
-                          })
-                          .catch(err => {
-                            return reject(err)
-                          })
-                      }
-                    }
-                  })
-              }
-            })
-          })
     }
 
     checkPasswordStrength = (password) => {
@@ -521,40 +444,20 @@ class CreateUser extends Component {
             }
             userToCreate.managedVPC = this.state.managedVPC || false
             var found = false;
-            if(this.state.repoData && this.state.managedVPC){
-              this.convertAndPush(userToCreate).then(data => {
-                this.props.CreateUserMutation({
-                    variables: {
-                        user: userToCreate
-                    }
-                }).then(() => {
-                    this.props.refetchUsers({}).then(({data}) => {
-                        this.setState({ successOpen: true })
-                        this.setState({loading: false})
-                        router.push({ pathname: '/users' })
-                    }).catch((error) => {})
-                }).catch((error) => {
-                    this.setState({failOpen: true})
+            this.props.CreateUserMutation({
+                variables: {
+                    user: userToCreate
+                }
+            }).then(() => {
+                this.props.refetchUsers({}).then(({data}) => {
+                    this.setState({ successOpen: true })
                     this.setState({loading: false})
-                })
-              })
-            }
-            else{
-              this.props.CreateUserMutation({
-                  variables: {
-                      user: userToCreate
-                  }
-              }).then(() => {
-                  this.props.refetchUsers({}).then(({data}) => {
-                      this.setState({ successOpen: true })
-                      this.setState({loading: false})
-                      router.push({ pathname: '/users' })
-                  }).catch((error) => {})
-              }).catch((error) => {
-                  this.setState({failOpen: true})
-                  this.setState({loading: false})
-              })
-            }
+                    router.push({ pathname: '/users' })
+                }).catch((error) => {})
+            }).catch((error) => {
+                this.setState({failOpen: true})
+                this.setState({loading: false})
+            })
           }
     }
 

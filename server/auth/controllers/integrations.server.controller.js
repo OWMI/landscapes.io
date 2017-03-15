@@ -209,7 +209,6 @@ exports.stringifyYAML = (req, res) => {
 }
 
 exports.addAndCommitGithub = (req, res) => {
-      /* TODO: Does not work yet */
       var request = req.body.repoData;
       var githubData = req.body.githubData;
       var signature;

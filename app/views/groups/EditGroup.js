@@ -2,6 +2,7 @@ import cx from 'classnames'
 import React, {Component, PropTypes} from 'react'
 import shallowCompare from 'react-addons-shallow-compare'
 import {Row, Col} from 'react-flexbox-grid'
+import axios from 'axios'
 
 import {Checkbox, RaisedButton, Dialog} from 'material-ui'
 import {GridList, GridTile} from 'material-ui/GridList';
@@ -89,7 +90,7 @@ class EditGroup extends Component {
         enableSelectAll: true,
         deselectOnClickaway: true,
         showCheckboxes: true,
-        height: '300',
+        height: '300px',
         landscapeItems: [],
         accountItems: [],
         userItems: [],
@@ -97,7 +98,12 @@ class EditGroup extends Component {
     }
 
     componentWillMount() {
-        const {loading, groupById, landscapes, users, accounts, params} = this.props
+        const {loading, groupById, landscapes, users, accounts, integrations, params} = this.props
+        var integration = {};
+        if(integrations){
+          integration = integrations.find(integration => { return integration.type === 'managedVPC' })
+        }
+        this.setState({integration})
         let currentUser = {
           id: auth.getUserInfo()._id,
           role: auth.getUserInfo().role
@@ -233,7 +239,12 @@ class EditGroup extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        const {loading, groupById, landscapes, accounts, users, params} = nextProps
+        const {loading, groupById, landscapes, accounts, users, integrations, params} = nextProps
+        var integration = {};
+        if(integrations){
+          integration = integrations.find(integration => { return integration.type === 'managedVPC' })
+        }
+        this.setState({integration})
         let currentUser = {
           id: auth.getUserInfo()._id,
           role: auth.getUserInfo().role
@@ -419,7 +430,7 @@ class EditGroup extends Component {
                                 open={this.state.showDialog} onRequestClose={this.handlesDialogToggle}
                                 actions={[
                                     <FlatButton label='Cancel' primary={true} onTouchTap={this.handlesDialogToggle}/>,
-                                    <FlatButton label='Delete' primary={true} onTouchTap={this.handlesDeleteAccountClick.bind(this, this.state.currentGroup)}/>
+                                    <FlatButton label='Delete' primary={true} onTouchTap={this.handlesDeleteGroupClick.bind(this, this.state.currentGroup)}/>
                                 ]}>
                                 Are you sure you want to delete {this.state.currentGroup.name}?
                             </Dialog>
@@ -464,7 +475,21 @@ class EditGroup extends Component {
                                         width: '100%'
                                     }}>
                                       <Checkbox label="Managed VPC" onCheck={this.handlesOnManagedVPCChange} checked={this.state.managedVPC} className={cx( { 'two-field-row': true } )} style={{marginTop:15, marginBottom: 15, marginLeft: 10, textAlign: 'left', width:150}}/>
-                                    </div>
+                                        {
+                                          this.state.errorManagedVPCMessage
+                                          ?
+                                          <p style={{color:'red'}}>{this.state.errorManagedVPCMessage}</p>
+                                          :
+                                          null
+                                        }
+                                        {
+                                          this.state.retrievingData
+                                          ?
+                                          <p>{this.state.retrievingData}</p>
+                                          :
+                                          null
+                                        }
+                                      </div>
                                   </Row>
                                   <Row key='permissions' >
                                       <div style={{
@@ -750,6 +775,7 @@ class EditGroup extends Component {
 
         )
     }
+
     filterLandscapeList = (event) => {
       var updatedList = this.state.stateLandscapes;
       updatedList = updatedList.filter(function(item){
@@ -758,6 +784,7 @@ class EditGroup extends Component {
       });
       this.setState({landscapeItems: [...updatedList]});
     }
+
     filterAccountList = (event) => {
       var updatedList = this.state.stateAccounts;
       updatedList = updatedList.filter(function(item){
@@ -768,6 +795,7 @@ class EditGroup extends Component {
       });
       this.setState({accountItems: [...updatedList]});
     }
+
     filterUserList = (event) => {
       var updatedList = this.state.stateUsers;
       updatedList = updatedList.filter(function(item){
@@ -810,13 +838,14 @@ class EditGroup extends Component {
         }
 
     }
+
     handlesDialogToggle = event => {
         this.setState({
             showDialog: !this.state.showDialog
         })
     }
 
-    handlesDeleteAccountClick = (groupToDelete, event) => {
+    handlesDeleteGroupClick = (groupToDelete, event) => {
         event.preventDefault()
 
         const { mutate } = this.props
@@ -837,8 +866,15 @@ class EditGroup extends Component {
         }).catch((error) => {
         })
     }
+
     handlesOnManagedVPCChange = event => {
-        event.preventDefault()
+      event.preventDefault()
+      if(!this.state.integration){
+        this.setState({errorManagedVPCMessage: 'Managed VPC integration configuration is required to make type: Managed VPC'})
+      }
+      else{ //Only shows users of type ManagedVPC in Users selection
+          // Refresh the selected ones
+        this.setState({errorManagedVPCMessage: null})
         var updatedList = this.state.stateUsers
         if(!this.state.managedVPC){
           updatedList = this.state.stateUsers.filter(function(item){
@@ -847,18 +883,24 @@ class EditGroup extends Component {
             }
           });
         }
+        this.handleOnRowSelectionUsers('none') // resets selected users
         this.setState({userItems: [...updatedList]});
         this.setState({managedVPC: !this.state.managedVPC})
+      }
     }
+
     getInitialState = () => {
         return {cropperOpen: false, img: null, croppedImg: defaultImage};
     }
+
     handleFileChange = (dataURI) => {
         this.setState({img: dataURI, croppedImg: this.state.croppedImg, cropperOpen: true});
     }
+
     handleCrop = (dataURI) => {
         this.setState({cropperOpen: false, img: null, croppedImg: dataURI});
     }
+
     handleRequestHide = () => {
         this.setState({cropperOpen: false});
     }
@@ -891,16 +933,19 @@ class EditGroup extends Component {
             permissionC: !this.state.permissionC
         })
     }
+
     handlesPermissionClickU = event => {
         this.setState({
             permissionU: !this.state.permissionU
         })
     }
+
     handlesPermissionClickD = event => {
         this.setState({
             permissionD: !this.state.permissionD
         })
     }
+
     handlesPermissionClickX = event => {
         this.setState({
             permissionX: !this.state.permissionX
@@ -934,6 +979,7 @@ class EditGroup extends Component {
       }
       this.setState({selectedLandscapeRows: [...landscapeRows]})
     }
+
     handlesAccountRowClick = (rowNumber, columnNumber, evt) =>{
       var rows = this.state.selectedAccountRows || [];
       var selected = this.state.stateAccounts.find(account => {return account._id === evt.target.dataset.myRowIdentifier;})
@@ -948,6 +994,7 @@ class EditGroup extends Component {
       }
       this.setState({selectedAccountRows: [...rows]})
     }
+
     handlesUserRowClick = (rowNumber, columnNumber, evt) =>{
       var rows = this.state.selectedUserRows || [];
       var selected = this.state.stateUsers.find(user => {return user._id === evt.target.dataset.myRowIdentifier;})
@@ -962,6 +1009,7 @@ class EditGroup extends Component {
       }
       this.setState({selectedUserRows: [...rows]})
     }
+
     handlesOnCheck = event => {
         var isChecked = this.state.checkAll;
         if (isChecked) {
@@ -990,20 +1038,117 @@ class EditGroup extends Component {
         }
         return permissions;
     }
+
     handlesOnNameChange = event => {
         // event.preventDefault()
         this.setState({name: event.target.value})
     }
+
     handlesOnDescriptionChange = event => {
         event.preventDefault()
         this.setState({description: event.target.value})
     }
+
+    getRepoData = () => {
+      return new Promise((resolve, reject) => {
+
+        this.setState({errorManagedVPCMessage: null});
+        this.setState({retrievingData: 'Retrieving necessary data, do not save until finished.'});
+        const { integration } = this.state
+        function GetRepo() {
+            var data = {
+              deployFolderName: integration.type,
+              repoURL: integration.repoURL,
+              username: integration.username,
+              password: integration.password
+            }
+            return new Promise((resolve, reject) => {
+                axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/github/repo`, data).then(res => {
+                  var yamlData = {
+                    type:'managedVPC',
+                    locations: [
+                      res.data.location + '/roles/cloud-admins/vars/main.yml'
+                    ]
+                  }
+                  return axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/yaml/parse`, yamlData).then(yaml => {
+                      return resolve(yaml.data)
+                    })
+                }).catch(err => {
+                    return reject(err)
+                    this.setState({retrievingData: null});
+                    this.setState({errorManagedVPCMessage: 'Integration configured with invalid credentials. Unable to complete request.'})
+                })
+            })
+        }
+        GetRepo().then((data) =>{
+          resolve(data)
+          this.setState({ repoData: data})
+          this.setState({ githubData: integration })
+          this.setState({retrievingData: null});
+        })
+        .catch(() =>{
+          reject()
+          this.setState({loading: false})
+        });
+    })
+  }
+
+    convertAndPush = (group) => {
+      const { users } = this.props
+      return new Promise((resolve, reject) => {
+      this.state.repoData.forEach((repo, index) => {
+        if(repo.items){
+            Object.keys(repo.items).find(key => {
+              if(key === 'current_users'){
+                var currentUsers = this.state.repoData[index].items['current_users']
+                 //Name was edited, remove all entries with that name, also handles case where user is removed
+                currentUsers.forEach((userEntry, index) => {
+                  if(userEntry.host_group === this.state.currentGroup.name || userEntry.host_group === group.name){
+                    currentUsers.splice(index, 1)
+                  }
+                })
+                var repoData = this.state.repoData
+                    group.users.forEach(user => {
+                      var currentUser = users.find((usr) => {return (usr._id === user.userId)})
+                      var userGroupExists = currentUsers.find((cu) => {return ((currentUser.username === cu.name) && (group.name === cu.host_group  ))})
+                      if(!userGroupExists || userGroupExists === undefined){
+                        currentUsers.push({
+                          name: currentUser.username,
+                          host_group: group.name,
+                          publicKey: currentUser.publicKey
+                        })
+                      }
+                    })
+                    var currentUsersSorted = orderBy(currentUsers, 'name', 'asc');
+                    repoData[index].items.current_users = currentUsersSorted;
+
+                      axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/yaml/stringify`, repoData).then(res => {
+                            var newData = {
+                              githubData: this.state.githubData,
+                              repoData: res.data
+                            }
+                        return axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/github/commit`, newData).then(res => {
+                            return resolve(res.data)
+                          }).catch(err =>{
+                            return reject(err)
+                          })
+                          })
+                          .catch(err => {
+                            return reject(err)
+                          })
+                      }
+                    })
+                  }
+              })
+
+          })
+    }
+
     handlesCreateClick = event => {
         const {router} = this.context
         this.setState({loading: true})
         event.preventDefault()
         this.setState({loading: true})
-
         let groupToEdit = {
             name: this.state.name,
             description: this.state.description,
@@ -1038,13 +1183,43 @@ class EditGroup extends Component {
 
             }
         }
-        console.log('groupToEdit', groupToEdit)
-        this.props.EditGroupWithMutation({
-            variables: {
-                group: groupToEdit
-            }
-        }).then(({data}) => {
-          console.log('updated')
+        if(this.state.managedVPC){
+          this.getRepoData().then(()=>{
+            this.convertAndPush(groupToEdit).then(data => {
+              this.props.EditGroupWithMutation({
+                  variables: { group: groupToEdit }
+               }).then(({ data }) => {
+                  this.setState({
+                    successOpen: true
+                  })
+              }).then(() =>{
+                this.props.refetchGroup({}).then(() => {
+                  this.props.refetchGroups({}).then(({data}) => {
+                      this.setState({successOpen: true})
+                      this.props.refetchLandscapes({}).then(({data}) => {
+                        this.setState({loading: false})
+
+                        router.push({pathname: '/groups'})
+                      })
+                  }).catch((error) => {
+                  })
+              })
+            }).catch(() =>{
+            this.setState({errorManagedVPCMessage: 'Integration configured with invalid credentials. Unable to complete request.'})
+            this.setState({failOpen: true})
+            this.setState({loading: false})
+          })
+          })
+        })
+        }
+        else{
+          this.props.EditGroupWithMutation({
+              variables: { group: groupToEdit }
+           }).then(({ data }) => {
+              this.setState({
+                successOpen: true
+              })
+          }).then(() =>{
             this.props.refetchGroup({}).then(() => {
               console.log('refetched group')
               this.props.refetchGroups({}).then(({data}) => {
@@ -1058,13 +1233,13 @@ class EditGroup extends Component {
               }).catch((error) => {
                   this.setState({loading: false})
               })
-            })
-
-        }).catch((error) => {
-            this.setState({failOpen: true})
-            this.setState({loading: false})
+          }).catch((error) => {
+              this.setState({
+                failOpen: true
+              })
+          })
         })
-
+      }
     }
 
     closeError = (event) => {
@@ -1072,6 +1247,7 @@ class EditGroup extends Component {
         const {resetError} = this.props
         resetError()
     }
+
     onCheckedChange = (checkedList) => {
         this.setState({
             checkedList,
@@ -1079,6 +1255,7 @@ class EditGroup extends Component {
             checkAll: checkedList.length === plainOptions.length
         });
     }
+
     onCheckAllChange = (e) => {
         this.setState({
             checkedList: e.target.checked

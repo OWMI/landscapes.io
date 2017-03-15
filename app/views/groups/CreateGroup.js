@@ -2,6 +2,7 @@ import cx from 'classnames'
 import React, {Component, PropTypes} from 'react'
 import shallowCompare from 'react-addons-shallow-compare'
 import {Row, Col} from 'react-flexbox-grid'
+import axios from 'axios'
 
 import {Checkbox, RaisedButton} from 'material-ui'
 import {GridList, GridTile} from 'material-ui/GridList';
@@ -25,7 +26,7 @@ import UploadIcon from 'material-ui/svg-icons/file/file-upload'
 import defaultUserImage from '../../style/empty.png'
 import defaultImage from '../../style/empty-group.png'
 import AvatarCropper from "react-avatar-cropper";
-import {sortBy} from "lodash";
+import {sortBy, orderBy} from "lodash";
 
 import {Loader} from '../../components'
 
@@ -78,7 +79,7 @@ class CreateGroup extends Component {
           deselectOnClickaway: true,
           showCheckboxes: true,
           managedVPC: false,
-          height: '300'
+          height: '300px'
     }
 
     componentDidMount() {
@@ -89,8 +90,14 @@ class CreateGroup extends Component {
     shouldComponentUpdate(nextProps, nextState) {
         return shallowCompare(this, nextProps, nextState)
     }
+
     componentWillMount(){
-      const { loading, groups, landscapes, users, accounts } = this.props
+      const { loading, groups, landscapes, users, integrations, accounts } = this.props
+      var integration = {};
+      if(integrations){
+        integration = integrations.find(integration => { return integration.type === 'managedVPC' })
+      }
+      this.setState({integration})
       var usersSorted = [];
       var landscapesSorted = [];
       var accountsSorted = [];
@@ -138,8 +145,14 @@ class CreateGroup extends Component {
       this.setState({selectedAccountRows: []})
       this.setState({imageUri: defaultImage})
     }
+
     componentWillReceiveProps(nextProps){
-      const { loading, groups, landscapes, users, accounts } = nextProps
+      const { loading, groups, landscapes, users, accounts, integrations } = nextProps
+      var integration = {};
+      if(integrations){
+        integration = integrations.find(integration => { return integration.type === 'managedVPC' })
+      }
+      this.setState({integration})
       var usersSorted = [];
       var landscapesSorted = [];
       var accountsSorted = [];
@@ -199,7 +212,7 @@ class CreateGroup extends Component {
         const { loading, groups, landscapes, users } = this.props
 
 
-        if (loading) {
+        if (loading || this.state.loading) {
             return (
                 <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
                     <Loader/>
@@ -256,6 +269,20 @@ class CreateGroup extends Component {
                                             width: '100%'
                                         }}>
                                           <Checkbox label="Managed VPC" onCheck={this.handlesOnManagedVPCChange} checked={this.state.managedVPC}  className={cx( { 'two-field-row': true } )} style={{marginTop:15, marginBottom: 15, marginLeft: 10, textAlign: 'left', width:150}}/>
+                                          {
+                                            this.state.errorManagedVPCMessage
+                                            ?
+                                            <p style={{color:'red'}}>{this.state.errorManagedVPCMessage}</p>
+                                            :
+                                            null
+                                          }
+                                          {
+                                            this.state.retrievingData
+                                            ?
+                                            <p>{this.state.retrievingData}</p>
+                                            :
+                                            null
+                                          }
                                         </div>
                                       </Row>
                                       <Row key='permissions' >
@@ -547,6 +574,7 @@ class CreateGroup extends Component {
       });
       this.setState({landscapeItems: [...updatedList]});
     }
+
     filterAccountList = (event) => {
       var updatedList = this.state.stateAccounts;
       updatedList = updatedList.filter(function(item){
@@ -557,6 +585,7 @@ class CreateGroup extends Component {
       });
       this.setState({accountItems: [...updatedList]});
     }
+
     filterUserList = (event) => {
       var updatedList = this.state.stateUsers;
       updatedList = updatedList.filter(function(item){
@@ -599,6 +628,7 @@ class CreateGroup extends Component {
         }
 
     }
+
     handleOnRowSelectionUsers = selectedRows => {
       if(selectedRows === 'all'){
         selectedRows = []
@@ -626,6 +656,7 @@ class CreateGroup extends Component {
       }
       this.setState({selectedLandscapeRows: [...landscapeRows]})
     }
+
     handlesAccountRowClick = (rowNumber, columnNumber, evt) =>{
       var rows = this.state.selectedAccountRows || [];
       var selected = this.state.stateAccounts.find(account => {return account._id === evt.target.dataset.myRowIdentifier;})
@@ -640,6 +671,7 @@ class CreateGroup extends Component {
       }
       this.setState({selectedAccountRows: [...rows]})
     }
+
     handlesUserRowClick = (rowNumber, columnNumber, evt) =>{
       var rows = this.state.selectedUserRows || [];
       var selected = this.state.stateUsers.find(user => {return user._id === evt.target.dataset.myRowIdentifier;})
@@ -654,6 +686,7 @@ class CreateGroup extends Component {
       }
       this.setState({selectedUserRows: [...rows]})
     }
+
     handleRequestDelete = (row, index) => {
       var userSelected = this.state.selectedUserRows.splice(index, 1)
       this.state.stateUsers[userSelected[0]].selected = false;
@@ -710,40 +743,57 @@ class CreateGroup extends Component {
         reader.onerror = error => {
         }
     }
+
     handlesOnNameChange = event => {
         // event.preventDefault()
         this.setState({name: event.target.value})
     }
+
     handlesOnDescriptionChange = event => {
         event.preventDefault()
         this.setState({description: event.target.value})
     }
+
     handlesOnManagedVPCChange = event => {
         event.preventDefault()
-        var updatedList = this.state.stateUsers
-        if(!this.state.managedVPC){
-          updatedList = this.state.stateUsers.filter(function(item){
-            if(item['managedVPC'] && item['managedVPC'] === true){
-              return item
-            }
-          });
+        if(!this.state.integration){
+          this.setState({errorManagedVPCMessage: 'Managed VPC integration configuration is required to make type: Managed VPC'})
         }
-        this.setState({userItems: [...updatedList]});
-        this.setState({managedVPC: !this.state.managedVPC})
+        else{ //Only shows users of type ManagedVPC in Users selection
+            // Refresh the selected ones
+          this.setState({errorManagedVPCMessage: null})
+          var updatedList = this.state.stateUsers
+          if(!this.state.managedVPC){
+            updatedList = this.state.stateUsers.filter(function(item){
+              if(item['managedVPC'] && item['managedVPC'] === true){
+                return item
+              }
+            });
+          }
+          this.getRepoData()
+          this.handleOnRowSelectionUsers('none') // resets selected users
+          this.setState({userItems: [...updatedList]});
+          this.setState({managedVPC: !this.state.managedVPC})
+        }
     }
+
     handlesGroupClick = event => {
         const { router } = this.context
         router.push({ pathname: '/protected' })
     }
+
     handlesPermissionClickC = event => {
         this.setState({permissionC: !this.state.permissionC})
     }
+
     handlesPermissionClickU = event => {
         this.setState({permissionU: !this.state.permissionU})
     }
+
     handlesPermissionClickD = event => {
         this.setState({permissionD: !this.state.permissionD})
     }
+
     handlesPermissionClickX = event => {
         this.setState({permissionX: !this.state.permissionX})
     }
@@ -790,7 +840,6 @@ class CreateGroup extends Component {
         return permissions;
     }
 
-
     handlesOnEmailChange = event => {
         event.preventDefault()
         this.setState({ username: event.target.value })
@@ -801,10 +850,100 @@ class CreateGroup extends Component {
         this.setState({ password: event.target.value })
     }
 
+    handlesOnManagedVPCCreate = () => {
+
+    }
+
+    getRepoData = () => {
+      this.setState({errorManagedVPCMessage: null});
+      this.setState({retrievingData: 'Retrieving necessary data, do not save until finished.'});
+      const { integration } = this.state
+      function GetRepo() {
+          var data = {
+            deployFolderName: integration.type,
+            repoURL: integration.repoURL,
+            username: integration.username,
+            password: integration.password
+          }
+          return new Promise((resolve, reject) => {
+              axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/github/repo`, data).then(res => {
+                var yamlData = {
+                  type:'managedVPC',
+                  locations: [
+                    res.data.location + '/roles/cloud-admins/vars/main.yml'
+                  ]
+                }
+                return axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/yaml/parse`, yamlData).then(yaml => {
+                    return resolve(yaml.data)
+                  })
+              }).catch(err => {
+                  return reject(err)
+                  this.setState({retrievingData: null});
+                  this.setState({errorManagedVPCMessage: 'Integration configured with invalid credentials. Unable to complete request.'})
+              })
+          })
+      }
+      GetRepo().then((data) =>{
+        this.setState({ repoData: data})
+        this.setState({ githubData: integration })
+        this.setState({retrievingData: null});
+      })
+      .catch(() =>{
+        this.setState({loading: false})
+      });
+    }
+
+    convertAndPush = (group) => {
+      const { users } = this.props
+      return new Promise((resolve, reject) => {
+      this.state.repoData.forEach((repo, index) => {
+        if(repo.items){
+            Object.keys(repo.items).find(key => {
+              if(key === 'current_users'){
+                var currentUsers = this.state.repoData[index].items['current_users']
+
+                var repoData = this.state.repoData
+
+                    group.users.forEach(user => {
+                      var currentUser = users.find((usr) => {return (usr._id === user.userId)})
+                      var userGroupExists = currentUsers.find((cu) => {return ((currentUser.username === cu.name) && (group.name === cu.host_group  ))})
+                      if(!userGroupExists || userGroupExists === undefined){
+                        currentUsers.push({
+                          name: currentUser.username,
+                          host_group: group.name,
+                          publicKey: currentUser.publicKey
+                        })
+                      }
+
+                    })
+                    var currentUsersSorted = orderBy(currentUsers, 'name', 'asc');
+                    repoData[index].items.current_users = currentUsersSorted;
+
+                      axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/yaml/stringify`, repoData).then(res => {
+                            var newData = {
+                              githubData: this.state.githubData,
+                              repoData: res.data
+                            }
+                        return axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/github/commit`, newData).then(res => {
+                            return resolve(res.data)
+                          }).catch(err =>{
+                            return reject(err)
+                          })
+                          })
+                          .catch(err => {
+                            return reject(err)
+                          })
+                      }
+                    })
+                  }
+              })
+
+          })
+    }
+
     handlesCreateClick = event => {
         const { router } = this.context
-
-
+        this.setState({loading: true})
         event.preventDefault()
 
         let groupToCreate = {
@@ -817,48 +956,81 @@ class CreateGroup extends Component {
         groupToCreate.accounts = []
         if (this.state.selectedLandscapeRows) {
             for (var i = 0; i < this.state.selectedLandscapeRows.length; i++) {
-                groupToCreate.landscapes.push(this.state.stateLandscapes[this.state.selectedLandscapeRows[i]]._id)
+                groupToCreate.landscapes.push(this.state.selectedLandscapeRows[i]._id)
             }
         }
         if (this.state.selectedUserRows) {
             for (var i = 0; i < this.state.selectedUserRows.length; i++) {
-                if(this.state.stateUsers[this.state.selectedUserRows[i]].role === 'admin'){
-                  this.state.stateUsers[this.state.selectedUserRows[i]].isAdmin = true;
+                if(this.state.selectedUserRows[i].role === 'admin'){
+                  this.state.selectedUserRows[i].isAdmin = true;
                 }
                 groupToCreate.users.push({
-                    userId: this.state.stateUsers[this.state.selectedUserRows[i]]._id,
-                    isAdmin: this.state.stateUsers[this.state.selectedUserRows[i]].isAdmin || false
+                    userId: this.state.selectedUserRows[i]._id,
+                    isAdmin: this.state.selectedUserRows[i].isAdmin || false
                 })
             }
         }
         if (this.state.selectedAccountRows) {
             for (var i = 0; i < this.state.selectedAccountRows.length; i++) {
-              groupToCreate.accounts.push(this.state.stateAccounts[this.state.selectedAccountRows[i]]._id)
+              groupToCreate.accounts.push(this.state.selectedAccountRows[i]._id)
 
             }
         }
         groupToCreate.imageUri = this.state.croppedImg || this.state.imageUri
         groupToCreate.managedVPC = this.state.managedVPC || false
-        console.log('groupToCreate', groupToCreate)
-        this.props.CreateGroupWithMutation({
-            variables: { group: groupToCreate }
-         }).then(({ data }) => {
-            this.setState({
-              successOpen: true
-            })
-        }).then(() =>{
-            this.props.refetchGroups({}).then(({ data }) =>{
-              router.push({ pathname: '/groups' })
-            }).catch((error) => {
-                this.setState({
-                  failOpen: true
-                })
-            })
-        }).catch((error) => {
-            this.setState({
-              failOpen: true
-            })
-        })
+
+        if(this.state.managedVPC){
+            this.convertAndPush(groupToCreate).then(data => {
+              this.setState({loading: false})
+              this.props.CreateGroupWithMutation({
+                  variables: { group: groupToCreate }
+               }).then(({ data }) => {
+                  this.setState({
+                    successOpen: true
+                  })
+              }).then(() =>{
+                  this.props.refetchGroups({}).then(({ data }) =>{
+                    router.push({ pathname: '/groups' })
+                    this.setState({loading: false})
+                  }).catch((error) => {
+                      this.setState({
+                        failOpen: true
+                      })
+                      this.setState({loading: false})
+                  })
+              }).catch((error) => {
+                  this.setState({
+                    failOpen: true
+                  })
+                  this.setState({loading: false})
+              })
+            }).catch(() =>{
+            this.setState({errorManagedVPCMessage: 'Integration configured with invalid credentials. Unable to complete request.'})
+            this.setState({failOpen: true})
+            this.setState({loading: false})
+          })
+        }
+        else{
+          this.props.CreateGroupWithMutation({
+              variables: { group: groupToCreate }
+           }).then(({ data }) => {
+              this.setState({
+                successOpen: true
+              })
+          }).then(() =>{
+              this.props.refetchGroups({}).then(({ data }) =>{
+                router.push({ pathname: '/groups' })
+              }).catch((error) => {
+                  this.setState({
+                    failOpen: true
+                  })
+              })
+          }).catch((error) => {
+              this.setState({
+                failOpen: true
+              })
+          })
+        }
 
     }
 
@@ -867,6 +1039,7 @@ class CreateGroup extends Component {
         const { resetError } = this.props
         resetError()
     }
+
     onCheckedChange = (checkedList) =>{
       this.setState({
         checkedList,
@@ -874,6 +1047,7 @@ class CreateGroup extends Component {
         checkAll: checkedList.length === plainOptions.length,
       });
     }
+
     onCheckAllChange = (e) => {
       this.setState({
         checkedList: e.target.checked ? allChecked : ['r'],

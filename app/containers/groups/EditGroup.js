@@ -28,7 +28,8 @@ import { auth } from '../../services/auth'
              firstName,
              lastName,
              role,
-             managedVPC
+             managedVPC,
+             publicKey
          }
      }
   `
@@ -51,6 +52,20 @@ import { auth } from '../../services/auth'
           }
       }
    `
+   const IntegrationQuery = gql `
+       query getIntegrations {
+           integrations {
+               _id,
+               username,
+               name,
+               imageUri,
+               password,
+               type,
+               repoURL,
+               githubEmail
+           }
+       }
+    `
    const AccountsQuery = gql `
        query getAccounts {
            accounts {
@@ -150,6 +165,13 @@ import { auth } from '../../services/auth'
      })
    }
  )
+ (graphql(IntegrationQuery, {
+     props: ({ data: { loading, integrations } }) => ({
+         integrations,
+         loading
+     })
+   }
+ )
  (graphql(GroupQuery, {
       options: { variables: { userId: user._id || '', isGlobalAdmin: (user.role === 'admin') || false } },
      props: ({ data: { loading, groupsByUser, refetch } }) => ({
@@ -174,7 +196,7 @@ import { auth } from '../../services/auth'
  )
  (graphql(deleteGroupMutation, {name: 'DeleteGroupMutation'})
  (graphql(editGroupMutation, {name: 'EditGroupWithMutation'})
- (EditGroup))))))))
+ (EditGroup)))))))))
 
 /* -----------------------------------------
   Redux

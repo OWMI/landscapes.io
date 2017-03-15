@@ -120,9 +120,20 @@ class IntegrationConfigure extends Component {
             <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
               <Row style={{justifyContent: 'space-between', width: '100%'}}>
                 <h4>Configure Integration</h4>
-                  <div  style={{ margin: '10px 20px', justifyContent:'center'}}>
-                    <RaisedButton label="Save" onClick={this.handlesCreateIntegrationClick}/>
-                  </div>
+                  <Row>
+                    <div  style={{ margin: '10px 20px', justifyContent:'center'}}>
+                      <RaisedButton label="Save" onClick={this.handlesCreateIntegrationClick}/>
+                    </div>
+                    {
+                      this.state.integration.repoURL
+                      ?
+                      <div  style={{ margin: '10px 20px', justifyContent:'center'}}>
+                        <RaisedButton primary={true} label="Delete" onClick={this.handlesDeleteIntegrationClick}/>
+                      </div>
+                      :
+                      null
+                    }
+                  </Row>
               </Row>
               <Row style={{width:'100%', justifyContent:'center'}}>
                 <Paper className={cx({ 'landscape-card': false })} style={{width:500, minHeight:400, justifyContent:'center'}} zDepth={3} rounded={false}>
@@ -194,7 +205,23 @@ class IntegrationConfigure extends Component {
         console.log('res', res)
       }).catch(err => console.error(err))
     }
+    handlesDeleteIntegrationClick = () => {
+        const { router } = this.context
+        const { DeleteIntegrationWithMutation, refetchIntegrations } = this.props
+        const { showDeleteDialog, integration } = this.state
 
+        this.setState({ showDeleteDialog: !showDeleteDialog })
+
+        console.log('integration', integration)
+        DeleteIntegrationWithMutation({
+            variables: { integration }
+        }).then(({ data }) => {
+            router.push({ pathname: `/integrations` })
+            return refetchIntegrations()
+        }).catch((error) => {
+            console.error('graphql error', error)
+        })
+    }
     handlesCreateIntegrationClick = (event) => {
         event.preventDefault()
         this.setState({

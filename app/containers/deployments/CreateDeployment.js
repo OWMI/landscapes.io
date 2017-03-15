@@ -69,6 +69,49 @@ const AccountsQuery = gql `
          loading
      })
  })
+ const IntegrationQuery = gql `
+     query getIntegrations {
+         integrations {
+             _id,
+             username,
+             name,
+             imageUri,
+             password,
+             type,
+             repoURL,
+             githubEmail
+         }
+     }
+  `
+  const IntegrationWithQuery = graphql(IntegrationQuery, {
+      props: ({ data: { loading, integrations } }) => ({
+          integrations,
+          loading
+      })
+  })
+ const GroupsQuery = gql `
+     query getGroups {
+         groups {
+             _id,
+             name,
+             users{
+               isAdmin,
+               userId
+             },
+             imageUri,
+             description,
+             landscapes,
+             permissions,
+             managedVPC
+         }
+     }
+  `
+  const GroupsWithQuery = graphql(GroupsQuery, {
+      props: ({ data: { loading, groups } }) => ({
+          groups,
+          loading
+      })
+  })
 
 const createDeploymentMutation = gql `
     mutation createDeployment($deployment: DeploymentInput!) {
@@ -82,6 +125,8 @@ const composedRequest = compose(
     LandscapeWithQuery,
     AccountsWithQuery,
     TagsWithQuery,
+    GroupsWithQuery,
+    IntegrationWithQuery,
     graphql(createDeploymentMutation)
 )(CreateDeployment)
 

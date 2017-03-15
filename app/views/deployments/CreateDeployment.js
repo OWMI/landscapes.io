@@ -5,6 +5,7 @@ import shallowCompare from 'react-addons-shallow-compare'
 import { Row, Col } from 'react-flexbox-grid'
 import { IoIosCloudUploadOutline } from 'react-icons/lib/io'
 import { Checkbox, Card, CardHeader, CardText, MenuItem, RaisedButton, SelectField, TextField, Toggle } from 'material-ui'
+import axios from 'axios'
 
 import './deployments.style.scss'
 import { Loader } from '../../components'
@@ -30,7 +31,12 @@ class CreateDeployment extends Component {
 
     componentWillMount() {
         const { isGlobalAdmin } = auth.getUserInfo()
-        const { landscapes, accounts, params } = this.props
+        const { landscapes, accounts, groups, integrations,  params } = this.props
+        var integration = {};
+        if(integrations){
+          integration = integrations.find(integration => { return integration.type === 'managedVPC' })
+        }
+        this.setState({integration})
         let _landscapes = landscapes || []
         let landscapeAccounts = []
 
@@ -51,12 +57,32 @@ class CreateDeployment extends Component {
                 currentLandscape,
                 landscapeAccounts
             })
+            var managedVPCGroups = [];
+            if(groups){
+              //Check to see if part of a managedVPC group
+              groups.forEach(group =>{
+                group.landscapes.forEach(landscape =>{
+                  if(landscape === currentLandscape._id){
+                    console.log('group', group)
+                    if(group.managedVPC){
+                      managedVPCGroups.push(group.name)
+                    }
+                  }
+                })
+              })
+            }
+            this.setState({managedVPCGroups})
         }
     }
 
     componentWillReceiveProps(nextProps) {
         const { isGlobalAdmin } = auth.getUserInfo()
-        const { landscapes, accounts, params } = nextProps
+        const { landscapes, accounts, groups, integrations, params } = nextProps
+        var integration = {};
+        if(integrations){
+          integration = integrations.find(integration => { return integration.type === 'managedVPC' })
+        }
+        this.setState({integration})
         let _landscapes = landscapes || []
         let landscapeAccounts = []
 
@@ -77,6 +103,21 @@ class CreateDeployment extends Component {
                 currentLandscape,
                 landscapeAccounts
             })
+            var managedVPCGroups = [];
+            if(groups){
+              //Check to see if part of a managedVPC group
+              groups.forEach(group =>{
+                group.landscapes.forEach(landscape =>{
+                  if(landscape === currentLandscape._id){
+                    console.log('group', group)
+                    if(group.managedVPC){
+                      managedVPCGroups.push(group.name)
+                    }
+                  }
+                })
+              })
+            }
+            this.setState({managedVPCGroups})
         }
     }
 
@@ -199,7 +240,23 @@ class CreateDeployment extends Component {
                             <Col xs={6}>
                               {/* <TextField id='billingCode' ref='billingCode' floatingLabelText='Billing Code' fullWidth={true}
                                   className={cx( { 'two-field-row': true } )}/> */}
-                              <Checkbox label="Managed VPC" className={cx( { 'two-field-row': true } )} style={{marginTop:35, marginLeft: 10, width:150}}/>
+                                  <div style={{marginTop:35, marginLeft: 10, width:150}}>
+                                    <Checkbox label="Managed VPC" onCheck={this.handlesOnManagedVPCChange} checked={this.state.managedVPC}  className={cx( { 'two-field-row': true } )} style={{marginTop:15, marginBottom: 15, marginLeft: 10, textAlign: 'left', width:150}}/>
+                                    {
+                                      this.state.errorManagedVPCMessage
+                                      ?
+                                      <p style={{color:'red'}}>{this.state.errorManagedVPCMessage}</p>
+                                      :
+                                      null
+                                    }
+                                    {
+                                      this.state.retrievingData
+                                      ?
+                                      <p>{this.state.retrievingData}</p>
+                                      :
+                                      null
+                                    }
+                                  </div>
                             </Col>
                           </Row>
 
@@ -374,6 +431,21 @@ class CreateDeployment extends Component {
             signatureBlock: account.signatureBlock || ''
         })
     }
+    handlesOnManagedVPCChange = event => {
+      console.log('this.state.managedVPCGroups', this.state.managedVPCGroups)
+        event.preventDefault()
+        if(!this.state.integration){
+          this.setState({errorManagedVPCMessage: 'Managed VPC integration configuration is required to make type: Managed VPC'})
+        }
+        else if(this.state.managedVPCGroups.length === 0){
+          this.setState({errorManagedVPCMessage: 'Landscape must be part of a Managed VPC Group.'})
+        }
+        else{
+          this.setState({errorManagedVPCMessage: null})
+          this.setState({managedVPC: !this.state.managedVPC})
+        }
+    }
+
 
     handlesNewKeyChange = (event) => {
         this.setState({
@@ -394,6 +466,89 @@ class CreateDeployment extends Component {
         this.setState({errorMessage: false})
     }
 
+    getRepoData = () => {
+      return new Promise((resolve, reject) => {
+
+        this.setState({errorManagedVPCMessage: null});
+        const { integration } = this.state
+        function GetRepo() {
+            var data = {
+              deployFolderName: integration.type,
+              repoURL: integration.repoURL,
+              username: integration.username,
+              password: integration.password
+            }
+            return new Promise((resolve, reject) => {
+                axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/github/repo`, data).then(res => {
+                  var yamlData = {
+                    type:'managedVPC',
+                    locations: [
+                      res.data.location + '/hosts'
+                    ]
+                  }
+                  return axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/yaml/parse`, yamlData).then(yaml => {
+                      return resolve(yaml.data)
+                    })
+                }).catch(err => {
+                    return reject(err)
+                    this.setState({retrievingData: null});
+                    this.setState({errorManagedVPCMessage: 'Integration configured with invalid credentials. Unable to complete request.'})
+                })
+            })
+        }
+        GetRepo().then((data) =>{
+          resolve(data)
+          this.setState({ repoData: data})
+          this.setState({ githubData: integration })
+          this.setState({retrievingData: null});
+        })
+        .catch(() =>{
+          reject()
+          this.setState({loading: false})
+        });
+    })
+    }
+    convertAndPush = (landscapeIPs) => {
+      const { users } = this.props
+      return new Promise((resolve, reject) => {
+      var repoData = this.state.repoData
+
+      this.state.repoData.forEach((repo, index) => {
+        if(repo.items){
+            Object.keys(repo.items).find(key => {
+              this.state.managedVPCGroups.forEach(groupName => {
+                if(key === groupName){
+                  landscapeIPs.forEach(landscapeIP => {
+                    repoData[index].items[key].push(landscapeIP)
+                  })
+                }
+                if(!repoData[index].items[groupName]){
+                  repoData[index].items[groupName] = []
+                  landscapeIPs.forEach(landscapeIP =>{
+                    repoData[index].items[groupName].push(landscapeIP)
+                  })
+                }
+              })
+            })
+            axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/yaml/stringify`, repoData).then(res => {
+                var newData = {
+                  githubData: this.state.githubData,
+                  repoData: res.data
+                }
+              return axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/github/commit`, newData).then(res => {
+                return resolve(res.data)
+              }).catch(err =>{
+                return reject(err)
+              })
+            })
+            .catch(err => {
+              return reject(err)
+            })
+          }
+        })
+      })
+    }
+
     handlesDeployClick = event => {
         event.preventDefault()
 
@@ -407,8 +562,7 @@ class CreateDeployment extends Component {
             cloudFormationParameters: {},
             tags: {}
         }
-        console.log("this.state.tags", this.state.tags)
-      this.setState({loading: true})
+        this.setState({loading: true})
         // map all fields to deploymentToCreate
         for (let key in this.refs) {
             if (key.indexOf('_p') === 0) {
@@ -454,10 +608,24 @@ class CreateDeployment extends Component {
                 variables: { deployment: deploymentToCreate }
             }).then(({ data }) => {
                 refetch({}).then(({data}) => {
-                  // TODO: add check to get status of deployment
-                  setTimeout(() => {
-                    this.setState({loading: false})
-                    router.push({ pathname: `/landscape/${this.state.currentLandscape._id}` })}, 2000)
+                  console.log('data', data)
+                  if(this.state.managedVPC){
+                    var returnedIPs = ['IP.12.12.12']
+                    this.getRepoData().then(()=>{
+                      this.convertAndPush(returnedIPs).then(() =>{
+                        // TODO: add check to get status of deployment
+                        setTimeout(() => {
+                          this.setState({loading: false})
+                          router.push({ pathname: `/landscape/${this.state.currentLandscape._id}` })}, 2000)
+                      })
+                    })
+                  }
+                  else{
+                    // TODO: add check to get status of deployment
+                    setTimeout(() => {
+                      this.setState({loading: false})
+                      router.push({ pathname: `/landscape/${this.state.currentLandscape._id}` })}, 2000)
+                  }
                 })
             }).catch(error => console.log(error))
           }
