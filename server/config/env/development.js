@@ -4,7 +4,7 @@ var defaultEnvConfig = require('./default');
 
 module.exports = {
     db: {
-        uri: process.env.MONGOHQ_URL || process.env.MONGODB_URI || 'mongodb://' + (process.env.DB_PORT_27017 || 'localhost') + '/landscapes-dev',
+        uri: process.env.MONGODB_URI || 'mongodb://' + (process.env.DB_PORT_27017 || 'localhost') + '/landscapes-dev',
         options: {
             user: '',
             pass: ''

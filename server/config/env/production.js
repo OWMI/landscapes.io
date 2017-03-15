@@ -13,7 +13,7 @@ module.exports = {
     // Binding to 127.0.0.1 is safer in production.
     host: '0.0.0.0',
     db: {
-        uri: process.env.MONGOHQ_URL || process.env.MONGODB_URI || 'mongodb://' + (process.env.DB_PORT_27017 || 'localhost') + '/landscapes',
+        uri: process.env.MONGODB_URI || 'mongodb://' + (process.env.DB_PORT_27017 || 'localhost') + '/landscapes',
         options: {
             user: '',
             pass: ''
