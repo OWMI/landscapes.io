@@ -51,7 +51,7 @@ class Integrations extends Component {
         _integrations = [
           {
             _id: "managedvpc1",
-            name:'Managed VPCs',
+            name:'Managed VPC',
             imageUri: vpcImage,
             type: "managedVPC"
           }
@@ -75,7 +75,7 @@ class Integrations extends Component {
         _integrations = [
           {
             _id: "managedvpc1",
-            name:'Managed VPCs',
+            name:'Managed VPC',
             imageUri: vpcImage,
             type: "managedVPC"
           }
@@ -118,7 +118,7 @@ class Integrations extends Component {
                     {
                         integrations.map((integration, i) =>
 
-                        <Paper key={i} className={cx({ 'landscape-card': true })} onClick={this.handlesViewIntegrationClick.bind(this, integration)} style={{backgroundColor: materialTheme.palette.primary1Color}} zDepth={3} rounded={false}>
+                        <Paper key={i} className={cx({ 'landscape-card': true })} onClick={this.handlesViewIntegrationClick.bind(this, integration)} style={{backgroundColor: materialTheme.palette.primary2Color}} zDepth={3} rounded={false}>
                                 {/* header */}
                                 <Row start='xs' top='xs' style={{ padding: '20px 0px' }}>
                                     <Col xs={8}>
