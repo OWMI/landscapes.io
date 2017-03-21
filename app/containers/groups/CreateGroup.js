@@ -118,7 +118,6 @@ const LandscapeQuery = gql `
               permissions
           }
       }
-
    `
  // infoLinkText,
  // img,

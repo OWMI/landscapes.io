@@ -86,13 +86,31 @@ const LandscapeQuery = gql `
      }
 
 `
-
+const IntegrationQuery = gql `
+  query getIntegrations {
+      integrations {
+          _id,
+          username,
+          name,
+          imageUri,
+          password,
+          type,
+          repoURL,
+          githubEmail
+      }
+  }
+`
 const CreateLandscapeWithMutation = graphql(createLandscapeMutation)(
   graphql(LandscapeQuery, {
     props: ({ data: { loading, landscapes, refetch } }) => ({
         landscapes,
         loading,
         refetchLandscapes: refetch
+    })
+})(graphql(IntegrationQuery, {
+    props: ({ data: { loading, integrations } }) => ({
+        integrations,
+        loading
     })
 })(graphql(GroupQuery, {
      options: { variables: { userId: user._id || '', isGlobalAdmin: (user.role === 'admin') || false } },
@@ -113,7 +131,7 @@ const CreateLandscapeWithMutation = graphql(createLandscapeMutation)(
             refetchAccounts:refetch
         })
     })(graphql(updateGroupMutation, {name: 'UpdateGroupWithMutation'})
-  (CreateLandscape))))))
+  (CreateLandscape)))))))
 
 /* -----------------------------------------
   Redux

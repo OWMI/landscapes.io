@@ -46,20 +46,36 @@ class IntegrationConfigure extends Component {
       var integration = {};
       if(integrations){
         integration = integrations.find(integration => {return integration._id === params.id})
-        if(!integration){
+        if(!integration && params.id === 'managedvpc1'){
           integration = {
-            name:'Managed VPCs',
+            name:'Managed VPC',
             type: 'managedVPC',
             imageUri: vpcImage
+          }
+        }
+        else if(!integration && params.id !== 'managedvpc1'){
+          integration = {
+            name:'Github',
+            imageUri: defaultGithubImage,
+            type: "github"
           }
         }
         this.setState({integration})
       }
       else{
-        integration = {
-          name:'Managed VPCs',
-          type: 'managedVPC',
-          imageUri: vpcImage
+        if( params.id === 'managedvpc1'){
+          integration = {
+            name:'Managed VPC',
+            type: 'managedVPC',
+            imageUri: vpcImage
+          }
+        }
+        else if(params.id !== 'managedvpc1'){
+          integration = {
+            name:'Github',
+            imageUri: defaultGithubImage,
+            type: "github"
+          }
         }
         this.setState({integration})
       }
@@ -74,20 +90,36 @@ class IntegrationConfigure extends Component {
       var integration = {};
       if(integrations){
         integration = integrations.find(integration => {return integration._id === params.id})
-        if(!integration){
+        if(!integration && params.id === 'managedvpc1'){
           integration = {
-            name:'Managed VPCs',
+            name:'Managed VPC',
             type: 'managedVPC',
             imageUri: vpcImage
+          }
+        }
+        else if(!integration && params.id !== 'managedvpc1'){
+          integration = {
+            name:'Github',
+            imageUri: defaultGithubImage,
+            type: "github"
           }
         }
         this.setState({integration})
       }
       else{
-        integration = {
-          name:'Managed VPCs',
-          type: 'managedVPC',
-          imageUri: vpcImage
+        if( params.id === 'managedvpc1'){
+          integration = {
+            name:'Managed VPC',
+            type: 'managedVPC',
+            imageUri: vpcImage
+          }
+        }
+        else if(params.id !== 'managedvpc1'){
+          integration = {
+            name:'Github',
+            imageUri: defaultGithubImage,
+            type: "github"
+          }
         }
         console.log('COULD NOT FIND', integration)
         this.setState({integration})
@@ -147,7 +179,7 @@ class IntegrationConfigure extends Component {
                               : null
                           }
                         <Row start='xs' top='xs' style={{ padding: '20px 0px' }}>
-                                <img id='landscapeIcon' style={{width:50, marginLeft:20}} src={defaultGithubImage}/>
+                                <img id='landscapeIcon' style={{width:75, marginLeft:20}} src={integration.imageUri}/>
                                 {
                                   integration && integration.username
                                   ?

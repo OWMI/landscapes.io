@@ -14,6 +14,7 @@ import { auth } from '../../services/auth'
 import materialTheme from '../../style/custom-theme.js';
 import defaultImage from '../../style/AWS.png';
 import vpcImage from '../../style/vpc.png';
+import githubImage from '../../style/github.png';
 // const confirm = Modal.confirm
 
 class Integrations extends Component {
@@ -47,18 +48,25 @@ class Integrations extends Component {
 
       var _integrations = integrations || [];
       this.setState({integrations: _integrations})
-      if(!_integrations.length ){
-        _integrations = [
-          {
+      var managedVPCInintegration = _integrations.find(integration => integration.type === 'managedVPC');
+      var githubInintegration = _integrations.find(integration => integration.type === 'github');
+      if(!managedVPCInintegration){
+        _integrations.push({
             _id: "managedvpc1",
             name:'Managed VPC',
             imageUri: vpcImage,
             type: "managedVPC"
-          }
-        ]
-        this.setState({integrations: _integrations})
+          })
       }
-
+      if(!githubInintegration){
+        _integrations.push({
+          _id: "github1",
+          name:'Github',
+          imageUri: githubImage,
+          type: "github"
+          })
+      }
+      this.setState({integrations: _integrations})
       var currentUser = auth.getUserInfo();
       if(auth.getUserInfo().isGroupAdmin){
         currentUser.isGroupAdmin = true
@@ -71,17 +79,25 @@ class Integrations extends Component {
       console.log('integrations', integrations)
       var _integrations = integrations || [];
       this.setState({integrations: _integrations})
-      if(!_integrations.length ){
-        _integrations = [
-          {
+      var managedVPCInintegration = _integrations.find(integration => integration.type === 'managedVPC');
+      var githubInintegration = _integrations.find(integration => integration.type === 'github');
+      if(!managedVPCInintegration){
+        _integrations.push({
             _id: "managedvpc1",
             name:'Managed VPC',
             imageUri: vpcImage,
             type: "managedVPC"
-          }
-        ]
-        this.setState({integrations: _integrations})
+          })
       }
+      if(!githubInintegration){
+        _integrations.push({
+          _id: "github1",
+          name:'Github',
+          imageUri: githubImage,
+          type: "github"
+          })
+      }
+      this.setState({integrations: _integrations})
       var currentUser = auth.getUserInfo();
       if(auth.getUserInfo().isGroupAdmin){
         currentUser.isGroupAdmin = true

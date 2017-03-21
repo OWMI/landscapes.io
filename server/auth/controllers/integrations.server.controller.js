@@ -8,6 +8,7 @@ let config          = require(path.resolve('./server/config/config'))
 var promisify = require("promisify-node");
 var fse = promisify(require("fs-extra"));
 var fsp = require("fs-plus");
+var rr = require("recursive-readdir");
 
 var Git = require("nodegit");
 var YAML = require('yamljs');
@@ -101,7 +102,6 @@ let decrypt = encryptedText => {
 }
 
 exports.getPublicKey = (req, res) => {
-  console.log('home === ', fsp.getHomeDirectory())
   var request = req;
   var fileDirectory = '.ssh'
   var fileName = 'id_rsa.pub'
@@ -188,6 +188,45 @@ exports.parseYAML = (req, res) => {
   Promise.all(_promises).then(_objects => {
     return res.json(_objects)
   })
+}
+
+exports.getFile = (req, res) => {
+  return new Promise((resolve, reject) => {
+    fse.readFile(req.body.file, 'utf8', function (err,data) {
+      if (err) {
+         return reject(err);
+      }
+      resolve(res.json(data))
+    });
+  })
+}
+
+exports.allFileNames = (req, res) => {
+    rr(req.body.location, [req.body.location + "/.git/**"], function (err, files) {
+      var obj = [];
+      files.forEach(function (a) {
+          var array = a.split('/');
+          array.splice(0,1)
+          obj.push(array.join('/'));
+          // array.splice(array.length, 0, {})
+      //     console.log('array', array)
+      //     var object = obj
+      //     console.log('object', object)
+      //     var value = array.pop()
+      //     console.log('value popped', value)
+      //     var k = array.reduce(function (r, b) {
+      //             object[r] = object[r] || {};
+      //             console.log('object[r]', object[r])
+      //             object = object[r];
+      //             console.log('object', object)
+      //             console.log('b', b)
+      //             return b;
+      //         });
+      //     console.log('k', k)
+      //     object[k] = value;
+      });
+      return res.json({files: obj, location: req.body.location})
+    });
 }
 
 exports.stringifyYAML = (req, res) => {
