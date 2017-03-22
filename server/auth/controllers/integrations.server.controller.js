@@ -9,6 +9,7 @@ var promisify = require("promisify-node");
 var fse = promisify(require("fs-extra"));
 var fsp = require("fs-plus");
 var rr = require("recursive-readdir");
+var wget = require('node-wget');
 
 var Git = require("nodegit");
 var YAML = require('yamljs');
@@ -198,6 +199,45 @@ exports.getFile = (req, res) => {
       }
       resolve(res.json(data))
     });
+  })
+}
+
+exports.wGetFile = (req, res) => {
+  var url = req.body.url;
+  var raw = 'raw.githubusercontent.com'
+  var checked = url.includes(raw);
+  if(!checked){
+    if(url.includes('github.com')){
+      url = url.replace('github.com', raw);
+    }
+    if(url.includes('/blob')){
+      url = url.replace('/blob', '');
+    }
+    if(!url.includes('https://')){
+      url = 'https://' + url
+    }
+  }
+  return new Promise((resolve, reject) => {
+    wget({
+        url:  url,
+        dest: '/tmp/',      // destination path or path with filenname, default is ./
+        timeout: 2000       // duration to wait for request fulfillment in milliseconds, default is 2 seconds
+    },
+    function (error, response, body) {
+        if (error) {
+            return reject(res.json('fail'))
+            console.log('--- error:');
+            console.log(error);            // error encountered
+        } else {
+            return resolve(res.json(body))           // content of package
+        }
+    })
+  //   fse.readFile(req.body.file, 'utf8', function (err,data) {
+  //     if (err) {
+  //        return reject(err);
+  //     }
+  //     resolve(res.json(data))
+  //   });
   })
 }
 

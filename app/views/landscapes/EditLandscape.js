@@ -49,17 +49,17 @@ class EditLandscape extends Component {
         {
           label: 'Private Repo',
           type: 'privateRepo'
+        }
+        ,
+        {
+          label: 'Public Repo',
+          type: 'public'
         },
         {
           label: 'Local File',
           type: 'local'
 
         }
-        // ,
-        // {
-        //   label: 'Public Repo',
-        //   type: 'public'
-        // }
       ]
       this.setState({settings: false, formationAddOptions })
     }
@@ -74,15 +74,14 @@ class EditLandscape extends Component {
           type: 'privateRepo'
         },
         {
+          label: 'Public Repo',
+          type: 'public'
+        },
+        {
           label: 'Local File',
           type: 'local'
 
         }
-        // ,
-        // {
-        //   label: 'Public Repo',
-        //   type: 'public'
-        // }
       ]
       this.setState({settings: false, formationAddOptions })
     }
@@ -326,6 +325,18 @@ class EditLandscape extends Component {
                             null
                           }
                           {
+                            this.state.showPublicURL
+                            ?
+                            <Row style={{width:'100%', paddingLeft:10}}>
+                              <TextField style={{width:'80%', margin:0}} floatingLabelText="Public Repo File URL" onChange={this.handlesPublicRepoChange} />
+                              <div style={{marginTop:20, marginLeft:10}}>
+                                <RaisedButton label="Open" onClick={this.handlesOnPublicURLSubmit}/>
+                              </div>
+                            </Row>
+                            :
+                            null
+                          }
+                          {
                             this.state.showRepoLoading
                             ?
                             <Col>
@@ -410,20 +421,45 @@ class EditLandscape extends Component {
       if(option.type === 'local'){
         this.dropzone.open()
       }
+      if(option.type === 'public'){
+        this.setState({showPublicURL: true})
+        this.setState({showViewPrivateRepo:false})
+      }
       if(option.type === 'privateRepo'){
         var privateRepoIntegration = this.state.integrations.find(integration => {return integration.type === 'github'})
         console.log('privateRepoIntegration', privateRepoIntegration)
         if(!privateRepoIntegration){
           this.setState({cloudErrorMessage: "Currently no private repositories are set up."})
-          this.setState({settings:false})
         }
         else{
           this.setState({showRepoLoading: true});
-          this.setState({settings: false});
-          this.getRepoData(privateRepoIntegration)
+          this.setState({showPublicURL: false})
+          this.getRepoData(privateRepoIntegration).then((data)=>{
+            this.setState({showRepoLoading: false, showViewPrivateRepo:true});
+          })
         }
       }
     }
+
+        handlesOnPublicURLSubmit = () => {
+          this.setState({cloudErrorMessage: null})
+          if(this.state.publicURL){
+            let self = this
+            axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/github/wGetFile`, {url: this.state.publicURL}).then(res => {
+              self.setState({
+                  cloudFormationTemplate: res.data
+              })
+              return res
+            }).catch(err => {
+              console.log('ERROR ----'. err)
+              this.setState({cloudErrorMessage: "Invalid URL."})
+            })
+          }
+        }
+
+        handlesPublicRepoChange = (event) => {
+          this.setState({publicURL: event.target.value})
+        }
 
     setFile = (file, bind) => {
       let self = this
