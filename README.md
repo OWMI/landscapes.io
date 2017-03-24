@@ -23,7 +23,7 @@
 
 ### Prerequisites
 
-##### Node JS `>=6.5.1`
+##### Node JS >= 6.5.1
 ##### Configure ports and database URL for mongoDB in ```/server/config/env/{ENVIRONMENT}.js```
 ##### (optional) [Redux DevTools Chrome Extension](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd)
 
