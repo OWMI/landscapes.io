@@ -15,6 +15,17 @@ import Subscription from './types/subscriptions.js'
 import TypeDocument from './types/documentTypes.js'
 import Tag from './types/tag.js'
 
+
+import AvailabilityZone from './types/awsTypes.js'
+import HostedZone from './types/awsTypes.js'
+import Image from './types/awsTypes.js'
+import Instance from './types/awsTypes.js'
+import KeyPair from './types/awsTypes.js'
+import SecurityGroup from './types/awsTypes.js'
+import Subnet from './types/awsTypes.js'
+import VPC from './types/awsTypes.js'
+import Volume from './types/awsTypes.js'
+
 const Query = `
     input userInput {
         userId: String
@@ -201,6 +212,16 @@ const Mutation = `
         updateLandscape ( landscape: LandscapeInput! ): Landscape
         deleteLandscape ( landscape: LandscapeInput! ): Landscape
 
+        fetchAvailabilityZones ( region: String ): [AvailabilityZone]
+        fetchHostedZones ( region: String ): [HostedZone]
+        fetchImages ( region: String ): [Image]
+        fetchInstances ( region: String ): [Instance]
+        fetchKeyPairs ( region: String ): [KeyPair]
+        fetchSecurityGroups ( region: String ): [SecurityGroup]
+        fetchSubnets ( region: String ): [Subnet]
+        fetchVolumes ( region: String ): [Volume]
+        fetchVpcs ( region: String ): [VPC]
+
         updateMappings ( mapping: MappingsInput! ): Mappings
 
         createDeployment ( deployment: DeploymentInput! ): Deployment
@@ -215,18 +236,25 @@ export default makeExecutableSchema({
     typeDefs: [
         Query,
         Account,
+        AvailabilityZone,
+        HostedZone,
         Configuration,
         Deployment,
         Group,
-        Landscape,
         Integration,
+        Instance,
+        KeyPair,
+        Landscape,
         Mappings,
         ldapGroup,
         Mutation,
+        SecurityGroup,
+        Subnet,
         Subscription,
         Tag,
         TypeDocument,
-        User
+        User,
+        Volume
     ],
     resolvers,
 })

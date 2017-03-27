@@ -133,7 +133,7 @@ $ MONGO_SEED=true npm run prod
 
 **Launch development OpenLDAP and phpLDAPadmin servers...**
 ```
-$ docker-compose -f docker-compose-ldap.yaml up
+$ docker-compose -f docker-compose-ldap-only.yml up
 ```
 
 **Test connection to OpenLDAP...**
@@ -150,7 +150,7 @@ $ ldapmodify -f development-set-roles.ldif -x -H ldap://localhost:389 -w passwor
 
 **Change OpenLDAP password...**
 ```
-$ ldappasswd -s n3wP@ssw0rd -W -D cn=admin,dc=landscapes,dc=io" -x "uid=test_admin_user,ou=people,dc=landscapes,dc=io"
+$ ldappasswd -s n3wP@ssw0rd -W -D "cn=admin,dc=landscapes,dc=io" -x "uid=test_admin_user,ou=people,dc=landscapes,dc=io"
 ```
 
 **Launch landscapes.io**

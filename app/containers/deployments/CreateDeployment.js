@@ -38,6 +38,7 @@ const TagsQuery = gql `
         }
     }
  `
+
  const TagsWithQuery = graphql(TagsQuery, {
      props: ({ data: { loading, tags } }) => ({
          tags,
@@ -113,13 +114,103 @@ const AccountsQuery = gql `
       })
   })
 
-const createDeploymentMutation = gql `
-    mutation createDeployment($deployment: DeploymentInput!) {
-        createDeployment(deployment: $deployment) {
-            stackName
-        }
-    }
-`
+ const fetchKeyPairsMutation = gql `
+     mutation fetchKeyPairs($region: String) {
+         fetchKeyPairs(region: $region) {
+            KeyName
+         }
+     }
+ `
+
+ const fetchVpcsMutation = gql `
+     mutation fetchVpcs($region: String) {
+         fetchVpcs(region: $region) {
+             VpcId
+         }
+     }
+ `
+
+ const fetchAvailabilityZonesMutation = gql `
+     mutation fetchAvailabilityZones($region: String) {
+         fetchAvailabilityZones(region: $region) {
+             ZoneName,
+             State,
+             RegionName
+         }
+     }
+ `
+
+ const fetchImagesMutation = gql `
+     mutation fetchImages($region: String) {
+         fetchImages(region: $region) {
+             ImageId
+         }
+     }
+ `
+
+ const fetchInstancesMutation = gql `
+     mutation fetchInstances($region: String) {
+         fetchInstances(region: $region) {
+             InstanceId,
+             Tags {
+                 Key,
+                 Value
+             }
+         }
+     }
+ `
+
+ const fetchSecurityGroupsMutation = gql `
+     mutation fetchSecurityGroups($region: String) {
+         fetchSecurityGroups(region: $region) {
+             GroupId,
+             GroupName,
+             Tags {
+                 Key,
+                 Value
+             }
+         }
+     }
+ `
+
+ const fetchSubnetsMutation = gql `
+     mutation fetchSubnets($region: String) {
+         fetchSubnets(region: $region) {
+             SubnetId,
+             CidrBlock,
+             Tags {
+                 Key,
+                 Value
+             }
+         }
+     }
+ `
+
+ const fetchVolumesMutation = gql `
+     mutation fetchVolumes($region: String) {
+         fetchVolumes(region: $region) {
+             VolumeId,
+             VolumeType
+         }
+     }
+ `
+
+ const fetchHostedZonesMutation = gql `
+     mutation fetchHostedZones($region: String) {
+         fetchHostedZones(region: $region) {
+             Id,
+             Name
+         }
+     }
+ `
+
+ const createDeploymentMutation = gql `
+     mutation createDeployment($deployment: DeploymentInput!) {
+         createDeployment(deployment: $deployment) {
+             stackName
+         }
+     }
+ `
 
 const composedRequest = compose(
     LandscapeWithQuery,
@@ -127,6 +218,15 @@ const composedRequest = compose(
     TagsWithQuery,
     GroupsWithQuery,
     IntegrationWithQuery,
+    graphql(fetchAvailabilityZonesMutation, { name: 'fetchAvailabilityZones' }),
+    graphql(fetchHostedZonesMutation, { name: 'fetchHostedZones' }),
+    graphql(fetchImagesMutation, { name: 'fetchImages' }),
+    graphql(fetchInstancesMutation, { name: 'fetchInstances' }),
+    graphql(fetchKeyPairsMutation, { name: 'fetchKeyPairs' }),
+    graphql(fetchSecurityGroupsMutation, { name: 'fetchSecurityGroups' }),
+    graphql(fetchSubnetsMutation, { name: 'fetchSubnets' }),
+    graphql(fetchVpcsMutation, { name: 'fetchVpcs' }),
+    graphql(fetchVolumesMutation, { name: 'fetchVolumes' }),
     graphql(createDeploymentMutation)
 )(CreateDeployment)
 

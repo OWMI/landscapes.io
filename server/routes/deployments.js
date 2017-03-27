@@ -40,15 +40,17 @@ exports.describe = (req, res) => {
             AWS.config.region = req.params.region
 
             if (account && account.accessKeyId && account.secretAccessKey) {
-                winston.info('---> setting AWS security credentials');
+                winston.info('---> setting AWS security credentials')
+
+                const { accessKeyId, secretAccessKey } = account
 
                 cloudformation.config.update({
-                    accessKeyId: account.accessKeyId,
-                    secretAccessKey: account.secretAccessKey
+                    accessKeyId,
+                    secretAccessKey
                 })
 
             } else {
-                winston.info(' ---> No AWS security credentials set - assuming Server IAM Role');
+                winston.info(' ---> No AWS security credentials set - assuming Server IAM Role')
             }
 
             resolve(req.params.accountName)

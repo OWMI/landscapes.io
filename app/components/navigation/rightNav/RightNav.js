@@ -1,10 +1,13 @@
 import React, { Component, PropTypes } from 'react'
 import { Link } from 'react-router'
+import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux'
 import RightNavButton from './rightNavButton/RightNavButton'
 import { Row, Col } from 'react-flexbox-grid'
 import { IoPerson } from 'react-icons/lib/io'
 import { FlatButton, IconMenu, IconButton, MenuItem } from 'material-ui'
 import { auth } from '../../../services/auth'
+import * as userAuthActions from '../../../redux/modules/userAuth'
 
 class RightNav extends Component {
 
@@ -201,14 +204,23 @@ class RightNav extends Component {
         const { userMenu } = this.state
         this.setState({ userMenu: !userMenu })
     }
+
     handleSettingsClick = event => {
         const { settings } = this.state
         this.setState({ settings: !settings })
     }
+
     handleLogout = event => {
-        auth.clearAllAppStorage()
-        this.setState({userIsAuthenticated: false})
+        const { router } = this.context
+        const { actions: { setUserLogout } } = this.props
+        setUserLogout(router)
+        this.setState({ userIsAuthenticated: false })
+        window.location.reload()
     }
+}
+
+RightNav.contextTypes = {
+    router: PropTypes.object
 }
 
 RightNav.propTypes = {
@@ -222,4 +234,16 @@ RightNav.propTypes = {
     userIsAuthenticated: PropTypes.bool.isRequired
 }
 
-export default RightNav
+const mapStateToProps = state => {
+    return {}
+}
+
+const mapDispatchToProps = dispatch => {
+    return {
+        actions: bindActionCreators({
+            ...userAuthActions
+        }, dispatch)
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(RightNav)

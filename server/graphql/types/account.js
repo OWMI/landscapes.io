@@ -1,4 +1,4 @@
-// landscape.js
+// account.js
 import User from './user'
 
 const Account = `

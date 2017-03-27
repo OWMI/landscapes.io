@@ -81,17 +81,16 @@ const resolveFunctions = {
         },
         groupsByUser(root, args, context) {
             return new Promise((resolve, reject) => {
-              return Group.find().sort('-created').populate('user', 'displayName').exec((err, groups) => {
-                  if (err) return reject(err)
-                  return User.findById(args.id).exec((err, user) =>{
-                    if (user && user.role === 'admin') {
-                      return resolve(groups)
-                    }
-                    else {
-                     return resolve(lodash.filter(groups, lodash.flow(lodash.property('users'), lodash.partialRight(lodash.some, { userId: args.id }))));
-                    }
-                  })
-              })
+                return Group.find().sort('-created').populate('user', 'displayName').exec((err, groups) => {
+                    if (err) return reject(err)
+                    return User.findById(args.id).exec((err, user) => {
+                        if (user && user.role === 'admin') {
+                            return resolve(groups)
+                        } else {
+                            return resolve(lodash.filter(groups, lodash.flow(lodash.property('users'), lodash.partialRight(lodash.some, {userId: args.id}))));
+                        }
+                    })
+                })
             })
         },
         groupById(root, args, context) {
@@ -504,6 +503,143 @@ const resolveFunctions = {
                     console.log(' ---> Account deleted: ', doc)
                     return doc
                 }
+            })
+        },
+        fetchAvailabilityZones(_, { region }) {
+            console.log('---> Fetching AvailabilityZones')
+            const ec2 = new AWS.EC2({ apiVersion: '2016-11-15' })
+
+            console.log('---> setting AWS region')
+            AWS.config.region = region || 'us-east-1'
+
+            return new Promise((resolve, reject) => {
+                ec2.describeAvailabilityZones({}, (err, data) => {
+                    if (err) reject(err)
+                    resolve(data.AvailabilityZones)
+                })
+            })
+        },
+        fetchHostedZones(_, { region }) {
+            console.log('---> Fetching Key Pairs')
+            const route53 = new AWS.Route53({ apiVersion: '2016-11-15' })
+
+            console.log('---> setting AWS region')
+            AWS.config.region = region || 'us-east-1'
+
+            return new Promise((resolve, reject) => {
+                route53.listHostedZones({}, (err, data) => {
+                    if (err) reject(err)
+                    resolve(data.HostedZones)
+                })
+            })
+        },
+        fetchImages(_, { region }) {
+            console.log('---> Fetching Images')
+            const ec2 = new AWS.EC2({ apiVersion: '2016-11-15' })
+
+            console.log('---> setting AWS region')
+            AWS.config.region = region || 'us-east-1'
+
+            return new Promise((resolve, reject) => {
+                ec2.describeImages({}, (err, data) => {
+                    if (err) reject(err)
+                    resolve(data.Images)
+                })
+            })
+        },
+        fetchInstances(_, { region }) {
+            console.log('---> Fetching Instances')
+            const ec2 = new AWS.EC2({ apiVersion: '2016-11-15' })
+
+            console.log('---> setting AWS region')
+            AWS.config.region = region || 'us-east-1'
+
+            return new Promise((resolve, reject) => {
+                ec2.describeInstances({}, (err, data) => {
+                    if (err) reject(err)
+
+                    let Instances = []
+                    const { Reservations } = data
+
+                    Reservations.forEach(res => {
+                        res.Instances.map(instance => {
+                            const { InstanceId, Tags } = instance
+                            Instances.push({ InstanceId, Tags })
+                        })
+                    })
+
+                    resolve(Instances)
+                })
+            })
+        },
+        fetchKeyPairs(_, { region }) {
+            console.log('---> Fetching KeyPairs')
+            const ec2 = new AWS.EC2({ apiVersion: '2016-11-15' })
+
+            console.log('---> setting AWS region')
+            AWS.config.region = region || 'us-east-1'
+
+            return new Promise((resolve, reject) => {
+                ec2.describeKeyPairs({}, (err, data) => {
+                    if (err) reject(err)
+                    resolve(data.KeyPairs)
+                })
+            })
+        },
+        fetchSecurityGroups(_, { region }) {
+            console.log('---> Fetching SecurityGroups')
+            const ec2 = new AWS.EC2({ apiVersion: '2016-11-15' })
+
+            console.log('---> setting AWS region')
+            AWS.config.region = region || 'us-east-1'
+
+            return new Promise((resolve, reject) => {
+                ec2.describeSecurityGroups({}, (err, data) => {
+                    if (err) reject(err)
+                    resolve(data.SecurityGroups)
+                })
+            })
+        },
+        fetchSubnets(_, { region }) {
+            console.log('---> Fetching Subnets')
+            const ec2 = new AWS.EC2({ apiVersion: '2016-11-15' })
+
+            console.log('---> setting AWS region')
+            AWS.config.region = region || 'us-east-1'
+
+            return new Promise((resolve, reject) => {
+                ec2.describeSubnets({}, (err, data) => {
+                    if (err) reject(err)
+                    resolve(data.Subnets)
+                })
+            })
+        },
+        fetchVolumes(_, { region }) {
+            console.log('---> Fetching Volumes')
+            const ec2 = new AWS.EC2({ apiVersion: '2016-11-15' })
+
+            console.log('---> setting AWS region')
+            AWS.config.region = region || 'us-east-1'
+
+            return new Promise((resolve, reject) => {
+                ec2.describeVolumes({}, (err, data) => {
+                    if (err) reject(err)
+                    resolve(data.Volumes)
+                })
+            })
+        },
+        fetchVpcs(_, { region }) {
+            console.log('---> Fetching Vpcs')
+            const ec2 = new AWS.EC2({ apiVersion: '2016-11-15' })
+
+            console.log('---> setting AWS region')
+            AWS.config.region = region || 'us-east-1'
+
+            return new Promise((resolve, reject) => {
+                ec2.describeVpcs({}, (err, data) => {
+                    if (err) reject(err)
+                    resolve(data.Vpcs)
+                })
             })
         },
         deploymentStatus(_, { deployment }) {

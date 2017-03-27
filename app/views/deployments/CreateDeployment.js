@@ -1,11 +1,11 @@
+import axios from 'axios'
 import cx from 'classnames'
 import moment from 'moment'
 import React, { Component, PropTypes } from 'react'
 import shallowCompare from 'react-addons-shallow-compare'
 import { Row, Col } from 'react-flexbox-grid'
 import { IoIosCloudUploadOutline } from 'react-icons/lib/io'
-import { Checkbox, Card, CardHeader, CardText, MenuItem, RaisedButton, SelectField, TextField, Toggle } from 'material-ui'
-import axios from 'axios'
+import { AutoComplete, Checkbox, Card, CardHeader, CardText, MenuItem, RaisedButton, SelectField, TextField, Toggle } from 'material-ui'
 
 import './deployments.style.scss'
 import { Loader } from '../../components'
@@ -130,7 +130,7 @@ class CreateDeployment extends Component {
 
         const { loading, accounts, tags } = this.props
         const { isGlobalAdmin, isGroupAdmin } = auth.getUserInfo()
-        const { animated, viewEntersAnim, templateParameters, templateDescription,
+        const { animated, cfParams, viewEntersAnim, templateParameters, templateDescription,
                 secretAccessKey, signatureBlock, landscapeAccounts } = this.state
 
         const _tags = tags || []
@@ -318,6 +318,25 @@ class CreateDeployment extends Component {
                                 <Col xs={9}>
                                     {
                                         Object.keys(templateParameters || {}).map((param, index) => {
+
+                                            const paramsToFetch = Object.keys(templateParameters).filter(param => {
+                                                return templateParameters[param].Type.indexOf('AWS::') > -1
+                                            })
+
+                                            if (cfParams && templateParameters[param].Type.indexOf('AWS::') > -1) {
+                                                let i = paramsToFetch.indexOf(param)
+                                                return (
+                                                    <Row key={`cf-${i}`} bottom='xs' style={{ height: 72 }}>
+                                                        <AutoComplete id={'_p'+param} ref={'_p'+param} fullWidth={true} openOnFocus={true}
+                                                            hintText={templateParameters[param].Description}
+                                                            hintStyle={{ opacity: 1, fontSize: '10px', bottom: '-20px', textAlign: 'left' }}
+                                                            filter={AutoComplete.caseInsensitiveFilter}
+                                                            dataSource={cfParams[i]}
+                                                            dataSourceConfig={this.handlesSourceConfig(param)}
+                                                        />
+                                                    </Row>
+                                                )
+                                            }
                                             return (
                                                 <Row key={index} bottom='xs' style={{ height: 72 }}>
                                                     <TextField id={'_p'+param} ref={'_p'+param} fullWidth={true} defaultValue={templateParameters[param].Default}
@@ -415,20 +434,102 @@ class CreateDeployment extends Component {
 
     handlesAccountChange = (event, index, accountName) => {
 
-        const { accounts, landscapes, params } = this.props
+        const { templateParameters } = this.state
+        const { accounts, landscapes, params, fetchAvailabilityZones, fetchHostedZones, fetchImages,
+                fetchInstances, fetchKeyPairs, fetchSecurityGroups, fetchSubnets, fetchVolumes, fetchVpcs } = this.props
+
         const account = accounts.find(acc => { return acc.name === accountName })
         const currentLandscape = landscapes.find(ls => { return ls._id === params.landscapeId })
         const template = JSON.parse(currentLandscape.cloudFormationTemplate)
 
-        this.setState({
-            accountName: accountName,
-            accessKeyId: account.accessKeyId || '',
-            secretAccessKey: account.secretAccessKey || '',
-            endpoint: account.endpoint || '',
-            location: account.region || '',
-            caBundlePath: account.caBundlePath || '',
-            rejectUnauthorizedSsl: account.rejectUnauthorizedSsl || false,
-            signatureBlock: account.signatureBlock || ''
+        const paramsToFetch = Object.keys(template.Parameters).filter(param => {
+            return template.Parameters[param].Type.indexOf('AWS::') > -1
+        })
+
+        let promises = paramsToFetch.map(param => {
+            switch (param) {
+
+                case 'AvailabilityZone':
+                    return fetchAvailabilityZones({
+                        variables: { region: account.region }
+                    }).then(({ data }) => {
+                        return data.fetchAvailabilityZones
+                    }).catch(err => console.error(err))
+                    break
+
+                case 'HostedZone':
+                    return fetchHostedZones({
+                        variables: { region: account.region }
+                    }).then(({ data }) => {
+                        return data.fetchHostedZones
+                    }).catch(err => console.error(err))
+                    break
+
+                case 'KeyName':
+                    return fetchKeyPairs({
+                        variables: { region: account.region }
+                    }).then(({ data }) => {
+                        return data.fetchKeyPairs
+                    }).catch(err => console.error(err))
+                    break
+
+                case 'Image':
+                    return fetchImages({
+                        variables: { region: account.region }
+                    }).then(({ data }) => {
+                        return data.fetchImages
+                    }).catch(err => console.error(err))
+                    break
+
+                case 'InstanceId':
+                    return fetchInstances({
+                        variables: { region: account.region }
+                    }).then(({ data }) => {
+                        return data.fetchInstances
+                    }).catch(err => console.error(err))
+                    break
+
+                case 'SecurityGroupId':
+                case 'SecurityGroupName':
+                    return fetchSecurityGroups({
+                        variables: { region: account.region }
+                    }).then(({ data }) => {
+                        return data.fetchSecurityGroups
+                    }).catch(err => console.error(err))
+                    break
+
+                case 'SubnetId':
+                    return fetchSubnets({
+                        variables: { region: account.region }
+                    }).then(({ data }) => {
+                        return data.fetchSubnets
+                    }).catch(err => console.error(err))
+                    break
+
+                case 'VolumeId':
+                    return fetchVolumes({
+                        variables: { region: account.region }
+                    }).then(({ data }) => {
+                        return data.fetchVolumes
+                    }).catch(err => console.error(err))
+                    break
+
+                case 'VpcId':
+                    return fetchVpcs({
+                        variables: { region: account.region }
+                    }).then(({ data }) => {
+                        return data.fetchVpcs
+                    }).catch(err => console.error(err))
+                    break
+
+                default:
+                    break
+
+            }
+        })
+
+        return Promise.all(promises).then(cfParams => {
+            this.setState({ cfParams })
         })
     }
     handlesOnManagedVPCChange = event => {
@@ -447,163 +548,197 @@ class CreateDeployment extends Component {
     }
 
 
-    handlesNewKeyChange = (event) => {
+    handlesNewKeyChange = event => {
         this.setState({
             newKey: event.target.value
         })
     }
-    handlesNewValueChange = (event) => {
+
+    handlesNewValueChange = event => {
         this.setState({
             newValue: event.target.value
         })
     }
+
     handlesRegionChange = (event, index, value) => {
         this.setState({
             location: value
         })
     }
+
     handlesTagChange = (event, index, value) => {
-        this.setState({errorMessage: false})
+        this.setState({ errorMessage: false })
+    }
+
+    handlesFilteringDatasource = (searchText, key) => {
+        searchText !== '' && key.indexOf(searchText) !== -1
+    }
+
+    handlesSourceConfig = paramName => {
+        switch (paramName) {
+            case 'AvailabilityZone':
+                return { text: 'ZoneName', value: 'ZoneName' }
+
+            case 'HostedZone':
+                return { text: 'Id', value: 'Id' }
+
+            default:
+                return { text: paramName, value: paramName }
+        }
     }
 
     getRepoData = () => {
-      return new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
 
-        this.setState({errorManagedVPCMessage: null});
-        const { integration } = this.state
-        function GetRepo() {
-            var data = {
-              deployFolderName: integration.type,
-              repoURL: integration.repoURL,
-              username: integration.username,
-              password: integration.password
-            }
-            return new Promise((resolve, reject) => {
-                axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/github/repo`, data).then(res => {
-                  var yamlData = {
-                    type:'managedVPC',
-                    locations: [
-                      res.data.location + '/hosts'
-                    ]
-                  }
-                  return axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/yaml/parse`, yamlData).then(yaml => {
-                      return resolve(yaml.data)
+            this.setState({errorManagedVPCMessage: null});
+            const {integration} = this.state
+            function GetRepo() {
+                var data = {
+                    deployFolderName: integration.type,
+                    repoURL: integration.repoURL,
+                    username: integration.username,
+                    password: integration.password
+                }
+                return new Promise((resolve, reject) => {
+                    axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/github/repo`, data).then(res => {
+                        var yamlData = {
+                            type: 'managedVPC',
+                            locations: [res.data.location + '/hosts']
+                        }
+                        return axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/yaml/parse`, yamlData).then(yaml => {
+                            return resolve(yaml.data)
+                        })
+                    }).catch(err => {
+                        return reject(err)
+                        this.setState({retrievingData: null});
+                        this.setState({errorManagedVPCMessage: 'Integration configured with invalid credentials. Unable to complete request.'})
                     })
-                }).catch(err => {
-                    return reject(err)
-                    this.setState({retrievingData: null});
-                    this.setState({errorManagedVPCMessage: 'Integration configured with invalid credentials. Unable to complete request.'})
                 })
-            })
-        }
-        GetRepo().then((data) =>{
-          resolve(data)
-          this.setState({ repoData: data})
-          this.setState({ githubData: integration })
-          this.setState({retrievingData: null});
-        })
-        .catch(() =>{
-          reject()
-          this.setState({loading: false})
-        });
-    })
-    }
-    convertAndPush = (landscapeIPs) => {
-      const { users } = this.props
-      return new Promise((resolve, reject) => {
-      var repoData = this.state.repoData
+            }
 
-      this.state.repoData.forEach((repo, index) => {
-        if(repo.items){
-            Object.keys(repo.items).find(key => {
-              this.state.managedVPCGroups.forEach(groupName => {
-                if(key === groupName){
-                  landscapeIPs.forEach(landscapeIP => {
-                    repoData[index].items[key].push(landscapeIP)
-                  })
-                }
-                if(!repoData[index].items[groupName]){
-                  repoData[index].items[groupName] = []
-                  landscapeIPs.forEach(landscapeIP =>{
-                    repoData[index].items[groupName].push(landscapeIP)
-                  })
-                }
-              })
-            })
-            axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/yaml/stringify`, repoData).then(res => {
-                var newData = {
-                  githubData: this.state.githubData,
-                  repoData: res.data
-                }
-              return axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/github/commit`, newData).then(res => {
-                return resolve(res.data)
-              }).catch(err =>{
-                return reject(err)
-              })
-            })
-            .catch(err => {
-              return reject(err)
-            })
-          }
+            GetRepo().then((data) => {
+                resolve(data)
+                this.setState({repoData: data})
+                this.setState({githubData: integration})
+                this.setState({retrievingData: null});
+            }).catch(() => {
+                reject()
+                this.setState({loading: false})
+            });
         })
-      })
+    }
+
+    convertAndPush = (landscapeIPs) => {
+        const { users } = this.props
+
+        return new Promise((resolve, reject) => {
+            var repoData = this.state.repoData
+
+            this.state.repoData.forEach((repo, index) => {
+                if (repo.items) {
+                    Object.keys(repo.items).find(key => {
+                        this.state.managedVPCGroups.forEach(groupName => {
+                            if (key === groupName) {
+                                landscapeIPs.forEach(landscapeIP => {
+                                    repoData[index].items[key].push(landscapeIP)
+                                })
+                            }
+                            if (!repoData[index].items[groupName]) {
+                                repoData[index].items[groupName] = []
+                                landscapeIPs.forEach(landscapeIP => {
+                                    repoData[index].items[groupName].push(landscapeIP)
+                                })
+                            }
+                        })
+                    })
+                    axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/yaml/stringify`, repoData).then(res => {
+                        var newData = {
+                            githubData: this.state.githubData,
+                            repoData: res.data
+                        }
+                        return axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/github/commit`, newData).then(res => {
+                            return resolve(res.data)
+                        }).catch(err => {
+                            return reject(err)
+                        })
+                    }).catch(err => {
+                        return reject(err)
+                    })
+                }
+            })
+        })
     }
 
     handlesDeployClick = event => {
+
         event.preventDefault()
 
         const { mutate, landscapes, tags, params, refetch } = this.props
         const { router } = this.context
         const { username } = auth.getUserInfo()
 
-        let currentTag = {};
-        let _id = '';
+        let currentTag = {}
+        let _id = ''
         let deploymentToCreate = {
             cloudFormationParameters: {},
             tags: {}
         }
-        this.setState({loading: true})
+
+        this.setState({ loading: true })
+
         // map all fields to deploymentToCreate
         for (let key in this.refs) {
             if (key.indexOf('_p') === 0) {
-                deploymentToCreate.cloudFormationParameters[key.replace('_p', '')] = this.refs[key].getValue()
-            }
-            else if (key.indexOf('_t') === 0) {
-                _id = key.replace('_t', '')
-                currentTag = tags.find(ac => { return ac._id === _id })
-                if(!currentTag){
-                  currentTag = this.state.tags.find(ac => { return ac._id === _id })
+                if (this.refs[key].props.value) {
+                    deploymentToCreate.cloudFormationParameters[key.replace('_p', '')] = this.refs[key].props.value
+                } else {
+                    deploymentToCreate.cloudFormationParameters[key.replace('_p', '')] = this.refs[key].getValue()
                 }
-                console.log('currentTag', currentTag)
+            } else if (key.indexOf('_t') === 0) {
+                _id = key.replace('_t', '')
+                currentTag = tags.find(ac => {
+                    return ac._id === _id
+                })
+
+                if (!currentTag) {
+                    currentTag = this.state.tags.find(ac => {
+                        return ac._id === _id
+                    })
+                }
+
                 deploymentToCreate.tags[_id] = {}
                 deploymentToCreate.tags[_id].Key = currentTag.key
                 deploymentToCreate.tags[_id].Value = this.refs[key].getValue()
-                if(currentTag.isRequired && this.refs[key].getValue() === ''){
-                  return this.setState({errorMessage: true, message:'Please fill in all required tags.', loading: false})
+
+                if (currentTag.isRequired && this.refs[key].getValue() === '') {
+                    return this.setState({ errorMessage: true, message: 'Please fill in all required tags.', loading: false })
                 }
-                if(!currentTag.isRequired && this.refs[key].getValue() === ''){
-                  delete deploymentToCreate.tags[_id]
+
+                if (!currentTag.isRequired && this.refs[key].getValue() === '') {
+                    delete deploymentToCreate.tags[_id]
                 }
+
             } else if (key === 'rejectUnauthorizedSsl') {
                 deploymentToCreate[key] = this.refs[key].isToggled()
             } else {
                 deploymentToCreate[key] = this.refs[key].getValue()
             }
         }
-          // attach derived fields
-          deploymentToCreate.createdAt = moment()
-          deploymentToCreate.createdBy = username
-          deploymentToCreate.location = this.state.location
-          deploymentToCreate.accountName = this.state.accountName
-          deploymentToCreate.landscapeId = params.landscapeId
 
-          let JSONTags = JSON.stringify(deploymentToCreate.tags)
-          deploymentToCreate.tags = JSONTags
+        // attach derived fields
+        deploymentToCreate.createdAt = moment()
+        deploymentToCreate.createdBy = username
+        deploymentToCreate.location = this.state.location
+        deploymentToCreate.accountName = this.state.accountName
+        deploymentToCreate.landscapeId = params.landscapeId
 
-          let JSONString = JSON.stringify(deploymentToCreate.cloudFormationParameters)
-          deploymentToCreate.cloudFormationParameters = JSONString
+        let JSONTags = JSON.stringify(deploymentToCreate.tags)
+        deploymentToCreate.tags = JSONTags
 
-          if(!this.state.errorMessage){
+        let JSONString = JSON.stringify(deploymentToCreate.cloudFormationParameters)
+        deploymentToCreate.cloudFormationParameters = JSONString
+
+        if (!this.state.errorMessage) {
             mutate({
                 variables: { deployment: deploymentToCreate }
             }).then(({ data }) => {
@@ -620,7 +755,7 @@ class CreateDeployment extends Component {
                       })
                     })
                   }
-                  else{
+                  else {
                     // TODO: add check to get status of deployment
                     setTimeout(() => {
                       this.setState({loading: false})
@@ -628,7 +763,7 @@ class CreateDeployment extends Component {
                   }
                 })
             }).catch(error => console.log(error))
-          }
+        }
     }
 }
 

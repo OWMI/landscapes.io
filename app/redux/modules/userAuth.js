@@ -47,7 +47,6 @@ const initialState = {
 
 export default function(state = initialState, action) {
     switch (action.type) {
-
         case RECEIVED_USER_LOGGED_IN:
         case RECEIVED_USER_REGISTER:
             return {
