@@ -127,52 +127,51 @@ class Integrations extends Component {
                 <a style={{ fontSize: '20px', cursor: 'pointer' }}>Integrations</a>
                 <div className="filter-list" style={{marginTop:-5, marginBottom:10}}>
                 </div>
-                <a>
-                </a>
+                <a></a>
               </Row>
                 <ul>
                     {
-                        integrations.map((integration, i) =>
+                      integrations.map((integration, i) =>
 
-                        <Paper key={i} className={cx({ 'landscape-card': true })} onClick={this.handlesViewIntegrationClick.bind(this, integration)} style={{backgroundColor: materialTheme.palette.primary2Color}} zDepth={3} rounded={false}>
-                                {/* header */}
-                                <Row start='xs' top='xs' style={{ padding: '20px 0px' }}>
-                                    <Col xs={8}>
-                                        <img id='landscapeIcon' src={integration.imageUri || vpcImage}/>
-                                    </Col>
-                                    <Col xs={4}>
-                                        {
-                                            currentUser.isGlobalAdmin
+                      <Paper key={i} className={cx({ 'landscape-card': true })} onClick={this.handlesViewIntegrationClick.bind(this, integration)} style={{backgroundColor: materialTheme.palette.primary2Color}} zDepth={3} rounded={false}>
+                          {/* header */}
+                          <Row start='xs' top='xs' style={{ padding: '20px 0px' }}>
+                              <Col xs={8}>
+                                  <img id='landscapeIcon' src={integration.imageUri || vpcImage}/>
+                              </Col>
+                              <Col xs={4}>
+                                  {
+                                      currentUser.isGlobalAdmin
+                                      ?
+                                        <div>
+                                          {
+                                            !integration.username || !integration.password
                                             ?
-                                              <div>
-                                                {
-                                                  !integration.username || !integration.password
-                                                  ?
-                                                  <FlatButton id='landscape-deploy' onTouchTap={this.handlesCreateIntegrationClick.bind(this, integration)}
-                                                      label='Add' labelStyle={{ fontSize: '10px' }}/>
-                                                  :
-                                                  <FlatButton id='landscape-deploy' onTouchTap={this.handlesEditIntegrationClick.bind(this, integration)}
-                                                      label='Edit' labelStyle={{ fontSize: '10px' }}/>
-                                                }
-                                              </div>
+                                            <FlatButton id='landscape-deploy' onTouchTap={this.handlesCreateIntegrationClick.bind(this, integration)}
+                                                label='Add' labelStyle={{ fontSize: '10px' }}  icon={<IoIosPlusEmpty/>}/>
                                             :
-                                                null
-                                        }
-                                        {
-                                          /*  currentUser.isGlobalAdmin && integration.username
-                                            ?
-                                                <FlatButton id='landscape-deploy' onTouchTap={this.handlesViewIntegrationClick.bind(this, integration)}
-                                                    label='Run Script' labelStyle={{ fontSize: '10px' }}/>
-                                            :
-                                                null */
-                                        }
-                                    </Col>
-                                </Row>
+                                            <FlatButton id='landscape-deploy' onTouchTap={this.handlesEditIntegrationClick.bind(this, integration)}
+                                                label='Edit' labelStyle={{ fontSize: '10px' }}  icon={<IoEdit/>}/>
+                                          }
+                                        </div>
+                                      :
+                                          null
+                                  }
+                                  {
+                                    /*  currentUser.isGlobalAdmin && integration.username
+                                      ?
+                                          <FlatButton id='landscape-deploy' onTouchTap={this.handlesViewIntegrationClick.bind(this, integration)}
+                                              label='Run Script' labelStyle={{ fontSize: '10px' }}/>
+                                      :
+                                          null */
+                                  }
+                              </Col>
+                          </Row>
 
-                                <Row style={{ margin: '0px 20px', height: '95px' }}>
-                                    <div id='landscape-title'>{integration.name}</div>
-                                </Row>
-                        </Paper>)
+                          <Row style={{ margin: '0px 20px', height: '95px' }}>
+                              <div id='landscape-title'>{integration.name}</div>
+                          </Row>
+                      </Paper>)
                     }
                 </ul>
             </div>

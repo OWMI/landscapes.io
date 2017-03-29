@@ -63,9 +63,6 @@ class LandscapeDetails extends Component {
 
         let _landscapes = landscapes || []
 
-        // for direct request
-        // if (activeLandscape && activeLandscape._id !== params.id)
-
         const parsedCFTemplate = JSON.parse(currentLandscape.cloudFormationTemplate)
 
         function getDeploymentInfo(deployment) {
@@ -114,11 +111,18 @@ class LandscapeDetails extends Component {
                       <Row><h4><strong>Landscape</strong></h4></Row>
                     </Col>
                     <Col xs={10}>
+                      <RaisedButton label='Cancel' onClick={
+                          () => {const { router } = this.context
+                          router.push({ pathname: '/landscapes' })
+                        }}
+                        primary={true}
+                        style={{ float: 'right', marginBottom: '30px', marginLeft: 5, marginRight:5 }}
+                        labelStyle={{ fontSize: '11px' }}/>
                         <RaisedButton label='Deploy' onClick={this.handlesDeployClick}
-                            style={{ float: 'right', marginBottom: '30px' }}
+                            style={{ float: 'right', marginBottom: '30px', marginLeft: 5, marginRight:5 }}
                             labelStyle={{ fontSize: '11px' }} icon={<IoIosCloudUploadOutline/>}/>
                         <RaisedButton label='Edit' onClick={this.handlesEditLandscapeClick}
-                            style={{ float: 'right', marginBottom: '30px' }}
+                            style={{ float: 'right', marginBottom: '30px', marginLeft: 5, marginRight:5 }}
                             labelStyle={{ fontSize: '11px' }} icon={<IoEdit/>}/>
                     </Col>
                 </Row>

@@ -1,20 +1,16 @@
+import React, { Component, PropTypes } from 'react'
 import cx from 'classnames'
 import { IoEdit, IoLoadC, IoIosPlusEmpty, IoSearch, IoArrowUpC, IoArrowDownC, IoIosGridView, IoAndroidMenu} from 'react-icons/lib/io'
-import getMuiTheme from 'material-ui/styles/getMuiTheme'
-import { Loader } from '../../components'
 import { Row, Col } from 'react-flexbox-grid'
-import { Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn, TableSortLabel } from 'material-ui/Table'
 import { sortBy, orderBy } from 'lodash'
-
-import React, { Component, PropTypes } from 'react'
 import shallowCompare from 'react-addons-shallow-compare'
-import defaultImage from '../../style/empty.png'
-import { Paper , CardHeader, CardActions, CardText, FlatButton, TextField } from 'material-ui'
+import { Paper, FlatButton, TextField, Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui'
 
 import '../landscapes/landscapes.style.scss'
+import defaultImage from '../../style/empty.png'
 import materialTheme from '../../style/custom-theme.js';
 import { auth } from '../../services/auth'
-
+import { Loader } from '../../components'
 
 class Users extends Component {
 
@@ -25,7 +21,6 @@ class Users extends Component {
         items: [],
         orderBy: '',
         order: 'asc'
-
     }
 
     componentDidMount() {
@@ -259,7 +254,6 @@ class Users extends Component {
     filterList = (event) =>{
       var updatedList = this.state.users;
       updatedList = updatedList.filter(function(item){
-        console.log('item', item)
         return (item.firstName.toLowerCase().search(
           event.target.value.toLowerCase()) !== -1) ||
           (item.lastName.toLowerCase().search(

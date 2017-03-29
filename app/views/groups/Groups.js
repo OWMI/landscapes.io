@@ -1,18 +1,15 @@
-
 import cx from 'classnames'
-import { IoEdit, IoLoadC, IoIosPlusEmpty, IoSearch, IoArrowUpC, IoArrowDownC, IoAndroidMenu, IoIosGridView } from 'react-icons/lib/io'
-import getMuiTheme from 'material-ui/styles/getMuiTheme'
-import { Row, Col } from 'react-flexbox-grid'
-import { Paper , CardHeader, CardActions, CardText, FlatButton, TextField } from 'material-ui'
-import { Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table'
-import { sortBy, orderBy } from 'lodash'
-
-import { Loader } from '../../components'
 import React, { Component, PropTypes } from 'react'
 import shallowCompare from 'react-addons-shallow-compare'
+import { IoEdit, IoLoadC, IoIosPlusEmpty, IoSearch, IoArrowUpC, IoArrowDownC, IoAndroidMenu, IoIosGridView } from 'react-icons/lib/io'
+import { Row, Col } from 'react-flexbox-grid'
+import { sortBy, orderBy } from 'lodash'
+
+import { Paper, FlatButton, TextField, Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn  } from 'material-ui'
+
+import { Loader } from '../../components'
 import { auth } from '../../services/auth'
 import defaultImage from '../../style/empty-group.png'
-
 import '../landscapes/landscapes.style.scss'
 import materialTheme from '../../style/custom-theme.js';
 

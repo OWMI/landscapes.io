@@ -1,4 +1,3 @@
-
 import cx from 'classnames'
 import { Dialog, FlatButton } from 'material-ui'
 import React, { Component, PropTypes } from 'react'
@@ -6,8 +5,8 @@ import shallowCompare from 'react-addons-shallow-compare'
 import { IoEdit, IoAndroidClose, IoIosPlusEmpty } from 'react-icons/lib/io'
 import { Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table'
 
+import materialTheme from '../../style/custom-theme.js'
 import { Loader } from '../../components'
-// const confirm = Modal.confirm
 
 class DocumentTypes extends Component {
 
@@ -42,8 +41,11 @@ class DocumentTypes extends Component {
         const { loading, documentTypes } = this.props
 
         const confirmActions = [
-            <FlatButton label='Cancel' primary={true} onTouchTap={this.handlesDialogToggle}/>,
-            <FlatButton label='Delete' primary={true} onTouchTap={this.handlesDeleteAccountClick}/>
+            <FlatButton label='Cancel' backgroundColor={materialTheme.palette.primary2Color}
+            style={{ float: 'right', margin: '30px 5px' }}
+            labelStyle={{ fontSize: '11px', color:'white' }} onTouchTap={this.handlesDialogToggle}/>,
+            <FlatButton label='Delete' style={{ float: 'right', margin: '30px 5px' }}
+            labelStyle={{ fontSize: '11px', color:'white' }} onTouchTap={this.handlesDeleteAccountClick}/>
         ]
 
         if (loading) {

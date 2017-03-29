@@ -1,35 +1,17 @@
 import cx from 'classnames'
 import React, { Component, PropTypes } from 'react'
 import shallowCompare from 'react-addons-shallow-compare'
-
-import { Checkbox, RaisedButton} from 'material-ui'
-import {GridList, GridTile} from 'material-ui/GridList';
-import Subheader from 'material-ui/Subheader';
-import StarBorder from 'material-ui/svg-icons/toggle/star-border';
-import Snackbar from 'material-ui/Snackbar';
-
-import {Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table';
-import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/Card';
-import {Tabs, Tab} from 'material-ui/Tabs';
-import TextField from 'material-ui/TextField';
-import Chip from 'material-ui/Chip';
+import {Row, Col} from 'react-flexbox-grid'
 import { IoEdit, IoPlus, IoAndroidClose, IoIosCloudUploadOutline } from 'react-icons/lib/io'
 
-import Slider from 'material-ui/Slider';
-import {Row, Col} from 'react-flexbox-grid'
-import {RadioButtonGroup, RadioButton} from 'material-ui/RadioButton';
-import getMuiTheme from 'material-ui/styles/getMuiTheme'
-import FlatButton from 'material-ui/FlatButton';
+import { Chip, Tabs, Tab, Card, Checkbox, RaisedButton, GridList, Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui'
+
 import defaultImage from '../../style/empty-group.png'
 import defaultUserImage from '../../style/empty.png'
-
-import { Loader } from '../../components'
 import materialTheme from '../../style/custom-theme.js';
 import { auth } from '../../services/auth'
-
 import {blue300, indigo900} from 'material-ui/styles/colors';
-
-const CheckboxGroup = Checkbox.Group;
+import { Loader } from '../../components'
 
 const defaultCheckedList = ['r'];
 
@@ -307,6 +289,13 @@ class GroupDetails extends Component {
                         <Row><h4><strong>Group</strong></h4></Row>
                       </Col>
                       <Col xs={8}>
+                        <RaisedButton label='Cancel' onClick={
+                            () => {const { router } = this.context
+                            router.push({ pathname: '/groups' })
+                          }}
+                          backgroundColor={materialTheme.palette.primary3Color}
+                          style={{ float: 'right', marginBottom: '30px', marginLeft: 5, marginRight:5 }}
+                          labelStyle={{ fontSize: '11px', color: 'white'}}/>
                         {
                           userRole === 'admin' || isGroupAdmin === 'Admin'
                           ?

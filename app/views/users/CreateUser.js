@@ -1,28 +1,16 @@
 import cx from 'classnames'
-import { Loader } from '../../components'
 import React, { Component, PropTypes } from 'react'
 import shallowCompare from 'react-addons-shallow-compare'
 import Dropzone from 'react-dropzone'
 import { Row, Col } from 'react-flexbox-grid'
-
-import { Checkbox, RaisedButton } from 'material-ui'
-import { GridList, GridTile } from 'material-ui/GridList'
-import Subheader from 'material-ui/Subheader'
-import Snackbar from 'material-ui/Snackbar'
 import axios from 'axios'
-
-import { Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table'
-import { Card, CardActions, CardHeader, CardMedia, CardTitle, CardText } from 'material-ui/Card'
-import { Tabs, Tab } from 'material-ui/Tabs'
-import TextField from 'material-ui/TextField'
+import AvatarCropper from "react-avatar-cropper"
 import { debounce } from 'lodash'
 
-import Slider from 'material-ui/Slider'
-import { RadioButtonGroup, RadioButton } from 'material-ui/RadioButton'
-import getMuiTheme from 'material-ui/styles/getMuiTheme'
-import FlatButton from 'material-ui/FlatButton'
-import AvatarCropper from "react-avatar-cropper"
+import { Checkbox, RaisedButton, Snackbar, Card, TextField, RadioButtonGroup, RadioButton } from 'material-ui'
 import defaultUserImage from '../../style/empty.png'
+import materialTheme from '../../style/custom-theme.js'
+import { Loader } from '../../components'
 
 const styles = {
     root: {
@@ -130,17 +118,15 @@ class CreateUser extends Component {
                     <Col xs={4} style={{ textAlign: 'left' }}>
                         <h4>Create User</h4>
                     </Col>
-                    <Col xs={4}></Col>
-                    <Col xs={2}>
-                        <RaisedButton label='Save' onClick={this.handlesCreateClick} style={{ float: 'right', margin: '30px 0px' }} labelStyle={{ fontSize: '11px' }}/>
-                    </Col>
-                    <Col xs={2}>
-                        <RaisedButton label='Cancel' primary={true} style={{ float: 'right', margin: '30px 0px' }} labelStyle={{ fontSize: '11px' }}
-                            onClick={() => {
-                                const {router} = this.context
-                                router.push(`/users`)
-                            }}
-                        />
+                    <Col xs={8}>
+                      <RaisedButton label='Cancel' onClick={
+                          () => {const { router } = this.context
+                          router.push({ pathname: '/users' })
+                        }}
+                        backgroundColor={materialTheme.palette.primary2Color}
+                        style={{ float: 'right', margin: '30px 5px' }}
+                        labelStyle={{ fontSize: '11px', color: 'white'}}/>
+                      <RaisedButton label='Save' onClick={this.handlesCreateClick} style={{ float: 'right', margin: '30px 5px' }} labelStyle={{ fontSize: '11px' }}/>
                     </Col>
                 </Row>
                 <div style={styles.root}>

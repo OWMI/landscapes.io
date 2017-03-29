@@ -100,9 +100,7 @@ class EditLandscape extends Component {
             currentLandscape = activeLandscape || {}
 
         var _landscapes = landscapes || []
-        // for direct request
-        // if (activeLandscape && activeLandscape._id !== params.id)
-            currentLandscape = _landscapes.find(ls => { return ls._id === params.id })
+        currentLandscape = _landscapes.find(ls => { return ls._id === params.id })
 
         // set disableDelete value
         if (currentLandscape && currentLandscape.status){
@@ -134,15 +132,15 @@ class EditLandscape extends Component {
                               const {router} = this.context
                               router.push(`/landscape/${params.id}`)
                           }}
-                            style={{ float: 'right', margin: '30px 0px' }}
+                            style={{ float: 'right', margin: '30px 5px' }}
                             labelStyle={{ fontSize: '11px' }}/>
                             <RaisedButton label='Save' onTouchTap={this.handlesUpdateClick}
-                                style={{ float: 'right', margin: '30px 0px' }}
+                                style={{ float: 'right', margin: '30px 5px' }}
                                 labelStyle={{ fontSize: '11px' }}/>
 
                             <RaisedButton label='Delete' onTouchTap={() => { this.setState({ showDeleteDialog: !showDeleteDialog }) }}
                                 disabled={disableDelete}
-                                style={{ float: 'right', margin: '30px 0px' }}
+                                style={{ float: 'right', margin: '30px 5px' }}
                                 labelStyle={{ fontSize: '11px' }}/>
 
                             <Dialog title='Delete Landscape' modal={false} open={showDeleteDialog}
@@ -427,7 +425,6 @@ class EditLandscape extends Component {
       }
       if(option.type === 'privateRepo'){
         var privateRepoIntegration = this.state.integrations.find(integration => {return integration.type === 'github'})
-        console.log('privateRepoIntegration', privateRepoIntegration)
         if(!privateRepoIntegration){
           this.setState({cloudErrorMessage: "Currently no private repositories are set up."})
         }
@@ -441,40 +438,35 @@ class EditLandscape extends Component {
       }
     }
 
-        handlesOnPublicURLSubmit = () => {
-          this.setState({cloudErrorMessage: null})
-          if(this.state.publicURL){
-            let self = this
-            axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/github/wGetFile`, {url: this.state.publicURL}).then(res => {
-              self.setState({
-                  cloudFormationTemplate: res.data
-              })
-              return res
-            }).catch(err => {
-              console.log('ERROR ----'. err)
-              this.setState({cloudErrorMessage: "Invalid URL."})
-            })
-          }
-        }
+    handlesOnPublicURLSubmit = () => {
+      this.setState({cloudErrorMessage: null})
+      if(this.state.publicURL){
+        let self = this
+        axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/github/wGetFile`, {url: this.state.publicURL}).then(res => {
+          self.setState({
+              cloudFormationTemplate: res.data
+          })
+          return res
+        }).catch(err => {
+          this.setState({cloudErrorMessage: "Invalid URL."})
+        })
+      }
+    }
 
-        handlesPublicRepoChange = (event) => {
-          this.setState({publicURL: event.target.value})
-        }
+    handlesPublicRepoChange = (event) => {
+      this.setState({publicURL: event.target.value})
+    }
 
     setFile = (file, bind) => {
       let self = this
-
-      console.log('file', file)
       var filename = './_github/' + file
       var data={file: filename}
       axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/github/getFile`, data).then(res => {
-        console.log('RES', res)
         self.setState({
             cloudFormationTemplate: res.data
         })
         return res
       }).catch(err => {
-        console.log('ERROR ----', err)
       })
     }
 
@@ -491,12 +483,10 @@ class EditLandscape extends Component {
           }
           return new Promise((resolve, reject) => {
               axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/github/repo`, data).then(res => {
-                console.log('res', res)
                 var data = {
                   location: res.data.location
                 }
                 axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/github/repo/files`, data).then(res => {
-                  console.log('RETURNED ----', res)
                   resolve(res.data)
                 })
               }).catch(err => {
@@ -507,7 +497,6 @@ class EditLandscape extends Component {
           })
       }
       GetRepo().then((data) =>{
-        console.log('data', data)
         var fileData = data.files.filter(file => {
           return file.split('.').pop() === 'json'
         })
@@ -592,13 +581,10 @@ class EditLandscape extends Component {
     }
 
     handlesTemplateClick = (acceptedFiles, rejectedFiles) => {
-        console.log('this.state.cloudFormationTemplate', this.state.cloudFormationTemplate)
         let self = this
         let data = new FormData()
 
         data.append('file', acceptedFiles[0])
-        console.log(acceptedFiles[0])
-        console.log(data)
         this.setState({
             cloudFormationTemplate: null
         })
@@ -606,11 +592,7 @@ class EditLandscape extends Component {
             self.setState({
                 cloudFormationTemplate: JSON.stringify(res.data, null, 4)
             })
-
-            console.log('res.data', res.data)
-            console.log('this.state.cloudFormationTemplate', this.state.cloudFormationTemplate)
         }).catch(err => {
-          console.log('err', err)
         })
     }
 
@@ -652,7 +634,6 @@ class EditLandscape extends Component {
             })
             router.push({ pathname: '/landscapes' })
         }).catch((error) => {
-            console.log(error)
             this.setState({ loading: false })
         })
     }
@@ -664,15 +645,12 @@ class EditLandscape extends Component {
         const { showDeleteDialog } = this.state
 
         this.setState({ showDeleteDialog: !showDeleteDialog })
-
-        console.log('landscape', landscape)
         deleteLandscape({
             variables: { landscapeToDelete }
         }).then(({ data }) => {
             router.push({ pathname: `/landscapes` })
             return refetch()
         }).catch((error) => {
-            console.error('graphql error', error)
         })
     }
 

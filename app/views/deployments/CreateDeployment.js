@@ -63,7 +63,6 @@ class CreateDeployment extends Component {
               groups.forEach(group =>{
                 group.landscapes.forEach(landscape =>{
                   if(landscape === currentLandscape._id){
-                    console.log('group', group)
                     if(group.managedVPC){
                       managedVPCGroups.push(group.name)
                     }
@@ -109,7 +108,6 @@ class CreateDeployment extends Component {
               groups.forEach(group =>{
                 group.landscapes.forEach(landscape =>{
                   if(landscape === currentLandscape._id){
-                    console.log('group', group)
                     if(group.managedVPC){
                       managedVPCGroups.push(group.name)
                     }
@@ -171,8 +169,13 @@ class CreateDeployment extends Component {
                                 <h4>New Deployment</h4>
                             </Col>
                             <Col xs={8}>
+                              <RaisedButton label='Cancel' onClick={
+                                  () => {const { router } = this.context
+                                  router.push({ pathname: `/landscape/${this.state.currentLandscape._id}` })
+                                }}
+                                primary={true} style={{ float: 'right', margin: '30px 5px' }} labelStyle={{ fontSize: '11px' }}/>
                                 <RaisedButton label='Deploy' onClick={this.handlesDeployClick}
-                                    style={{ float: 'right', margin: '30px 0px' }}
+                                    style={{ float: 'right', margin: '30px 5px' }}
                                     labelStyle={{ fontSize: '11px' }} icon={<IoIosCloudUploadOutline/>}/>
                             </Col>
                         </Row>
@@ -401,7 +404,6 @@ class CreateDeployment extends Component {
                                                   defaultValue: this.state.newValue,
                                                   _id: Date.now().toString()
                                                 }
-                                                console.log('new tag', newTag)
                                               _tags.push(newTag)
                                                 this.setState({showAddTag: !this.state.showAddTag, newKey: '', newValue: '', tags: _tags})
                                               }}/>
@@ -533,7 +535,6 @@ class CreateDeployment extends Component {
         })
     }
     handlesOnManagedVPCChange = event => {
-      console.log('this.state.managedVPCGroups', this.state.managedVPCGroups)
         event.preventDefault()
         if(!this.state.integration){
           this.setState({errorManagedVPCMessage: 'Managed VPC integration configuration is required to make type: Managed VPC'})
@@ -743,7 +744,6 @@ class CreateDeployment extends Component {
                 variables: { deployment: deploymentToCreate }
             }).then(({ data }) => {
                 refetch({}).then(({data}) => {
-                  console.log('data', data)
                   if(this.state.managedVPC){
                     var returnedIPs = ['IP.12.12.12']
                     this.getRepoData().then(()=>{

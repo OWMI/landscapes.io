@@ -4,7 +4,7 @@ import { Dialog, FlatButton } from 'material-ui'
 import React, { Component, PropTypes } from 'react'
 import shallowCompare from 'react-addons-shallow-compare'
 import { IoEdit, IoAndroidClose, IoIosPlusEmpty } from 'react-icons/lib/io'
-import { Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table'
+import { Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui'
 
 import { Loader } from '../../components'
 // const confirm = Modal.confirm
@@ -46,7 +46,6 @@ class Tags extends Component {
             <FlatButton label='Delete' primary={true} onTouchTap={this.handlesDeleteTagClick}/>
         ]
 
-        console.log('tags', tags)
         if (loading || this.state.loading) {
             return (
                 <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>

@@ -4,31 +4,15 @@ import shallowCompare from 'react-addons-shallow-compare'
 import Dropzone from 'react-dropzone'
 import { Row, Col } from 'react-flexbox-grid'
 import axios from 'axios'
-
-import { Checkbox, RaisedButton, Dialog} from 'material-ui'
-import { GridList, GridTile} from 'material-ui/GridList'
-import Subheader from 'material-ui/Subheader'
-import Snackbar from 'material-ui/Snackbar'
-
-import { Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table'
-import { Card, CardActions, CardHeader, CardMedia, CardTitle, CardText } from 'material-ui/Card'
-import { Tabs, Tab } from 'material-ui/Tabs'
-import TextField from 'material-ui/TextField'
-
-import Slider from 'material-ui/Slider'
-import { RadioButtonGroup, RadioButton } from 'material-ui/RadioButton'
-import getMuiTheme from 'material-ui/styles/getMuiTheme'
-import FlatButton from 'material-ui/FlatButton'
 import AvatarCropper from "react-avatar-cropper"
-import defaultUserImage from '../../style/empty.png'
+import { Checkbox, RaisedButton, Dialog, Snackbar, Card, TextField, RadioButtonGroup, RadioButton, FlatButton} from 'material-ui'
 
-import { Loader } from '../../components'
+import defaultUserImage from '../../style/empty.png'
 import materialTheme from '../../style/custom-theme.js'
+import { Loader } from '../../components'
 
 
 const CheckboxGroup = Checkbox.Group
-
-const TabPane = Tabs.TabPane
 
 const styles = {
   root: {
@@ -88,7 +72,6 @@ class EditUser extends Component {
       this.setState({currentUser})
       if(users){
         let currentUser = users.find(ls => { return ls._id === params.id })
-        console.log('currentUser', currentUser)
         this.setState({ _id:currentUser._id, password: currentUser.password, username: currentUser.username, role: currentUser.role, email: currentUser.email, firstName: currentUser.firstName, lastName: currentUser.lastName, publicKey: currentUser.publicKey || null, managedVPC: currentUser.managedVPC || false})
         this.setState({currentUser})
       }
@@ -107,7 +90,6 @@ class EditUser extends Component {
       this.setState({currentUser})
       if(users){
         currentUser = users.find(ls => { return ls._id === params.id })
-        console.log('currentUser', currentUser)
         this.setState({ _id: currentUser._id, password: currentUser.password, username: currentUser.username, role: currentUser.role, email: currentUser.email, firstName: currentUser.firstName, lastName: currentUser.lastName, publicKey: currentUser.publicKey || null, managedVPC: currentUser.managedVPC || false})
         this.setState({currentUser})
       }
@@ -161,13 +143,15 @@ class EditUser extends Component {
                 <Col xs={4} style={{ textAlign: 'left' }}>
                     <h4><strong>Edit User:</strong> {this.state.firstName} {this.state.lastName}</h4>
                 </Col>
-                <Col xs={5}>
-
-                </Col>
-                <Col xs={3}>
-                  <Row style={{width:'100%', minWidth: '500px'}}>
+                <Col xs={8}>
+                    <RaisedButton label='Cancel' backgroundColor={materialTheme.palette.primary2Color} onClick={() => {
+                        const {router} = this.context
+                        router.push(`/users/${params.id}`)
+                    }}
+                        style={{ float: 'right', margin: '30px 5px' }}
+                        labelStyle={{ fontSize: '11px', color:'white' }}/>
                     <RaisedButton label='Delete' onTouchTap={() => { this.setState({ showDeleteDialog: !showDeleteDialog }) }}
-                        style={{ float: 'right', margin: '30px 0px' }}
+                        style={{ float: 'right', margin: '30px 5px' }}
                         labelStyle={{ fontSize: '11px' }}/>
                       <Dialog title='Delete User'  modal={false} open={showDeleteDialog}
                             onRequestClose={() => { this.setState({ showDeleteDialog: !showDeleteDialog }) }}
@@ -178,15 +162,8 @@ class EditUser extends Component {
                             Are you sure you want to delete {this.state.firstName} {this.state.lastName}?
                         </Dialog>
                     <RaisedButton label='Save' onClick={this.handlesCreateClick}
-                        style={{ float: 'right', margin: '30px 0px' }}
+                        style={{ float: 'right', margin: '30px 5px' }}
                         labelStyle={{ fontSize: '11px' }}/>
-                      <RaisedButton label='Cancel' primary={true} onClick={() => {
-                          const {router} = this.context
-                          router.push(`/users/${params.id}`)
-                      }}
-                          style={{ float: 'right', margin: '30px 0px' }}
-                          labelStyle={{ fontSize: '11px' }}/>
-                  </Row>
                 </Col>
             </Row>
             <div style={styles.root}>
@@ -395,10 +372,7 @@ class EditUser extends Component {
     }
     handlesOnManagedVPCChange = event => {
         event.preventDefault()
-        console.log('this.state.managedVPC', !this.state.managedVPC)
-
         this.setState({managedVPC: !this.state.managedVPC})
-
     }
     handlesPublic = () => {
       const { integration } = this.state
@@ -406,7 +380,6 @@ class EditUser extends Component {
       this.setState({showGettingPublicKey: true})
       this.setState({publicKeyError: false})
         axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/github/publicKey`, data).then(res => {
-          console.log('res', res)
           if(res.data.message){
             this.setState({showGettingPublicKey: false, publicKeyError: "Failed to find public key at location: " + res.data.location + '.'})
           }
@@ -448,13 +421,10 @@ class EditUser extends Component {
                   user: currentUser
               },
         }).then(res => {
-          console.log('changed', res)
         }).catch(err => {
-            console.log('err', err)
             this.setState({ passwordSubmitError: true })
         })
       }
-      console.log('userToEdit', userToEdit)
         this.props.EditUserWithMutation({
             variables: { user: userToEdit }
          }).then(({ data }) => {
@@ -475,7 +445,6 @@ class EditUser extends Component {
           this.setState({
             failOpen: true
           })
-            console.error('graphql error', error)
         })
     }
     handlesDeleteUserClick = (user, event) => {
@@ -485,7 +454,6 @@ class EditUser extends Component {
         const { showDeleteDialog, currentUser } = this.state
 
         this.setState({ showDeleteDialog: !showDeleteDialog })
-        console.log('currentUser', currentUser)
         delete currentUser.__typename
         DeleteUserMutation({
             variables: { user: currentUser }
@@ -495,7 +463,6 @@ class EditUser extends Component {
 
             })
         }).catch((error) => {
-            console.error('graphql error', error)
         })
     }
 

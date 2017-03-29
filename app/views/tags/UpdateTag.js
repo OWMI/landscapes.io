@@ -2,8 +2,9 @@ import cx from 'classnames'
 import React, { Component, PropTypes } from 'react'
 import shallowCompare from 'react-addons-shallow-compare'
 import { Row, Col } from 'react-flexbox-grid'
-import { Card, CardHeader, CardText, MenuItem, RaisedButton, SelectField, TextField, Toggle, Checkbox } from 'material-ui'
+import { Card, RaisedButton, TextField, Toggle, Checkbox } from 'material-ui'
 
+import materialTheme from '../../style/custom-theme.js'
 import './tags.style.scss'
 import { Loader } from '../../components'
 
@@ -72,15 +73,16 @@ class UpdateTag extends Component {
                                 <h4>Edit Global Tag</h4>
                             </Col>
                             <Col xs={8}>
-                                    <RaisedButton label='Cancel' primary={true} onClick={() => {
-                                        const {router} = this.context
-                                        router.push(`/tags`)
-                                    }}
-                                      style={{ float: 'right', margin: '30px 0px' }}
-                                      labelStyle={{ fontSize: '11px' }}/>
-                                      <RaisedButton label='Save' onClick={this.handlesUpdateClick}
-                                          style={{ float: 'right', margin: '30px 0px' }}
-                                          labelStyle={{ fontSize: '11px' }}/>
+                              <RaisedButton label='Cancel' onClick={() => {
+                                  const {router} = this.context
+                                  router.push(`/tags`)
+                              }}
+                                backgroundColor={materialTheme.palette.primary2Color}
+                                style={{ float: 'right', margin: '30px 5px' }}
+                                labelStyle={{ fontSize: '11px', color:'white' }}/>
+                                <RaisedButton label='Save' onClick={this.handlesUpdateClick}
+                                    style={{ float: 'right', margin: '30px 5px' }}
+                                    labelStyle={{ fontSize: '11px' }}/>
                             </Col>
                         </Row>
                         <Card>

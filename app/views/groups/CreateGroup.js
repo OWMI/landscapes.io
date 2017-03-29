@@ -3,35 +3,19 @@ import React, {Component, PropTypes} from 'react'
 import shallowCompare from 'react-addons-shallow-compare'
 import {Row, Col} from 'react-flexbox-grid'
 import axios from 'axios'
-
-import {Checkbox, RaisedButton} from 'material-ui'
-import {GridList, GridTile} from 'material-ui/GridList';
-import Subheader from 'material-ui/Subheader';
-import StarBorder from 'material-ui/svg-icons/toggle/star-border';
-import Snackbar from 'material-ui/Snackbar';
-import Toggle from 'material-ui/Toggle';
-import { Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table';
-import { Card, CardActions, CardHeader, CardMedia, CardTitle, CardText } from 'material-ui/Card';
-import { IoEdit, IoAndroidClose, IoSearch, IoArrowDownC, IoArrowUpC } from 'react-icons/lib/io'
-import {Tabs, Tab} from 'material-ui/Tabs';
-import TextField from 'material-ui/TextField';
-import Slider from 'material-ui/Slider';
-import {RadioButtonGroup, RadioButton} from 'material-ui/RadioButton';
-import getMuiTheme from 'material-ui/styles/getMuiTheme'
-import FlatButton from 'material-ui/FlatButton';
+import AvatarCropper from "react-avatar-cropper";
+import {sortBy, orderBy} from "lodash";
 import Dropzone from 'react-dropzone'
-import Chip from 'material-ui/Chip';
-import Avatar from 'material-ui/Avatar';
+
+import { Avatar, Chip, TextField, Tabs, Tab, Card, Checkbox, RaisedButton, Toggle, Snackbar, Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui'
+import { IoEdit, IoAndroidClose, IoSearch, IoArrowDownC, IoArrowUpC } from 'react-icons/lib/io'
 import UploadIcon from 'material-ui/svg-icons/file/file-upload'
 import defaultUserImage from '../../style/empty.png'
 import defaultImage from '../../style/empty-group.png'
-import AvatarCropper from "react-avatar-cropper";
-import {sortBy, orderBy} from "lodash";
 
 import {Loader} from '../../components'
 
 import '../../style/avatar-cropper.style.scss'
-const CheckboxGroup = Checkbox.Group;
 
 const defaultCheckedList = ['r'];
 
@@ -226,19 +210,16 @@ class CreateGroup extends Component {
                   justifyContent: 'space-between'
               }}>
               <Row style={{flex: 1}}>
-                  <Col xs={2} style={{ textAlign: 'left', marginBottom:30 }}>
+                  <Col xs={4} style={{ textAlign: 'left', marginBottom:30 }}>
                     <Row><h4><strong>Create Group</strong></h4></Row>
                   </Col>
                   <Col xs={8}>
-                  </Col>
-                  <Col xs={1}>
-                    <RaisedButton label="Save" labelStyle={{ fontSize: '11px' }} style={{ float: 'right', marginBottom: '30px' }} onClick={this.handlesCreateClick}/>
-                  </Col>
-                  <Col xs={1}>
-                    <RaisedButton label="Cancel" primary={true} labelStyle={{ fontSize: '11px' }} style={{ float: 'right', marginBottom: '30px' }} onClick={() => {
+                    <RaisedButton label="Cancel" primary={true} labelStyle={{ fontSize: '11px', marginLeft: 5, marginRight:5 }} style={{ float: 'right', marginBottom: '30px' }} onClick={() => {
                         const {router} = this.context
                         router.push(`/groups`)
                     }}/>
+                  <RaisedButton label="Save" labelStyle={{ fontSize: '11px' }} style={{ float: 'right', marginBottom: '30px',marginLeft: 5, marginRight:5 }} onClick={this.handlesCreateClick}/>
+
                   </Col>
               </Row>
               </Row>

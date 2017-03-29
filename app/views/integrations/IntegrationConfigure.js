@@ -3,19 +3,15 @@ import cx from 'classnames'
 import React, { Component, PropTypes } from 'react'
 import { Row, Col } from 'react-flexbox-grid'
 import shallowCompare from 'react-addons-shallow-compare'
-import { IoEdit, IoIosCloudUploadOutline, IoAndroidClose, IoIosPlusEmpty } from 'react-icons/lib/io'
-import { Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table'
-import { CardHeader, CardActions, CardText, FlatButton, Paper, RaisedButton, TextField, Dialog } from 'material-ui'
 import axios from 'axios'
+import { FlatButton, Paper, RaisedButton, TextField, Dialog } from 'material-ui'
 
 import { Loader } from '../../components'
 import { auth } from '../../services/auth'
-
 import materialTheme from '../../style/custom-theme.js';
 import defaultImage from '../../style/AWS.png';
 import defaultGithubImage from '../../style/github.png';
 import vpcImage from '../../style/vpc.png';
-// const confirm = Modal.confirm
 
 class IntegrationConfigure extends Component {
 
@@ -121,7 +117,6 @@ class IntegrationConfigure extends Component {
             type: "github"
           }
         }
-        console.log('COULD NOT FIND', integration)
         this.setState({integration})
       }
       var currentUser = auth.getUserInfo();
@@ -153,18 +148,22 @@ class IntegrationConfigure extends Component {
               <Row style={{justifyContent: 'space-between', width: '100%'}}>
                 <h4>Configure Integration</h4>
                   <Row>
-                    <div  style={{ margin: '10px 20px', justifyContent:'center'}}>
-                      <RaisedButton label="Save" onClick={this.handlesCreateIntegrationClick}/>
-                    </div>
+
+                      <RaisedButton label="Save" labelStyle={{ fontSize: '11px' }}  style={{ float: 'right', margin: '10px 5px' }} onClick={this.handlesCreateIntegrationClick}/>
                     {
                       this.state.integration.repoURL
                       ?
-                      <div  style={{ margin: '10px 20px', justifyContent:'center'}}>
-                        <RaisedButton primary={true} label="Delete" onClick={this.handlesDeleteIntegrationClick}/>
-                      </div>
+                        <RaisedButton label="Delete" labelStyle={{ fontSize: '11px'}} style={{ float: 'right', margin: '10px 5px' }} onClick={this.handlesDeleteIntegrationClick}/>
                       :
                       null
                     }
+                    <RaisedButton label='Cancel' onClick={
+                        () => {const { router } = this.context
+                        router.push({ pathname: '/integrations' })
+                      }}
+                      backgroundColor={materialTheme.palette.primary2Color}
+                      style={{ float: 'right', margin: '10px 5px' }}
+                      labelStyle={{ fontSize: '11px', color: 'white'}}/>
                   </Row>
               </Row>
               <Row style={{width:'100%', justifyContent:'center'}}>
@@ -234,8 +233,7 @@ class IntegrationConfigure extends Component {
     handlesClickButton = () =>{
       var data = ''
       axios.post(`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/github/commit`, data).then(res => {
-        console.log('res', res)
-      }).catch(err => console.error(err))
+      }).catch(err => {})
     }
     handlesDeleteIntegrationClick = () => {
         const { router } = this.context
@@ -244,14 +242,12 @@ class IntegrationConfigure extends Component {
 
         this.setState({ showDeleteDialog: !showDeleteDialog })
 
-        console.log('integration', integration)
         DeleteIntegrationWithMutation({
             variables: { integration }
         }).then(({ data }) => {
             router.push({ pathname: `/integrations` })
             return refetchIntegrations()
         }).catch((error) => {
-            console.error('graphql error', error)
         })
     }
     handlesCreateIntegrationClick = (event) => {

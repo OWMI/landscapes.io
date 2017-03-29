@@ -2,25 +2,14 @@ import cx from 'classnames'
 import { Loader } from '../../components'
 import React, { Component, PropTypes } from 'react'
 import shallowCompare from 'react-addons-shallow-compare'
-
-import { Checkbox, RaisedButton} from 'material-ui'
-import {GridList, GridTile} from 'material-ui/GridList';
-import {RadioButton, RadioButtonGroup} from 'material-ui/RadioButton'
-import {Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table';
-import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/Card';
-import {Tabs, Tab} from 'material-ui/Tabs';
-import TextField from 'material-ui/TextField';
 import {Row, Col} from 'react-flexbox-grid'
 import { IoEdit, IoAndroidClose, IoIosCloudUploadOutline } from 'react-icons/lib/io'
+import { FlatButton, Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn, Card, Tabs, Tab, GridList, GridTile} from 'material-ui'
 
-import Slider from 'material-ui/Slider';
-import getMuiTheme from 'material-ui/styles/getMuiTheme'
-import FlatButton from 'material-ui/FlatButton';
 import defaultImage from '../../style/empty.png'
 import defaultGroupImage from '../../style/empty-group.png'
 import { auth } from '../../services/auth'
 import materialTheme from '../../style/custom-theme.js';
-
 
 const styles = {
   root: {
@@ -136,7 +125,7 @@ class Profile extends Component {
                       <Row><h4><strong>User</strong></h4></Row>
                     </Col>
                     <Col xs={10}>
-                      
+
                     </Col>
                 </Row>
                 <div style={styles.root}>
@@ -146,12 +135,10 @@ class Profile extends Component {
                           <Col xs={1} style={{ textAlign: 'left' }}>
                               <img src={this.state.currentUser.imageUri || defaultImage} style={{width: 85}} />
                           </Col>
-                          <Col xs={4} style={{ textAlign: 'left' }}>
+                          <Col xs={10} style={{ textAlign: 'left', marginLeft:10 }}>
                               <Row style={{marginLeft:10}}><h4>{this.state.currentUser.firstName + ' ' +  this.state.currentUser.lastName}</h4></Row>
                               <Row style={{marginLeft:10}}><h5>{this.state.currentUser.email}</h5></Row>
 
-                          </Col>
-                          <Col xs={7}>
                           </Col>
                       </Row>
                       <Col>

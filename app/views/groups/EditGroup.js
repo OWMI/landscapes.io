@@ -3,37 +3,20 @@ import React, {Component, PropTypes} from 'react'
 import shallowCompare from 'react-addons-shallow-compare'
 import {Row, Col} from 'react-flexbox-grid'
 import axios from 'axios'
-
-import {Checkbox, RaisedButton, Dialog} from 'material-ui'
-import {GridList, GridTile} from 'material-ui/GridList';
-import Subheader from 'material-ui/Subheader';
-import StarBorder from 'material-ui/svg-icons/toggle/star-border';
-import Snackbar from 'material-ui/Snackbar';
-import { Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table';
-import { Card, CardActions, CardHeader, CardMedia, CardTitle, CardText } from 'material-ui/Card';
-import {Tabs, Tab} from 'material-ui/Tabs';
-import TextField from 'material-ui/TextField';
-import Slider from 'material-ui/Slider';
-import {RadioButtonGroup, RadioButton} from 'material-ui/RadioButton';
-import Toggle from 'material-ui/Toggle';
-import getMuiTheme from 'material-ui/styles/getMuiTheme'
-import FlatButton from 'material-ui/FlatButton';
-import Dropzone from 'react-dropzone'
-import Chip from 'material-ui/Chip';
-import Avatar from 'material-ui/Avatar';
-import UploadIcon from 'material-ui/svg-icons/file/file-upload'
-import { IoEdit, IoAndroidClose, IoSearch, IoArrowDownC, IoArrowUpC } from 'react-icons/lib/io'
-import defaultUserImage from '../../style/empty.png'
-import defaultImage from '../../style/empty-group.png'
 import AvatarCropper from "react-avatar-cropper";
 import ReactDom from "react-dom";
 import {sortBy, orderBy} from "lodash";
-import { auth } from '../../services/auth'
+import Dropzone from 'react-dropzone'
+import UploadIcon from 'material-ui/svg-icons/file/file-upload'
+import { IoEdit, IoAndroidClose, IoSearch, IoArrowDownC, IoArrowUpC } from 'react-icons/lib/io'
 
+import { Avatar, Chip, FlatButton, Toggle, TextField, Tabs, Tab, Card, Checkbox, RaisedButton, Dialog, Snackbar, Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui';
+
+import defaultUserImage from '../../style/empty.png'
+import defaultImage from '../../style/empty-group.png'
+import { auth } from '../../services/auth'
 import {Loader} from '../../components'
 import materialTheme from '../../style/custom-theme.js';
-
-const CheckboxGroup = Checkbox.Group;
 
 const defaultCheckedList = ['r'];
 
@@ -401,8 +384,6 @@ class EditGroup extends Component {
             name: '',
             description: ''
         }
-
-        console.log(this.state.currentGroup)
         if (loading || this.state.loading) {
             return (
                 <div className={cx({'animatedViews': animated, 'view-enter': viewEntersAnim})}>
@@ -417,15 +398,20 @@ class EditGroup extends Component {
                     justifyContent: 'space-between'
                 }}>
                 <Row style={{flex: 1}}>
-                    <Col xs={2} style={{ textAlign: 'left', marginBottom:30 }}>
+                    <Col xs={4} style={{ textAlign: 'left', marginBottom:30 }}>
                       <Row><h4><strong>Edit Group</strong></h4></Row>
                     </Col>
                     <Col xs={8}>
+                      <RaisedButton label="Cancel" backgroundColor={materialTheme.palette.primary3Color}
+                          labelStyle={{ fontSize: '11px', color:'white' }} style={{ float: 'right', marginBottom: '30px', marginLeft:5, marginRight:5  }} onClick={() => {
+                          const {router} = this.context
+                          router.push(`/groups/${params.id}`)
+                      }}/>
                       {
                         this.state.isAdmin || isGroupAdmin
                           ?
                           <div>
-                            <RaisedButton label="Delete" labelStyle={{ fontSize: '11px' }} style={{ float: 'right', marginBottom: '30px' }} onClick={this.handlesDialogToggle} />
+                            <RaisedButton label="Delete" labelStyle={{ fontSize: '11px' }} style={{ float: 'right', marginBottom: '30px', marginLeft:5, marginRight:5 }} onClick={this.handlesDialogToggle} />
                                                             <Dialog title='Delete Group' modal={false} labelStyle={{ fontSize: '11px' }}
                                 open={this.state.showDialog} onRequestClose={this.handlesDialogToggle}
                                 actions={[
@@ -436,17 +422,9 @@ class EditGroup extends Component {
                             </Dialog>
                           </div>
                           :
-                          <div style={{ float: 'right', marginBottom: '30px' }}></div>
+                          <div></div>
                       }
-                    </Col>
-                    <Col xs={1}>
                       <RaisedButton label="Save" labelStyle={{ fontSize: '11px' }} style={{ float: 'right', marginBottom: '30px' }} onClick={this.handlesCreateClick}/>
-                    </Col>
-                    <Col xs={1}>
-                      <RaisedButton label="Cancel" primary={true} labelStyle={{ fontSize: '11px' }} style={{ float: 'right', marginBottom: '30px' }} onClick={() => {
-                          const {router} = this.context
-                          router.push(`/groups/${params.id}`)
-                      }}/>
                     </Col>
                 </Row>
                 <div style={styles.root}>
@@ -1221,9 +1199,7 @@ class EditGroup extends Component {
               })
           }).then(() =>{
             this.props.refetchGroup({}).then(() => {
-              console.log('refetched group')
               this.props.refetchGroups({}).then(({data}) => {
-                  console.log('refetched groups')
                   this.setState({successOpen: true})
                   this.props.refetchLandscapes({}).then(({data}) => {
                     this.setState({loading: false})

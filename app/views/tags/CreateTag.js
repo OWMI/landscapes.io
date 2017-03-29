@@ -2,12 +2,11 @@ import cx from 'classnames'
 import React, { Component, PropTypes } from 'react'
 import shallowCompare from 'react-addons-shallow-compare'
 import { Row, Col } from 'react-flexbox-grid'
-import lodash from 'lodash'
-import { Card, CardHeader, CardText, MenuItem, RaisedButton, SelectField, TextField, Toggle, FlatButton, Checkbox } from 'material-ui'
-import {Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table';
+import { Card, MenuItem, RaisedButton, TextField, Toggle, Checkbox, Table, TableBody, TableHeader, TableRow } from 'material-ui'
 
 import './tags.style.scss'
 import { Loader } from '../../components'
+import materialTheme from '../../style/custom-theme.js'
 import { auth } from '../../services/auth'
 
 class CreateTag extends Component {
@@ -64,14 +63,15 @@ class CreateTag extends Component {
                                 <h4>New Global Tag</h4>
                             </Col>
                             <Col xs={8}>
-                                <RaisedButton label='Cancel' primary={true} onClick={() => {
+                                <RaisedButton label='Cancel' onClick={() => {
                                     const {router} = this.context
                                     router.push(`/tags`)
                                 }}
-                                  style={{ float: 'right', margin: '30px 0px' }}
-                                  labelStyle={{ fontSize: '11px' }}/>
-                                  <RaisedButton label='Save' onClick={this.handlesUpdateClick}
-                                      style={{ float: 'right', margin: '30px 0px' }}
+                                  backgroundColor={materialTheme.palette.primary2Color}
+                                  style={{ float: 'right', margin: '30px 5px' }}
+                                  labelStyle={{ fontSize: '11px', color:'white' }}/>
+                                  <RaisedButton label='Save' onClick={this.handlesCreateClick}
+                                      style={{ float: 'right', margin: '30px 5px' }}
                                       labelStyle={{ fontSize: '11px' }}/>
                             </Col>
                         </Row>

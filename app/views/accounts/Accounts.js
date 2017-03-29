@@ -7,7 +7,6 @@ import { IoEdit, IoAndroidClose, IoIosPlusEmpty } from 'react-icons/lib/io'
 import { Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table'
 
 import { Loader } from '../../components'
-// const confirm = Modal.confirm
 
 class Accounts extends Component {
 
