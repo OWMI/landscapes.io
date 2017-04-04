@@ -48,54 +48,32 @@ exports.signup = (req, res) => {
  * Signin after passport authentication
  */
 exports.signin = (req, res, next) => {
+    passport.authenticate('local', (err, user, info) => {
+        if (err || !user) {
+            winston.log('Error --->', err)
+            res.status(400).send(info)
+        } else {
+            // Remove sensitive data before login
+            user.password = undefined
+            user.salt = undefined
 
-    if (config.authStrategy === 'ldap') {
-        passport.authenticate('ldapauth', { session: false }, (err, user, info) => {
-            if (err || !user) {
-                winston.log('passport.authenticate.ldapauth --> ERROR:', err)
-                res.status(400).send(info)
-            } else {
-                // Remove sensitive data before login
-                user.password = undefined
-                user.salt = undefined
-
-                req.login(user, err => {
-                    if (err) {
-                        res.status(400).send(err)
-                    } else {
-                        res.json(user)
-                    }
-                })
-            }
-        })(req, res, next)
-    } else {
-        passport.authenticate('local', (err, user, info) => {
-            if (err || !user) {
-                winston.log('Error --->', err)
-                res.status(400).send(info)
-            } else {
-                // Remove sensitive data before login
-                user.password = undefined
-                user.salt = undefined
-
-                req.login(user, err => {
-                    if (err) {
-                        winston.log('Error --->', err)
-                        res.status(400).send(err)
-                    } else {
-                        User.findOne({ '_id': user._id }, '-salt -password').exec((err, userWithRoles) => {
-                            if (err) {
-                                winston.log('Error --->', err)
-                                res.status(400).send(err)
-                            } else {
-                                res.json(userWithRoles)
-                            }
-                        })
-                    }
-                })
-            }
-        })(req, res, next)
-    }
+            req.login(user, err => {
+                if (err) {
+                    winston.log('Error --->', err)
+                    res.status(400).send(err)
+                } else {
+                    User.findOne({ '_id': user._id }, '-salt -password').exec((err, userWithRoles) => {
+                        if (err) {
+                            winston.log('Error --->', err)
+                            res.status(400).send(err)
+                        } else {
+                            res.json(userWithRoles)
+                        }
+                    })
+                }
+            })
+        }
+    })(req, res, next)
 }
 
 /**
@@ -104,6 +82,30 @@ exports.signin = (req, res, next) => {
 exports.signout = (req, res) => {
     req.logout()
     res.redirect('/')
+}
+
+/**
+ * LDAP Sign-in after passport authentication
+ */
+exports.ldap = (req, res, next) => {
+    passport.authenticate('ldapauth', { session: false }, (err, user, info) => {
+        if (err || !user) {
+            winston.log('passport.authenticate.ldapauth --> ERROR:', err)
+            res.status(400).send(info)
+        } else {
+            // Remove sensitive data before login
+            user.password = undefined
+            user.salt = undefined
+
+            req.login(user, err => {
+                if (err) {
+                    res.status(400).send(err)
+                } else {
+                    res.json(user)
+                }
+            })
+        }
+    })(req, res, next)
 }
 
 /**

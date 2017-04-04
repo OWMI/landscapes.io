@@ -43,70 +43,42 @@ class Login extends Component {
 
     render() {
         const self = this
-        const { animated, viewEntersAnim, showError, stepIndex } = self.state
+        const { animated, authStrategy, viewEntersAnim, showError, stepIndex } = self.state
         const { configuration, loading } = self.props
-
-        function renderLoginPane() {
-            return (
-                <Paper zDepth={1} rounded={false}>
-                    <TextField id='username' ref='username' floatingLabelText='Username' fullWidth={true} autoFocus/>
-                    <TextField id='password' ref='password' floatingLabelText='Password' fullWidth={true} type='password' autoFocus/>
-
-                    {/* <Checkbox label='Remember Me' onCheck={this.handlesPasswordCookie}
-                        style={{ margin: '20px 0px' }} labelStyle={{ fontFamily: 'Nunito, sans-serif', width: 'none' }}/> */}
-
-                    <RaisedButton label='Login' fullWidth={true} type='primary' onClick={ stepIndex === 1 ? self.handlesAdminToggle : self.handlesOnLogin }
-                        labelStyle={{ fontFamily: 'Nunito, sans-serif', textTransform: 'none' }}/>
-                </Paper>
-            )
-        }
 
         return (
             <Row center='xs' middle='xs' className={cx({ 'screen-height': true, 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
                 <Col xs={6} lg={4} className={cx( { 'login-page': true } )}>
 
-                    {
-                        AUTH_STRATEGY === 'google' || AUTH_STRATEGY === 'geoaxis'
-                        ?
-                            configuration && configuration.length && configuration[0].isFirstUser
-                            ?
-                                <div>
-                                    <Stepper activeStep={stepIndex}>
-                                        <Step>
-                                            <StepLabel>Link admin to OAuth Account</StepLabel>
-                                        </Step>
-                                        <Step>
-                                            <StepLabel>Login with Admin Credentials</StepLabel>
-                                        </Step>
-                                    </Stepper>
-                                    {
-                                        stepIndex === 0
-                                        ?
-                                            <a href={`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/auth/${AUTH_STRATEGY}`}>
-                                                <RaisedButton label={`Login with ${AUTH_STRATEGY} OAuth`} fullWidth={false} type='primary'
-                                                    labelStyle={{ fontFamily: 'Nunito, sans-serif', textTransform: 'none' }}/>
-                                            </a>
-                                        :
-                                            renderLoginPane()
-                                    }
-                                </div>
-                            :
-                                <a href={`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/auth/${AUTH_STRATEGY}`}>
-                                    <RaisedButton label={`Login with ${AUTH_STRATEGY} OAuth`} fullWidth={false} type='primary'
-                                        labelStyle={{ fontFamily: 'Nunito, sans-serif', textTransform: 'none' }}/>
-                                </a>
-                        :
-                            renderLoginPane()
+                    <Paper zDepth={1} rounded={false}>
+                        <TextField id='username' ref='username' floatingLabelText='Username' fullWidth={true} autoFocus/>
+                        <TextField id='password' ref='password' floatingLabelText='Password' fullWidth={true} type='password'/>
 
-                    }
+                        <Checkbox label='Authenticate with LDAP' checked={authStrategy === 'ldap'} onCheck={this.handlesSettingLDAP}
+                            style={{ margin: '20px 0px' }} labelStyle={{ fontFamily: 'Nunito, sans-serif', width: 'none' }}/>
+
+                        <RaisedButton label='Login' fullWidth={true} type='primary' onClick={ stepIndex === 1 ? self.handlesAdminToggle : self.handlesOnLogin }
+                            labelStyle={{ fontFamily: 'Nunito, sans-serif', textTransform: 'none' }}/>
+                    </Paper>
 
                     {
                       showError
                       ?
                         <p style={{ color:'red', padding: '20px' }}>Incorrect Username/Password combination</p>
                       :
-                        null
+                        <p style={{ color:'red', padding: '20px' }}></p>
                     }
+
+                    <a href={`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/auth/geoaxis`}>
+                        <RaisedButton label={`Login with GEOAXiS OAuth`} fullWidth={false} type='primary'
+                            labelStyle={{ fontFamily: 'Nunito, sans-serif', textTransform: 'none' }}/>
+                    </a>
+
+                    <a href={`${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/auth/google`}>
+                        <RaisedButton label={`Login with Google OAuth`} fullWidth={false} type='primary'
+                            labelStyle={{ fontFamily: 'Nunito, sans-serif', textTransform: 'none' }}/>
+                    </a>
+
                 </Col>
             </Row>
         )
@@ -117,6 +89,15 @@ class Login extends Component {
         event.preventDefault()
         // should add some validator before setState in real use cases
         this.setState({ password: event.target.value })
+    }
+
+    handlesSettingLDAP = event => {
+        event.preventDefault()
+        if (this.state.authStrategy !== 'ldap') {
+            this.setState({ authStrategy: 'ldap' })
+        } else {
+            this.setState({ authStrategy: 'local' })
+        }
     }
 
     handlesAdminToggle = () => {
@@ -167,9 +148,11 @@ class Login extends Component {
 
         event.preventDefault()
         const self = this
+        const { authStrategy } = self.state
         const { accounts, groups, loginUser } = self.props
         const { router } = self.context
         let { username, password } = self.refs
+
 
         username = username.getValue()
         password = password.getValue()
@@ -178,7 +161,9 @@ class Login extends Component {
         // user login & auth token generation
         axios({
             method: 'post',
-            url: `${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/auth/signin`,
+            url: authStrategy === 'ldap'
+                ? `${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/auth/ldap`
+                : `${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/auth/signin`,
             data: { username, password }
         }).then(res => {
             let userWithPermissions
