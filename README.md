@@ -67,7 +67,7 @@ landscapes.io can be configured to work with OAuth through the [passport-oauth2]
 
 **Environment Variables Approach**
 ```
-$ AUTH_STRATEGY=google GOOGLE_CLIENT_ID=id GOOGLE_CLIENT_SECRET=secret npm start
+$ GOOGLE_CLIENT_ID=id GOOGLE_CLIENT_SECRET=secret npm start
 
 ```
 
@@ -102,7 +102,7 @@ Obtain Client ID and Client Secret and redirect URIs from your GEOAxIS administr
 
 **Environment Variables Approach**
 ```
-$ AUTH_STRATEGY=geoaxis GEOAXIS_CLIENT_ID=id GEOAXIS_CLIENT_SECRET=secret npm start
+$ GEOAXIS_CLIENT_ID=id GEOAXIS_CLIENT_SECRET=secret npm start
 
 ```
 
@@ -155,5 +155,5 @@ $ ldappasswd -s n3wP@ssw0rd -W -D "cn=admin,dc=landscapes,dc=io" -x "uid=test_ad
 
 **Launch landscapes.io**
 ```
-$ AUTH_STRATEGY=ldap npm start
+$ npm start
 ```
