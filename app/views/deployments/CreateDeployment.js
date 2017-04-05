@@ -31,16 +31,22 @@ class CreateDeployment extends Component {
 
     componentWillMount() {
         const { isGlobalAdmin } = auth.getUserInfo()
-        const { landscapes, accounts, groups, integrations,  params } = this.props
-        var integration = {};
-        if(integrations){
-          integration = integrations.find(integration => { return integration.type === 'managedVPC' })
+        const { landscapes, accounts, groups, integrations, params } = this.props
+
+        var integration = {}
+        if (integrations) {
+            integration = integrations.find(integration => {
+                return integration.type === 'managedVPC'
+            })
         }
+
         this.setState({integration})
         let _landscapes = landscapes || []
         let landscapeAccounts = []
 
-        const currentLandscape = _landscapes.find(ls => { return ls._id === params.landscapeId })
+        const currentLandscape = _landscapes.find(ls => {
+            return ls._id === params.landscapeId
+        })
 
         if (currentLandscape) {
             const template = JSON.parse(currentLandscape.cloudFormationTemplate)
@@ -51,24 +57,19 @@ class CreateDeployment extends Component {
                 landscapeAccounts = auth.getUserInfo().accounts[params.landscapeId] || []
             }
 
-            this.setState({
-                templateDescription: template.Description,
-                templateParameters: template.Parameters,
-                currentLandscape,
-                landscapeAccounts
-            })
-            var managedVPCGroups = [];
-            if(groups){
-              //Check to see if part of a managedVPC group
-              groups.forEach(group =>{
-                group.landscapes.forEach(landscape =>{
-                  if(landscape === currentLandscape._id){
-                    if(group.managedVPC){
-                      managedVPCGroups.push(group.name)
-                    }
-                  }
+            this.setState({templateDescription: template.Description, templateParameters: template.Parameters, currentLandscape, landscapeAccounts})
+            var managedVPCGroups = []
+            if (groups) {
+                //Check to see if part of a managedVPC group
+                groups.forEach(group => {
+                    group.landscapes.forEach(landscape => {
+                        if (landscape === currentLandscape._id) {
+                            if (group.managedVPC) {
+                                managedVPCGroups.push(group.name)
+                            }
+                        }
+                    })
                 })
-              })
             }
             this.setState({managedVPCGroups})
         }
@@ -77,15 +78,20 @@ class CreateDeployment extends Component {
     componentWillReceiveProps(nextProps) {
         const { isGlobalAdmin } = auth.getUserInfo()
         const { landscapes, accounts, groups, integrations, params } = nextProps
-        var integration = {};
-        if(integrations){
-          integration = integrations.find(integration => { return integration.type === 'managedVPC' })
+
+        let integration = {}
+        if (integrations) {
+            integration = integrations.find(integration => {
+                return integration.type === 'managedVPC'
+            })
         }
         this.setState({integration})
         let _landscapes = landscapes || []
         let landscapeAccounts = []
 
-        const currentLandscape = _landscapes.find(ls => { return ls._id === params.landscapeId })
+        const currentLandscape = _landscapes.find(ls => {
+            return ls._id === params.landscapeId
+        })
 
         if (currentLandscape) {
             const template = JSON.parse(currentLandscape.cloudFormationTemplate)
@@ -96,24 +102,19 @@ class CreateDeployment extends Component {
                 landscapeAccounts = auth.getUserInfo().accounts[params.landscapeId] || []
             }
 
-            this.setState({
-                templateDescription: template.Description,
-                templateParameters: template.Parameters,
-                currentLandscape,
-                landscapeAccounts
-            })
-            var managedVPCGroups = [];
-            if(groups){
-              //Check to see if part of a managedVPC group
-              groups.forEach(group =>{
-                group.landscapes.forEach(landscape =>{
-                  if(landscape === currentLandscape._id){
-                    if(group.managedVPC){
-                      managedVPCGroups.push(group.name)
-                    }
-                  }
+            this.setState({templateDescription: template.Description, templateParameters: template.Parameters, currentLandscape, landscapeAccounts})
+            var managedVPCGroups = []
+            if (groups) {
+                //Check to see if part of a managedVPC group
+                groups.forEach(group => {
+                    group.landscapes.forEach(landscape => {
+                        if (landscape === currentLandscape._id) {
+                            if (group.managedVPC) {
+                                managedVPCGroups.push(group.name)
+                            }
+                        }
+                    })
                 })
-              })
             }
             this.setState({managedVPCGroups})
         }
@@ -183,20 +184,20 @@ class CreateDeployment extends Component {
                           {
                             this.state.errorMessage
                             ?
-                            <p style={{color: 'red'}}>{this.state.message}</p>
+                                <p style={{color: 'red'}}>{this.state.message}</p>
                             :
-                            null
+                                null
                           }
                           <Row style={{marginLeft:10, marginRight:10}}>
                             <Col xs={6}>
-                              <TextField id='stackName' ref='stackName' floatingLabelText='Stack Name' className={cx( { 'two-field-row': true } )}/>
+                                <TextField id='stackName' ref='stackName' floatingLabelText='Stack Name' className={cx( { 'two-field-row': true } )} fullWidth={true}/>
                             </Col>
                             <Col xs={6}>
                               {
                                 !isGlobalAdmin
                                 ?
                                     <SelectField id='accountName' floatingLabelText='Account Name' value={this.state.accountName} onChange={this.handlesAccountChange}
-                                        floatingLabelStyle={{ left: '0px' }} className={cx( { 'two-field-row': true } )}>
+                                         fullWidth={true} floatingLabelStyle={{ left: '0px' }} className={cx( { 'two-field-row': true } )}>
                                         {
                                             landscapeAccounts && landscapeAccounts.length
                                               ?
@@ -211,7 +212,7 @@ class CreateDeployment extends Component {
                                     </SelectField>
                                 :
                                     <SelectField id='accountName' floatingLabelText='Account Name' value={this.state.accountName} onChange={this.handlesAccountChange}
-                                        floatingLabelStyle={{ left: '0px' }} className={cx( { 'two-field-row': true } )}>
+                                         fullWidth={true} floatingLabelStyle={{ left: '0px' }} className={cx( { 'two-field-row': true } )}>
                                         {
                                             landscapeAccounts && landscapeAccounts.length
                                               ?
@@ -230,7 +231,7 @@ class CreateDeployment extends Component {
                           <Row style={{marginLeft:10, marginRight:10}}>
                             <Col xs={6}>
                               <SelectField id='location' floatingLabelText='Region' value={this.state.location} onChange={this.handlesRegionChange}
-                                  floatingLabelStyle={{ left: '0px' }} className={cx( { 'two-field-row': true } )}>
+                                   fullWidth={true} floatingLabelStyle={{ left: '0px' }} className={cx( { 'two-field-row': true } )}>
                                   {
                                       menuItems.map((item, index) => {
                                           return (
@@ -243,7 +244,7 @@ class CreateDeployment extends Component {
                             <Col xs={6}>
                               {/* <TextField id='billingCode' ref='billingCode' floatingLabelText='Billing Code' fullWidth={true}
                                   className={cx( { 'two-field-row': true } )}/> */}
-                                  <div style={{marginTop:35, marginLeft: 10, width:150}}>
+                                  <div style={{marginTop:35, marginLeft: 10, width:'100%'}}>
                                     <Checkbox label="Managed VPC" onCheck={this.handlesOnManagedVPCChange} checked={this.state.managedVPC}  className={cx( { 'two-field-row': true } )} style={{marginTop:15, marginBottom: 15, marginLeft: 10, textAlign: 'left', width:150}}/>
                                     {
                                       this.state.errorManagedVPCMessage
@@ -305,7 +306,7 @@ class CreateDeployment extends Component {
                         <Row>
                           <h4 style={{ paddingTop: '30px', paddingLeft: 10}}>Parameters</h4>
                         </Row>
-                        <Col xs={12} style={{ minHeight: '200' }}>
+                        <Col xs={12} style={{ minHeight: 200 }}>
                             <Row>
                                 <Col xs={3}>
                                     {
@@ -354,7 +355,7 @@ class CreateDeployment extends Component {
                         <Row>
                           <h4 style={{ paddingTop: '30px', paddingLeft: 10}}>Tags</h4>
                         </Row>
-                            <Col xs={12} style={{ minHeight: '200' }}>
+                            <Col xs={12} style={{ minHeight: 200 }}>
                               <Row style={{marginBottom: 20}}>
                                   <Col xs={4}>
                                       {
@@ -534,6 +535,7 @@ class CreateDeployment extends Component {
             this.setState({ cfParams })
         })
     }
+
     handlesOnManagedVPCChange = event => {
         event.preventDefault()
         if(!this.state.integration){
@@ -591,7 +593,7 @@ class CreateDeployment extends Component {
     getRepoData = () => {
         return new Promise((resolve, reject) => {
 
-            this.setState({errorManagedVPCMessage: null});
+            this.setState({errorManagedVPCMessage: null})
             const {integration} = this.state
             function GetRepo() {
                 var data = {
@@ -611,7 +613,7 @@ class CreateDeployment extends Component {
                         })
                     }).catch(err => {
                         return reject(err)
-                        this.setState({retrievingData: null});
+                        this.setState({retrievingData: null})
                         this.setState({errorManagedVPCMessage: 'Integration configured with invalid credentials. Unable to complete request.'})
                     })
                 })
@@ -621,11 +623,11 @@ class CreateDeployment extends Component {
                 resolve(data)
                 this.setState({repoData: data})
                 this.setState({githubData: integration})
-                this.setState({retrievingData: null});
+                this.setState({retrievingData: null})
             }).catch(() => {
                 reject()
                 this.setState({loading: false})
-            });
+            })
         })
     }
 

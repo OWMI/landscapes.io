@@ -87,11 +87,11 @@ class UpdateAccount extends Component {
                         <Card>
                           <Row>
                             <Col xs={6} style={{paddingLeft: 10}}>
-                              <TextField id='name' ref='name' defaultValue={currentAccount.name} floatingLabelText='Name'/>
+                              <TextField id='name' ref='name' defaultValue={currentAccount.name} floatingLabelText='Name' fullWidth={true}/>
                             </Col>
                             <Col xs={6} style={{paddingRight: 10}}>
                               <SelectField id='region' floatingLabelText='Region' value={this.state.region || currentAccount.region} onChange={this.handlesRegionChange}
-                                  floatingLabelStyle={{ left: '0px' }}>
+                                  fullWidth={true} floatingLabelStyle={{ left: '0px' }}>
                                   {
                                       menuItems.map((item, index) => {
                                           return (

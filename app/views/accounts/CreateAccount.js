@@ -146,11 +146,11 @@ class CreateAccount extends Component {
                             }
                             <Row>
                               <Col xs={6} style={{paddingLeft: 10}}>
-                                <TextField id='name' ref='name' floatingLabelText='Name'/>
+                                <TextField id='name' ref='name' floatingLabelText='Name' fullWidth={true}/>
                               </Col>
                               <Col xs={6} style={{paddingRight: 10}}>
                                 <SelectField id='region' floatingLabelText='Region' value={this.state.region} onChange={this.handlesRegionChange}
-                                    floatingLabelStyle={{ left: '0px' }}  selectedMenuItemStyle={{maxWidth:5}}>
+                                    fullWidth={true} floatingLabelStyle={{ left: '0px' }}  selectedMenuItemStyle={{maxWidth:5}}>
                                     {
                                         menuItems.map((item, index) => {
                                             return (
