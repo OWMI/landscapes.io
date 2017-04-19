@@ -1,4 +1,5 @@
 'use strict'
+import jwt from 'jsonwebtoken'
 
 let axios           = require('axios')
 let path            = require('path')
@@ -11,6 +12,47 @@ let errorHandler    = require(path.resolve('./server/auth/controllers/errors.ser
 
 // URLs for which user can't be redirected on signin
 let noReturnUrls = ['/authentication/signin', '/authentication/signup']
+
+
+/**
+ * Verify Auth
+ */
+
+exports.isAuthenticated = function(req, res,next) {
+    let token = req.body.token || req.query.token || req.headers['token']
+
+    // decode token
+    if (token) {
+        // verifies secret and checks exp
+        jwt.verify(token, 'CHANGE_ME', (err, decoded) => {
+
+            if (err && err.name === 'TokenExpiredError') {
+                console.log('token expired')
+                return res.status(401).json({ expired: true })
+                // res.json({ expired: true })
+            } else if (err) {
+                console.log('Error --->', err)
+                res.status(401).json({ err })
+            } else {
+                req.user = decoded.data;
+                let expires =  Math.floor(Date.now() / 1000) + (60);
+                let newToken = jwt.sign({
+                    data: decoded.data,
+                    exp: expires // 1-hour token
+                }, 'CHANGE_ME')
+                req.token = newToken;
+                next()
+            }
+
+        })
+
+    } else {
+        // if there is no token
+        return res.status(403).send({
+            message: 'No token provided'
+        })
+    }
+}
 
 /**
  * Signup
