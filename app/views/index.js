@@ -45,6 +45,9 @@ import DocumentTypes      from './documentTypes/DocumentTypes'
 import CreateDocumentTypes      from './documentTypes/CreateDocumentTypes'
 import UpdateDocumentTypes      from './documentTypes/UpdateDocumentTypes'
 
+import Timer       from './timer/Timer'
+
+
 export {
     // non protected views:
     Home,
@@ -89,5 +92,6 @@ export {
 
     DocumentTypes,
     CreateDocumentTypes,
-    UpdateDocumentTypes
+    UpdateDocumentTypes,
+    Timer
 }

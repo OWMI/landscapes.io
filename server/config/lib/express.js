@@ -39,6 +39,7 @@ import { subscriptionManager } from '../../graphql/subscriptions'
 const DIST_DIR = path.resolve(__dirname, '../../../dist/')
 const WEBSOCKET_PORT = 8090
 const MongoStore = require('connect-mongo')(session)
+const userAuth = require('../../auth/controllers/users/users.authentication.server.controller')
 
 /**
  * Initialize local variables
@@ -72,6 +73,7 @@ module.exports.initLocalVariables = app => {
 /**
  * Initialize application middleware
  */
+
 module.exports.initMiddleware = app => {
     // Should be placed before express.static
     app.use(compress({
@@ -80,6 +82,7 @@ module.exports.initMiddleware = app => {
         },
         level: 9
     }))
+    app.use(cookieParser())
 
     // Enable logger (morgan) if enabled in the configuration file
     if (_.has(config, 'log.format')) {
@@ -125,17 +128,23 @@ module.exports.initMiddleware = app => {
         })
 
         req.on('end', () => {
-            user = JSON.parse(user)
+            console.log(req.cookies)
 
+            user = JSON.parse(user)
+            user.expires = Math.floor(Date.now() / 1000) + (60*60);
             // HACK: temporary hack, will be removed once the images are redone
             delete user.imageUri
 
             // create a token
             let token = jwt.sign({
                 data: user,
-                exp: Math.floor(Date.now() / 1000) + (60 * 60) // 1-hour token
+                exp: user.expires // 1-hour token
             }, 'CHANGE_ME')
 
+            res.cookie('token', 'k', {
+                expires  : new Date(Date.now() + 9999999),
+                httpOnly : false
+            });
             res.json({
                 user,
                 token
@@ -246,7 +255,6 @@ module.exports.initMiddleware = app => {
     app.use(methodOverride())
 
     // Add the cookie parser and flash middleware
-    app.use(cookieParser())
     app.use(flash())
 }
 
@@ -342,10 +350,10 @@ module.exports.initModulesServerRoutes = app => {
  */
 module.exports.initGraphQLServer = app => {
     // Initialize graphql middleware
-    app.use('/graphql', bodyParser.json(), graphqlExpress(req => {
+    app.use('/graphql', bodyParser.json(), userAuth.isAuthenticated, graphqlExpress(req => {
         return {
             schema,
-            context: {}
+            context: {token:req.token}
     }}))
 
     // Route for GraphQL graphical interface

@@ -11,6 +11,8 @@ import { sortBy, orderBy } from 'lodash'
 
 import './landscapes.style.scss'
 import { Loader } from '../../components'
+import { Timer } from '../../views/'
+
 import { auth } from '../../services/auth'
 import materialTheme from '../../style/custom-theme.js';
 import defaultLandscapeImage from '../../style/AWS.png';
@@ -39,6 +41,8 @@ class Landscapes extends Component {
       this.setState({ currentUser })
 
       const user = auth.getUserInfo();
+        console.log(user)
+
 
       if(users){
         var currentViewUser = users.find(usr => {
@@ -222,6 +226,7 @@ class Landscapes extends Component {
 
         return (
             <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
+                <Timer time={auth.getUserInfo().expires}/>
               <Row style={{justifyContent: 'space-between', width: '100%'}}>
                 <a  onClick={(event) => {
                   event.preventDefault()
