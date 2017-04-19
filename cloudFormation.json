@@ -1,0 +1,82 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  
+  "Description" : "lanscapes.io",
+  
+  "Parameters" : {
+      
+    "KeyName": {
+      "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instance",
+      "Type": "AWS::EC2::KeyPair::KeyName",
+      "ConstraintDescription" : "must be the name of an existing EC2 KeyPair."
+    },    
+    
+    "InstanceSubnetId":{
+      "Type": "AWS::EC2::Subnet::Id",
+      "ConstraintDescription" : "must be the ID of an existing Subnet."
+    },    
+    
+    "VPCId":{
+      "Type": "AWS::EC2::VPC::Id",
+      "ConstraintDescription" : "must be the ID of an existing VPC."
+    }
+  },
+  
+  "Resources" : {   
+    "WebServerSecurityGroup" : {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupDescription" : "Test-01",
+        "VpcId": {
+            "Ref": "VPCId"
+        },
+        "SecurityGroupIngress" : [
+          {"IpProtocol" : "tcp", "FromPort" : "3000", "ToPort" : "3000", "CidrIp" : "0.0.0.0/0"},
+          {"IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : "0.0.0.0/0"}
+        ]
+      }      
+    },   
+
+    "WebServerInstance": {  
+      "Type": "AWS::EC2::Instance",
+      "Metadata" : {
+        "AWS::CloudFormation::Init" : {
+            "configSets" : {
+            "Install" : [ "Install" ]
+          },
+
+          "Install" : {
+            "packages" : {
+              "yum" : {
+                "git"        : []
+              }
+            }
+            }
+        }
+        
+      },
+      "Properties": {
+        "InstanceType"   : "t2.micro",
+        "ImageId" : "ami-b63769a1",
+        "SubnetId": { "Ref" : "InstanceSubnetId" },
+        "SecurityGroupIds" : [{ "Fn::GetAtt" : [ "WebServerSecurityGroup", "GroupId" ] }],
+        "KeyName" : { "Ref" : "KeyName" },
+        "UserData"       : { "Fn::Base64" : { "Fn::Join" : ["", [
+            "#!/bin/bash -xe\n",
+            "sudo yum install -y gcc-c++ make \n",
+            "curl -sL https://rpm.nodesource.com/setup_6.x | sudo -E bash - \n",
+            "sudo yum install -y nodejs \n",
+            "sudo yum install -y git \n",
+            "sudo yum install -y vim \n",
+            "echo \"[mongodb-org-3.4] \nname=MongoDB Repository \nbaseurl=https://repo.mongodb.org/yum/redhat/7/mongodb-org/3.4/x86_64/ \ngpgcheck=0 \nenabled=1 \ngpgkey=https://www.mongodb.org/static/pgp/server-3.4.asc \n \n \" >> ./etc/yum.repos.d/mongodb-org-3.4.repo \n",
+            "sudo yum install -y mongodb-org \n",
+            "semanage port -a -t mongod_port_t -p tcp 27017 \n",
+            "sudo service mongod start \n",
+            "echo \"[Unit] \nDescription=Landscapes.io v2.0.0 \nAfter=mongod.service \n\n[Service] \nExecStart=/home/ec2-user/landscapes.io/node_modules/nodemon/bin/nodemon.js /home/ec2-user/landscapes.io/server/init.js --exec babel-node \nWorkingDirectory=/home/ec2-user/landscapes.io \nRestart=always \nRestartSec=10 \nEnvironment=NODE_ENV=production PROTOCOL=https PUBLIC_IP=landscapes.blacksky.io \n\n[Install] \nWantedBy=multi-user.target \n \" >> ./usr/lib/systemd/system/landscapes.service \n",
+		    "sudo systemctl enable landscapes \n",
+		    "sudo systemctl start landscapes \n"
+		]]}}
+      }
+    }
+  }
+}
