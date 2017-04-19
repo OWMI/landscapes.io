@@ -7,17 +7,24 @@ const networkInterface = createNetworkInterface({ uri: `${PROTOCOL}://${SERVER_I
 
 // when need token based authentication:
 let user = auth.getToken()
+console.log(user)
 networkInterface.use([
     {
         applyMiddleware(req, next) {
             if (!req.options.headers) {
                 req.options.headers = {}
             }
+            console.log(user)
+            if (user == null) {
+                user = auth.getToken()
+
+            }
             // get the authentication token from local storage if it exists
             req.options.headers.token = user
+
             next()
         }
     }
 ])
 
-export const apolloClient = new ApolloClient({ networkInterface: networkInterface, queryTransformer: addTypename })
+export var apolloClient = new ApolloClient({ networkInterface: networkInterface, queryTransformer: addTypename })
