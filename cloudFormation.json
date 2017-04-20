@@ -6,13 +6,16 @@
   },
   "Parameters" : {
       
+    "Region": {
+      "Type": "String",
+      "ConstraintDescription" : "must be the name of an existing Region."
+    },       
     "KeyName": {
       "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instance",
       "Type": "AWS::EC2::KeyPair::KeyName",
       "ConstraintDescription" : "must be the name of an existing EC2 KeyPair."
     },    
-    
-    "InstanceSubnetId":{
+    "SubnetId":{
       "Type": "AWS::EC2::Subnet::Id",
       "ConstraintDescription" : "must be the ID of an existing Subnet."
     },    
@@ -70,7 +73,7 @@
       "Properties": {
         "ImageId" : { "Ref" : "AMI" },
         "InstanceType"   : { "Ref" : "InstanceType" },
-        "SubnetId": { "Ref" : "InstanceSubnetId" },
+        "SubnetId": { "Ref" : "SubnetId" },
         "SecurityGroupIds" : [{ "Fn::GetAtt" : [ "WebServerSecurityGroup", "GroupId" ] }],
         "KeyName" : { "Ref" : "KeyName" },
         "UserData"       : { "Fn::Base64" : { "Fn::Join" : ["", [
