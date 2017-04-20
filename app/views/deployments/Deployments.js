@@ -5,6 +5,8 @@ import {Tabs, Tab} from 'material-ui/Tabs';
 import { Loader } from '../../components'
 import React, { Component, PropTypes } from 'react'
 import shallowCompare from 'react-addons-shallow-compare'
+import { Timer } from '../../views/'
+import { auth } from '../../services/auth'
 
 class Deployments extends Component {
 
@@ -41,6 +43,7 @@ class Deployments extends Component {
 
         return (
             <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
+                <Timer time={auth.getUserInfo().expires}/>
 
                 <a onClick={this.handlesCreateLandscapeClick}>
                     <IoIosPlusEmpty size={20}/>

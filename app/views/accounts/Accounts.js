@@ -7,6 +7,8 @@ import { IoEdit, IoAndroidClose, IoIosPlusEmpty } from 'react-icons/lib/io'
 import { Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table'
 
 import { Loader } from '../../components'
+import { Timer } from '../../views/'
+import { auth } from '../../services/auth'
 
 class Accounts extends Component {
 
@@ -55,6 +57,7 @@ class Accounts extends Component {
 
         return (
             <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
+                <Timer time={auth.getUserInfo().expires}/>
 
                 <a onClick={this.handlesCreateAccountClick}>
                     <p style={{ fontSize: '20px', cursor: 'pointer' }}><IoIosPlusEmpty size={30}/> Add Account </p>

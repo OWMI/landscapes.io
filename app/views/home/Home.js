@@ -4,6 +4,8 @@ import { Link } from 'react-router'
 import { Jumbotron } from '../../components'
 import React, { Component, PropTypes } from 'react'
 import shallowCompare from 'react-addons-shallow-compare'
+import { Timer } from '../../views/'
+import { auth } from '../../services/auth'
 
 class Home extends Component {
 
@@ -30,6 +32,8 @@ class Home extends Component {
         const { animated, viewEntersAnim } = this.state
         return (
             <div key='homeView' className={cx({'animatedViews': animated, 'view-enter': viewEntersAnim})}>
+                <Timer time={auth.getUserInfo().expires}/>
+
                 <Jumbotron>
                     <h1>Landscapes.io</h1>
 

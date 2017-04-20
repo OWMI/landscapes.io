@@ -34,13 +34,24 @@ exports.isAuthenticated = function(req, res,next) {
                 console.log('Error --->', err)
                 res.status(401).json({ err })
             } else {
+                decoded.data.password = null;
                 req.user = decoded.data;
+
                 let expires =  Math.floor(Date.now() / 1000) + (60);
+                req.user.expires = expires;
                 let newToken = jwt.sign({
                     data: decoded.data,
                     exp: expires // 1-hour token
                 }, 'CHANGE_ME')
-                req.token = newToken;
+                if (req.body) {
+                    req.body.variables = {}
+                    req.body.variables.token = newToken;
+                } else {
+                    req.body = {};
+                    req.body.variables = {}
+                    req.body.variables.token = newToken;
+
+                }
                 next()
             }
 
