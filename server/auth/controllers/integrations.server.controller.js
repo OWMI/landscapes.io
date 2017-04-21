@@ -417,6 +417,6 @@ exports.addAndCommitGithub = (req, res) => {
         //       winston.info("Pushed to remote.");
         //       return res.json(_objects)
         //   });
-        // })
+        })
 
       }
