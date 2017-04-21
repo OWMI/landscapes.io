@@ -70,7 +70,6 @@
             }
             }
         }
-        
       },
       "Properties": {
         "ImageId" : { "Ref" : "AMI" },
