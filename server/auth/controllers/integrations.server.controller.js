@@ -11,7 +11,7 @@ var fsp = require("fs-plus");
 var rr = require("recursive-readdir");
 var wget = require('node-wget');
 
-var Git = require("nodegit");
+// var Git = require("nodegit");
 var YAML = require('yamljs');
 const secureRandom = require('secure-random')
 const fs = require('fs')
@@ -134,42 +134,42 @@ exports.getGithubRepo = (req, res) => {
         nativeObject.commitMessage = commit.message();
         return commit.message();
     };
-    if(!password || !username){
-      fse.readdir( path.join('./_github/', request.deployFolderName), (err, files) => {
-          nativeObject['files'] = files
-          return res.json(nativeObject)
-      })
-    }
-    else{
-      var opts = {
-        fetchOpts: {
-          callbacks: {
-            credentials: function() {
-              return Git.Cred.userpassPlaintextNew(username, password);
-            },
-            certificateCheck: function() {
-              return 1;
-            }
-          }
-        }
-      };
-      fse.remove(path.join('./_github/', request.deployFolderName)).then(function() {
-        Git.Clone(remoteRepo, path.join('./_github/', request.deployFolderName) , opts)
-          .then(getMostRecentCommit, function() { winston.info('error %o', arguments)})
-          .then(function(commit) {
-            return new Promise((resolve, reject) => {
-                fse.readdir( path.join('./_github/', request.deployFolderName), (err, files) => {
-                    fileLocations['files'] = files
-                    return resolve(fileLocations);
-                })
-            })
-          })
-          .done(function(data) {
-            winston.info('Finished Cloning');
-            return res.json(fileLocations)
-          });
-      });
-    }
+    // if(!password || !username){
+    //   fse.readdir( path.join('./_github/', request.deployFolderName), (err, files) => {
+    //       nativeObject['files'] = files
+    //       return res.json(nativeObject)
+    //   })
+    // }
+    // else{
+    //   var opts = {
+    //     fetchOpts: {
+    //       callbacks: {
+    //         credentials: function() {
+    //           // return Git.Cred.userpassPlaintextNew(username, password);
+    //         },
+    //         certificateCheck: function() {
+    //           return 1;
+    //         }
+    //       }
+    //     }
+    //   };
+    //   fse.remove(path.join('./_github/', request.deployFolderName)).then(function() {
+    //     Git.Clone(remoteRepo, path.join('./_github/', request.deployFolderName) , opts)
+    //       .then(getMostRecentCommit, function() { winston.info('error %o', arguments)})
+    //       .then(function(commit) {
+    //         return new Promise((resolve, reject) => {
+    //             fse.readdir( path.join('./_github/', request.deployFolderName), (err, files) => {
+    //                 fileLocations['files'] = files
+    //                 return resolve(fileLocations);
+    //             })
+    //         })
+    //       })
+    //       .done(function(data) {
+    //         winston.info('Finished Cloning');
+    //         return res.json(fileLocations)
+    //       });
+    //   });
+    // }
 }
 
 exports.parseYAML = (req, res) => {
@@ -301,14 +301,14 @@ exports.addAndCommitGithub = (req, res) => {
                 return 1;
             },
             credentials: function () {
-              return Git.Cred.userpassPlaintextNew(githubData.username, githubData.password);
+              // return Git.Cred.userpassPlaintextNew(githubData.username, githubData.password);
             }
           }
         },
         fetchOpts: {
           callbacks: {
             credentials: function() {
-              return Git.Cred.userpassPlaintextNew(githubData.username, githubData.password);
+              // return Git.Cred.userpassPlaintextNew(githubData.username, githubData.password);
             },
             certificateCheck: function() {
               return 1;
@@ -340,82 +340,83 @@ exports.addAndCommitGithub = (req, res) => {
         var oid;
         var directoryName = "./";
 
-        Git.Repository.open(path.join('./', repoPath))
-          .then(function(repoResult) {
-            repo = repoResult;
-            return fse.ensureDir(path.join(repo.workdir(), directoryName));
-          })
-          .then(function() {
-            return repo.refreshIndex();
-          })
-          .then(function(indexResult) {
-            index = indexResult;
-          })
-          .then(function() {
-            // adds all changes to index to be written
-            return index.addAll();
-          })
-          .then(function() {
-            // writes files to index
-            return index.write();
-          })
-          .then(function() {
-            return index.writeTree();
-          })
-          .then(function(indexResult) {
-            oid = indexResult;
-            return Git.Reference.nameToId(repo, "HEAD");
-          })
-          .then(function(head) {
-            return repo.getCommit(head);
-          })
-          .then(function(parent) {
-            // pull from integration
-            var time = Date.now() / 1000
-            var author = Git.Signature.create(githubData.username,
-              githubData.githubEmail, time, 60);
-            return repo.createCommit("HEAD", author, author, "automation: add users", oid, [parent]);
-          })
-          .then(function() {
-            Git.Remote.setPushurl(repo, "origin", githubData.repoURL);
-            Git.Remote.setUrl(repo, "origin", githubData.repoURL);
-            return repo.getRemote("origin")
-            .then(function(remoteResult) {
-              remote = remoteResult;
-              // Create the push object for this remote
-              return remote.push(
-                ["refs/heads/master:refs/heads/master"],
-                {
-                  callbacks: {
-                    certificateCheck: function() {
-                      return 1;
-                    },
-                    credentials: function() {
-                      return Git.Cred.userpassPlaintextNew(githubData.username, decrypt(githubData.password));
-                    }
-                  }
-                },
-                {
-                  callbacks: {
-                    certificateCheck: function() {
-                      return 1;
-                    },
-                    credentials: function() {
-                      return Git.Cred.userpassPlaintextNew(githubData.username, githubData.password);
-                    }
-                  }
-                }
-              ).then(function(number) {
-                winston.info('error code', number)
-              })
-              .catch(function(error) {
-                winston.info('error', error)
-              });
-            });
-          })
-          .done(function() {
-              winston.info("Pushed to remote.");
-              return res.json(_objects)
-          });
-        })
+        // Git.Repository.open(path.join('./', repoPath))
+        //   .then(function(repoResult) {
+        //     repo = repoResult;
+        //     return fse.ensureDir(path.join(repo.workdir(), directoryName));
+        //   })
+        //   .then(function() {
+        //     return repo.refreshIndex();
+        //   })
+        //   .then(function(indexResult) {
+        //     index = indexResult;
+        //   })
+        //   .then(function() {
+        //     // adds all changes to index to be written
+        //     return index.addAll();
+        //   })
+        //   .then(function() {
+        //     // writes files to index
+        //     return index.write();
+        //   })
+        //   .then(function() {
+        //     return index.writeTree();
+        //   })
+        //   .then(function(indexResult) {
+        //     oid = indexResult;
+        //     return Git.Reference.nameToId(repo, "HEAD");
+        //   })
+        //   .then(function(head) {
+        //     return repo.getCommit(head);
+        //   })
+        //   .then(function(parent) {
+        //     // pull from integration
+        //     var time = Date.now() / 1000
+        //     var author = Git.Signature.create(githubData.username,
+        //       githubData.githubEmail, time, 60);
+        //     return repo.createCommit("HEAD", author, author, "automation: add users", oid, [parent]);
+        //   })
+        //   .then(function() {
+        //     Git.Remote.setPushurl(repo, "origin", githubData.repoURL);
+        //     Git.Remote.setUrl(repo, "origin", githubData.repoURL);
+        //     return repo.getRemote("origin")
+        //     .then(function(remoteResult) {
+        //       remote = remoteResult;
+        //       // Create the push object for this remote
+        //       return remote.push(
+        //         ["refs/heads/master:refs/heads/master"],
+        //         {
+        //           callbacks: {
+        //             certificateCheck: function() {
+        //               return 1;
+        //             },
+        //             credentials: function() {
+        //               return Git.Cred.userpassPlaintextNew(githubData.username, decrypt(githubData.password));
+        //             }
+        //           }
+        //         },
+        //         {
+        //           callbacks: {
+        //             certificateCheck: function() {
+        //               return 1;
+        //             },
+        //             credentials: function() {
+        //               return Git.Cred.userpassPlaintextNew(githubData.username, githubData.password);
+        //             }
+        //           }
+        //         }
+        //       ).then(function(number) {
+        //         winston.info('error code', number)
+        //       })
+        //       .catch(function(error) {
+        //         winston.info('error', error)
+        //       });
+        //     });
+        //   })
+        //   .done(function() {
+        //       winston.info("Pushed to remote.");
+        //       return res.json(_objects)
+        //   });
+        // })
+
       }
