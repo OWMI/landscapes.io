@@ -34,6 +34,8 @@ export const auth = {
         if (!value || value.length <= 0) {
             return
         }
+        console.log(toStorage)
+        console.log(tokenKey)
         // localStorage:
         if (toStorage === APP_PERSIST_STORES_TYPES[0]) {
             if (localStorage) {

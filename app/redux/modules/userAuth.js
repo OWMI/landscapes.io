@@ -141,6 +141,7 @@ export function receivedUserLoggedIn(userToken = null, user = emptyUser, time = 
         ? true
         : false
 
+    console.log(userToken)
     auth.clearToken(userToken)
     auth.clearAllAppStorage() // clear previous token
     auth.setToken(userToken) // set token to default store = localStorage and to default token key = 'token'

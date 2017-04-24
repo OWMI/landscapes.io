@@ -111,9 +111,8 @@ function graphqlExpress(options) {
             if (gqlResponse.errors && typeof gqlResponse.data === 'undefined') {
                 res.statusCode = 400;
             }
-            var v =req.body.variables
-            gqlResponse.token = v.token
-            gqlResponse.user = req.user;
+            gqlResponse.token = req.token
+            gqlResponse.userData = req.userData;
             res.write(JSON.stringify(gqlResponse));
             res.end();
         }

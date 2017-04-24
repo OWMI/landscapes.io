@@ -364,7 +364,7 @@ class CreateUser extends Component {
         if (password.split('').length < 10) {
             passwordErrors.push('Password must contain atleast 10 characters.')
         }
-
+        console.log(password)
         if (passwordErrors.length) {
             this.setState({ passwordErrors })
             return false
@@ -392,7 +392,6 @@ class CreateUser extends Component {
         }
 
         this.setState({ errorMessage: false })
-
         if (!this.state.username) {
             this.setState({ errorMessage: true, message: 'Must provide username.' })
         } else if (!this.state.email) {
@@ -407,7 +406,10 @@ class CreateUser extends Component {
             this.setState({ errorMessage: true, message: 'Email must be in correct format.' })
         } else if (!this.jsonEqual(this.state.verifyPassword, this.state.newPassword)) {
             this.setState({ errorMessage: true, message: 'New password and verify password fields do not match.' })
-        } else if( this.state.managedVPC && !this.state.publicKey){
+        } else if (!this.checkPasswordStrength(this.state.verifyPassword)) {
+            this.setState({ errorMessage: true, message: this.state.passwordErrors[0]})
+        }
+        else if( this.state.managedVPC && !this.state.publicKey){
           this.setState({ errorMessage: true, message: 'Public Key is required when Managed VPC is checked.' })
         }
         else {

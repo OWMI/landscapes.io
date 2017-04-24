@@ -33,7 +33,7 @@ networkInterface.use([
 networkInterface.useAfter([{
     applyAfterware({ response },next ) {
        response.clone().json().then(function(dat) {
-           auth.setUserInfo(dat.user)
+           auth.setUserInfo(dat.userData)
            auth.setToken(dat.token)
        })
         next()
