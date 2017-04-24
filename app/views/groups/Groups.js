@@ -12,6 +12,7 @@ import { auth } from '../../services/auth'
 import defaultImage from '../../style/empty-group.png'
 import '../landscapes/landscapes.style.scss'
 import materialTheme from '../../style/custom-theme.js';
+import { Timer } from '../../views/'
 
 class Groups extends Component {
 
@@ -111,7 +112,9 @@ class Groups extends Component {
 
         return (
             <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
-              <Row style={{justifyContent: 'space-between', width: '100%'}}>
+                <Timer time={auth.getUserInfo().expires}/>
+
+                <Row style={{justifyContent: 'space-between', width: '100%'}}>
                 <a  onClick={(event) => {
                   event.preventDefault()
                   var currentUser = this.state.currentUser

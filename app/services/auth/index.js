@@ -114,8 +114,6 @@ export const auth = {
     },
 
     setUserInfo(value = '', toStorage = APP_PERSIST_STORES_TYPES[0], userInfoKey = USER_INFO) {
-        console.log(value, toStorage, userInfoKey)
-        console.log(APP_PERSIST_STORES_TYPES[0])
         if (!value || value.length <= 0) {
             return
         }
@@ -265,11 +263,9 @@ export const auth = {
     // ---------------------------
     clearAllAppStorage() {
         if (localStorage) {
-            console.log('stuff')
             localStorage.clear()
         }
         if (sessionStorage) {
-            console.log('session')
             sessionStorage.clear()
         }
     }

@@ -7,15 +7,19 @@ const networkInterface = createNetworkInterface({ uri: `${PROTOCOL}://${SERVER_I
 
 // when need token based authentication:
 let user = auth.getToken()
-console.log(user)
+let userInfo = auth.getUserInfo()
 networkInterface.use([
     {
         applyMiddleware(req, next) {
             if (!req.options.headers) {
                 req.options.headers = {}
             }
-            console.log(user)
+            const time = Math.floor(Date.now() / 1000);
+
             if (user == null) {
+                user = auth.getToken()
+
+            } else if (time >= userInfo.expires) {
                 user = auth.getToken()
 
             }
@@ -26,5 +30,16 @@ networkInterface.use([
         }
     }
 ])
+networkInterface.useAfter([{
+    applyAfterware({ response },next ) {
+       response.clone().json().then(function(dat) {
+           auth.setUserInfo(dat.userData)
+           auth.setToken(dat.token)
+       })
+        next()
 
-export var apolloClient = new ApolloClient({ networkInterface: networkInterface, queryTransformer: addTypename })
+        }
+    }
+])
+
+export const apolloClient = new ApolloClient({ networkInterface: networkInterface, queryTransformer: addTypename })

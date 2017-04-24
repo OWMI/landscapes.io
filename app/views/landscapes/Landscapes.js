@@ -41,7 +41,6 @@ class Landscapes extends Component {
       this.setState({ currentUser })
 
       const user = auth.getUserInfo();
-        console.log(user)
 
 
       if(users){

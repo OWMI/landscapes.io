@@ -14,6 +14,7 @@ import TextField from 'material-ui/TextField';
 import Snackbar from 'material-ui/Snackbar';
 
 import {debounce} from 'lodash';
+import { Timer } from '../../views/'
 
 import Slider from 'material-ui/Slider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme'
@@ -74,6 +75,8 @@ class Password extends Component {
 
         return (
           <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
+              <Timer time={auth.getUserInfo().expires}/>
+
               <h4>Change Password</h4><br/>
                 <div style={styles.root}>
                   <Snackbar

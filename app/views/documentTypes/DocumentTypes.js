@@ -7,6 +7,8 @@ import { Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowCol
 
 import materialTheme from '../../style/custom-theme.js'
 import { Loader } from '../../components'
+import { Timer } from '../../views/'
+import { auth } from '../../services/auth'
 
 class DocumentTypes extends Component {
 
@@ -58,6 +60,7 @@ class DocumentTypes extends Component {
 
         return (
             <div className={cx({ 'animatedViews': animated, 'view-enter': viewEntersAnim })}>
+                <Timer time={auth.getUserInfo().expires}/>
 
                 <a onClick={this.handlesCreateAccountClick}>
                     <p style={{ fontSize: '20px', cursor: 'pointer' }}><IoIosPlusEmpty size={30}/> Add Document Type </p>

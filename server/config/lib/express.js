@@ -26,7 +26,7 @@ import cookieParser from 'cookie-parser'
 import methodOverride from 'method-override'
 import { printSchema } from 'graphql/utilities/schemaPrinter'
 import { SubscriptionServer } from 'subscriptions-transport-ws'
-import { graphqlExpress, graphiqlExpress } from 'graphql-server-express'
+import {  graphiqlExpress } from 'graphql-server-express'
 
 import { describe } from '../../routes/deployments'
 import { deploymentsByLandscapeId } from '../../routes/landscapes'
@@ -40,7 +40,7 @@ const DIST_DIR = path.resolve(__dirname, '../../../dist/')
 const WEBSOCKET_PORT = 8090
 const MongoStore = require('connect-mongo')(session)
 const userAuth = require('../../auth/controllers/users/users.authentication.server.controller')
-
+const customGraph = require(('../../graphql/customControllers/graphqlexpress.js'))
 /**
  * Initialize local variables
  */
@@ -128,8 +128,6 @@ module.exports.initMiddleware = app => {
         })
 
         req.on('end', () => {
-            console.log(req.cookies)
-
             user = JSON.parse(user)
             user.expires = Math.floor(Date.now() / 1000) + (60*60);
             // HACK: temporary hack, will be removed once the images are redone
@@ -141,10 +139,7 @@ module.exports.initMiddleware = app => {
                 exp: user.expires // 1-hour token
             }, 'CHANGE_ME')
 
-            res.cookie('token', 'k', {
-                expires  : new Date(Date.now() + 9999999),
-                httpOnly : false
-            });
+
             res.json({
                 user,
                 token
@@ -350,7 +345,7 @@ module.exports.initModulesServerRoutes = app => {
  */
 module.exports.initGraphQLServer = app => {
     // Initialize graphql middleware
-    app.use('/graphql', bodyParser.json(), userAuth.isAuthenticated, graphqlExpress(req => {
+    app.use('/graphql', bodyParser.json(), userAuth.isAuthenticated, customGraph.graphqlExpress(req => {
         return {
             schema,
             context: {token:req.token}

@@ -34,13 +34,16 @@ exports.isAuthenticated = function(req, res,next) {
                 console.log('Error --->', err)
                 res.status(401).json({ err })
             } else {
-                req.user = decoded.data;
-                let expires =  Math.floor(Date.now() / 1000) + (60);
+                decoded.data.password = null;
+                req.userData = decoded.data;
+                let expires = Math.floor(Date.now() / 1000) + (60 * 60);
+                req.userData.expires = expires;
                 let newToken = jwt.sign({
                     data: decoded.data,
                     exp: expires // 1-hour token
                 }, 'CHANGE_ME')
                 req.token = newToken;
+
                 next()
             }
 

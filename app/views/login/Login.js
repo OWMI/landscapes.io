@@ -191,6 +191,7 @@ class Login extends Component {
                 headers: { 'x-access-token': token }
             })
         }).then(res => {
+
             router.push({ pathname: '/landscapes' })
         }).catch(err => {
             console.error(err)
