@@ -364,7 +364,6 @@ class CreateUser extends Component {
         if (password.split('').length < 10) {
             passwordErrors.push('Password must contain atleast 10 characters.')
         }
-        console.log(password)
         if (passwordErrors.length) {
             this.setState({ passwordErrors })
             return false

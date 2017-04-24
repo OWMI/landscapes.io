@@ -346,7 +346,6 @@ module.exports.initModulesServerRoutes = app => {
 module.exports.initGraphQLServer = app => {
     // Initialize graphql middleware
     app.use('/graphql', bodyParser.json(), userAuth.isAuthenticated, customGraph.graphqlExpress(req => {
-        console.log(req.body)
         return {
             schema,
             context: {token:req.token}

@@ -74,7 +74,6 @@ function graphqlExpress(options) {
                 if (isBatch) {
                     context = Object.assign({}, context || {});
                 }
-                console.log(variables)
                 let params = {
                     schema: optionsObject.schema,
                     query: query,
@@ -93,7 +92,6 @@ function graphqlExpress(options) {
                 }
                 responses.push(yield graphql_server_core_1.runQuery(params));
                 responses.push({token:variables.token})
-                console.log(responses)
             }
             catch (e) {
                 responses.push({ errors: [formatErrorFn(e)] });
