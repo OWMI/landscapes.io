@@ -2,5 +2,7 @@ language: node_js
 node_js:
   - "iojs"
   - "7"
-before_install:
- - gem install sass
+  
+ "script": [
+    "npm install"
+    ]
