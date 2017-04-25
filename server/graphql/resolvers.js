@@ -34,50 +34,60 @@ AWS.events.on('httpError', () => {
 const resolveFunctions = {
     Query: {
         landscapes(root, args, context) {
-            return Landscape.find().sort('-created').populate('user', 'displayName').exec((err, landscapes) => {
-                if (err) return err
-                return landscapes
-            })
+            return new Promise((resolve, reject) => {
+                return Landscape.find().sort('-created').populate('user', 'displayName').exec((err, landscapes) => {
+                    if (err) return reject(err)
+                    return resolve(landscapes)
+                })
+            });
         },
         integrations(root, args, context) {
-            return Integration.find().exec((err, integrations) => {
-                if (err) return err
-                return integrations
-            })
+            return new Promise((resolve, reject) => {
+                return Integration.find().exec((err, integrations) => {
+                    if (err) return reject(err)
+                    return resolve(integrations)
+                })
+            });
         },
         configuration(root, args, context) {
-            return Configuration.find().exec((err, config) => {
-                if (err) return err
-                return config
-            })
+            return new Promise((resolve, reject) => {
+                return Configuration.find().exec((err, config) => {
+                    if (err) return reject(err)
+                    return resolve(config)
+                })
+            });
         },
         landscapeById(root, args, context) {
-            return Landscape.findById(args.id).exec((err, landscape) => {
-                if (err) return err
-                return landscape
-            })
+            return new Promise((resolve, reject) => {
+                return Landscape.findById(args.id).exec((err, landscape) => {
+                    if (err) return reject(err)
+                    return resolve(landscape)
+                })
+            });
         },
         accounts(root, args, context) {
-            return Account.find().sort('-created').exec((err, accounts) => {
-                if (err) return err
-                return accounts
-            })
+            return new Promise((resolve, reject) => {
+                return Account.find().sort('-created').exec((err, accounts) => {
+                    if (err) return reject(err)
+                    return resolve(accounts)
+                })
+            });
         },
         tags(root, args, context) {
-            return Tag.find().sort('-created').populate('user', 'displayName').exec((err, tags) => {
-                if (err) return err
-                return tags
-            })
+            return new Promise((resolve, reject) => {
+                return Tag.find().sort('-created').populate('user', 'displayName').exec((err, tags) => {
+                    if (err) return reject(err)
+                    return resolve(tags)
+                })
+            });
         },
         groups(root, args, context) {
-          return new Promise((resolve, reject) => {
-
-            return Group.find().sort('-created').populate('user', 'displayName').exec((err, groups) => {
-
-                if (err) return reject(err)
-                return resolve(groups)
+            return new Promise((resolve, reject) => {
+                return Group.find().sort('-created').populate('user', 'displayName').exec((err, groups) => {
+                    if (err) return reject(err)
+                    return resolve(groups)
+                })
             })
-          })
         },
         groupsByUser(root, args, context) {
             return new Promise((resolve, reject) => {
@@ -94,10 +104,12 @@ const resolveFunctions = {
             })
         },
         groupById(root, args, context) {
-            return Group.findById(args.id).exec((err, group) =>{
-                if (err) return err
-                return group
-          })
+            return new Promise((resolve, reject) => {
+                return Group.findById(args.id).exec((err, group) => {
+                    if (err) return reject(err)
+                    return resolve(group)
+                })
+            });
         },
         ldapGroups(root, args, context) {
 
@@ -139,28 +151,36 @@ const resolveFunctions = {
 
         },
         mappings(root, args, context) {
-            return Mappings.find().exec((err, mappings) => {
-                if (err) return err
-                return mappings
-            })
+            return new Promise((resolve, reject) => {
+                return Mappings.find().exec((err, mappings) => {
+                    if (err) return reject(err)
+                    return resolve(mappings)
+                })
+            });
         },
         documentTypes(root, args, context) {
-            return TypeDocument.find().sort('-created').exec((err, documentTypes) => {
-                if (err) return err
-                return documentTypes
+            return new Promise((resolve, reject) => {
+                    return TypeDocument.find().sort('-created').exec((err, documentTypes) => {
+                        if (err) return reject(err)
+                        return resolve(documentTypes)
+                    });
             })
         },
         users(root, args, context) {
-            return User.find().sort('-created').populate('user', 'displayName').exec((err, groups) => {
-                if (err) return err
-                return groups
-            })
+            return new Promise((resolve, reject) => {
+                return User.find().sort('-created').populate('user', 'displayName').exec((err, groups) => {
+                    if (err) return reject(err)
+                    return resolve(groups)
+                })
+            });
         },
         userById(root, args, context) {
-            return User.find().sort('-created').populate('user', 'displayName').exec((err, groups) => {
-                if (err) return err
-                return groups
-            })
+            return new Promise((resolve, reject) => {
+                return User.find().sort('-created').populate('user', 'displayName').exec((err, groups) => {
+                    if (err) return reject(err)
+                    return resolve(groups)
+                })
+            });
         }
     },
     Mutation: {
@@ -170,9 +190,9 @@ const resolveFunctions = {
         toggleFirstUser(_, { configId }) {
             return new Promise((resolve, reject) => {
                 return Configuration.findOneAndUpdate(
-                    { _id: configId },
-                    { $set:{ isFirstUser: false } },
-                    { new: true },
+                    {_id: configId},
+                    {$set: {isFirstUser: false}},
+                    {new: true},
                     (err, config) => {
                         if (err) reject(err)
                         resolve(config)
@@ -198,316 +218,352 @@ const resolveFunctions = {
             })
         },
         createUser(_, { user }) {
+            return new Promise((resolve, reject) => {
 
-            console.log(' ---> creating User', user)
-            let newUser = new User(user)
+                console.log(' ---> creating User', user)
+                let newUser = new User(user)
 
-            newUser.save(err => {
-                if (err) {
-                    console.log(err)
-                    return err
-                } else {
-                    console.log(' ---> created: ', newUser._id)
-                    return newUser
-                }
+                newUser.save(err => {
+                    if (err) {
+                         console.log(err)
+                        return reject(err)
+                    } else {
+                        console.log(' ---> created: ', newUser._id)
+                        return resolve(newUser)
+                    }
+                })
             })
         },
         updateUser(_, { user }) {
+            return new Promise((resolve, reject) => {
 
-          console.log(' ---> updating user')
+                console.log(' ---> updating user')
 
-          User.findOneAndUpdate({ _id: user._id }, user, { new: true }, (err, doc) => {
-              if (err) {
-                  console.log(err)
-                  return err
-              } else {
-                  console.log(' ---> updated: ', doc)
-                  return doc
-              }
-          })
+                User.findOneAndUpdate({_id: user._id}, user, {new: true}, (err, doc) => {
+                    if (err) {
+                        console.log(err)
+                        return reject(err)
+                    } else {
+                        console.log(' ---> updated: ', doc)
+                        return resolve(doc)
+                    }
+                })
+            });
         },
         deleteUser(_, { user }) {
-            console.log(' ---> deleting User')
+            return new Promise((resolve, reject) => {
+                console.log(' ---> deleting User')
 
-            User.findByIdAndRemove(user._id, (err, doc) => {
-                if (err) {
-                    console.log('error', err)
-                    return err
-                } else {
-                    console.log(' ---> Account deleted: ', doc)
-                    return doc
-                }
-            })
+                User.findByIdAndRemove(user._id, (err, doc) => {
+                    if (err) {
+                        console.log('error', err)
+                        return reject(err)
+                    } else {
+                        console.log(' ---> Account deleted: ', doc)
+                        return resolve(doc)
+                    }
+                })
+            });
         },
         createIntegration(_, { integration }) {
+            return new Promise((resolve, reject) => {
 
-            console.log(' ---> creating integration', integration)
-            let newIntegration = new Integration(integration)
+                console.log(' ---> creating integration', integration)
+                let newIntegration = new Integration(integration)
 
-            newIntegration.save(err => {
-                if (err) {
-                    console.log(err)
-                    return err
-                } else {
-                    console.log(' ---> created: ', newIntegration._id)
-                    return newIntegration
-                }
-            })
+                newIntegration.save(err => {
+                    if (err) {
+                        console.log(err)
+                        return reject(err)
+                    } else {
+                        console.log(' ---> created: ', newIntegration._id)
+                        return resolve(newIntegration)
+                    }
+                })
+            });
         },
         updateIntegration(_, { integration }) {
+            return new Promise((resolve, reject) => {
 
-          console.log(' ---> updating integration')
-          Integration.findOneAndUpdate({ _id: integration._id }, integration, { new: true }, (err, doc) => {
-              if (err) {
-                  console.log(err)
-                  return err
-              } else {
-                  console.log(' ---> updated: ', doc)
-                  return doc
-              }
-          })
+                console.log(' ---> updating integration')
+                Integration.findOneAndUpdate({_id: integration._id}, integration, {new: true}, (err, doc) => {
+                    if (err) {
+                        console.log(err)
+                        return reject(err)
+                    } else {
+                        console.log(' ---> updated: ', doc)
+                        return resolve(doc)
+                    }
+                })
+            });
         },
         deleteIntegration(_, { integration }) {
-            console.log(' ---> deleting integration')
+            return new Promise((resolve, reject) => {
+                console.log(' ---> deleting integration')
 
-            Integration.findByIdAndRemove(integration._id, (err, doc) => {
-                if (err) {
-                    console.log('error', err)
-                    return err
-                } else {
-                    console.log(' ---> integration deleted: ', doc)
-                    return doc
-                }
-            })
+                Integration.findByIdAndRemove(integration._id, (err, doc) => {
+                    if (err) {
+                        console.log('error', err)
+                        return reject(err)
+                    } else {
+                        console.log(' ---> integration deleted: ', doc)
+                        return resolve(doc)
+                    }
+                })
+            });
         },
         createTag(_, { tag }) {
+            return new Promise((resolve, reject) => {
 
-            console.log(' ---> creating Tag', tag)
-            let newTag = new Tag(tag)
+                console.log(' ---> creating Tag', tag)
+                let newTag = new Tag(tag)
 
-            newTag.save(err => {
-                if (err) {
-                    console.log(err)
-                    return err
-                } else {
-                    console.log(' ---> created: ', newTag._id)
-                    return newTag
-                }
+                newTag.save(err => {
+                    if (err) {
+                        console.log(err)
+                        return reject(err)
+                    } else {
+                        console.log(' ---> created: ', newTag._id)
+                        return resolve(newTag)
+                    }
+                })
             })
         },
         updateTag(_, { tag }) {
+                return new Promise((resolve, reject) => {
+                    console.log(' ---> updating Tag')
 
-          console.log(' ---> updating Tag')
-
-          Tag.findOneAndUpdate({ _id: tag._id }, tag, { new: true }, (err, doc) => {
-              if (err) {
-                  console.log(err)
-                  return err
-              } else {
-                  console.log(' ---> updated: ', doc)
-                  return doc
-              }
-          })
+                    Tag.findOneAndUpdate({_id: tag._id}, tag, {new: true}, (err, doc) => {
+                        if (err) {
+                            console.log(err)
+                            return reject(err)
+                        } else {
+                            console.log(' ---> updated: ', doc)
+                            return resolve(doc)
+                        }
+                    })
+                });
         },
         deleteTag(_, { tag }) {
-            console.log(' ---> deleting Tag')
+            return new Promise((resolve, reject) => {
+                console.log(' ---> deleting Tag')
 
-            Tag.findByIdAndRemove(tag._id, (err, doc) => {
-                if (err) {
-                    console.log('error', err)
-                    return err
-                } else {
-                    console.log(' ---> Tag deleted: ', doc)
-                    return doc
-                }
-            })
+                Tag.findByIdAndRemove(tag._id, (err, doc) => {
+                    if (err) {
+                        console.log('error', err)
+                        return reject(err)
+                    } else {
+                        console.log(' ---> Tag deleted: ', doc)
+                        return resolve(doc)
+                    }
+                })
+            });
         },
         createDocumentType(_, { documentType }) {
+            return new Promise((resolve, reject) => {
+                console.log(' ---> creating DocumentType', TypeDocument)
+                let newDocumentType = new TypeDocument(documentType)
 
-            console.log(' ---> creating DocumentType', TypeDocument)
-            let newDocumentType = new TypeDocument(documentType)
-
-            newDocumentType.save(err => {
-                if (err) {
-                    console.log(err)
-                    return err
-                } else {
-                    console.log(' ---> created: ', newDocumentType._id)
-                    return newDocumentType
-                }
-            })
+                newDocumentType.save(err => {
+                    if (err) {
+                        console.log(err)
+                        return reject(err)
+                    } else {
+                        console.log(' ---> created: ', newDocumentType._id)
+                        return resolve(newDocumentType)
+                    }
+                })
+            });
         },
         updateDocumentType(_, { documentType }) {
-          console.log(' ---> updating documentType')
+            return new Promise((resolve, reject) => {
+                console.log(' ---> updating documentType')
 
-          TypeDocument.findOneAndUpdate({ _id: documentType._id }, documentType, { new: true }, (err, doc) => {
-              if (err) {
-                  console.log(err)
-                  return err
-              } else {
-                  console.log(' ---> updated: ', doc)
-                  return doc
-              }
-          })
+                TypeDocument.findOneAndUpdate({_id: documentType._id}, documentType, {new: true}, (err, doc) => {
+                    if (err) {
+                        console.log(err)
+                        return reject(err)
+                    } else {
+                        console.log(' ---> updated: ', doc)
+                        return resolve(doc)
+                    }
+                })
+            });
         },
         deleteDocumentType(_, { documentType }) {
-            console.log(' ---> deleting Document Type')
+            return new Promise((resolve, reject) => {
 
-            TypeDocument.findByIdAndRemove({ _id: documentType._id }, (err, doc) => {
-                if (err) {
-                    console.log('error', err)
-                    return err
-                } else {
-                    console.log(' ---> Document Type deleted: ', doc)
-                    return doc
-                }
-            })
+                console.log(' ---> deleting Document Type')
+
+                TypeDocument.findByIdAndRemove({_id: documentType._id}, (err, doc) => {
+                    if (err) {
+                        console.log('error', err)
+                        return reject(err)
+                    } else {
+                        console.log(' ---> Document Type deleted: ', doc)
+                        return resolve(doc)
+                    }
+                })
+            });
         },
         updateLandscape(_, { landscape }) {
+            return new Promise((resolve, reject) => {
 
-            console.log(' ---> updating Landscape', landscape)
+                console.log(' ---> updating Landscape', landscape)
 
-            Landscape.findOneAndUpdate({ _id: landscape._id }, landscape, { new: true }, (err, doc) => {
-                if (err) {
-                    console.log(err)
-                    return err
-                } else {
-                    console.log(' ---> updated: ', doc)
-                    return doc
-                }
-            })
+                Landscape.findOneAndUpdate({_id: landscape._id}, landscape, {new: true}, (err, doc) => {
+                    if (err) {
+                        console.log(err)
+                        return reject(err)
+                    } else {
+                        console.log(' ---> updated: ', doc)
+                        return resolve(doc)
+                    }
+                })
+            });
         },
         deleteLandscape(_, { landscape }) {
+            return new Promise((resolve, reject) => {
 
-            console.log(' ---> deleting Landscape')
+                console.log(' ---> deleting Landscape')
 
-            Landscape.findByIdAndRemove(landscape._id, (err, doc) => {
-                if (err) {
-                    console.log('error', err)
-                    return err
-                } else {
-                    console.log(' ---> Landscape deleted: ', doc)
-                    return doc
-                }
-            })
+                Landscape.findByIdAndRemove(landscape._id, (err, doc) => {
+                    if (err) {
+                        console.log('error', err)
+                        return reject(err)
+                    } else {
+                        console.log(' ---> Landscape deleted: ', doc)
+                        return resolve(doc)
+                    }
+                })
+            });
         },
         updateMappings(_, { mapping }) {
             const { _id } = mapping
+            return new Promise((resolve, reject) => {
 
-            if (_id) {
-                console.log(' ---> updating mapping')
-                Mappings.update({ _id }, mapping,
-                    { upsert: true, setDefaultsOnInsert: true }, (err, doc) => {
-                        if (err) return err
-                        return doc
-                    }
-                )
-            } else {
-                console.log(' ---> creating mapping')
-                let newMapping = new Mappings(mapping)
-                newMapping.save(err => {
-                    if (err) return err
-                    return newMapping
-                })
-            }
-        },
-        createAccount(_, { account }) {
-          return new Promise((resolve, reject) => {
-
-            console.log(' ---> creating Account')
-            let newAccount = new Account(account)
-
-            newAccount.save(err => {
-                if (err) {
-                    console.log(err)
-                    return reject(err)
+                if (_id) {
+                    console.log(' ---> updating mapping')
+                    Mappings.update({_id}, mapping,
+                        {upsert: true, setDefaultsOnInsert: true}, (err, doc) => {
+                            if (err) return reject(err)
+                            return resolve(doc)
+                        }
+                    )
                 } else {
-                    console.log(' ---> created: ', newAccount._id)
-                    return resolve(newAccount)
-                }
-            })
-          })
-        },
-        updateAccount(_, { account }) {
-          return new Promise((resolve, reject) => {
-
-            console.log(' ---> updating Account')
-
-            Account.findOneAndUpdate({ _id: account._id }, account, { new: true }, (err, doc) => {
-                if (err) {
-                    console.log(err)
-                    return reject(err)
-                } else {
-                    console.log(' ---> updated: ', doc)
-                    return resolve(doc)
-                }
-            })
-          })
-        },
-        deleteAccount(_, { account }) {
-
-            console.log(' ---> deleting Account')
-
-            Account.findByIdAndRemove(account._id, (err, doc) => {
-                if (err) {
-                    console.log('error', err)
-                    return err
-                } else {
-                    console.log(' ---> Account deleted: ', doc)
-                    return doc
-                }
-            })
-        },
-        createGroup(_, { group }) {
-          return new Promise((resolve, reject) => {
-
-            console.log(' ---> creating group')
-
-            let newGroup = new Group(group)
-
-            newGroup.save(err => {
-                if (err) {
-                    console.log(err)
-                    return reject(err)
-                } else {
-                    console.log(' ---> created: ' + newGroup._id)
-                    return Group.find(newGroup._id).sort('-created').populate('user', 'displayName').exec((err, groups) => {
-                        if (err) return err
-                        return resolve(newGroup)
+                    console.log(' ---> creating mapping')
+                    let newMapping = new Mappings(mapping)
+                    newMapping.save(err => {
+                        if (err) return reject(err)
+                        return resolve(newMapping)
                     })
                 }
+            });
+        },
+        createAccount(_, { account }) {
+            return new Promise((resolve, reject) => {
+
+                console.log(' ---> creating Account')
+                let newAccount = new Account(account)
+
+                newAccount.save(err => {
+                    if (err) {
+                        console.log(err)
+                        return reject(err)
+                    } else {
+                        console.log(' ---> created: ', newAccount._id)
+                        return resolve(newAccount)
+                    }
+                })
             })
-          })
+        },
+        updateAccount(_, { account }) {
+            return new Promise((resolve, reject) => {
+
+                console.log(' ---> updating Account')
+
+                Account.findOneAndUpdate({_id: account._id}, account, {new: true}, (err, doc) => {
+                    if (err) {
+                        console.log(err)
+                        return reject(err)
+                    } else {
+                        console.log(' ---> updated: ', doc)
+                        return resolve(doc)
+                    }
+                })
+            })
+        },
+        deleteAccount(_, { account }) {
+            return new Promise((resolve, reject) => {
+
+                console.log(' ---> deleting Account')
+
+                Account.findByIdAndRemove(account._id, (err, doc) => {
+                    if (err) {
+                        console.log('error', err)
+                        return reject(err)
+                    } else {
+                        console.log(' ---> Account deleted: ', doc)
+                        return resolve(doc)
+                    }
+                })
+            });
+        },
+        createGroup(_, { group }) {
+            return new Promise((resolve, reject) => {
+
+                console.log(' ---> creating group')
+
+                let newGroup = new Group(group)
+
+                newGroup.save(err => {
+                    if (err) {
+                        console.log(err)
+                        return reject(err)
+                    } else {
+                        console.log(' ---> created: ' + newGroup._id)
+                        return Group.find(newGroup._id).sort('-created').populate('user', 'displayName').exec((err, groups) => {
+                            if (err) return err
+                            return resolve(newGroup)
+                        })
+                    }
+                })
+            })
         },
         updateGroup(_, { group }) {
-          console.log(' ---> updating group')
+            return new Promise((resolve, reject) => {
+                console.log(' ---> updating group')
 
-          Group.findOneAndUpdate({ _id: group._id }, group, { new: true }, (err, doc) => {
-              if (err) {
-                  console.log(err)
-                  return err
-              } else {
-                  console.log(' ---> updated: ', doc)
-                  return doc
-              }
-          })
+                Group.findOneAndUpdate({_id: group._id}, group, {new: true}, (err, doc) => {
+                    if (err) {
+                        console.log(err)
+                        return reject(err)
+                    } else {
+                        console.log(' ---> updated: ', doc)
+                        return resolve(doc)
+                    }
+                })
+            });
         },
         deleteGroup(_, { group }) {
-            console.log(' ---> deleting Group')
+            return new Promise((resolve, reject) => {
+                console.log(' ---> deleting Group')
 
-            Group.findByIdAndRemove(group._id, (err, doc) => {
-                if (err) {
-                    console.log('error', err)
-                    return err
-                } else {
-                    console.log(' ---> Account deleted: ', doc)
-                    return doc
-                }
+                Group.findByIdAndRemove(group._id, (err, doc) => {
+                    if (err) {
+                        console.log('error', err)
+                        return reject(err)
+                    } else {
+                        console.log(' ---> Account deleted: ', doc)
+                        return resolve(doc)
+                    }
+                })
             })
         },
         fetchAvailabilityZones(_, { region }) {
+
             console.log('---> Fetching AvailabilityZones')
-            const ec2 = new AWS.EC2({ apiVersion: '2016-11-15' })
+            const ec2 = new AWS.EC2({apiVersion: '2016-11-15'})
 
             console.log('---> setting AWS region')
             AWS.config.region = region || 'us-east-1'
@@ -521,7 +577,7 @@ const resolveFunctions = {
         },
         fetchHostedZones(_, { region }) {
             console.log('---> Fetching Key Pairs')
-            const route53 = new AWS.Route53({ apiVersion: '2016-11-15' })
+            const route53 = new AWS.Route53({apiVersion: '2016-11-15'})
 
             console.log('---> setting AWS region')
             AWS.config.region = region || 'us-east-1'
@@ -535,7 +591,7 @@ const resolveFunctions = {
         },
         fetchImages(_, { region }) {
             console.log('---> Fetching Images')
-            const ec2 = new AWS.EC2({ apiVersion: '2016-11-15' })
+            const ec2 = new AWS.EC2({apiVersion: '2016-11-15'})
 
             console.log('---> setting AWS region')
             AWS.config.region = region || 'us-east-1'
@@ -549,7 +605,7 @@ const resolveFunctions = {
         },
         fetchInstances(_, { region }) {
             console.log('---> Fetching Instances')
-            const ec2 = new AWS.EC2({ apiVersion: '2016-11-15' })
+            const ec2 = new AWS.EC2({apiVersion: '2016-11-15'})
 
             console.log('---> setting AWS region')
             AWS.config.region = region || 'us-east-1'
@@ -564,7 +620,7 @@ const resolveFunctions = {
                     Reservations.forEach(res => {
                         res.Instances.map(instance => {
                             const { InstanceId, Tags } = instance
-                            Instances.push({ InstanceId, Tags })
+                            Instances.push({InstanceId, Tags})
                         })
                     })
 
@@ -574,7 +630,7 @@ const resolveFunctions = {
         },
         fetchKeyPairs(_, { region }) {
             console.log('---> Fetching KeyPairs')
-            const ec2 = new AWS.EC2({ apiVersion: '2016-11-15' })
+            const ec2 = new AWS.EC2({apiVersion: '2016-11-15'})
 
             console.log('---> setting AWS region')
             AWS.config.region = region || 'us-east-1'
@@ -588,7 +644,7 @@ const resolveFunctions = {
         },
         fetchSecurityGroups(_, { region }) {
             console.log('---> Fetching SecurityGroups')
-            const ec2 = new AWS.EC2({ apiVersion: '2016-11-15' })
+            const ec2 = new AWS.EC2({apiVersion: '2016-11-15'})
 
             console.log('---> setting AWS region')
             AWS.config.region = region || 'us-east-1'
@@ -602,7 +658,7 @@ const resolveFunctions = {
         },
         fetchSubnets(_, { region }) {
             console.log('---> Fetching Subnets')
-            const ec2 = new AWS.EC2({ apiVersion: '2016-11-15' })
+            const ec2 = new AWS.EC2({apiVersion: '2016-11-15'})
 
             console.log('---> setting AWS region')
             AWS.config.region = region || 'us-east-1'
@@ -616,7 +672,7 @@ const resolveFunctions = {
         },
         fetchVolumes(_, { region }) {
             console.log('---> Fetching Volumes')
-            const ec2 = new AWS.EC2({ apiVersion: '2016-11-15' })
+            const ec2 = new AWS.EC2({apiVersion: '2016-11-15'})
 
             console.log('---> setting AWS region')
             AWS.config.region = region || 'us-east-1'
@@ -630,7 +686,7 @@ const resolveFunctions = {
         },
         fetchVpcs(_, { region }) {
             console.log('---> Fetching Vpcs')
-            const ec2 = new AWS.EC2({ apiVersion: '2016-11-15' })
+            const ec2 = new AWS.EC2({apiVersion: '2016-11-15'})
 
             console.log('---> setting AWS region')
             AWS.config.region = region || 'us-east-1'
@@ -646,10 +702,10 @@ const resolveFunctions = {
 
             console.log('---> Describing Deployment')
 
-            let cloudformation = new AWS.CloudFormation({ apiVersion: '2010-05-15' })
+            let cloudformation = new AWS.CloudFormation({apiVersion: '2010-05-15'})
 
             return new Promise((resolve, reject) => {
-                Account.findOne({ name: deployment.accountName }, (err, account) => {
+                Account.findOne({name: deployment.accountName}, (err, account) => {
                     if (err) {
                         console.log(err)
                         reject(err)
@@ -674,41 +730,43 @@ const resolveFunctions = {
                 })
             }).then(accountName => {
 
-                let params = {
-                    StackName: deployment.stackName
-                }
+                    let params = {
+                        StackName: deployment.stackName
+                    }
 
-                return new Promise((resolve, reject) => {
+                    return new Promise((resolve, reject) => {
 
-                    cloudformation.describeStacks(params, (err, data) => {
-                        if (err) {
-                            console.log(err, err.stack)
-                            reject(err)
-                        }
+                        cloudformation.describeStacks(params, (err, data) => {
+                            if (err) {
+                                console.log(err, err.stack)
+                                reject(err)
+                            }
 
-                        // fetch status reason if deployment rolls back
-                        if (data.Stacks[0].StackStatus === 'ROLLBACK_COMPLETE') {
-                            cloudformation.describeStackEvents(params, (err, data) => {
-                                let _status = find(data.StackEvents, { ResourceStatus: 'ROLLBACK_IN_PROGRESS' })
-                                deployment.awsErrors = _status.ResourceStatusReason
-                                deployment.stackStatus = 'ROLLBACK_COMPLETE'
+                            // fetch status reason if deployment rolls back
+                            if (data.Stacks[0].StackStatus === 'ROLLBACK_COMPLETE') {
+                                cloudformation.describeStackEvents(params, (err, data) => {
+                                    let _status = find(data.StackEvents, {ResourceStatus: 'ROLLBACK_IN_PROGRESS'})
+                                    deployment.awsErrors = _status.ResourceStatusReason
+                                    deployment.stackStatus = 'ROLLBACK_COMPLETE'
+                                    resolve(deployment)
+                                })
+                            } else {
+                                deployment.stackStatus = data.Stacks[0].StackStatus
                                 resolve(deployment)
-                            })
-                        } else {
-                            deployment.stackStatus = data.Stacks[0].StackStatus
-                            resolve(deployment)
-                        }
+                            }
+                        })
                     })
+                }).catch(err => {
+                    console.log('ERROR:', err)
                 })
-            }).catch(err => {
-                console.log('ERROR:', err)
-            })
         },
         deploymentsByLandscapeId(_, { landscapeId }) {
-            return Deployment.find({ landscapeId: landscapeId }).exec((err, deployments) => {
-                if (err) return err
-                return deployments
-            })
+            return new Promise((resolve, reject) => {
+                return Deployment.find({landscapeId: landscapeId}).exec((err, deployments) => {
+                    if (err) return reject(err)
+                    return resolve(deployments)
+                })
+            });
         },
         createDeployment(_, { deployment }) {
 
@@ -790,7 +848,7 @@ const resolveFunctions = {
                 console.log('##            AWS Region -->', deployment.location)
                 AWS.config.region = deployment.location
 
-                cloudFormation = new AWS.CloudFormation({ apiVersion: '2010-05-15' })
+                cloudFormation = new AWS.CloudFormation({apiVersion: '2010-05-15'})
             }
 
             async.series({
@@ -864,10 +922,10 @@ const resolveFunctions = {
                             stackParams.Tags = newDeployment.tags
 
                             if (newDeployment.description) {
-                                stackParams.Tags.push({ Key: 'Description', Value: newDeployment.description })
+                                stackParams.Tags.push({Key: 'Description', Value: newDeployment.description})
                             }
                             if (newDeployment.billingCode) {
-                                stackParams.Tags.push({ Key: 'Billing Code', Value: newDeployment.billingCode })
+                                stackParams.Tags.push({Key: 'Billing Code', Value: newDeployment.billingCode})
                             }
 
                             console.log('---> async.series >> stack parameters set!')
@@ -944,7 +1002,7 @@ const resolveFunctions = {
             if (deployment.isDeleted) {
                 console.log(' ---> purging deployment')
 
-                return Deployment.remove({ stackName: deployment.stackName }, (err, result) => {
+                return Deployment.remove({stackName: deployment.stackName}, (err, result) => {
                     if (err) {
                         console.log(err)
                         reject(err)
@@ -963,7 +1021,7 @@ const resolveFunctions = {
                 }
 
                 return new Promise((resolve, reject) => {
-                    Account.findOne({ name: deployment.accountName }, (err, account) => {
+                    Account.findOne({name: deployment.accountName}, (err, account) => {
                         if (err) {
                             console.log(err)
                             return err
@@ -988,26 +1046,26 @@ const resolveFunctions = {
                         resolve(deployment.accountName)
                     })
                 }).then(accountName => {
-                    return cloudformation.deleteStack(params, (err, data) => {
-                        if (err) {
-                            console.log(err, err.stack)
-                            return err
-                        }
-                        return data
-                    })
-                }).then(response => {
-                    return Deployment.findOneAndUpdate({ stackName: deployment.stackName },
-                        { $set: { isDeleted: true } }, { new: true }, (err, doc) => {
+                        return cloudformation.deleteStack(params, (err, data) => {
                             if (err) {
-                                console.log(err)
-                                reject(err)
+                                console.log(err, err.stack)
+                                return err
                             }
-                        return doc
+                            return data
+                        })
+                    }).then(response => {
+                        return Deployment.findOneAndUpdate({stackName: deployment.stackName},
+                            {$set: {isDeleted: true}}, {new: true}, (err, doc) => {
+                                if (err) {
+                                    console.log(err)
+                                    reject(err)
+                                }
+                                return doc
+                            })
+                    }).catch(err => {
+                        console.log('ERROR:', err)
+                        return err
                     })
-                }).catch(err => {
-                    console.log('ERROR:', err)
-                    return err
-                })
             }
         }
     },

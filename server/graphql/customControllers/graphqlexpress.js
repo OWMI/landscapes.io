@@ -91,7 +91,6 @@ function graphqlExpress(options) {
                     params = optionsObject.formatParams(params);
                 }
                 responses.push(yield graphql_server_core_1.runQuery(params));
-                responses.push({token:variables.token})
             }
             catch (e) {
                 responses.push({ errors: [formatErrorFn(e)] });
