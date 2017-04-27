@@ -1,97 +1,231 @@
+
 {
-  "AWSTemplateFormatVersion" : "2010-09-09",
-  
-  "Description" : "landscapes test",
-   "Mappings" : {
-  },
-  "Parameters" : {
-      
-    "Region": {
-      "Type": "String",
-      "ConstraintDescription" : "must be the name of an existing Region."
-    },       
-    "KeyName": {
-      "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instance",
-      "Type": "AWS::EC2::KeyPair::KeyName",
-      "ConstraintDescription" : "must be the name of an existing EC2 KeyPair."
-    },    
-    "SubnetId":{
-      "Type": "AWS::EC2::Subnet::Id",
-      "ConstraintDescription" : "must be the ID of an existing Subnet."
-    },    
-    "InstanceType" : {
-      "Description" : "WebServer EC2 instance type",
-      "Type" : "String",
-      "Default" : "t2.micro",
-      "AllowedValues" : [ "t1.micro", "t2.micro", "t2.small", "t2.medium", "m1.small", "m1.medium", "m1.large", "m1.xlarge", "m2.xlarge", "m2.2xlarge", "m2.4xlarge", "m3.medium", "m3.large", "m3.xlarge", "m3.2xlarge", "c1.medium", "c1.xlarge", "c3.large", "c3.xlarge", "c3.2xlarge", "c3.4xlarge", "c3.8xlarge", "g2.2xlarge", "r3.large", "r3.xlarge", "r3.2xlarge", "r3.4xlarge", "r3.8xlarge", "i2.xlarge", "i2.2xlarge", "i2.4xlarge", "i2.8xlarge", "hi1.4xlarge", "hs1.8xlarge", "cr1.8xlarge", "cc2.8xlarge", "cg1.4xlarge"],
-      "ConstraintDescription" : "Must be a valid EC2 instance type"
-    },
-    "VPCId":{
-      "Type": "AWS::EC2::VPC::Id",
-      "ConstraintDescription" : "must be the ID of an existing VPC."
-    },    
-    "AMI":{
-      "Type": "AWS::EC2::Image::Id",
-      "ConstraintDescription" : "AMI that corresponds to Region",
-      "Default": "ami-b63769a1"
-    }
-  },
-  
-  "Resources" : {   
-    "WebServerSecurityGroup" : {
-      "Type" : "AWS::EC2::SecurityGroup",
-      "Properties" : {
-        "GroupDescription" : "Test-01",
-        "VpcId": {
-            "Ref": "VPCId"
-        },
-        "SecurityGroupIngress" : [
-          {"IpProtocol" : "tcp", "FromPort" : "3000", "ToPort" : "3000", "CidrIp" : "0.0.0.0/0"},
-          {"IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : "0.0.0.0/0"}
-        ]
-      }      
-    },   
-
-    "WebServerInstance": {  
-      "Type": "AWS::EC2::Instance",
-      "Metadata" : {
-        "AWS::CloudFormation::Init" : {
-            "configSets" : {
-            "Install" : [ "Install" ]
-          },
-
-          "Install" : {
-            "packages" : {
-              "yum" : {
-                "git"        : []
-              }
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "landscapes test",
+    "Mappings": {},
+        "Metadata" : {
+        "AWS::CloudFormation::Interface" : {
+          "ParameterGroups" : [
+            {
+              "Label" : { "default" : "Network Configuration" },
+              "Parameters" : [ "Region", "VPCId", "SubnetId" ]
+            },
+            {
+              "Label" : { "default" : "Instance Configuration" },
+              "Parameters" : [ "AMI", "InstanceType", "KeyName", "LandscapesRole" ]
             }
+          ],
+          "ParameterLabels" : {
+            "Region" : { "default" : "Specify Region" },
+            "VPCId" : { "default" : "Choose VPC" },
+            "SubnetId" : { "default" : "Choose Subnet" },
+            "AMI" : { "default" : "Specify AMI ID"},
+            "InstanceType" : { "default" : "Choose Instance Type"},
+            "KeyName" : { "default" : "Choose KeyPair"}
+          }
+        }
+      },
+    "Parameters": {
+
+        "Region": {
+            "Type": "String",
+            "ConstraintDescription": "must be the name of an existing Region."
+        },
+        "KeyName": {
+            "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instance",
+            "Type": "AWS::EC2::KeyPair::KeyName",
+            "ConstraintDescription": "must be the name of an existing EC2 KeyPair."
+        },
+        "SubnetId": {
+            "Type": "AWS::EC2::Subnet::Id",
+            "ConstraintDescription": "must be the ID of an existing Subnet."
+        },
+        "InstanceType": {
+            "Description": "WebServer EC2 instance type",
+            "Type": "String",
+            "Default": "t2.small",
+            "AllowedValues": [
+                "t1.micro",
+                "t2.micro",
+                "t2.small",
+                "t2.medium",
+                "m1.small",
+                "m1.medium",
+                "m1.large",
+                "m1.xlarge",
+                "m2.xlarge",
+                "m2.2xlarge",
+                "m2.4xlarge",
+                "m3.medium",
+                "m3.large",
+                "m3.xlarge",
+                "m3.2xlarge",
+                "c1.medium",
+                "c1.xlarge",
+                "c3.large",
+                "c3.xlarge",
+                "c3.2xlarge",
+                "c3.4xlarge",
+                "c3.8xlarge",
+                "g2.2xlarge",
+                "r3.large",
+                "r3.xlarge",
+                "r3.2xlarge",
+                "r3.4xlarge",
+                "r3.8xlarge",
+                "i2.xlarge",
+                "i2.2xlarge",
+                "i2.4xlarge",
+                "i2.8xlarge",
+                "hi1.4xlarge",
+                "hs1.8xlarge",
+                "cr1.8xlarge",
+                "cc2.8xlarge",
+                "cg1.4xlarge"
+            ],
+            "ConstraintDescription": "Must be a valid EC2 instance type"
+        },
+        "VPCId": {
+            "Type": "AWS::EC2::VPC::Id",
+            "ConstraintDescription": "must be the ID of an existing VPC."
+        },
+        "AMI": {
+            "Type": "AWS::EC2::Image::Id",
+            "ConstraintDescription": "AMI that corresponds to Region",
+            "Default": "ami-b63769a1"
+        }
+    },
+    "Resources": {
+        "WebServerSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupDescription": "Test-01",
+                "VpcId": {
+                    "Ref": "VPCId"
+                },
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "80",
+                        "ToPort": "80",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "8080",
+                        "ToPort": "8080",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "3000",
+                        "ToPort": "3000",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "22",
+                        "ToPort": "22",
+                        "CidrIp": "0.0.0.0/0"
+                    }
+                ]
+            }
+        },
+        "WebServerInstance": {
+            "Type": "AWS::EC2::Instance",
+            "Metadata": {
+                "AWS::CloudFormation::Init": {
+                    "configSets": {
+                        "Install": [
+                            "Install"
+                        ]
+                    },
+                    "Install": {
+                        "packages": {
+                            "yum": {
+                                "git": []
+                            }
+                        }
+                    }
+                }
+            },
+            "Properties": {
+			     "SubnetId": { "Ref" : "SubnetId" },
+				"Tags" : [ {"Key" : "Role", "Value" : "Test Instance"}],
+
+                "ImageId": {
+                    "Ref": "AMI"
+                },
+                "InstanceType": {
+                    "Ref": "InstanceType"
+                },
+                "SecurityGroupIds": [
+                    {
+                        "Fn::GetAtt": [
+                            "WebServerSecurityGroup",
+                            "GroupId"
+                        ]
+                    }
+                ],
+                "KeyName": {
+                    "Ref": "KeyName"
+                },
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash -xe\n",
+                                "yum install -y gcc-c++ make \n",
+                                "curl -sL https://rpm.nodesource.com/setup_6.x | sudo -E bash - \n",
+                                "yum install -y nodejs \n",
+                                "yum install -y git \n",
+                                "yum install -y vim \n",
+                                "yum install -y libgcrypt \n",
+                                "yum install -y openssl-devel \n",
+                                "npm install -g babel-cli \n",
+                                "echo \"[mongodb-org-3.4] \nname=MongoDB Repository \nbaseurl=https://repo.mongodb.org/yum/redhat/7/mongodb-org/3.4/x86_64/ \ngpgcheck=0 \nenabled=1 \ngpgkey=https://www.mongodb.org/static/pgp/server-3.4.asc \n \n \" >> ./etc/yum.repos.d/mongodb-org-3.4.repo \n",
+                                "yum install -y mongodb-org \n",
+                                "semanage port -a -t mongod_port_t -p tcp 27017 \n",
+                                "service mongod start \n",
+                                "IP=$(curl http://169.254.169.254/latest/meta-data/public-ipv4) \n",
+                                "echo \"[Unit] \nDescription=Landscapes.io v2.0.0 \nAfter=mongod.service \n\n[Service] \nExecStart=/home/ec2-user/landscapes.io/node_modules/nodemon/bin/nodemon.js /home/ec2-user/landscapes.io/server/init.js --exec babel-node \nWorkingDirectory=/home/ec2-user/landscapes.io \nRestart=always \nRestartSec=10 \nEnvironment=NODE_ENV=production MONGO_SEED=true PROTOCOL=http PUBLIC_IP=$IP PORT=80 \n\n[Install] \nWantedBy=multi-user.target \n \" >> ./usr/lib/systemd/system/landscapes.service \n",
+                                "systemctl enable landscapes \n"
+                            ]
+                        ]
+                    }
+                }
+            }
+        },
+        "ElasticLoadBalancer": {
+            "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+            "Properties": {
+                "Instances": [                  
+                    {
+                        "Ref": "WebServerInstance"
+                    }
+                ],
+                "Subnets": [
+                    {
+                        "Ref": "SubnetId"
+                    }
+                ],
+                "SecurityGroups": [
+                    {
+                        "Fn::GetAtt": [
+                            "WebServerSecurityGroup",
+                            "GroupId"
+                        ]
+                    }
+                ],
+                "Listeners": [
+                    {
+                        "LoadBalancerPort": "80",
+                        "InstancePort": "80",
+                        "Protocol": "HTTP"
+                    }
+                ]
             }
         }
-        
-      },
-      "Properties": {
-        "ImageId" : { "Ref" : "AMI" },
-        "InstanceType"   : { "Ref" : "InstanceType" },
-        "SubnetId": { "Ref" : "SubnetId" },
-        "SecurityGroupIds" : [{ "Fn::GetAtt" : [ "WebServerSecurityGroup", "GroupId" ] }],
-        "KeyName" : { "Ref" : "KeyName" },
-        "UserData"       : { "Fn::Base64" : { "Fn::Join" : ["", [
-            "#!/bin/bash -xe\n",
-            "sudo yum install -y gcc-c++ make \n",
-            "curl -sL https://rpm.nodesource.com/setup_6.x | sudo -E bash - \n",
-            "sudo yum install -y nodejs \n",
-            "sudo yum install -y git \n",
-            "sudo yum install -y vim \n",
-            "echo \"[mongodb-org-3.4] \nname=MongoDB Repository \nbaseurl=https://repo.mongodb.org/yum/redhat/7/mongodb-org/3.4/x86_64/ \ngpgcheck=0 \nenabled=1 \ngpgkey=https://www.mongodb.org/static/pgp/server-3.4.asc \n \n \" >> ./etc/yum.repos.d/mongodb-org-3.4.repo \n",
-            "sudo yum install -y mongodb-org \n",
-            "semanage port -a -t mongod_port_t -p tcp 27017 \n",
-            "sudo service mongod start \n",
-            "echo \"[Unit] \nDescription=Landscapes.io v2.0.0 \nAfter=mongod.service \n\n[Service] \nExecStart=/home/ec2-user/landscapes.io/node_modules/nodemon/bin/nodemon.js /home/ec2-user/landscapes.io/server/init.js --exec babel-node \nWorkingDirectory=/home/ec2-user/landscapes.io \nRestart=always \nRestartSec=10 \nEnvironment=NODE_ENV=production PROTOCOL=https PUBLIC_IP=landscapes.blacksky.io \n\n[Install] \nWantedBy=multi-user.target \n \" >> ./usr/lib/systemd/system/landscapes.service \n",
-		    "sudo systemctl enable landscapes \n",
-		    "sudo systemctl start landscapes \n"
-		]]}}
-      }
     }
-  }
 }
