@@ -16,11 +16,14 @@ networkInterface.use([
             }
             const time = Math.floor(Date.now() / 1000);
 
+            if (userInfo == null) {
+                 userInfo = auth.getUserInfo();
+            }
             if (user == null) {
-                user = auth.getToken()
+                user = auth.getToken();
 
             } else if (time >= userInfo.expires) {
-                user = auth.getToken()
+                user = auth.getToken();
 
             }
             // get the authentication token from local storage if it exists
