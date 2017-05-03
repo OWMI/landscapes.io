@@ -188,7 +188,7 @@
                                 "semanage port -a -t mongod_port_t -p tcp 27017 \n",
                                 "service mongod start \n",
                                 "IP=$(curl http://169.254.169.254/latest/meta-data/public-ipv4) \n",
-                                "echo \"[Unit] \nDescription=Landscapes.io v2.0.0 \nAfter=mongod.service \n\n[Service] \nExecStart=/home/ec2-user/landscapes.io/node_modules/nodemon/bin/nodemon.js /home/ec2-user/landscapes.io/server/init.js --exec babel-node \nWorkingDirectory=/home/ec2-user/landscapes.io \nRestart=always \nRestartSec=10 \nEnvironment=NODE_ENV=production MONGO_SEED=true PROTOCOL=http PUBLIC_IP=$IP PORT=80 \n\n[Install] \nWantedBy=multi-user.target \n \" >> ./usr/lib/systemd/system/landscapes.service \n",
+                                "echo \"[Unit] \nDescription=Landscapes.io v2.0.0 \nAfter=mongod.service \n\n[Service] \nExecStart=/usr/bin/node /home/ec2-user/landscapes.io/dist/server/init.js \nWorkingDirectory=/home/ec2-user/landscapes.io/dist \nRestart=always \nRestartSec=10 \nEnvironment=NODE_ENV=production MONGO_SEED=true PROTOCOL=http PUBLIC_IP=$IP PORT=80 \n\n[Install] \nWantedBy=multi-user.target \n \" >> ./usr/lib/systemd/system/landscapes.service \n",
                                 "systemctl enable landscapes \n"
                             ]
                         ]
