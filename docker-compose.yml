@@ -1,45 +1,29 @@
 version: '2'
 services:
-
-# landscapes
-# http://localhost:3000
-
-# landscapes
-# http://localhost:8080/graphiql
-
   web:
+    image: landscapes
     restart: always
-    build: .
     container_name: landscapes
     ports:
-     - "3000:3000"
-     - "8080:8080"
+      - "8080:8080"
     environment:
-     - NODE_ENV=production
-     - DB_PORT_27017=db
-     - LDAP_PORT_389=openldap
+      - NODE_ENV=production
+      - DB_PORT_27017=db
+      - PUBLIC_IP=127.0.0.1
     depends_on:
-     - db
-    volumes_from:
-     - web-data
-  web-data:
-    build: .
-    container_name: landscapes-data
-    volumes:
-     - ./:/opt/landscapes
-     - /opt/landscapes/node_modules
-     - /opt/landscapes/public
-     - /opt/landscapes/uploads
-    entrypoint: /bin/true
-         
+      - db
+    networks:
+      - lsnet
+
   db:
     image: mongo:3.2
     container_name: mongo
     restart: always
-    ports:
-      - "27017:27017"
     volumes_from:
       - db-data
+    networks:
+      - lsnet
+
   db-data:
     image: mongo:3.2
     container_name: mongo-data
@@ -48,33 +32,9 @@ services:
       - /var/lib/mongodb
       - /var/log/mongodb
     entrypoint: /bin/true
+    networks:
+      - lsnet
 
-# https://github.com/osixia/docker-openldap
-  openldap:
-    # 389=LDAP, 636=LDAPS
-    ports:
-      - "389:389"
-      - "636:636"
-    image: osixia/openldap
-    container_name: openldap
-    environment:
-      LDAP_ORGANISATION: "Landscapes"
-      LDAP_DOMAIN: "landscapes.io"
-      LDAP_BASE_DN: "dc=landscapes,dc=io"
-      LDAP_ADMIN_PASSWORD: "password"
-
-# https://github.com/osixia/docker-phpLDAPadmin
-# https://localhost:8443
-# Login DN: cn=admin,dc=landscapes,dc=io
-# Password: password
-  phpldapadmin:
-    ports:
-      - "8888:80"
-      - "8443:443"
-    image: osixia/phpldapadmin
-    container_name: phpldapadmin
-    environment:
-      PHPLDAPADMIN_LDAP_HOSTS: openldap
-      # PHPLDAPADMIN_HTTPS=false:
-    links:
-      - openldap
+networks:
+  lsnet:
+    driver: bridge
