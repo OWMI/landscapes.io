@@ -11,7 +11,7 @@ module.exports = {
     },
     port: process.env.PORT || 8080,
     // Binding to 127.0.0.1 is safer in production.
-    host: '0.0.0.0',
+    host: process.env.DNS_NAME,
     db: {
         uri: process.env.MONGODB_URI || 'mongodb://' + (process.env.DB_PORT_27017 || 'localhost') + '/landscapes',
         options: {
