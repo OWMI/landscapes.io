@@ -1,7 +1,7 @@
 `use strict`
 
 const { AUTH_STRATEGY, DOMAIN, GEOAXIS_CLIENT_ID, GEOAXIS_CLIENT_SECRET, GOOGLE_CLIENT_ID,
-        GOOGLE_CLIENT_SECRET, LDAP_PORT_389, NODE_ENV, PROTOCOL, PUBLIC_IP, PORT, SESSION_SECRET } = process.env
+        GOOGLE_CLIENT_SECRET, LDAP_PORT_389, NODE_ENV, PROTOCOL, DNS_NAME, PORT, SESSION_SECRET } = process.env
 
 let ldapUrl = LDAP_PORT_389
     ? `ldap://${LDAP_PORT_389}:389`
@@ -14,7 +14,7 @@ module.exports = {
         keywords: `aws, cloudformation, cloud`
     },
     port: PORT || 8080,
-    host: PUBLIC_IP || `0.0.0.0`,
+    host: DNS_NAME || `0.0.0.0`,
 
     // DOMAIN config should be set to the fully qualified application accessible URL.
     // For example: https://www.myapp.com (including port if required).
@@ -44,7 +44,7 @@ module.exports = {
             clientID: GOOGLE_CLIENT_ID || `GOOGLE_CLIENT_ID`,
             clientSecret: GOOGLE_CLIENT_SECRET || `GOOGLE_CLIENT_SECRET`,
             callbackURL: NODE_ENV === 'production'
-                         ? `${PROTOCOL}://${PUBLIC_IP}/api/auth/google/callback`
+                         ? `${PROTOCOL}://${DNS_NAME}/api/auth/google/callback`
                          : `${PROTOCOL}://localhost:${PORT}/api/auth/google/callback`
         },
         geoaxis: {

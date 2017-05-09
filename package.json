@@ -11,7 +11,7 @@
     "dev": "NODE_ENV=development webpack",
     "test": "NODE_ENV=test nyc mocha test/.setup.js test/**/*.spec.js --recursive",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "prod": "NODE_ENV=production node ./server/init.js",
+    "prod": "sh ../config_ip.sh && NODE_ENV=production node ./server/init.js",
     "build-web": "PROTOCOL=HTTP PORT=80 NODE_ENV=production webpack -p --config webpack.production.config.js",
     "build-server": "PROTOCOL=HTTP PORT=8080 NODE_ENV=production babel ./server -d ./dist/server",
     "build": "npm run build-server & npm run build-web",

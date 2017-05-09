@@ -7,11 +7,10 @@ RUN mkdir -p /opt/landscapes
 COPY . /opt/landscapes
 
 # Install app dependencies
-RUN cd /opt/landscapes/ && npm install --quiet && npm cache clean
+RUN cd /opt/landscapes/ && npm install --quiet && npm cache clean && chmod +x config_ip.sh
 
 # Set environment vars
 ENV MONGO_SEED true
-ENV PUBLIC_IP 0.0.0.0
 
 # Package the app
 RUN cd /opt/landscapes/ && npm run build && npm run package
