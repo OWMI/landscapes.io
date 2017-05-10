@@ -50,7 +50,7 @@ module.exports = {
         geoaxis: {
             clientID: GEOAXIS_CLIENT_ID || `GEOAXIS_CLIENT_ID`,
             clientSecret: GEOAXIS_CLIENT_SECRET || `GEOAXIS_CLIENT_SECRET`,
-            callbackURL: `https://landscapes.blacksky.io/api/auth/geoaxis/callback`
+            callbackURL: `https://${DNS_NAME}/api/auth/geoaxis/callback`
         }
     },
 
