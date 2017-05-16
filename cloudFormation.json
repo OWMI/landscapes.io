@@ -7,7 +7,7 @@
           "ParameterGroups" : [
             {
               "Label" : { "default" : "Network Configuration" },
-              "Parameters" : [ "Region", "VPCId", "SubnetId" ]
+              "Parameters" : [ "Region", "VPCId", "SubnetId", "SecurityCIDR" ]
             },
             {
               "Label" : { "default" : "Instance Configuration" },
@@ -16,6 +16,7 @@
           ],
           "ParameterLabels" : {
             "Region" : { "default" : "Specify Region" },
+            "SecurityCIDR" : { "default" : "Set Security Groups CidrIP" },
             "VPCId" : { "default" : "Choose VPC" },
             "SubnetId" : { "default" : "Choose Subnet" },
             "AMI" : { "default" : "Specify AMI ID"},
@@ -26,6 +27,11 @@
       },
     "Parameters": {
 
+        "SecurityCIDR": {
+            "Type": "String",
+            "Default": "0.0.0.0/0", 
+            "ConstraintDescription": ""
+        },        
         "Region": {
             "Type": "String",
             "ConstraintDescription": "must be the name of an existing Region."
@@ -95,6 +101,42 @@
         }
     },
     "Resources": {
+        "RootRole": {
+         "Type": "AWS::IAM::Role",
+         "Properties": {
+            "AssumeRolePolicyDocument": {
+               "Version" : "2012-10-17",
+               "Statement": [ {
+                  "Effect": "Allow",
+                  "Principal": {
+                     "Service": [ "ec2.amazonaws.com" ]
+                  },
+                  "Action": [ "sts:AssumeRole" ]
+               } ]
+            },
+            "Path": "/",
+            "Policies": [ {
+               "PolicyName": "root",
+               "PolicyDocument": {
+                  "Version" : "2012-10-17",
+                  "Statement": [ {
+                     "Effect": "Allow",
+                     "Action": "*",
+                     "Resource": "*"
+                  } ]
+               }
+               } ]
+            }
+      },
+      "RootInstanceProfile": {
+         "Type": "AWS::IAM::InstanceProfile",
+         "Properties": {
+            "Path": "/",
+            "Roles": [ {
+               "Ref": "RootRole"
+            } ]
+         }
+      },
         "WebServerSecurityGroup": {
             "Type": "AWS::EC2::SecurityGroup",
             "Properties": {
@@ -107,25 +149,25 @@
                         "IpProtocol": "tcp",
                         "FromPort": "80",
                         "ToPort": "80",
-                        "CidrIp": "0.0.0.0/0"
+                        "CidrIp": { "Ref" : "SecurityCIDR" }
                     },
                     {
                         "IpProtocol": "tcp",
                         "FromPort": "8080",
                         "ToPort": "8080",
-                        "CidrIp": "0.0.0.0/0"
+                        "CidrIp": { "Ref" : "SecurityCIDR" }
                     },
                     {
                         "IpProtocol": "tcp",
                         "FromPort": "3000",
                         "ToPort": "3000",
-                        "CidrIp": "0.0.0.0/0"
+                        "CidrIp": { "Ref" : "SecurityCIDR" }
                     },
                     {
                         "IpProtocol": "tcp",
                         "FromPort": "22",
                         "ToPort": "22",
-                        "CidrIp": "0.0.0.0/0"
+                        "CidrIp": { "Ref" : "SecurityCIDR" }
                     }
                 ]
             }
@@ -188,7 +230,7 @@
                                 "semanage port -a -t mongod_port_t -p tcp 27017 \n",
                                 "service mongod start \n",
                                 "IP=$(curl http://169.254.169.254/latest/meta-data/public-ipv4) \n",
-                                "echo \"[Unit] \nDescription=Landscapes.io v2.0.0 \nAfter=mongod.service \n\n[Service] \nExecStart=/home/ec2-user/landscapes.io/node_modules/nodemon/bin/nodemon.js /home/ec2-user/landscapes.io/server/init.js --exec babel-node \nWorkingDirectory=/home/ec2-user/landscapes.io \nRestart=always \nRestartSec=10 \nEnvironment=NODE_ENV=production MONGO_SEED=true PROTOCOL=http PUBLIC_IP=$IP PORT=80 \n\n[Install] \nWantedBy=multi-user.target \n \" >> ./usr/lib/systemd/system/landscapes.service \n",
+                                "echo \"[Unit] \nDescription=Landscapes.io v2.0.0 \nAfter=mongod.service \n\n[Service] \nExecStart=/usr/bin/node /home/ec2-user/landscapes.io/dist/server/init.js \nWorkingDirectory=/home/ec2-user/landscapes.io/dist \nRestart=always \nRestartSec=10 \nEnvironment=NODE_ENV=production MONGO_SEED=true PROTOCOL=http PUBLIC_IP=$IP PORT=80 \n\n[Install] \nWantedBy=multi-user.target \n \" >> ./usr/lib/systemd/system/landscapes.service \n",
                                 "systemctl enable landscapes \n"
                             ]
                         ]
