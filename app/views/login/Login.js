@@ -19,7 +19,6 @@ class Login extends Component {
     }
 
     componentWillMount() {
-        console.log("STAT")
         const self = this
         const { search } = window.location
         // HACK: encode/decode oauth user until Chrome 57 is released with preflight issue fix
@@ -167,12 +166,10 @@ class Login extends Component {
             data: { username, password }
         }).then(res => {
             let userWithPermissions;
-            console.log(res.data)
             auth.setUserInfo(res.data.userWithRoles)
             auth.setToken(res.data.token)
             const { provider } = res.data.userWithRoles;
             const { accounts, groups, loginUser } = self.props
-            console.log(provider)
             if (provider === 'ldap') {
                 const { ldapGroups, mappings } = self.props
                 userWithPermissions = auth.setLdapUserPermissions(res.data.userWithRoles, groups, accounts, ldapGroups, mappings)

@@ -428,7 +428,6 @@ class CreateUser extends Component {
                 lastName: lastName,
                 imageUri: croppedImg
             }
-            console.log(userToCreate)
             if(this.state.publicKey){
               userToCreate.publicKey = this.state.publicKey
             }

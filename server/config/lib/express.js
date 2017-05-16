@@ -120,7 +120,6 @@ module.exports.initMiddleware = app => {
 
     // TODO: Move to its own folder
     app.post('/api/generateToken', (req, res) => {
-        console.log("gen")
         let user = ''
 
         req.on('data', chunk => {
@@ -148,7 +147,6 @@ module.exports.initMiddleware = app => {
     })
 
     app.get('/api/verifyToken', (req, res) => {
-        console.log("checking")
         // route middleware to verif    y a token
         // check header or url parameters or post parameters for token
         let token = req.body.token || req.query.token || req.headers['x-access-token']
