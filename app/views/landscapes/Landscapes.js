@@ -212,7 +212,27 @@ class Landscapes extends Component {
 
     render() {
 
-        const { loading, landscapes, users, groups, userAccess } = this.props
+        const { loading, landscapes, users, groups, accounts, userAccess } = this.props
+        let user = auth.getUserInfo()
+        let userWithPermissions;
+        let provider = "fag"
+        if (provider === 'ldap') {
+            const { ldapGroups, mappings } = self.props
+            userWithPermissions = auth.setLdapUserPermissions(user, groups, accounts, ldapGroups, mappings)
+        } else {
+            userWithPermissions = auth.setUserPermissions(user, groups, accounts)
+        }
+        console.log(groups)
+        console.log(userWithPermissions)
+        axios({
+            method: 'post',
+            url: `${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/generateToken`,
+            data: userWithPermissions
+        }).then(res => {
+            auth.setUserInfo(res.data.user)
+            auth.setToken(res.data.token)
+        });
+
         const { animated, viewEntersAnim, viewLandscapes, items, currentUser, showCards } = this.state
 
         if (loading) {

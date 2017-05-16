@@ -26,6 +26,9 @@ networkInterface.use([
                 user = auth.getToken();
 
             }
+
+            if (!user)
+            return
             // get the authentication token from local storage if it exists
             req.options.headers.token = user
 

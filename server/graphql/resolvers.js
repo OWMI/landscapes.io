@@ -69,7 +69,11 @@ const resolveFunctions = {
             return new Promise((resolve, reject) => {
                 return Account.find().sort('-created').exec((err, accounts) => {
                     if (err) return reject(err)
-                    return resolve(accounts)
+
+                    if (context.userData.role == "admin")
+                        return resolve(accounts)
+                    else
+                        return resolve([{}])
                 })
             });
         },
@@ -85,7 +89,11 @@ const resolveFunctions = {
             return new Promise((resolve, reject) => {
                 return Group.find().sort('-created').populate('user', 'displayName').exec((err, groups) => {
                     if (err) return reject(err)
-                    return resolve(groups)
+
+                    if (context.userData.role == "admin")
+                        return resolve(groups)
+                    else
+                        return resolve(context.userData.groups)
                 })
             })
         },
@@ -107,7 +115,18 @@ const resolveFunctions = {
             return new Promise((resolve, reject) => {
                 return Group.findById(args.id).exec((err, group) => {
                     if (err) return reject(err)
-                    return resolve(group)
+
+                    var inGroup = false;
+                    for (var i=0; i < context.userData.groups.length; i++) {
+                        if (context.userData.groups[i]._id == group._id) {
+                            inGroup = true;
+                            break;
+                        }
+                    }
+
+                    if (context.userData.role == "admin" || inGroup)
+                        return resolve(group)
+                    else return reject({})
                 })
             });
         },
@@ -128,27 +147,32 @@ const resolveFunctions = {
                     scope: 'sub'
                 }
 
-            return new Promise((resolve, reject) => {
-                ldapClient.search('ou=groups,dc=landscapes,dc=io', opts, (err, res) => {
-                    res.on('searchEntry', entry => {
-                        groupsArray.push(entry.object)
-                    })
+            if (context.userData.role == "admin") {
 
-                    res.on('searchReference', referral => {
-                        console.log('referral: ' + referral.uris.join())
-                    })
+                return new Promise((resolve, reject) => {
+                    ldapClient.search('ou=groups,dc=landscapes,dc=io', opts, (err, res) => {
+                        res.on('searchEntry', entry => {
+                            groupsArray.push(entry.object)
+                        })
 
-                    res.on('error', err => {
-                        console.error('error: ' + err.message)
-                        reject(err)
-                    })
+                        res.on('searchReference', referral => {
+                            console.log('referral: ' + referral.uris.join())
+                        })
 
-                    res.on('end', result => {
-                        resolve(groupsArray)
+                        res.on('error', err => {
+                            console.error('error: ' + err.message)
+                            reject(err)
+                        })
+
+                        res.on('end', result => {
+                            resolve(groupsArray)
+                        })
                     })
                 })
-            })
-
+            }
+            else {
+                return reject([{}])
+            }
         },
         mappings(root, args, context) {
             return new Promise((resolve, reject) => {
@@ -170,7 +194,12 @@ const resolveFunctions = {
             return new Promise((resolve, reject) => {
                 return User.find().sort('-created').populate('user', 'displayName').exec((err, groups) => {
                     if (err) return reject(err)
+
+                    console.log(context.userData)
+                    if (context.userData.role == "admin")
                     return resolve(groups)
+                    else
+                    return resolve([context.userData])
                 })
             });
         },
@@ -178,7 +207,17 @@ const resolveFunctions = {
             return new Promise((resolve, reject) => {
                 return User.find().sort('-created').populate('user', 'displayName').exec((err, groups) => {
                     if (err) return reject(err)
-                    return resolve(groups)
+
+                    var isUser = false;
+                    console.log("HEY")
+                    console.log(groups)
+
+                    if (groups._id == context.userData._id)
+                    isUser = true;
+                    if (context.userData.role == "admin" || isUser)
+                        return resolve(groups)
+                    else
+                        return reject([{}])
                 })
             });
         }
@@ -200,44 +239,54 @@ const resolveFunctions = {
                 )
             })
         },
-        createLandscape(_, { landscape }) {
+        createLandscape(_, { landscape }, context) {
             return new Promise((resolve, reject) => {
 
                 console.log(' ---> creating Landscape')
                 let newLandscape = new Landscape(landscape)
+                if (context.userData.role == "admin" || context.userData.isGroupAdmin == true) {
 
-                newLandscape.save(err => {
-                    if (err) {
-                        console.log(err)
-                        return reject(err)
-                    } else {
-                        console.log(' ---> created: ', newLandscape._id)
-                        return resolve(newLandscape)
-                    }
+                    newLandscape.save(err => {
+                        if (err) {
+                            console.log(err)
+                            return reject(err)
+                        } else {
+                            console.log(' ---> created: ', newLandscape._id)
+                            return resolve(newLandscape)
+                        }
+                    })
+                }
                 })
-            })
+
         },
-        createUser(_, { user }) {
+        createUser(_, { user },context) {
             return new Promise((resolve, reject) => {
 
                 console.log(' ---> creating User', user)
                 let newUser = new User(user)
 
-                newUser.save(err => {
-                    if (err) {
-                         console.log(err)
-                        return reject(err)
-                    } else {
-                        console.log(' ---> created: ', newUser._id)
-                        return resolve(newUser)
-                    }
-                })
+                if (context.userData.role == "admin") {
+
+                    newUser.save(err => {
+                        if (err) {
+                            console.log(err)
+                            return reject(err)
+                        } else {
+                            console.log(' ---> created: ', newUser._id)
+                            return resolve(newUser)
+                        }
+                    })
+                } else {
+                    return resolve("Not authorized")
+                }
             })
+
         },
-        updateUser(_, { user }) {
+        updateUser(_, { user },context) {
             return new Promise((resolve, reject) => {
 
                 console.log(' ---> updating user')
+                    if (context.userData.role == "admin") {
 
                 User.findOneAndUpdate({_id: user._id}, user, {new: true}, (err, doc) => {
                     if (err) {
@@ -248,11 +297,15 @@ const resolveFunctions = {
                         return resolve(doc)
                     }
                 })
+                    } else {
+                        return resolve("Not authorized")
+                    }
             });
         },
-        deleteUser(_, { user }) {
+        deleteUser(_, { user },context) {
             return new Promise((resolve, reject) => {
                 console.log(' ---> deleting User')
+                    if (context.userData.role == "admin") {
 
                 User.findByIdAndRemove(user._id, (err, doc) => {
                     if (err) {
@@ -263,53 +316,68 @@ const resolveFunctions = {
                         return resolve(doc)
                     }
                 })
+                    } else {
+                        return resolve("Not authorized")
+                    }
             });
         },
-        createIntegration(_, { integration }) {
+        createIntegration(_, { integration }, context) {
             return new Promise((resolve, reject) => {
 
                 console.log(' ---> creating integration', integration)
                 let newIntegration = new Integration(integration)
+                if (context.userData.role == "admin") {
+                    newIntegration.save(err => {
+                        if (err) {
+                            console.log(err)
+                            return reject(err)
+                        } else {
+                            console.log(' ---> created: ', newIntegration._id)
+                            return resolve(newIntegration)
+                        }
+                    })
+                } else {
+                    return resolve("Not authorized")
+                }
 
-                newIntegration.save(err => {
-                    if (err) {
-                        console.log(err)
-                        return reject(err)
-                    } else {
-                        console.log(' ---> created: ', newIntegration._id)
-                        return resolve(newIntegration)
-                    }
-                })
             });
         },
-        updateIntegration(_, { integration }) {
+        updateIntegration(_, { integration }, context) {
             return new Promise((resolve, reject) => {
+                    if (context.userData.role == "admin") {
 
-                console.log(' ---> updating integration')
-                Integration.findOneAndUpdate({_id: integration._id}, integration, {new: true}, (err, doc) => {
-                    if (err) {
-                        console.log(err)
-                        return reject(err)
+                        console.log(' ---> updating integration')
+                        Integration.findOneAndUpdate({_id: integration._id}, integration, {new: true}, (err, doc) => {
+                            if (err) {
+                                console.log(err)
+                                return reject(err)
+                            } else {
+                                console.log(' ---> updated: ', doc)
+                                return resolve(doc)
+                            }
+                        })
                     } else {
-                        console.log(' ---> updated: ', doc)
-                        return resolve(doc)
+                        return("Not Authorized")
                     }
-                })
             });
         },
         deleteIntegration(_, { integration }) {
             return new Promise((resolve, reject) => {
                 console.log(' ---> deleting integration')
+                    if (context.userData.role == "admin") {
 
-                Integration.findByIdAndRemove(integration._id, (err, doc) => {
-                    if (err) {
-                        console.log('error', err)
-                        return reject(err)
+                        Integration.findByIdAndRemove(integration._id, (err, doc) => {
+                            if (err) {
+                                console.log('error', err)
+                                return reject(err)
+                            } else {
+                                console.log(' ---> integration deleted: ', doc)
+                                return resolve(doc)
+                            }
+                        })
                     } else {
-                        console.log(' ---> integration deleted: ', doc)
-                        return resolve(doc)
+                        return ("Not Authorized")
                     }
-                })
             });
         },
         createTag(_, { tag }) {
@@ -317,125 +385,155 @@ const resolveFunctions = {
 
                 console.log(' ---> creating Tag', tag)
                 let newTag = new Tag(tag)
+                    if (context.userData.role == "admin" || context.userData.isGroupAdmin == true) {
 
-                newTag.save(err => {
-                    if (err) {
-                        console.log(err)
-                        return reject(err)
+                        newTag.save(err => {
+                            if (err) {
+                                console.log(err)
+                                return reject(err)
+                            } else {
+                                console.log(' ---> created: ', newTag._id)
+                                return resolve(newTag)
+                            }
+                        })
                     } else {
-                        console.log(' ---> created: ', newTag._id)
-                        return resolve(newTag)
+                        return reject("Not Authorized")
                     }
-                })
             })
         },
         updateTag(_, { tag }) {
                 return new Promise((resolve, reject) => {
                     console.log(' ---> updating Tag')
+                        if (context.userData.role == "admin" || context.userData.isGroupAdmin == true) {
 
-                    Tag.findOneAndUpdate({_id: tag._id}, tag, {new: true}, (err, doc) => {
-                        if (err) {
-                            console.log(err)
-                            return reject(err)
-                        } else {
-                            console.log(' ---> updated: ', doc)
-                            return resolve(doc)
-                        }
-                    })
+                            Tag.findOneAndUpdate({_id: tag._id}, tag, {new: true}, (err, doc) => {
+                                if (err) {
+                                    console.log(err)
+                                    return reject(err)
+                                } else {
+                                    console.log(' ---> updated: ', doc)
+                                    return resolve(doc)
+                                }
+                            })
+                        } return reject("Not Authorized")
                 });
         },
         deleteTag(_, { tag }) {
             return new Promise((resolve, reject) => {
                 console.log(' ---> deleting Tag')
+                    if (context.userData.role == "admin" || context.userData.isGroupAdmin == true) {
 
-                Tag.findByIdAndRemove(tag._id, (err, doc) => {
-                    if (err) {
-                        console.log('error', err)
-                        return reject(err)
+                        Tag.findByIdAndRemove(tag._id, (err, doc) => {
+                            if (err) {
+                                console.log('error', err)
+                                return reject(err)
+                            } else {
+                                console.log(' ---> Tag deleted: ', doc)
+                                return resolve(doc)
+                            }
+                        })
                     } else {
-                        console.log(' ---> Tag deleted: ', doc)
-                        return resolve(doc)
+                        return reject("Not Admin")
                     }
-                })
             });
         },
         createDocumentType(_, { documentType }) {
             return new Promise((resolve, reject) => {
                 console.log(' ---> creating DocumentType', TypeDocument)
                 let newDocumentType = new TypeDocument(documentType)
+                    if (context.userData.role == "admin" || context.userData.isGroupAdmin == true) {
 
-                newDocumentType.save(err => {
-                    if (err) {
-                        console.log(err)
-                        return reject(err)
+                        newDocumentType.save(err => {
+                            if (err) {
+                                console.log(err)
+                                return reject(err)
+                            } else {
+                                console.log(' ---> created: ', newDocumentType._id)
+                                return resolve(newDocumentType)
+                            }
+                        })
                     } else {
-                        console.log(' ---> created: ', newDocumentType._id)
-                        return resolve(newDocumentType)
+                        return reject("Not authorized")
                     }
-                })
             });
         },
         updateDocumentType(_, { documentType }) {
             return new Promise((resolve, reject) => {
                 console.log(' ---> updating documentType')
+                    if (context.userData.role == "admin" || context.userData.isGroupAdmin == true) {
 
-                TypeDocument.findOneAndUpdate({_id: documentType._id}, documentType, {new: true}, (err, doc) => {
-                    if (err) {
-                        console.log(err)
-                        return reject(err)
+                        TypeDocument.findOneAndUpdate({_id: documentType._id}, documentType, {new: true}, (err, doc) => {
+                            if (err) {
+                                console.log(err)
+                                return reject(err)
+                            } else {
+                                console.log(' ---> updated: ', doc)
+                                return resolve(doc)
+                            }
+                        })
                     } else {
-                        console.log(' ---> updated: ', doc)
-                        return resolve(doc)
+                        return reject("Not authorized")
                     }
-                })
             });
         },
         deleteDocumentType(_, { documentType }) {
             return new Promise((resolve, reject) => {
 
                 console.log(' ---> deleting Document Type')
+                    if (context.userData.role == "admin" || context.userData.isGroupAdmin == true) {
 
-                TypeDocument.findByIdAndRemove({_id: documentType._id}, (err, doc) => {
-                    if (err) {
-                        console.log('error', err)
-                        return reject(err)
+                        TypeDocument.findByIdAndRemove({_id: documentType._id}, (err, doc) => {
+                            if (err) {
+                                console.log('error', err)
+                                return reject(err)
+                            } else {
+                                console.log(' ---> Document Type deleted: ', doc)
+                                return resolve(doc)
+                            }
+                        })
                     } else {
-                        console.log(' ---> Document Type deleted: ', doc)
-                        return resolve(doc)
+                        return reject("Not authorized")
                     }
-                })
             });
         },
-        updateLandscape(_, { landscape }) {
+        updateLandscape(_, { landscape }, context) {
             return new Promise((resolve, reject) => {
 
                 console.log(' ---> updating Landscape', landscape)
+                    if (context.userData.role == "admin" || context.userData.isGroupAdmin == true) {
 
-                Landscape.findOneAndUpdate({_id: landscape._id}, landscape, {new: true}, (err, doc) => {
-                    if (err) {
-                        console.log(err)
-                        return reject(err)
+                        Landscape.findOneAndUpdate({_id: landscape._id}, landscape, {new: true}, (err, doc) => {
+                            if (err) {
+                                console.log(err)
+                                return reject(err)
+                            } else {
+                                console.log(' ---> updated: ', doc)
+                                return resolve(doc)
+                            }
+                        })
                     } else {
-                        console.log(' ---> updated: ', doc)
-                        return resolve(doc)
+                        return resolve("Not authorized")
                     }
-                })
             });
         },
         deleteLandscape(_, { landscape }) {
             return new Promise((resolve, reject) => {
 
                 console.log(' ---> deleting Landscape')
+                    if (context.userData.role == "admin" || context.userData.isGroupAdmin == true) {
 
-                Landscape.findByIdAndRemove(landscape._id, (err, doc) => {
-                    if (err) {
-                        console.log('error', err)
-                        return reject(err)
+                        Landscape.findByIdAndRemove(landscape._id, (err, doc) => {
+                            if (err) {
+                                console.log('error', err)
+                                return reject(err)
+                            } else {
+                                console.log(' ---> Landscape deleted: ', doc)
+                                return resolve(doc)
+                            }
+                        })
                     } else {
-                        console.log(' ---> Landscape deleted: ', doc)
-                        return resolve(doc)
+                        return resolve("Not authorized")
                     }
-                })
             });
         },
         updateMappings(_, { mapping }) {
@@ -465,99 +563,136 @@ const resolveFunctions = {
 
                 console.log(' ---> creating Account')
                 let newAccount = new Account(account)
+                    if (context.userData.role == "admin" || context.userData.isGroupAdmin == true) {
 
-                newAccount.save(err => {
-                    if (err) {
-                        console.log(err)
-                        return reject(err)
+                        newAccount.save(err => {
+                            if (err) {
+                                console.log(err)
+                                return reject(err)
+                            } else {
+                                console.log(' ---> created: ', newAccount._id)
+                                return resolve(newAccount)
+                            }
+                        })
                     } else {
-                        console.log(' ---> created: ', newAccount._id)
-                        return resolve(newAccount)
+                        return reject("Not authorized")
                     }
-                })
             })
         },
         updateAccount(_, { account }) {
             return new Promise((resolve, reject) => {
 
                 console.log(' ---> updating Account')
+                    if (context.userData.role == "admin" || context.userData.isGroupAdmin == true) {
 
-                Account.findOneAndUpdate({_id: account._id}, account, {new: true}, (err, doc) => {
-                    if (err) {
-                        console.log(err)
-                        return reject(err)
+                        Account.findOneAndUpdate({_id: account._id}, account, {new: true}, (err, doc) => {
+                            if (err) {
+                                console.log(err)
+                                return reject(err)
+                            } else {
+                                console.log(' ---> updated: ', doc)
+                                return resolve(doc)
+                            }
+                        })
                     } else {
-                        console.log(' ---> updated: ', doc)
-                        return resolve(doc)
+                        return resolve("Not admin")
                     }
-                })
             })
         },
         deleteAccount(_, { account }) {
             return new Promise((resolve, reject) => {
 
                 console.log(' ---> deleting Account')
+                    if (context.userData.role == "admin" || context.userData.isGroupAdmin == true) {
 
-                Account.findByIdAndRemove(account._id, (err, doc) => {
-                    if (err) {
-                        console.log('error', err)
-                        return reject(err)
+                        Account.findByIdAndRemove(account._id, (err, doc) => {
+                            if (err) {
+                                console.log('error', err)
+                                return reject(err)
+                            } else {
+                                console.log(' ---> Account deleted: ', doc)
+                                return resolve(doc)
+                            }
+                        })
                     } else {
-                        console.log(' ---> Account deleted: ', doc)
-                        return resolve(doc)
+                        return resolve("Not Authorized")
                     }
-                })
             });
         },
         createGroup(_, { group }) {
             return new Promise((resolve, reject) => {
 
                 console.log(' ---> creating group')
+                    if (context.userData.role == "admin") {
 
-                let newGroup = new Group(group)
+                        let newGroup = new Group(group)
 
-                newGroup.save(err => {
-                    if (err) {
-                        console.log(err)
-                        return reject(err)
-                    } else {
-                        console.log(' ---> created: ' + newGroup._id)
-                        return Group.find(newGroup._id).sort('-created').populate('user', 'displayName').exec((err, groups) => {
-                            if (err) return err
-                            return resolve(newGroup)
+                        newGroup.save(err => {
+                            if (err) {
+                                console.log(err)
+                                return reject(err)
+                            } else {
+                                console.log(' ---> created: ' + newGroup._id)
+                                return Group.find(newGroup._id).sort('-created').populate('user', 'displayName').exec((err, groups) => {
+                                    if (err) return err
+                                    return resolve(newGroup)
+                                })
+                            }
                         })
+                    } else {
+                        return resolve("Not authorized")
                     }
-                })
             })
         },
         updateGroup(_, { group }) {
             return new Promise((resolve, reject) => {
                 console.log(' ---> updating group')
-
-                Group.findOneAndUpdate({_id: group._id}, group, {new: true}, (err, doc) => {
-                    if (err) {
-                        console.log(err)
-                        return reject(err)
-                    } else {
-                        console.log(' ---> updated: ', doc)
-                        return resolve(doc)
+                    var inGroup = false;
+                for (var i=0; i < context.userData.groups.length; i++) {
+                    if (context.userData.groups[i]._id == group._id) {
+                        inGroup = true;
+                        break;
                     }
-                })
+                }
+                    if (context.userData.role == "admin" || inGroup) {
+
+                        Group.findOneAndUpdate({_id: group._id}, group, {new: true}, (err, doc) => {
+                            if (err) {
+                                console.log(err)
+                                return reject(err)
+                            } else {
+                                console.log(' ---> updated: ', doc)
+                                return resolve(doc)
+                            }
+                        })
+                    } else {
+                        return resolve("Not authorized")
+                    }
             });
         },
         deleteGroup(_, { group }) {
             return new Promise((resolve, reject) => {
                 console.log(' ---> deleting Group')
-
-                Group.findByIdAndRemove(group._id, (err, doc) => {
-                    if (err) {
-                        console.log('error', err)
-                        return reject(err)
-                    } else {
-                        console.log(' ---> Account deleted: ', doc)
-                        return resolve(doc)
+                    var inGroup = false;
+                    for (var i=0; i < context.userData.groups.length; i++) {
+                        if (context.userData.groups[i]._id == group._id) {
+                            inGroup = true;
+                            break;
+                        }
                     }
-                })
+                    if (context.userData.role == "admin" || inGroup) {
+                        Group.findByIdAndRemove(group._id, (err, doc) => {
+                            if (err) {
+                                console.log('error', err)
+                                return reject(err)
+                            } else {
+                                console.log(' ---> Account deleted: ', doc)
+                                return resolve(doc)
+                            }
+                        })
+                    } else {
+                        return resolve("Not Authorized")
+                    }
             })
         },
         fetchAvailabilityZones(_, { region }) {

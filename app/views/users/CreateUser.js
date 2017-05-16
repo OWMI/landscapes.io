@@ -113,7 +113,7 @@ class CreateUser extends Component {
         return (
             <div className={cx({'animatedViews': animated, 'view-enter': viewEntersAnim})}>
                 <Snackbar open={this.state.successOpen} message="User successfully created." autoHideDuration={3000} onRequestClose={this.handleRequestClose}/>
-                <Snackbar open={this.state.failOpen} message="Error updating created" autoHideDuration={3000} onRequestClose={this.handleRequestClose}/>
+                <Snackbar id ="error" open={this.state.failOpen} message="Error updating created" autoHideDuration={3000} onRequestClose={this.handleRequestClose}/>
                 <Row middle='xs'>
                     <Col xs={4} style={{ textAlign: 'left' }}>
                         <h4>Create User</h4>
@@ -126,7 +126,7 @@ class CreateUser extends Component {
                         backgroundColor={materialTheme.palette.primary2Color}
                         style={{ float: 'right', margin: '30px 5px' }}
                         labelStyle={{ fontSize: '11px', color: 'white'}}/>
-                      <RaisedButton label='Save' onClick={this.handlesCreateClick} style={{ float: 'right', margin: '30px 5px' }} labelStyle={{ fontSize: '11px' }}/>
+                      <RaisedButton id="saveButton" label='Save' onClick={this.handlesCreateClick} style={{ float: 'right', margin: '30px 5px' }} labelStyle={{ fontSize: '11px' }}/>
                     </Col>
                 </Row>
                 <div style={styles.root}>
@@ -134,7 +134,7 @@ class CreateUser extends Component {
                         {
                             this.state.errorMessage
                             ?
-                                <p style={{ color: 'red', textAlign: 'center' }}>
+                                <p id="errMessage" style={{ color: 'red', textAlign: 'center' }}>
                                     {this.state.message}
                                 </p>
                             : null
@@ -142,7 +142,7 @@ class CreateUser extends Component {
                         {
                             this.state.passwordErrors.map((error, index) => {
                                 return
-                                    <p key={index} style={{ color: 'red', textAlign: 'center' }}>{error}</p>
+                                    <p id="errMessage" key={index} style={{ color: 'red', textAlign: 'center' }}>{error}</p>
                             })
                         }
 
@@ -379,6 +379,8 @@ class CreateUser extends Component {
     }
 
     handlesCreateClick = event => {
+        console.log(this.state.newPassword)
+        console.log(this.state.verifyPassword)
         const { router } = this.context
         const { refetchUsers, users } = this.props
         let usernameFound = false
@@ -404,7 +406,7 @@ class CreateUser extends Component {
         } else if (!this.state.email.match("[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$")) {
             this.setState({ errorMessage: true, message: 'Email must be in correct format.' })
         } else if (!this.jsonEqual(this.state.verifyPassword, this.state.newPassword)) {
-            this.setState({ errorMessage: true, message: 'New password and verify password fields do not match.' })
+            //this.setState({ errorMessage: true, message: 'New password and verify password fields do not match.' })
         } else if (!this.checkPasswordStrength(this.state.verifyPassword)) {
             this.setState({ errorMessage: true, message: this.state.passwordErrors[0]})
         }
@@ -426,6 +428,7 @@ class CreateUser extends Component {
                 lastName: lastName,
                 imageUri: croppedImg
             }
+            console.log(userToCreate)
             if(this.state.publicKey){
               userToCreate.publicKey = this.state.publicKey
             }
