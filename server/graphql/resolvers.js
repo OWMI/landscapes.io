@@ -361,7 +361,7 @@ const resolveFunctions = {
                     }
             });
         },
-        deleteIntegration(_, { integration }) {
+        deleteIntegration(_, { integration },context) {
             return new Promise((resolve, reject) => {
                 console.log(' ---> deleting integration')
                     if (context.userData.role == "admin") {
@@ -380,7 +380,7 @@ const resolveFunctions = {
                     }
             });
         },
-        createTag(_, { tag }) {
+        createTag(_, { tag },context) {
             return new Promise((resolve, reject) => {
 
                 console.log(' ---> creating Tag', tag)
@@ -401,7 +401,7 @@ const resolveFunctions = {
                     }
             })
         },
-        updateTag(_, { tag }) {
+        updateTag(_, { tag },context) {
                 return new Promise((resolve, reject) => {
                     console.log(' ---> updating Tag')
                         if (context.userData.role == "admin" || context.userData.isGroupAdmin == true) {
@@ -418,7 +418,7 @@ const resolveFunctions = {
                         } return reject("Not Authorized")
                 });
         },
-        deleteTag(_, { tag }) {
+        deleteTag(_, { tag },context) {
             return new Promise((resolve, reject) => {
                 console.log(' ---> deleting Tag')
                     if (context.userData.role == "admin" || context.userData.isGroupAdmin == true) {
@@ -437,7 +437,7 @@ const resolveFunctions = {
                     }
             });
         },
-        createDocumentType(_, { documentType }) {
+        createDocumentType(_, { documentType },context) {
             return new Promise((resolve, reject) => {
                 console.log(' ---> creating DocumentType', TypeDocument)
                 let newDocumentType = new TypeDocument(documentType)
@@ -457,7 +457,7 @@ const resolveFunctions = {
                     }
             });
         },
-        updateDocumentType(_, { documentType }) {
+        updateDocumentType(_, { documentType },context) {
             return new Promise((resolve, reject) => {
                 console.log(' ---> updating documentType')
                     if (context.userData.role == "admin" || context.userData.isGroupAdmin == true) {
@@ -476,7 +476,7 @@ const resolveFunctions = {
                     }
             });
         },
-        deleteDocumentType(_, { documentType }) {
+        deleteDocumentType(_, { documentType },context) {
             return new Promise((resolve, reject) => {
 
                 console.log(' ---> deleting Document Type')
@@ -516,7 +516,7 @@ const resolveFunctions = {
                     }
             });
         },
-        deleteLandscape(_, { landscape }) {
+        deleteLandscape(_, { landscape },context) {
             return new Promise((resolve, reject) => {
 
                 console.log(' ---> deleting Landscape')
@@ -536,7 +536,7 @@ const resolveFunctions = {
                     }
             });
         },
-        updateMappings(_, { mapping }) {
+        updateMappings(_, { mapping },context) {
             const { _id } = mapping
             return new Promise((resolve, reject) => {
 
@@ -558,7 +558,7 @@ const resolveFunctions = {
                 }
             });
         },
-        createAccount(_, { account }) {
+        createAccount(_, { account },context) {
             return new Promise((resolve, reject) => {
 
                 console.log(' ---> creating Account')
@@ -579,7 +579,7 @@ const resolveFunctions = {
                     }
             })
         },
-        updateAccount(_, { account }) {
+        updateAccount(_, { account },context) {
             return new Promise((resolve, reject) => {
 
                 console.log(' ---> updating Account')
@@ -599,7 +599,7 @@ const resolveFunctions = {
                     }
             })
         },
-        deleteAccount(_, { account }) {
+        deleteAccount(_, { account },context) {
             return new Promise((resolve, reject) => {
 
                 console.log(' ---> deleting Account')
@@ -619,7 +619,7 @@ const resolveFunctions = {
                     }
             });
         },
-        createGroup(_, { group }) {
+        createGroup(_, { group },context) {
             return new Promise((resolve, reject) => {
 
                 console.log(' ---> creating group')
@@ -644,7 +644,7 @@ const resolveFunctions = {
                     }
             })
         },
-        updateGroup(_, { group }) {
+        updateGroup(_, { group },context) {
             return new Promise((resolve, reject) => {
                 console.log(' ---> updating group')
                     var inGroup = false;
@@ -670,7 +670,7 @@ const resolveFunctions = {
                     }
             });
         },
-        deleteGroup(_, { group }) {
+        deleteGroup(_, { group },context) {
             return new Promise((resolve, reject) => {
                 console.log(' ---> deleting Group')
                     var inGroup = false;
@@ -695,7 +695,7 @@ const resolveFunctions = {
                     }
             })
         },
-        fetchAvailabilityZones(_, { region }) {
+        fetchAvailabilityZones(_, { region },context) {
 
             console.log('---> Fetching AvailabilityZones')
             const ec2 = new AWS.EC2({apiVersion: '2016-11-15'})
@@ -710,7 +710,7 @@ const resolveFunctions = {
                 })
             })
         },
-        fetchHostedZones(_, { region }) {
+        fetchHostedZones(_, { region },context) {
             console.log('---> Fetching Key Pairs')
             const route53 = new AWS.Route53({apiVersion: '2016-11-15'})
 
@@ -724,7 +724,7 @@ const resolveFunctions = {
                 })
             })
         },
-        fetchImages(_, { region }) {
+        fetchImages(_, { region },context) {
             console.log('---> Fetching Images')
             const ec2 = new AWS.EC2({apiVersion: '2016-11-15'})
 
@@ -738,7 +738,7 @@ const resolveFunctions = {
                 })
             })
         },
-        fetchInstances(_, { region }) {
+        fetchInstances(_, { region },context) {
             console.log('---> Fetching Instances')
             const ec2 = new AWS.EC2({apiVersion: '2016-11-15'})
 
@@ -763,7 +763,7 @@ const resolveFunctions = {
                 })
             })
         },
-        fetchKeyPairs(_, { region }) {
+        fetchKeyPairs(_, { region },context) {
             console.log('---> Fetching KeyPairs')
             const ec2 = new AWS.EC2({apiVersion: '2016-11-15'})
 
@@ -777,7 +777,7 @@ const resolveFunctions = {
                 })
             })
         },
-        fetchSecurityGroups(_, { region }) {
+        fetchSecurityGroups(_, { region ,context}) {
             console.log('---> Fetching SecurityGroups')
             const ec2 = new AWS.EC2({apiVersion: '2016-11-15'})
 
@@ -791,7 +791,7 @@ const resolveFunctions = {
                 })
             })
         },
-        fetchSubnets(_, { region }) {
+        fetchSubnets(_, { region },context) {
             console.log('---> Fetching Subnets')
             const ec2 = new AWS.EC2({apiVersion: '2016-11-15'})
 
@@ -805,7 +805,7 @@ const resolveFunctions = {
                 })
             })
         },
-        fetchVolumes(_, { region }) {
+        fetchVolumes(_, { region },context) {
             console.log('---> Fetching Volumes')
             const ec2 = new AWS.EC2({apiVersion: '2016-11-15'})
 
@@ -819,7 +819,7 @@ const resolveFunctions = {
                 })
             })
         },
-        fetchVpcs(_, { region }) {
+        fetchVpcs(_, { region },context) {
             console.log('---> Fetching Vpcs')
             const ec2 = new AWS.EC2({apiVersion: '2016-11-15'})
 
@@ -833,7 +833,7 @@ const resolveFunctions = {
                 })
             })
         },
-        deploymentStatus(_, { deployment }) {
+        deploymentStatus(_, { deployment },context) {
 
             console.log('---> Describing Deployment')
 
@@ -895,7 +895,7 @@ const resolveFunctions = {
                     console.log('ERROR:', err)
                 })
         },
-        deploymentsByLandscapeId(_, { landscapeId }) {
+        deploymentsByLandscapeId(_, { landscapeId },context) {
             return new Promise((resolve, reject) => {
                 return Deployment.find({landscapeId: landscapeId}).exec((err, deployments) => {
                     if (err) return reject(err)
@@ -903,7 +903,7 @@ const resolveFunctions = {
                 })
             });
         },
-        createDeployment(_, { deployment }) {
+        createDeployment(_, { deployment },context) {
 
             console.log(' ---> creating Deployment')
 
@@ -1130,7 +1130,7 @@ const resolveFunctions = {
                 }
             }) // end - async.series
         },
-        deleteDeployment(_, { deployment }) {
+        deleteDeployment(_, { deployment },context) {
 
             console.log(deployment)
 
