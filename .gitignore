@@ -5,6 +5,9 @@ node_modules/
 
 build/
 dist/assets
+dist/server
+dist/dist/
+dist/package.json
 public/assets/
 /coverage
 /.nyc_output
