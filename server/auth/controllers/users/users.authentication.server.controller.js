@@ -1,14 +1,15 @@
 'use strict'
 import jwt from 'jsonwebtoken'
 
-let axios           = require('axios')
-let path            = require('path')
-let mongoose        = require('mongoose')
-let passport        = require('passport')
-let winston         = require('winston')
-let User            = mongoose.model('User')
-let config          = require(path.resolve('./server/config/config'))
-let errorHandler    = require(path.resolve('./server/auth/controllers/errors.server.controller'))
+let axios = require('axios')
+let path = require('path')
+let mongoose = require('mongoose')
+let passport = require('passport')
+let winston = require('winston')
+let User = mongoose.model('User')
+let config = require(path.resolve('./server/config/config'))
+let errorHandler = require(path.resolve('./server/auth/controllers/errors.server.controller'))
+const customGraph = require(('../../../graphql/customControllers/graphqlexpress.js'))
 
 // URLs for which user can't be redirected on signin
 let noReturnUrls = ['/authentication/signin', '/authentication/signup']
@@ -18,7 +19,7 @@ let noReturnUrls = ['/authentication/signin', '/authentication/signup']
  * Verify Auth
  */
 
-exports.isAuthenticated = function(req, res,next) {
+exports.isAuthenticated = function (req, res, next) {
     let token = req.body.token || req.query.token || req.headers['token']
 
     // decode token
@@ -28,20 +29,22 @@ exports.isAuthenticated = function(req, res,next) {
 
             if (err && err.name === 'TokenExpiredError') {
                 console.log('token expired')
-                return res.status(401).json({ expired: true })
+                return res.status(401).json({expired: true})
                 // res.json({ expired: true })
             } else if (err) {
                 console.log('Error --->', err)
-                res.status(401).json({ err })
+                res.status(401).json({err})
             } else {
                 decoded.data.password = null;
                 req.userData = decoded.data;
+                console.log( req.userData)
                 let expires = Math.floor(Date.now() / 1000) + (60 * 60);
                 req.userData.expires = expires;
                 let newToken = jwt.sign({
                     data: decoded.data,
                     exp: expires // 1-hour token
                 }, 'CHANGE_ME')
+
                 req.token = newToken;
 
                 next()
@@ -72,7 +75,7 @@ exports.signup = (req, res) => {
     // Then save the user
     user.save(err => {
         if (err) {
-            return res.status(400).send({ message: errorHandler.getErrorMessage(err) })
+            return res.status(400).send({message: errorHandler.getErrorMessage(err)})
         } else {
             // Remove sensitive data before login
             user.password = undefined
@@ -93,6 +96,7 @@ exports.signup = (req, res) => {
  * Signin after passport authentication
  */
 exports.signin = (req, res, next) => {
+
     passport.authenticate('local', (err, user, info) => {
         if (err || !user) {
             winston.log('Error --->', err)
@@ -107,12 +111,27 @@ exports.signin = (req, res, next) => {
                     winston.log('Error --->', err)
                     res.status(400).send(err)
                 } else {
-                    User.findOne({ '_id': user._id }, '-salt -password').exec((err, userWithRoles) => {
+                    User.findOne({'_id': user._id}, '-salt -password').exec((err, userWithRoles) => {
                         if (err) {
                             winston.log('Error --->', err)
                             res.status(400).send(err)
                         } else {
-                            res.json(userWithRoles)
+                            console.log(userWithRoles)
+                            userWithRoles.expires = Math.floor(Date.now() / 1000) + (60*60);
+                            // HACK: temporary hack, will be removed once the images are redone
+                            delete user.imageUri
+
+                            // create a token
+                            let token = jwt.sign({
+                                data: userWithRoles,
+                                exp: userWithRoles.expires // 1-hour token
+                            }, 'CHANGE_ME')
+
+
+                            res.json({
+                                userWithRoles,
+                                token
+                            })
                         }
                     })
                 }
@@ -133,7 +152,7 @@ exports.signout = (req, res) => {
  * LDAP Sign-in after passport authentication
  */
 exports.ldap = (req, res, next) => {
-    passport.authenticate('ldapauth', { session: false }, (err, user, info) => {
+    passport.authenticate('ldapauth', {session: false}, (err, user, info) => {
         if (err || !user) {
             winston.log('passport.authenticate.ldapauth --> ERROR:', err)
             res.status(400).send(info)
@@ -168,7 +187,7 @@ exports.oauthCall = (strategy, scope) => {
  */
 exports.oauthCallback = strategy => {
     return (req, res, next) => {
-        passport.authenticate(strategy, { session: false }, (err, user, info) => {
+        passport.authenticate(strategy, {session: false}, (err, user, info) => {
             if (err || !user) {
                 winston.log(`passport.authenticate.${strategy} --> ERROR:`, err)
                 res.status(400).send(info)
@@ -230,8 +249,8 @@ exports.saveOAuthUserProfile = (req, providerUserProfile, done) => {
             } else {
                 if (!user) {
                     var possibleUsername = providerUserProfile.username || ((providerUserProfile.email)
-                        ? providerUserProfile.email.split('@')[0]
-                        : '')
+                            ? providerUserProfile.email.split('@')[0]
+                            : '')
 
                     User.findUniqueUsername(possibleUsername, null, availableUsername => {
                         user = new User({
@@ -306,11 +325,11 @@ exports.removeOAuthProvider = (req, res, next) => {
         user.markModified('additionalProvidersData')
     }
 
-    user.save(function(err) {
+    user.save(function (err) {
         if (err) {
             return res.status(400).send({message: errorHandler.getErrorMessage(err)})
         } else {
-            req.login(user, function(err) {
+            req.login(user, function (err) {
                 if (err) {
                     return res.status(400).send(err)
                 } else {

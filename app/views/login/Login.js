@@ -51,13 +51,13 @@ class Login extends Component {
                 <Col xs={6} lg={4} className={cx( { 'login-page': true } )}>
 
                     <Paper zDepth={1} rounded={false}>
-                        <TextField id='username' ref='username' floatingLabelText='Username' fullWidth={true} autoFocus/>
-                        <TextField id='password' ref='password' floatingLabelText='Password' fullWidth={true} type='password'/>
+                        <TextField id='username' ref='username' name='username' floatingLabelText='Username' fullWidth={true} autoFocus/>
+                        <TextField id='password' ref='password' name='password' floatingLabelText='Password' fullWidth={true} type='password'/>
 
                         <Checkbox label='Authenticate with LDAP' checked={authStrategy === 'ldap'} onCheck={this.handlesSettingLDAP}
                             style={{ margin: '20px 0px' }} labelStyle={{ fontFamily: 'Nunito, sans-serif', width: 'none' }}/>
 
-                        <RaisedButton label='Login' fullWidth={true} type='primary' onClick={ stepIndex === 1 ? self.handlesAdminToggle : self.handlesOnLogin }
+                        <RaisedButton label='Login' id="loginButton" fullWidth={true} type='primary' onClick={ stepIndex === 1 ? self.handlesAdminToggle : self.handlesOnLogin }
                             labelStyle={{ fontFamily: 'Nunito, sans-serif', textTransform: 'none' }}/>
                     </Paper>
 
@@ -149,7 +149,6 @@ class Login extends Component {
         event.preventDefault()
         const self = this
         const { authStrategy } = self.state
-        const { accounts, groups, loginUser } = self.props
         const { router } = self.context
         let { username, password } = self.refs
 
@@ -166,14 +165,16 @@ class Login extends Component {
                 : `${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/auth/signin`,
             data: { username, password }
         }).then(res => {
-            let userWithPermissions
-            const { provider } = res.data
-
+            let userWithPermissions;
+            auth.setUserInfo(res.data.userWithRoles)
+            auth.setToken(res.data.token)
+            const { provider } = res.data.userWithRoles;
+            const { accounts, groups, loginUser } = self.props
             if (provider === 'ldap') {
                 const { ldapGroups, mappings } = self.props
-                userWithPermissions = auth.setLdapUserPermissions(res.data, groups, accounts, ldapGroups, mappings)
+                userWithPermissions = auth.setLdapUserPermissions(res.data.userWithRoles, groups, accounts, ldapGroups, mappings)
             } else {
-                userWithPermissions = auth.setUserPermissions(res.data, groups, accounts)
+                userWithPermissions = auth.setUserPermissions(res.data.userWithRoles, groups, accounts)
             }
 
             return axios({
@@ -182,8 +183,10 @@ class Login extends Component {
                 data: userWithPermissions
             })
         }).then(res => {
-            const { user, token } = res.data
-            loginUser(token, user, groups)
+            const { userWithRoles, token } = res.data
+            const { accounts, groups, loginUser } = self.props
+
+            loginUser(token, userWithRoles, groups)
 
             return axios({
                 method: 'get',
