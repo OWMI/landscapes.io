@@ -1,49 +1,23 @@
-# Build:
-# docker build -t landscapes .
-#
-# Run:
-# docker run -it landscapes
-
 FROM node:6
-MAINTAINER BlackSky 
 
-# 3000=landscapes, 8080=Node.js/GraphQL
-EXPOSE 3000 8080
+# Create app directory
+RUN mkdir -p /opt/landscapes
 
-# Install Utilities
-RUN apt-get update -q  \
- && apt-get install -yqq curl \
- wget \
- aptitude \
- htop \
- vim \
- git \
- traceroute \
- dnsutils \
- curl \
- ssh \
- tree \
- tcpdump \
- psmisc \
- gcc \
- make \
- build-essential \
- libkrb5-dev \
- sudo \
- apt-utils \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-RUN mkdir -p /opt/landscapes/public/lib
-
-WORKDIR /opt/landscapes
-
+# Copy app source
 COPY . /opt/landscapes
 
-RUN npm install --quiet && npm cache clean
+# Install app dependencies
+RUN cd /opt/landscapes/ && npm install --quiet && npm cache clean && chmod +x config_ip.sh
 
-RUN npm run build
-
+# Set environment vars
 ENV MONGO_SEED true
 
-CMD ["npm", "run", "prod"]
+# Package the app
+RUN cd /opt/landscapes/ && npm run build && npm run package
+
+# Set work dir
+WORKDIR /opt/landscapes/dist
+
+EXPOSE 8080
+
+CMD [ "npm", "run", "prod" ]

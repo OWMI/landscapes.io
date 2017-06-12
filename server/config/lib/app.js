@@ -10,6 +10,7 @@ var config = require('../config'),
     chalk = require('chalk'),
     seed = require('./seed')
 
+const PROTOCOL = process.env.NODE_ENV === 'production' ? `https` : `http`
 const SERVER_PORT = config.port || 8080
 const WEBSOCKET_PORT = 8090
 
@@ -50,8 +51,8 @@ module.exports.start = function start(callback) {
             console.log()
             console.log(chalk.green('Environment:     ' + process.env.NODE_ENV))
             console.log(chalk.green('Authentication:  ' + config.authStrategy))
-            console.log(chalk.green('Server:          ' + `${process.env.PROTOCOL}://${process.env.PUBLIC_IP}`))
-            console.log(chalk.green('GraphiQL:        ' + `${process.env.PROTOCOL}://${process.env.PUBLIC_IP}/graphiql`))
+            console.log(chalk.green('Server:          ' + `${PROTOCOL}://${config.host}:${config.port}`))
+            console.log(chalk.green('GraphiQL:        ' + `${PROTOCOL}://${config.host}:${config.port}/graphiql`))
             console.log(chalk.green('Database:        ' + config.db.uri))
             console.log(chalk.green('Version:         ' + config.landscapes.version))
             console.log()
