@@ -61,7 +61,7 @@ exports.retrieveOne = (req, res, next) => {
                 }
 
                 let userList = []
-                for (let i = 0 i < users.length i++) {
+                for (let i = 0; i < users.length; i++) {
                     // userList.push(users[i].userInfo._id)
                     userList.push(users[i])
                 }

@@ -25,7 +25,7 @@ exports.retrieve = (req, res) => {
                         callback(err)
                     } else {
                         let userList = []
-                        for (let count = 0 count < users.length count++) {
+                        for (let count = 0; count < users.length; count++) {
                             userList.push(users[count].userInfo)
                         }
                         role.users = userList
@@ -82,7 +82,7 @@ exports.retrieveOne = (req, res) => {
                     }
 
                     let userList = []
-                    for (let i = 0 i < users.length i++) {
+                    for (let i = 0; i < users.length; i++) {
                         // userList.push(users[i].userInfo._id)
                         userList.push(users[i])
                     }
@@ -131,7 +131,7 @@ exports.retrieveUsers = (req, res, next) => {
                 winston.info(' ---> Users retrieved for Role "' + role.name + '": ' + users.length)
 
                 let userList = []
-                for (let i = 0 i < users.length i++) {
+                for (let i = 0; i < users.length; i++) {
                     userList.push(users[i].userInfo)
                 }
 
