@@ -1,43 +1,30 @@
 version: '2'
 services:
-
-# landscapes
-# http://localhost:3000
-
   web:
+    image: landscapes
     restart: always
-    build: .
     container_name: landscapes
     ports:
-     - "3000:3000"
-     - "5858:5858"
-     - "35729:35729"
+      - "8080:8080"
     environment:
-     - NODE_ENV=development
-     - DB_1_PORT_27017_TCP_ADDR=db
-     - LDAP_1_PORT_389_TCP_ADDR=openldap
+      - NODE_ENV=production
+      - DB_PORT_27017=db
     depends_on:
-     - db
-    volumes_from:
-     - web-data
-  web-data:
-    build: .
-    container_name: landscapes-data
-    entrypoint: /bin/true
-    volumes:
-     - ./:/opt/landscapes
-     - /opt/landscapes/node_modules
-     - /opt/landscapes/public
-     - /opt/landscapes/uploads
-     
+      - db
+    networks:
+      - lsnet
+    env_file:
+      - ./prod.env
+
   db:
     image: mongo:3.2
     container_name: mongo
     restart: always
-    ports:
-      - "27017:27017"
     volumes_from:
       - db-data
+    networks:
+      - lsnet
+
   db-data:
     image: mongo:3.2
     container_name: mongo-data
@@ -46,32 +33,9 @@ services:
       - /var/lib/mongodb
       - /var/log/mongodb
     entrypoint: /bin/true
+    networks:
+      - lsnet
 
-  openldap:
-    image: osixia/openldap
-    container_name: openldap
-    environment:
-      LDAP_ORGANISATION: "Landscapes"
-      LDAP_DOMAIN: "landscapes.io"
-      LDAP_BASE_DN: "dc=landscapes,dc=io"
-      LDAP_ADMIN_PASSWORD: "password"
-    ports:
-      - "389:389"
-      - "636:636"
-
-# phpLDAPadmin
-# https://localhost:8443
-# Login DN: cn=admin,dc=landscapes,dc=io
-# Password: password
-
-  phpldapadmin:
-    image: osixia/phpldapadmin
-    container_name: phpldapadmin
-    environment:
-      PHPLDAPADMIN_LDAP_HOSTS: openldap
-      # PHPLDAPADMIN_HTTPS=false:
-    links:
-      - openldap
-    ports:
-      - "8080:80"
-      - "8443:443"
+networks:
+  lsnet:
+    driver: bridge

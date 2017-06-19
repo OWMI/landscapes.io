@@ -1,0 +1,10 @@
+.screen-height {
+    height: calc(100vh - 50px);
+}
+
+.login-page label,
+.login-page #username,
+.login-page #password,
+.login-page #login-button {
+    margin-left: 20px;
+}

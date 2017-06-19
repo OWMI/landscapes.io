@@ -8,6 +8,16 @@ cn: sysadmin
 objectclass: organizationalRole
 objectclass: top
 
+dn: cn=read_only,ou=groups,dc=landscapes,dc=io
+cn: read_only
+objectclass: organizationalRole
+objectclass: top
+
+dn: cn=editors,ou=groups,dc=landscapes,dc=io
+cn: editors
+objectclass: organizationalRole
+objectclass: top
+
 dn: ou=people,dc=landscapes,dc=io
 objectclass: organizationalUnit
 objectclass: top
@@ -20,6 +30,39 @@ givenName: Test Admin
 displayName: Test Admin User
 mail: test.admin.user@test.com
 cn: Test Admin User
+objectClass: inetOrgPerson
+objectClass: top
+userpassword: {MD5}X03MO1qnZdYdgyfeuILPmQ==
+
+dn: uid=bob,ou=people,dc=landscapes,dc=io
+uid: bob
+sn: User
+givenName: Bob
+displayName: Bob User
+mail: bob@test.com
+cn: Bob User
+objectClass: inetOrgPerson
+objectClass: top
+userpassword: {MD5}X03MO1qnZdYdgyfeuILPmQ==
+
+dn: uid=sue,ou=people,dc=landscapes,dc=io
+uid: sue
+sn: User
+givenName: Sue
+displayName: Sue User
+mail: sue@test.com
+cn: Sue User
+objectClass: inetOrgPerson
+objectClass: top
+userpassword: {MD5}X03MO1qnZdYdgyfeuILPmQ==
+
+dn: uid=tim,ou=people,dc=landscapes,dc=io
+uid: tim
+sn: User
+givenName: Tim
+displayName: Tim User
+mail: tim@test.com
+cn: Tim User
 objectClass: inetOrgPerson
 objectClass: top
 userpassword: {MD5}X03MO1qnZdYdgyfeuILPmQ==

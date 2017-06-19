@@ -1,0 +1,62 @@
+.create-user label,
+.create-user #name,
+.create-user #version,
+.create-user #description,
+.create-user #infoLink,
+.create-user #infoLinkText {
+    margin-left: 20px;
+}
+
+.create-user .two-field-row,
+.edit-user .two-field-row {
+    width: 48% !important;
+    float: left;
+    margin: 0 1%;
+}
+
+#user-edit > div,
+#user-deploy > div {
+    float: left;
+}
+
+.user-card {
+    z-index: 1;
+    width: 300px;
+    height: 200px;
+    float: left;
+    margin: 20px;
+    cursor: pointer;
+
+    // background: #2b5876; /* fallback for old browsers */
+    // background: -webkit-linear-gradient(to left, #2b5876 , #4e4376); /* Chrome 10-25, Safari 5.1-6 */
+    // background: linear-gradient(to left, #2b5876 , #4e4376); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+    // background: #16222A; /* fallback for old browsers */
+    // background: -webkit-linear-gradient(to left, #16222A , #3A6073); /* Chrome 10-25, Safari 5.1-6 */
+    // background: linear-gradient(to left, #16222A , #3A6073); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+    // background: #360033; /* fallback for old browsers */
+    // background: -webkit-linear-gradient(to left, #360033 , #0b8793); /* Chrome 10-25, Safari 5.1-6 */
+    // background: linear-gradient(to left, #360033 , #0b8793); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+    background: #141E30; /* fallback for old browsers */
+    background: -webkit-linear-gradient(to left, #141E30 , #243B55); /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to left, #141E30 , #243B55); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+    color: rgba(255, 255, 255, 0.9) !important;
+
+    #userIcon {
+        width: 50px;
+        margin: 0px 20px;
+    }
+    div, svg, span {
+        color: rgba(255, 255, 255, 0.9) !important;
+    }
+    #user-description {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        max-height: 50px;
+    }
+}

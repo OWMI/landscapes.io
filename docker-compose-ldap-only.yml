@@ -1,0 +1,29 @@
+# https://github.com/osixia/docker-openldap
+  openldap:
+    # 389=LDAP, 636=LDAPS
+    ports:
+      - "389:389"
+      - "636:636"
+    image: osixia/openldap
+    container_name: openldap
+    environment:
+      LDAP_ORGANISATION: "Landscapes"
+      LDAP_DOMAIN: "landscapes.io"
+      LDAP_BASE_DN: "dc=landscapes,dc=io"
+      LDAP_ADMIN_PASSWORD: "password"
+
+# https://github.com/osixia/docker-phpLDAPadmin
+# https://localhost:8443
+# Login DN: cn=admin,dc=landscapes,dc=io
+# Password: password
+  phpldapadmin:
+    ports:
+      - "8888:80"
+      - "8443:443"
+    image: osixia/phpldapadmin
+    container_name: phpldapadmin
+    environment:
+      PHPLDAPADMIN_LDAP_HOSTS: openldap
+      # PHPLDAPADMIN_HTTPS=false:
+    links:
+      - openldap

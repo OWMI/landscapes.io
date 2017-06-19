@@ -1,0 +1,27 @@
+.create-tag label,
+.create-tag #name,
+.create-tag #region,
+.create-tag #accessKeyId,
+.create-tag #secretAccessKey,
+.create-tag #endpoint,
+.create-tag #caBundlePath,
+.create-tag #rejectUnauthorizedSsl,
+.create-tag #signatureBlock {
+    margin-left: 20px;
+}
+
+.create-tag #region {
+    width: initial !important;
+    label {
+        left: 0px;
+    }
+    div {
+        float: left;
+    }
+}
+
+.create-tag .two-field-row {
+    width: 48% !important;
+    float: left;
+    margin: 0 1%;
+}

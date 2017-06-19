@@ -1,0 +1,13 @@
+[Unit]
+Description=Landscapes.io v2.0.0
+After=mongod.service
+
+[Service]
+ExecStart=/home/ec2-user/landscapes.io/node_modules/nodemon/bin/nodemon.js /home/ec2-user/landscapes.io/server/init.js --exec babel-node
+WorkingDirectory=/home/ec2-user/landscapes.io
+Restart=always
+RestartSec=10
+Environment=NODE_ENV=production PROTOCOL=https PUBLIC_IP=landscapes.blacksky.io
+
+[Install]
+WantedBy=multi-user.target
