@@ -768,11 +768,19 @@ const resolveFunctions = {
             const ec2 = new AWS.EC2({apiVersion: '2016-11-15'})
 
             console.log('---> setting AWS region')
-            AWS.config.region = region || 'us-east-1'
+            console.log(region)
+            AWS.config.region = region
+            if (region == undefined)
+                AWS.config.region = 'us-east-1'
+
 
             return new Promise((resolve, reject) => {
                 ec2.describeKeyPairs({}, (err, data) => {
-                    if (err) reject(err)
+                    if (err) {
+                        console.log(err)
+                        reject(err)
+                    }
+
                     resolve(data.KeyPairs)
                 })
             })

@@ -449,6 +449,18 @@ class CreateDeployment extends Component {
             return template.Parameters[param].Type.indexOf('AWS::') > -1
         })
 
+        console.log(account)
+        this.state.location =  account.region
+        this.state.accountName = account.name
+        this.state.secretAccessKey = account.secretAccessKey
+        this.state.accessKeyId = account.accessKeyId
+
+        this.refs.location =  account.region
+        this.refs.accountName = account.name
+        this.refs.secretAccessKey = account.secretAccessKey
+        this.refs.accessKeyId = account.accessKeyId
+
+        this.refs = account;
         let promises = paramsToFetch.map(param => {
             switch (param) {
 
@@ -464,6 +476,7 @@ class CreateDeployment extends Component {
                     return fetchHostedZones({
                         variables: { region: account.region }
                     }).then(({ data }) => {
+                        console.log(data)
                         return data.fetchHostedZones
                     }).catch(err => console.error(err))
                     break
@@ -532,6 +545,8 @@ class CreateDeployment extends Component {
         })
 
         return Promise.all(promises).then(cfParams => {
+            console.log(cfParams)
+
             this.setState({ cfParams })
         })
     }
@@ -688,6 +703,7 @@ class CreateDeployment extends Component {
         }
 
         this.setState({ loading: true })
+        console.log(this.refs)
 
         // map all fields to deploymentToCreate
         for (let key in this.refs) {
@@ -695,7 +711,7 @@ class CreateDeployment extends Component {
                 if (this.refs[key].props.value) {
                     deploymentToCreate.cloudFormationParameters[key.replace('_p', '')] = this.refs[key].props.value
                 } else {
-                    deploymentToCreate.cloudFormationParameters[key.replace('_p', '')] = this.refs[key].getValue()
+                        deploymentToCreate.cloudFormationParameters[key.replace('_p', '')] = this.refs[key].getValue()
                 }
             } else if (key.indexOf('_t') === 0) {
                 _id = key.replace('_t', '')
