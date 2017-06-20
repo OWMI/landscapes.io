@@ -520,7 +520,7 @@ class LandscapeDetails extends Component {
         const { deploymentsByLandscapeId, mutate, params, refetch } = self.props
         const { router } = self.context
         let landscapes = []
-
+        let deletedId = deployment._id;
         self.handlesDialogToggle(deployment)
         this.setState({deleted: deployment.stackName})
 
@@ -534,6 +534,12 @@ class LandscapeDetails extends Component {
                  variables: { landscapeId: params.id }
              })
         }).then(({ data }) => {
+            for (var i=0; i <  data.deploymentsByLandscapeId.length; i ++){
+                if ( data.deploymentsByLandscapeId[i]._id == deletedId) {
+                    data.deploymentsByLandscapeId.splice(i,1)
+                    break;
+                }
+            }
             self.setState({
                 landscapes,
                 currentDeployments: data.deploymentsByLandscapeId.filter(d => { return d.landscapeId === params.id })
