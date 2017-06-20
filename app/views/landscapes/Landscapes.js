@@ -222,8 +222,7 @@ class Landscapes extends Component {
         } else {
             userWithPermissions = auth.setUserPermissions(user, groups, accounts)
         }
-        console.log(groups)
-        console.log(userWithPermissions)
+        
         axios({
             method: 'post',
             url: `${PROTOCOL}://${SERVER_IP}:${SERVER_PORT}/api/generateToken`,

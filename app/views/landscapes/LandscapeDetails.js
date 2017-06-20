@@ -406,7 +406,6 @@ class LandscapeDetails extends Component {
             return Promise.all(data.deploymentsByLandscapeId.map(deployment => {
                 cloudFormationParameters[deployment._id] = deployment.cloudFormationParameters
                 tags[deployment._id] = deployment.tags
-
                 self.setState({ cloudFormationParameters, tags })
 
                 if (deployment.isDeleted || deployment.awsErrors) {
