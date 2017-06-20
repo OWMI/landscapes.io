@@ -765,13 +765,21 @@ const resolveFunctions = {
         },
         fetchKeyPairs(_, { region }, context) {
             console.log('---> Fetching KeyPairs')
+            if (region == undefined) {
+                region = "us-east-1"
+            }
+            AWS.config.region = region
+            if (AWS.config.region == undefined) {
+                AWS.config.region = 'us-east-1'
+                console.log(AWS.config.region)
+            }
+            AWS.config.region =AWS.config.region;
+
             const ec2 = new AWS.EC2({apiVersion: '2016-11-15'})
 
             console.log('---> setting AWS region')
             console.log(region)
-            AWS.config.region = region
-            if (region == undefined)
-                AWS.config.region = 'us-east-1'
+
 
 
             return new Promise((resolve, reject) => {

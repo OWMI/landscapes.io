@@ -190,7 +190,7 @@ class CreateDeployment extends Component {
                           }
                           <Row style={{marginLeft:10, marginRight:10}}>
                             <Col xs={6}>
-                                <TextField id='stackName' ref='stackName' floatingLabelText='Stack Name' className={cx( { 'two-field-row': true } )} fullWidth={true}/>
+                                <TextField type="text" id='stackName' ref='stackName' value={this.state.stackName}  floatingLabelText='Stack Name' className={cx( { 'two-field-row': true } )} fullWidth={true}/>
                             </Col>
                             <Col xs={6}>
                               {
@@ -449,7 +449,6 @@ class CreateDeployment extends Component {
             return template.Parameters[param].Type.indexOf('AWS::') > -1
         })
 
-        console.log(account)
         this.state.location =  account.region
         this.state.accountName = account.name
         this.state.secretAccessKey = account.secretAccessKey
@@ -460,7 +459,7 @@ class CreateDeployment extends Component {
         this.refs.secretAccessKey = account.secretAccessKey
         this.refs.accessKeyId = account.accessKeyId
 
-        this.refs = account;
+        //this.refs = account;
         let promises = paramsToFetch.map(param => {
             switch (param) {
 
@@ -476,7 +475,6 @@ class CreateDeployment extends Component {
                     return fetchHostedZones({
                         variables: { region: account.region }
                     }).then(({ data }) => {
-                        console.log(data)
                         return data.fetchHostedZones
                     }).catch(err => console.error(err))
                     break
@@ -545,12 +543,14 @@ class CreateDeployment extends Component {
         })
 
         return Promise.all(promises).then(cfParams => {
-            console.log(cfParams)
-
             this.setState({ cfParams })
         })
     }
-
+    handleStackChange({ target }) {
+        this.setState({
+            [target.name]: target.getValue()
+        });
+    }
     handlesOnManagedVPCChange = event => {
         event.preventDefault()
         if(!this.state.integration){
@@ -703,7 +703,6 @@ class CreateDeployment extends Component {
         }
 
         this.setState({ loading: true })
-        console.log(this.refs)
 
         // map all fields to deploymentToCreate
         for (let key in this.refs) {
@@ -711,8 +710,18 @@ class CreateDeployment extends Component {
                 if (this.refs[key].props.value) {
                     deploymentToCreate.cloudFormationParameters[key.replace('_p', '')] = this.refs[key].props.value
                 } else {
+                    try {
                         deploymentToCreate.cloudFormationParameters[key.replace('_p', '')] = this.refs[key].getValue()
-                }
+                    } catch(e){
+                        if (key == "_pKeyName") {
+                            deploymentToCreate.cloudFormationParameters[key.replace('_p', '')] = this.refs[key].state.searchText
+                        }
+                       else
+                            {
+                                deploymentToCreate.cloudFormationParameters[key.replace('_p', '')] = this.refs[key].state
+                            }
+                    }
+                    }
             } else if (key.indexOf('_t') === 0) {
                 _id = key.replace('_t', '')
                 currentTag = tags.find(ac => {
@@ -729,18 +738,19 @@ class CreateDeployment extends Component {
                 deploymentToCreate.tags[_id].Key = currentTag.key
                 deploymentToCreate.tags[_id].Value = this.refs[key].getValue()
 
-                if (currentTag.isRequired && this.refs[key].getValue() === '') {
+
+                if (currentTag.isRequired && this.refs[key] === '') {
                     return this.setState({ errorMessage: true, message: 'Please fill in all required tags.', loading: false })
                 }
 
-                if (!currentTag.isRequired && this.refs[key].getValue() === '') {
+                if (!currentTag.isRequired && this.refs[key] === '') {
                     delete deploymentToCreate.tags[_id]
                 }
 
             } else if (key === 'rejectUnauthorizedSsl') {
-                deploymentToCreate[key] = this.refs[key].isToggled()
-            } else {
                 deploymentToCreate[key] = this.refs[key].getValue()
+            } else {
+                deploymentToCreate[key] = this.refs[key]
             }
         }
 
@@ -749,10 +759,17 @@ class CreateDeployment extends Component {
         deploymentToCreate.createdBy = username
         deploymentToCreate.location = this.state.location
         deploymentToCreate.accountName = this.state.accountName
+
+        deploymentToCreate.stackName = this.refs.stackName.getValue();
         deploymentToCreate.landscapeId = params.landscapeId
 
         let JSONTags = JSON.stringify(deploymentToCreate.tags)
         deploymentToCreate.tags = JSONTags
+
+        //deploymentToCreate.cloudFormationParameters.InstanceType = JSON.stringify(deploymentToCreate.cloudFormationParameters.InstanceType)
+        //deploymentToCreate.cloudFormationParameters.SSHLocation = "1.0.0.1/5"
+
+        //deploymentToCreate.cloudFormationParameters.KeyName = JSON.stringify(deploymentToCreate.cloudFormationParameters.KeyName)
 
         let JSONString = JSON.stringify(deploymentToCreate.cloudFormationParameters)
         deploymentToCreate.cloudFormationParameters = JSONString
